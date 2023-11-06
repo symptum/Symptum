@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Symptum.Editor (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Symptum.Editor (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
