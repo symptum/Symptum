@@ -1,4 +1,5 @@
-﻿using CsvHelper;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CsvHelper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,12 +13,18 @@ using System.Threading.Tasks;
 
 namespace Symptum.Core.QuestionBank
 {
-    public class QuestionBankTopic
+    public class QuestionBankTopic : ObservableObject
     {
-        public string TopicName { get; set; }
+        private string topicName;
+
+        public string TopicName
+        {
+            get => topicName;
+            set => SetProperty(ref topicName, value);
+        }
 
         [JsonIgnore]
-        public List<QuestionEntry> QuestionEntries { get; set; }
+        public ObservableCollection<QuestionEntry> QuestionEntries { get; set; }
 
         public QuestionBankTopic() { }
 
@@ -26,7 +33,7 @@ namespace Symptum.Core.QuestionBank
             TopicName = topicName;
         }
 
-        public void SaveCSV(string path)
+        public void SaveAsCSV(string path)
         {
             using var writer = new StreamWriter(path);
             using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
@@ -41,18 +48,12 @@ namespace Symptum.Core.QuestionBank
 
         public static QuestionBankTopic ReadTopicFromCSV(string path)
         {
-            if (!File.Exists(path)) return null;
+            if (!File.Exists(path) || Path.GetExtension(path).ToLower() != ".csv") return null;
 
-            QuestionBankTopic topic = new();
-
-            if (Path.GetExtension(path).ToLower() == ".csv")
-            {
-                topic.TopicName = Path.GetFileNameWithoutExtension(path);
-                using var reader = new StreamReader(path);
-                using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-
-                topic.QuestionEntries = csv.GetRecords<QuestionEntry>().ToList();
-            }
+            QuestionBankTopic topic = new(Path.GetFileNameWithoutExtension(path));
+            using var reader = new StreamReader(path);
+            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+            topic.QuestionEntries = new (csv.GetRecords<QuestionEntry>().ToList());
 
             return topic;
         }

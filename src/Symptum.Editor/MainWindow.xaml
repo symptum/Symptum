@@ -6,9 +6,98 @@
     xmlns:local="using:Symptum.Editor"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:qbank="using:Symptum.Core.QuestionBank"
+    xmlns:secontrols="using:Symptum.Editor.Controls"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d">
+    <Window.SystemBackdrop>
+        <MicaBackdrop />
+    </Window.SystemBackdrop>
+    <Grid x:Name="rootGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.Resources>
+            <DataTemplate x:Key="TopicItemTemplate" x:DataType="qbank:QuestionBankTopic">
+                <TreeViewItem AutomationProperties.Name="{x:Bind TopicName, Mode=OneWay}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{x:Bind TopicName, Mode=OneWay}" />
+                    </StackPanel>
+                </TreeViewItem>
+            </DataTemplate>
+        </Grid.Resources>
 
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Button x:Name="myButton" Click="myButton_Click">Click Me</Button>
-    </StackPanel>
+        <Grid x:Name="AppTitleBar" Height="32" Grid.ColumnSpan="2"
+              HorizontalAlignment="Stretch" VerticalAlignment="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="LeftPaddingColumn" Width="0"/>
+                <ColumnDefinition />
+                <ColumnDefinition x:Name="RightPaddingColumn" Width="0"/>
+            </Grid.ColumnDefinitions>
+            <Image x:Name="TitleBarIcon" Grid.Column="1"
+                   HorizontalAlignment="Left" Width="16" Height="16" Margin="8,0,0,0" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="28,0,0,0" Spacing="5">
+                <TextBlock x:Name="TitleTextBlock" Text="Symptum Editor" Style="{StaticResource CaptionTextBlockStyle}" />
+                <TextBlock x:Name="WorkPathTextBlock" Style="{StaticResource CaptionTextBlockStyle}" />
+            </StackPanel>
+        </Grid>
+        
+        <StackPanel Grid.Row="1" >
+            <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
+                <AppBarButton x:Name="openFolderButton" IsCompact="True" Icon="Folder" Label="Open" Click="openFolderButton_Click" />
+                <AppBarButton x:Name="addTopicButton" IsCompact="True" Icon="Add" Label="Add" Click="addTopicButton_Click" />
+                <AppBarButton x:Name="editTopicButton" IsCompact="True" Icon="Edit" Label="Edit" Click="editTopicButton_Click" />
+                <AppBarButton x:Name="saveTopicButton" IsCompact="True" Icon="Save" Label="Save" Click="saveTopicButton_Click" />
+                <AppBarButton x:Name="deleteTopicButton" IsCompact="True" Icon="Delete" Label="Delete" Click="deleteTopicButton_Click" />
+            </CommandBar>
+            <TreeView x:Name="treeView1" ItemTemplate="{StaticResource TopicItemTemplate}"
+                      SelectionMode="Multiple" ItemInvoked="treeView1_ItemInvoked" />
+        </StackPanel>
+
+        <Grid Grid.Row="1" Grid.Column="1"
+              BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}"
+              BorderThickness="{ThemeResource NavigationViewContentGridBorderThickness}"
+              Background="{ThemeResource NavigationViewContentBackground}"
+              CornerRadius="{ThemeResource NavigationViewContentGridCornerRadius}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
+                <AppBarButton x:Name="addQuestionButton" Icon="Add" Label="Add" Click="addQuestionButton_Click" />
+                <AppBarButton x:Name="editQuestionButton" Icon="Edit" Label="Edit" Click="editQuestionButton_Click" />
+            </CommandBar>
+            <controls:DataGrid
+                Grid.Row="1" Grid.Column="1"
+                x:Name="dataGrid" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" AlternatingRowBackground="Transparent"
+                AreRowDetailsFrozen="False" AreRowGroupHeadersFrozen="True" AutoGenerateColumns="False"
+                CanUserSortColumns="False" CanUserReorderColumns="True" CanUserResizeColumns="True"
+                ColumnHeaderHeight="32" FrozenColumnCount="0" GridLinesVisibility="All"
+                HeadersVisibility="Column" IsReadOnly="True" RowDetailsVisibilityMode="Collapsed"
+                SelectionMode="Extended">
+                <controls:DataGrid.Columns>
+                    <controls:DataGridTextColumn Header="Id" Binding="{Binding Id}" Tag="Id" />
+                    <controls:DataGridTextColumn Header="Title" Binding="{Binding Title}" Tag="Title" />
+                    <controls:DataGridTextColumn Header="Description" Binding="{Binding Description}" Tag="Description" />
+                </controls:DataGrid.Columns>
+            </controls:DataGrid>
+        </Grid>
+        <secontrols:TopicEditorDialog x:Name="topicEditorDialog" />
+        <secontrols:QuestionEditorDialog x:Name="questionEditorDialog" />
+        <ContentDialog x:Name="deleteTopicDialog" Title="Delete Topic?"
+                       PrimaryButtonStyle="{ThemeResource AccentButtonStyle}"
+                       PrimaryButtonText="Delete" CloseButtonText="Cancel">
+            <TextBlock TextWrapping="WrapWholeWords">
+                <Run Text="Do you want to delete the topic(s)?" />
+                <LineBreak />
+                <Run Text="Once you delete you won't be able to restore." />
+            </TextBlock>
+        </ContentDialog>
+    </Grid>
 </Window>

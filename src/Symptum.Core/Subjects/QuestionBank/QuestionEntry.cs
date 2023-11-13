@@ -21,7 +21,8 @@ namespace Symptum.Core.QuestionBank
         [TypeConverter(typeof(DateOnlyListConverter))]
         public List<DateOnly> YearsAsked { get; set; }
 
-        public string BookLocation { get; set; }
+        [TypeConverter(typeof(StringListConverter))]
+        public List<string> BookLocations { get; set; }
 
         public string ProbableCases { get; set; }
 
@@ -57,6 +58,17 @@ namespace Symptum.Core.QuestionBank
             if (!string.IsNullOrEmpty(text))
             {
                 list.Add(new Uri(text));
+            }
+        }
+    }
+
+    public class StringListConverter : ListConverter<string>
+    {
+        public override void ValidateData(string text, List<string> list)
+        {
+            if (!string.IsNullOrEmpty(text))
+            {
+                list.Add(text);
             }
         }
     }

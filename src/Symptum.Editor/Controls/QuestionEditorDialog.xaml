@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentDialog
+    x:Class="Symptum.Editor.Controls.QuestionEditorDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Symptum.Editor.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:sys="using:System"
+    xmlns:converters="using:Symptum.Editor.Converters"
+    mc:Ignorable="d" PrimaryButtonStyle="{ThemeResource AccentButtonStyle}"
+    PrimaryButtonText="Save" CloseButtonText="Cancel">
+    <ContentDialog.Resources>
+        <Style TargetType="local:QuestionEditorDialog"
+               BasedOn="{StaticResource DefaultContentDialogStyle}"/>
+        <converters:DateOnlyToDateTimeOffsetConverter x:Key="DateOnlyToDateTimeOffsetConverter" />
+        <converters:UriToStringConverter x:Key="UriToStringConverter" />
+    </ContentDialog.Resources>
+    <ScrollView>
+        <StackPanel Spacing="10" Width="500">
+            <TextBox x:Name="idTB" Header="Id" HorizontalAlignment="Stretch" />
+            <TextBox x:Name="titleTB" Header="Title"
+                 AcceptsReturn="True" TextWrapping="Wrap"
+                 MaxHeight="172" HorizontalAlignment="Stretch"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto" />
+            <TextBox x:Name="descTB" Header="Description"
+                 AcceptsReturn="True" TextWrapping="Wrap"
+                 MaxHeight="172" HorizontalAlignment="Stretch"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+            <Expander Header="Years Asked" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <local:ListEditorControl x:Name="yaLE">
+                    <local:ListEditorControl.ItemTemplate>
+                        <DataTemplate>
+                            <DatePicker DayVisible="False" Date="{Binding Value, Mode=TwoWay, Converter={StaticResource DateOnlyToDateTimeOffsetConverter}}" />
+                        </DataTemplate>
+                    </local:ListEditorControl.ItemTemplate>
+                </local:ListEditorControl>
+            </Expander>
+            <Expander Header="Book Locations" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <local:ListEditorControl x:Name="blLE">
+                    <local:ListEditorControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding Value, Mode=TwoWay}" />
+                        </DataTemplate>
+                    </local:ListEditorControl.ItemTemplate>
+                </local:ListEditorControl>
+            </Expander>
+            <TextBox x:Name="casesTB" Header="Probable Cases"
+                 AcceptsReturn="True" TextWrapping="Wrap"
+                 MaxHeight="172" HorizontalAlignment="Stretch"
+                 ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+            <Expander Header="Reference Links" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <local:ListEditorControl x:Name="rlLE">
+                    <local:ListEditorControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding Value, Mode=TwoWay, Converter={StaticResource UriToStringConverter}}" />
+                        </DataTemplate>
+                    </local:ListEditorControl.ItemTemplate>
+                </local:ListEditorControl>
+            </Expander>
+        </StackPanel>
+    </ScrollView>
+</ContentDialog>
