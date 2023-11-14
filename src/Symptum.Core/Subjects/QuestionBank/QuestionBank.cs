@@ -1,20 +1,15 @@
-﻿using Symptum.Core.Subjects;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 
-namespace Symptum.Core.QuestionBank
+namespace Symptum.Core.Subjects.QuestionBank
 {
     public class QuestionBank
     {
-        public SubjectList Subject {  get; set; }
+        public SubjectList Subject { get; set; }
 
         public ObservableCollection<QuestionBankPaper> QuestionBankPapers { get; set; }
 
-        public QuestionBank() { }
+        public QuestionBank()
+        { }
 
         public QuestionBank(SubjectList subject)
         {
@@ -23,7 +18,6 @@ namespace Symptum.Core.QuestionBank
 
         public void LoadTopicFromCSV(string csvFile)
         {
-
         }
     }
 }

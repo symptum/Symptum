@@ -1,17 +1,12 @@
-﻿using Symptum.Core.Subjects;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
+﻿using System.Diagnostics;
 using System.Text.Json;
-using System.Threading.Tasks;
 
-namespace Symptum.Core.QuestionBank
+namespace Symptum.Core.Subjects.QuestionBank
 {
     public class QuestionBankManager
     {
-        public QuestionBankManager() { }
+        public QuestionBankManager()
+        { }
 
         public static QuestionBankTopic GetTestQuestionBankTopic()
         {
@@ -21,10 +16,10 @@ namespace Symptum.Core.QuestionBank
                 [
                     new QuestionEntry()
                     {
-                        Id = "S_AN_12.2",
+                        Id = QuestionId.Parse("S_AN_12.2"),
                         Title = "Blood and Nerve Supply of Liver",
                         Description = "Write the blood supply and nerve supply of Liver. Blood Supply (3), Nerve Supply (2)",
-                        BookLocations = ["anat?n=vsr&ed=8&vol=2#200"],
+                        //BookLocations = ["anat?n=vsr&ed=8&vol=2#200"],
                         ProbableCases = "Mmbu",
                         YearsAsked = new List<DateOnly>()
                         {
@@ -40,10 +35,10 @@ namespace Symptum.Core.QuestionBank
                     },
                     new QuestionEntry()
                     {
-                        Id = "E_AN_9.5",
+                        Id = QuestionId.Parse("E_AN_9.5"),
                         Title = "Define boundaries and contents of posterior mediastinum.\r\nDescribe the formation, course & relations, termination and tributaries of Azygos vein",
                         Description = "Definition, Boundaries and contents of posterior mediastinum\r\nFormation, course, Relations, Termination, Tributaries of Azygos vein",
-                        BookLocations = ["anat?n=vsr&ed=8&vol=1#130"],
+                        //BookLocations = ["anat?n=vsr&ed=8&vol=1#130"],
                         ProbableCases = "Malak",
                         YearsAsked = new List<DateOnly>()
                         {

@@ -1,21 +1,16 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CsvHelper;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using System.Linq;
-using System.Reflection.PortableExecutable;
-using System.Text;
-using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
-namespace Symptum.Core.QuestionBank
+namespace Symptum.Core.Subjects.QuestionBank
 {
     public class QuestionBankTopic : ObservableObject
     {
-        private string topicName;
+        #region Properties
+
+        private string topicName = string.Empty;
 
         public string TopicName
         {
@@ -23,10 +18,19 @@ namespace Symptum.Core.QuestionBank
             set => SetProperty(ref topicName, value);
         }
 
-        [JsonIgnore]
-        public ObservableCollection<QuestionEntry> QuestionEntries { get; set; }
+        private ObservableCollection<QuestionEntry> questionEntries;
 
-        public QuestionBankTopic() { }
+        [JsonIgnore]
+        public ObservableCollection<QuestionEntry> QuestionEntries
+        {
+            get => questionEntries;
+            set => SetProperty(ref questionEntries, value);
+        }
+
+        #endregion
+
+        public QuestionBankTopic()
+        { }
 
         public QuestionBankTopic(string topicName)
         {
@@ -53,7 +57,7 @@ namespace Symptum.Core.QuestionBank
             QuestionBankTopic topic = new(Path.GetFileNameWithoutExtension(path));
             using var reader = new StreamReader(path);
             using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-            topic.QuestionEntries = new (csv.GetRecords<QuestionEntry>().ToList());
+            topic.QuestionEntries = new(csv.GetRecords<QuestionEntry>().ToList());
 
             return topic;
         }

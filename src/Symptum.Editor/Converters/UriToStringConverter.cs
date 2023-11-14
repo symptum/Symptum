@@ -1,10 +1,6 @@
 ﻿using Microsoft.UI.Xaml.Data;
 using Symptum.Core.Management.Resource;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Symptum.Editor.Converters
 {
@@ -16,7 +12,6 @@ namespace Symptum.Editor.Converters
             {
                 return uri.ToString();
             }
-
             else return string.Empty;
         }
 

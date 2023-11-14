@@ -1,23 +1,15 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Symptum.Core.QuestionBank;
+using Symptum.Core.Subjects.QuestionBank;
 using Symptum.Editor.Controls;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Storage.Pickers;
 using Windows.Storage;
+using Windows.Storage.Pickers;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -74,7 +66,7 @@ namespace Symptum.Editor
             if (treeView1.SelectedItems.Count == 0) return;
             if (treeView1.SelectedItems[0] is QuestionBankTopic topic)
             {
-                var result = await topicEditorDialog.EditAsync(topic.TopicName); 
+                var result = await topicEditorDialog.EditAsync(topic.TopicName);
                 if (result == EditResult.Save)
                 {
                     topic.TopicName = topicEditorDialog.TopicName;
@@ -82,28 +74,7 @@ namespace Symptum.Editor
             }
         }
 
-        private async void addQuestionButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (currentTopic != null)
-            {
-                var result = await questionEditorDialog.CreateAsync();
-                if (result == EditResult.Save)
-                {
-                    currentTopic.QuestionEntries.Add(questionEditorDialog.QuestionEntry);
-                }
-            }
-        }
-
-        private async void editQuestionButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (dataGrid.SelectedItems.Count == 0) return;
-            if (dataGrid.SelectedItems[0] is QuestionEntry entry)
-            {
-                await questionEditorDialog.EditAsync(entry);
-            }
-        }
-
-        private async void saveTopicButton_Click(object sender, RoutedEventArgs e)
+        private async void saveTopicsButton_Click(object sender, RoutedEventArgs e)
         {
             bool pathExists;
             if (string.IsNullOrEmpty(workPath) || !Directory.Exists(workPath))
@@ -127,7 +98,7 @@ namespace Symptum.Editor
             }
         }
 
-        private async void deleteTopicButton_Click(object sender, RoutedEventArgs e)
+        private async void deleteTopicsButton_Click(object sender, RoutedEventArgs e)
         {
             if (treeView1.SelectedItems.Count == 0) return;
 
@@ -149,13 +120,59 @@ namespace Symptum.Editor
             }
         }
 
+        private async void addQuestionButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (currentTopic != null)
+            {
+                var result = await questionEditorDialog.CreateAsync();
+                if (result == EditResult.Save)
+                {
+                    currentTopic.QuestionEntries.Add(questionEditorDialog.QuestionEntry);
+                }
+            }
+        }
+
+        private async void editQuestionButton_Click(object sender, RoutedEventArgs e)
+        {
+            await EnterEditQuestionAsync();
+        }
+
+        private async void dataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            await EnterEditQuestionAsync();
+        }
+
+        private async Task EnterEditQuestionAsync()
+        {
+            if (dataGrid.SelectedItems.Count == 0) return;
+            if (dataGrid.SelectedItems[0] is QuestionEntry entry)
+            {
+                await questionEditorDialog.EditAsync(entry);
+            }
+        }
+
+        private void deleteQuestionsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (dataGrid.SelectedItems.Count == 0 || currentTopic == null) return;
+            List<QuestionEntry> toDelete = new();
+
+            foreach (var item in dataGrid.SelectedItems)
+            {
+                if (item is QuestionEntry entry && currentTopic.QuestionEntries.Contains(entry))
+                    toDelete.Add(entry);
+            }
+            dataGrid.SelectedItems.Clear();
+            toDelete.ForEach(x => currentTopic.QuestionEntries.Remove(x));
+            toDelete.Clear();
+        }
+
         private void LoadTopics()
         {
             if (!Directory.Exists(workPath)) return;
 
             DirectoryInfo directoryInfo = new DirectoryInfo(workPath);
             var csvfiles = directoryInfo.GetFiles("*.csv");
-            foreach ( var csvfile in csvfiles)
+            foreach (var csvfile in csvfiles)
             {
                 var topic = QuestionBankTopic.ReadTopicFromCSV(csvfile.FullName);
                 if (topic != null) topics.Add(topic);

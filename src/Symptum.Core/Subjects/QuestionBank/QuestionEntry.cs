@@ -1,118 +1,79 @@
-﻿using CsvHelper.Configuration;
-using CsvHelper.TypeConversion;
-using CsvHelper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CsvHelper.Configuration.Attributes;
+using CsvHelper.TypeConversion;
+using Symptum.Core.Subjects.Books;
+using Symptum.Core.TypeConversion;
 
-namespace Symptum.Core.QuestionBank
+namespace Symptum.Core.Subjects.QuestionBank
 {
-    public class QuestionEntry
+    public class QuestionEntry : ObservableObject
     {
-        public string Id { get; set; }
+        #region Properties
 
-        public string Title { get; set; }
+        private QuestionId? id;
 
-        public string Description { get; set; }
+        [TypeConverter(typeof(QuestionIdConverter))]
+        public QuestionId? Id
+        {
+            get => id;
+            set => SetProperty(ref id, value);
+        }
+
+        private string title = string.Empty;
+
+        public string Title
+        {
+            get => title;
+            set => SetProperty(ref title, value);
+        }
+
+        private string description = string.Empty;
+
+        public string Description
+        {
+            get => description;
+            set => SetProperty(ref description, value);
+        }
+
+        private List<DateOnly> yearsAsked;
 
         [TypeConverter(typeof(DateOnlyListConverter))]
-        public List<DateOnly> YearsAsked { get; set; }
+        public List<DateOnly> YearsAsked
+        {
+            get => yearsAsked;
+            set => SetProperty(ref yearsAsked, value);
+        }
 
-        [TypeConverter(typeof(StringListConverter))]
-        public List<string> BookLocations { get; set; }
+        private List<BookLocation> bookLocations;
 
-        public string ProbableCases { get; set; }
+        [TypeConverter(typeof(BookLocationListConverter))]
+        public List<BookLocation> BookLocations
+        {
+            get => bookLocations;
+            set => SetProperty(ref bookLocations, value);
+        }
+
+        private string probableCases;
+
+        public string ProbableCases
+        {
+            get => probableCases;
+            set => SetProperty(ref probableCases, value);
+        }
+
+        private List<Uri> referenceLinks;
 
         [TypeConverter(typeof(UriListConverter))]
-        public List<Uri> ReferenceLinks { get; set; }
+        public List<Uri> ReferenceLinks
+        {
+            get => referenceLinks;
+            set => SetProperty(ref referenceLinks, value);
+        }
+
+        #endregion
 
         public QuestionEntry()
         {
-
         }
-    }
-
-    public class DateOnlyListConverter : ListConverter<DateOnly>
-    {
-        public override void ValidateData(string text, List<DateOnly> list)
-        {
-            if (DateOnly.TryParse(text, out DateOnly year))
-            {
-                list.Add(year);
-            }
-        }
-
-        public override string ElementToString(DateOnly data)
-        {
-            return data.ToString("yyyy-MM");
-        }
-    }
-
-    public class UriListConverter : ListConverter<Uri>
-    {
-        public override void ValidateData(string text, List<Uri> list)
-        {
-            if (!string.IsNullOrEmpty(text))
-            {
-                list.Add(new Uri(text));
-            }
-        }
-    }
-
-    public class StringListConverter : ListConverter<string>
-    {
-        public override void ValidateData(string text, List<string> list)
-        {
-            if (!string.IsNullOrEmpty(text))
-            {
-                list.Add(text);
-            }
-        }
-    }
-
-    public class ListConverter<T> : DefaultTypeConverter
-    {
-        private string delimiter = ";";
-
-        public override object? ConvertFromString(string? text, IReaderRow row, MemberMapData memberMapData)
-        {
-            if (string.IsNullOrEmpty(text)) return null;
-
-            List<T> list = new();
-
-            string[] values = text.Split(delimiter);
-
-            foreach (var value in values)
-            {
-                ValidateData(value, list);
-            }
-
-            return list;
-        }
-
-        public virtual void ValidateData(string text, List<T> list)
-        { }
-
-        public override string? ConvertToString(object? value, IWriterRow row, MemberMapData memberMapData)
-        {
-            var stringBuilder = new StringBuilder();
-
-            if (value is List<T> values)
-            {
-                for (int i = 0;  i < values.Count; i++)
-                {
-                    var data = values[i];
-                    stringBuilder.Append(ElementToString(data));
-                    if (i < values.Count - 1) stringBuilder.Append(delimiter);
-                }
-            }
-
-            return stringBuilder.ToString();
-        }
-
-        public virtual string ElementToString(T? data) => data?.ToString() ?? string.Empty;
     }
 }

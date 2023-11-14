@@ -12,6 +12,7 @@
     <EnableMsixTooling>true</EnableMsixTooling>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Controls\BookLocationPicker.xaml" />
     <None Remove="Controls\ListEditorControl.xaml" />
     <None Remove="Controls\QuestionEditorDialog.xaml" />
   </ItemGroup>
@@ -43,6 +44,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Symptum.Core\Symptum.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Controls\BookLocationPicker.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Controls\ListEditorControl.xaml">

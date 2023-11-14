@@ -1,21 +1,12 @@
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using Symptum.Core.Management.Resource;
-using Symptum.Core.QuestionBank;
+using Symptum.Core.Subjects;
+using Symptum.Core.Subjects.Books;
+using Symptum.Core.Subjects.QuestionBank;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 
 namespace Symptum.Editor.Controls
 {
@@ -23,7 +14,8 @@ namespace Symptum.Editor.Controls
     {
         public T Value { get; set; }
 
-        public ListItemWrapper() { }
+        public ListItemWrapper()
+        { }
 
         public ListItemWrapper(T value)
         {
@@ -38,12 +30,15 @@ namespace Symptum.Editor.Controls
         public EditResult EditResult { get; private set; } = EditResult.None;
 
         private ObservableCollection<ListItemWrapper<DateOnly>> yearsAsked = new();
-        private ObservableCollection<ListItemWrapper<string>> bookLocations = new();
+        private ObservableCollection<ListItemWrapper<BookLocation>> bookLocations = new();
         private ObservableCollection<ListItemWrapper<Uri>> referenceLinks = new();
 
         public QuestionEditorDialog()
         {
             this.InitializeComponent();
+
+            qtCB.ItemsSource = Enum.GetValues(typeof(QuestionType));
+            scCB.ItemsSource = Enum.GetValues(typeof(SubjectList));
 
             yaLE.ItemsSource = yearsAsked;
             yaLE.AddItemRequested += (s, e) =>
@@ -61,14 +56,14 @@ namespace Symptum.Editor.Controls
             blLE.ItemsSource = bookLocations;
             blLE.AddItemRequested += (s, e) =>
             {
-                bookLocations.Add(new ListItemWrapper<string>(string.Empty));
+                bookLocations.Add(new ListItemWrapper<BookLocation>(new BookLocation()));
             };
             blLE.DeleteItemsRequested += (s, e) =>
             {
                 foreach (var item in e.ItemsToDelete)
                 {
-                    if (item is ListItemWrapper<string> text)
-                        bookLocations.Remove(text);
+                    if (item is ListItemWrapper<BookLocation> bookLocation)
+                        bookLocations.Remove(bookLocation);
                 }
             };
             rlLE.ItemsSource = referenceLinks;
@@ -99,8 +94,8 @@ namespace Symptum.Editor.Controls
         private void QuestionEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
             EditResult = EditResult.Save;
-            if (QuestionEntry == null)
-                QuestionEntry = new QuestionEntry();
+            QuestionEntry ??= new();
+
             UpdateQuestionEntry();
             ClearQuestionEntry();
         }
@@ -128,7 +123,9 @@ namespace Symptum.Editor.Controls
         {
             if (QuestionEntry == null) return;
 
-            idTB.Text = QuestionEntry.Id;
+            qtCB.SelectedItem = QuestionEntry.Id?.QuestionType;
+            scCB.SelectedItem = QuestionEntry.Id?.SubjectCode;
+            cnTB.Text = QuestionEntry.Id?.CompetencyNumbers;
             titleTB.Text = QuestionEntry.Title;
             descTB.Text = QuestionEntry.Description;
             LoadLists(ref yearsAsked, QuestionEntry.YearsAsked);
@@ -139,7 +136,10 @@ namespace Symptum.Editor.Controls
 
         private void UpdateQuestionEntry()
         {
-            QuestionEntry.Id = idTB.Text;
+            QuestionEntry.Id ??= new();
+            QuestionEntry.Id.QuestionType = qtCB.SelectedItem != null ? (QuestionType)qtCB.SelectedItem : QuestionType.Essay;
+            QuestionEntry.Id.SubjectCode = scCB.SelectedItem != null ? (SubjectList)scCB.SelectedItem : SubjectList.Anatomy;
+            QuestionEntry.Id.CompetencyNumbers = cnTB.Text;
             QuestionEntry.Title = titleTB.Text;
             QuestionEntry.Description = descTB.Text;
             QuestionEntry.YearsAsked = GetUpdateList(yearsAsked);
@@ -150,7 +150,9 @@ namespace Symptum.Editor.Controls
 
         private void ClearQuestionEntry()
         {
-            idTB.Text = string.Empty;
+            qtCB.SelectedItem = null;
+            scCB.SelectedItem = null;
+            cnTB.Text = string.Empty;
             titleTB.Text = string.Empty;
             descTB.Text = string.Empty;
             LoadLists(ref yearsAsked, null);

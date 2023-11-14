@@ -1,9 +1,5 @@
 ﻿using Microsoft.UI.Xaml.Data;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Symptum.Editor.Converters
 {
@@ -15,7 +11,6 @@ namespace Symptum.Editor.Converters
             {
                 return new DateTimeOffset(dateOnly.ToDateTime(new TimeOnly(0)));
             }
-
             else return DateTimeOffset.Now;
         }
 
