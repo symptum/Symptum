@@ -3,6 +3,7 @@ using CsvHelper.Configuration.Attributes;
 using CsvHelper.TypeConversion;
 using Symptum.Core.Subjects.Books;
 using Symptum.Core.TypeConversion;
+using System.Runtime.CompilerServices;
 
 namespace Symptum.Core.Subjects.QuestionBank
 {
@@ -35,6 +36,22 @@ namespace Symptum.Core.Subjects.QuestionBank
             set => SetProperty(ref description, value);
         }
 
+        private bool hasPreviouslyBeenAsked;
+
+        public bool HasPreviouslyBeenAsked
+        {
+            get => hasPreviouslyBeenAsked;
+            set => SetProperty(ref hasPreviouslyBeenAsked, value);
+        }
+
+        private int importance = 0;
+
+        public int Importance
+        {
+            get => importance;
+            set => SetProperty(ref importance, value);
+        }
+
         private List<DateOnly> yearsAsked;
 
         [TypeConverter(typeof(DateOnlyListConverter))]
@@ -53,9 +70,10 @@ namespace Symptum.Core.Subjects.QuestionBank
             set => SetProperty(ref bookLocations, value);
         }
 
-        private string probableCases;
+        private List<string> probableCases;
 
-        public string ProbableCases
+        [TypeConverter(typeof(StringListConverter))]
+        public List<string> ProbableCases
         {
             get => probableCases;
             set => SetProperty(ref probableCases, value);
@@ -74,6 +92,37 @@ namespace Symptum.Core.Subjects.QuestionBank
 
         public QuestionEntry()
         {
+        }
+
+        public QuestionEntry Clone()
+        {
+            return new QuestionEntry()
+            {
+                Id = new() { QuestionType = id.QuestionType, SubjectCode = id.SubjectCode, CompetencyNumbers = id.CompetencyNumbers },
+                Title = Title,
+                Description = Description,
+                HasPreviouslyBeenAsked = HasPreviouslyBeenAsked,
+                Importance = Importance,
+                YearsAsked = CloneList(YearsAsked),
+                BookLocations = CloneList(BookLocations, x => new() { Book = x.Book, Edition = x.Edition, Volume = x.Volume, PageNumber = x.PageNumber }),
+                ProbableCases = CloneList(probableCases),
+                ReferenceLinks = CloneList(referenceLinks)
+            };
+        }
+
+        private List<T> CloneList<T>(List<T> values, Func<T, T>? function = null)
+        {
+            List<T> results = [];
+            if (values != null)
+            {
+                foreach (T item in values)
+                {
+                    T result = function != null ? function(item) : item;
+                    results.Add(result);
+                }
+            }
+
+            return results;
         }
     }
 }

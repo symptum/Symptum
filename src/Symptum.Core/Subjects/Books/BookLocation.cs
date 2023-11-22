@@ -6,7 +6,7 @@ namespace Symptum.Core.Subjects.Books
 {
     public class BookLocation : ObservableObject
     {
-        private static readonly string _bookNameId = "n";
+        private static readonly string _bookCodeId = "n";
         private static readonly string _bookEditionId = "ed";
         private static readonly string _bookVolumeId = "vol";
 
@@ -83,11 +83,11 @@ namespace Symptum.Core.Subjects.Books
             var col = HttpUtility.ParseQueryString(bookString);
             if (col != null && col.Count > 0)
             {
-                string? bookName = col[_bookNameId];
+                string? bookCode = col[_bookCodeId];
                 string? bookEdition = col[_bookEditionId];
                 string? bookVolume = col[_bookVolumeId];
-                if (!string.IsNullOrEmpty(bookName) && Book.BookStore.TryGetValue(bookName, out Book? _book))
-                    book = _book;
+                if (!string.IsNullOrEmpty(bookCode))
+                    book = BookStore.Books.FirstOrDefault(x => x.Code == bookCode);
                 if (int.TryParse(bookEdition, out int edNo))
                     edition = edNo;
                 if (int.TryParse(bookVolume, out int volNo))
@@ -100,7 +100,7 @@ namespace Symptum.Core.Subjects.Books
         public override string ToString()
         {
             var col = HttpUtility.ParseQueryString(string.Empty);
-            col.Add(_bookNameId, Book.BookStore.FirstOrDefault(x => x.Value == _book).Key ?? string.Empty);
+            col.Add(_bookCodeId, _book?.Code ?? string.Empty);
             col.Add(_bookEditionId, _edition.ToString());
             col.Add(_bookVolumeId, _volume.ToString());
             return col.ToString() + ParserHelper.BookLocationDelimiter + _pageNumber.ToString();

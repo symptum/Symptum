@@ -1,7 +1,9 @@
 ﻿using Microsoft.UI.Xaml;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using Symptum.Core.Subjects.Books;
+using Symptum.Core.Subjects.QuestionBank;
+using System;
+using System.Diagnostics;
+using System.IO;
 
 namespace Symptum.Editor
 {
@@ -25,8 +27,21 @@ namespace Symptum.Editor
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
+            LoadAllBookLists(AppDomain.CurrentDomain.BaseDirectory + "\\Books\\");
             m_window = new MainWindow();
             m_window.Activate();
+        }
+
+        private void LoadAllBookLists(string workPath)
+        {
+            if (!Directory.Exists(workPath)) return;
+
+            DirectoryInfo directoryInfo = new(workPath);
+            var csvfiles = directoryInfo.GetFiles("*.csv");
+            foreach (var csvfile in csvfiles)
+            {
+                BookStore.LoadBooks(csvfile.FullName);
+            }
         }
 
         private Window m_window;

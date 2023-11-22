@@ -1,31 +1,32 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Symptum.Core.Subjects.QuestionBank;
+using Symptum.Core.TypeConversion;
 using Symptum.Editor.Controls;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace Symptum.Editor
 {
-    /// <summary>
-    /// An empty window that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainWindow : Window
     {
-        private ObservableCollection<QuestionBankTopic> topics = new ObservableCollection<QuestionBankTopic>();
+        private ObservableCollection<QuestionBankTopic> topics = new();
 
         private QuestionBankTopic currentTopic;
 
         private string workPath = string.Empty;
+
+        private FindFlyout findFlyout;
 
         public MainWindow()
         {
@@ -33,9 +34,8 @@ namespace Symptum.Editor
 
             this.ExtendsContentIntoTitleBar = true;
             this.SetTitleBar(AppTitleBar);
-            this.Title = "Symptum Editor";
             treeView1.ItemsSource = topics;
-            //topics.Add(QuestionBankManager.GetTestQuestionBankTopic());
+            //LoadTopics();
         }
 
         private void treeView1_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
@@ -44,7 +44,17 @@ namespace Symptum.Editor
             {
                 currentTopic = topic;
                 dataGrid.ItemsSource = topic.QuestionEntries;
+                dataGrid.IsEnabled = true;
+                addQuestionButton.IsEnabled = true;
+                findQuestionButton.IsEnabled = true;
             }
+        }
+
+        private void treeView1_SelectionChanged(TreeView sender, TreeViewSelectionChangedEventArgs args)
+        {
+            int count = sender.SelectedItems.Count;
+            deleteTopicsButton.IsEnabled = count > 0;
+            editTopicButton.IsEnabled = count == 1;
         }
 
         private async void addTopicButton_Click(object sender, RoutedEventArgs e)
@@ -89,18 +99,18 @@ namespace Symptum.Editor
 
         private void SaveCSVs()
         {
-            foreach (var item in treeView1.SelectedItems)
+            foreach (var topic in topics)
             {
-                if (item is QuestionBankTopic topic)
-                {
-                    topic.SaveAsCSV(workPath + "\\" + topic.TopicName + ".csv");
-                }
+                topic.SaveAsCSV(workPath + "\\" + topic.TopicName + ".csv");
             }
         }
 
         private async void deleteTopicsButton_Click(object sender, RoutedEventArgs e)
         {
             if (treeView1.SelectedItems.Count == 0) return;
+            bool deleteCurrent = false;
+
+            List<QuestionBankTopic> toDelete = new();
 
             var result = await deleteTopicDialog.ShowAsync();
             if (result == ContentDialogResult.Primary)
@@ -112,11 +122,19 @@ namespace Symptum.Editor
                         string csvfile = workPath + "\\" + topic.TopicName + ".csv";
                         if (File.Exists(csvfile))
                             File.Delete(csvfile);
-                        topics.Remove(topic);
+
+                        toDelete.Add(topic);
+
+                        if (item == currentTopic)
+                            deleteCurrent = true;
                     }
                 }
 
-                ResetData();
+                treeView1.SelectedItems.Clear();
+                toDelete.ForEach(x => topics.Remove(x));
+                toDelete.Clear();
+
+                ResetData(deleteCurrent);
             }
         }
 
@@ -130,6 +148,14 @@ namespace Symptum.Editor
                     currentTopic.QuestionEntries.Add(questionEditorDialog.QuestionEntry);
                 }
             }
+        }
+
+        private void dataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int count = dataGrid.SelectedItems.Count;
+            deleteQuestionsButton.IsEnabled = count > 0;
+            duplicateQuestionButton.IsEnabled = count > 0;
+            editQuestionButton.IsEnabled = count == 1;
         }
 
         private async void editQuestionButton_Click(object sender, RoutedEventArgs e)
@@ -149,6 +175,21 @@ namespace Symptum.Editor
             {
                 await questionEditorDialog.EditAsync(entry);
             }
+        }
+
+        private void duplicateQuestionButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (dataGrid.SelectedItems.Count == 0 || currentTopic == null) return;
+            List<QuestionEntry> toDupe = new();
+
+            foreach (var item in dataGrid.SelectedItems)
+            {
+                if (item is QuestionEntry entry && currentTopic.QuestionEntries.Contains(entry))
+                    toDupe.Add(entry);
+            }
+            dataGrid.SelectedItems.Clear();
+            toDupe.ForEach(x => currentTopic.QuestionEntries.Add(x.Clone()));
+            toDupe.Clear();
         }
 
         private void deleteQuestionsButton_Click(object sender, RoutedEventArgs e)
@@ -210,12 +251,86 @@ namespace Symptum.Editor
             return false;
         }
 
-        private void ResetData()
+        private void ResetData(bool currentTopicDeleted = true)
         {
-            currentTopic = null;
             treeView1.SelectedItems.Clear();
-            dataGrid.ItemsSource = null;
-            dataGrid.SelectedItems.Clear();
+            deleteTopicsButton.IsEnabled = false;
+            editTopicButton.IsEnabled = false;
+            if (currentTopicDeleted)
+            {
+                dataGrid.SelectedItems.Clear();
+                dataGrid.ItemsSource = null;
+                dataGrid.IsEnabled = false;
+                addQuestionButton.IsEnabled = false;
+                findQuestionButton.IsEnabled = false;
+                currentTopic = null;
+            }
+        }
+
+        private void findQuestionButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (findFlyout == null)
+            {
+                List<string> columns =
+                [
+                    nameof(QuestionEntry.Title),
+                    nameof(QuestionEntry.Description),
+                    nameof(QuestionEntry.ProbableCases)
+                ];
+
+                findFlyout = new()
+                {
+                    FindContexts = columns,
+                    SelectedContext = columns[0],
+                };
+
+                findFlyout.QuerySubmitted += FindFlyout_QuerySubmitted;
+            }
+
+            FlyoutShowOptions flyoutShowOptions = new()
+            {
+                Position = new(AppWindow.Size.Width, 80),
+                ShowMode = FlyoutShowMode.Standard,
+                Placement = FlyoutPlacementMode.Bottom
+            };
+
+            findFlyout.XamlRoot = Content.XamlRoot;
+            findFlyout.ShowAt(showOptions: flyoutShowOptions);
+        }
+
+        private void FindFlyout_QuerySubmitted(object sender, FindFlyoutQuerySubmittedEventArgs e)
+        {
+            if (e.FindDirection != FindDirection.All)
+                return;
+            if (currentTopic != null)
+            {
+                dataGrid.ItemsSource = new ObservableCollection<QuestionEntry>(from question in currentTopic.QuestionEntries.ToList()
+                                                                               where QuestionEntryPropertyMatchValue(question, e)
+                                                                               select question);
+            }
+        }
+
+        // TODO: Implement Match Whole Word
+        private bool QuestionEntryPropertyMatchValue(QuestionEntry question, FindFlyoutQuerySubmittedEventArgs e)
+        {
+            switch (e.Context)
+            {
+                case nameof(QuestionEntry.Title):
+                    {
+                        return question.Title.Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
+                    };
+                case nameof(QuestionEntry.Description):
+                    {
+                        return question.Description.Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
+                    };
+                case nameof(QuestionEntry.ProbableCases):
+                    {
+                        string probableCases = ListToStringConversion.ConvertToString<string>(question.ProbableCases, x => x);
+                        return probableCases.Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
+                    };
+
+                default: return false;
+            }
         }
     }
 }

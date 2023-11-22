@@ -7,8 +7,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="using:Symptum.Editor.Controls"
     xmlns:converters="using:Symptum.Editor.Converters"
-    mc:Ignorable="d" PrimaryButtonStyle="{ThemeResource AccentButtonStyle}"
-    PrimaryButtonText="Save" CloseButtonText="Cancel">
+    mc:Ignorable="d"
+    PrimaryButtonText="Save" CloseButtonText="Cancel" DefaultButton="Primary">
     <ContentDialog.Resources>
         <Style TargetType="local:QuestionEditorDialog"
                BasedOn="{StaticResource DefaultContentDialogStyle}" />
@@ -16,7 +16,7 @@
         <converters:UriToStringConverter x:Key="UriToStringConverter" />
     </ContentDialog.Resources>
     <ScrollView>
-        <StackPanel Spacing="10" Width="500">
+        <StackPanel Spacing="10" Width="490">
             <StackPanel Spacing="10" Orientation="Horizontal">
                 <ComboBox x:Name="qtCB" Header="Question Type" />
                 <ComboBox x:Name="scCB" Header="Subject Code" />
@@ -30,6 +30,8 @@
                  AcceptsReturn="True" TextWrapping="Wrap"
                  MaxHeight="172" HorizontalAlignment="Stretch"
                  ScrollViewer.VerticalScrollBarVisibility="Auto" />
+            <CheckBox x:Name="paCB" Content="Has been asked previously" />
+            <RatingControl x:Name="importanceRC" MaxRating="10" IsClearEnabled="True" />
             <Expander Header="Years Asked" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                 <local:ListEditorControl x:Name="yaLE">
                     <local:ListEditorControl.ItemTemplate>
@@ -48,10 +50,16 @@
                     </local:ListEditorControl.ItemTemplate>
                 </local:ListEditorControl>
             </Expander>
-            <TextBox x:Name="casesTB" Header="Probable Cases"
-                 AcceptsReturn="True" TextWrapping="Wrap"
-                 MaxHeight="172" HorizontalAlignment="Stretch"
-                 ScrollViewer.VerticalScrollBarVisibility="Auto" />
+            <Expander Header="Probable Cases" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+                <local:ListEditorControl x:Name="pcLE">
+                    <local:ListEditorControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBox Text="{Binding Value, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap"
+                                     MaxHeight="172" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                        </DataTemplate>
+                    </local:ListEditorControl.ItemTemplate>
+                </local:ListEditorControl>
+            </Expander>
             <Expander Header="Reference Links" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
                 <local:ListEditorControl x:Name="rlLE">
                     <local:ListEditorControl.ItemTemplate>

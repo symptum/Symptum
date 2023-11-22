@@ -31,7 +31,10 @@ namespace Symptum.Editor.Controls
 
         private ObservableCollection<ListItemWrapper<DateOnly>> yearsAsked = new();
         private ObservableCollection<ListItemWrapper<BookLocation>> bookLocations = new();
+        private ObservableCollection<ListItemWrapper<string>> probableCases = new();
         private ObservableCollection<ListItemWrapper<Uri>> referenceLinks = new();
+
+        private bool hasPreviouslyBeenAsked = true;
 
         public QuestionEditorDialog()
         {
@@ -44,15 +47,31 @@ namespace Symptum.Editor.Controls
             yaLE.AddItemRequested += (s, e) =>
             {
                 yearsAsked.Add(new ListItemWrapper<DateOnly>(DateOnly.FromDateTime(DateTime.Now)));
+                CalculateImportance();
             };
             yaLE.DeleteItemsRequested += (s, e) =>
             {
                 foreach (var item in e.ItemsToDelete)
                 {
                     if (item is ListItemWrapper<DateOnly> date)
+                    {
                         yearsAsked.Remove(date);
+                    }
                 }
+                CalculateImportance();
             };
+            yaLE.DuplicateItemsRequested += (s, e) =>
+            {
+                foreach (var item in e.ItemsToDuplicate)
+                {
+                    if (item is ListItemWrapper<DateOnly> date)
+                    {
+                        yearsAsked.Add(new() { Value = date.Value });
+                    }
+                }
+                CalculateImportance();
+            };
+
             blLE.ItemsSource = bookLocations;
             blLE.AddItemRequested += (s, e) =>
             {
@@ -66,6 +85,37 @@ namespace Symptum.Editor.Controls
                         bookLocations.Remove(bookLocation);
                 }
             };
+            blLE.DuplicateItemsRequested += (s, e) =>
+            {
+                foreach (var item in e.ItemsToDuplicate)
+                {
+                    if (item is ListItemWrapper<BookLocation> x)
+                        bookLocations.Add(new() { Value = new() { Book = x.Value.Book, Edition = x.Value.Edition, Volume = x.Value.Volume, PageNumber = x.Value.PageNumber }});
+                }
+            };
+
+            pcLE.ItemsSource = probableCases;
+            pcLE.AddItemRequested += (s, e) =>
+            {
+                probableCases.Add(new ListItemWrapper<string>(string.Empty));
+            };
+            pcLE.DeleteItemsRequested += (s, e) =>
+            {
+                foreach (var item in e.ItemsToDelete)
+                {
+                    if (item is ListItemWrapper<string> @case)
+                        probableCases.Remove(@case);
+                }
+            };
+            pcLE.DuplicateItemsRequested += (s, e) =>
+            {
+                foreach (var item in e.ItemsToDuplicate)
+                {
+                    if (item is ListItemWrapper<string> @case)
+                        probableCases.Add(new() { Value = @case.Value });
+                }
+            };
+
             rlLE.ItemsSource = referenceLinks;
             rlLE.AddItemRequested += (s, e) =>
             {
@@ -75,10 +125,36 @@ namespace Symptum.Editor.Controls
             {
                 foreach (var item in e.ItemsToDelete)
                 {
-                    if (item is ListItemWrapper<Uri> uris)
-                        referenceLinks.Remove(uris);
+                    if (item is ListItemWrapper<Uri> uri)
+                        referenceLinks.Remove(uri);
                 }
             };
+            rlLE.DuplicateItemsRequested += (s, e) =>
+            {
+                foreach (var item in e.ItemsToDuplicate)
+                {
+                    if (item is ListItemWrapper<Uri> uri)
+                        referenceLinks.Add(new() { Value = uri.Value });
+                }
+            };
+
+            paCB.Checked += (s, e) =>
+            {
+                hasPreviouslyBeenAsked = true;
+                importanceRC.IsReadOnly = true;
+                importanceRC.IsEnabled = false;
+                yaLE.IsEnabled = true;
+                CalculateImportance();
+            };
+
+            paCB.Unchecked += (s, e) =>
+            {
+                hasPreviouslyBeenAsked = false;
+                importanceRC.IsReadOnly = false;
+                importanceRC.IsEnabled = true;
+                yaLE.IsEnabled = false;
+            };
+            paCB.IsChecked = hasPreviouslyBeenAsked;
 
             Opened += QuestionEditorDialog_Opened;
             PrimaryButtonClick += QuestionEditorDialog_PrimaryButtonClick;
@@ -119,6 +195,14 @@ namespace Symptum.Editor.Controls
             return EditResult;
         }
 
+        private void CalculateImportance()
+        {
+            if (hasPreviouslyBeenAsked)
+            {
+                importanceRC.Value = Math.Min(yearsAsked.Count, 10);
+            }
+        }
+
         private void LoadQuestionEntry()
         {
             if (QuestionEntry == null) return;
@@ -128,9 +212,11 @@ namespace Symptum.Editor.Controls
             cnTB.Text = QuestionEntry.Id?.CompetencyNumbers;
             titleTB.Text = QuestionEntry.Title;
             descTB.Text = QuestionEntry.Description;
+            paCB.IsChecked = hasPreviouslyBeenAsked = QuestionEntry.HasPreviouslyBeenAsked;
+            importanceRC.Value = QuestionEntry.Importance;
             LoadLists(ref yearsAsked, QuestionEntry.YearsAsked);
             LoadLists(ref bookLocations, QuestionEntry.BookLocations);
-            casesTB.Text = QuestionEntry.ProbableCases;
+            LoadLists(ref probableCases, QuestionEntry.ProbableCases);
             LoadLists(ref referenceLinks, QuestionEntry.ReferenceLinks);
         }
 
@@ -142,9 +228,11 @@ namespace Symptum.Editor.Controls
             QuestionEntry.Id.CompetencyNumbers = cnTB.Text;
             QuestionEntry.Title = titleTB.Text;
             QuestionEntry.Description = descTB.Text;
+            QuestionEntry.HasPreviouslyBeenAsked = hasPreviouslyBeenAsked;
+            QuestionEntry.Importance = (int)importanceRC.Value;
             QuestionEntry.YearsAsked = GetUpdateList(yearsAsked);
             QuestionEntry.BookLocations = GetUpdateList(bookLocations);
-            QuestionEntry.ProbableCases = casesTB.Text;
+            QuestionEntry.ProbableCases = GetUpdateList(probableCases);
             QuestionEntry.ReferenceLinks = GetUpdateList(referenceLinks);
         }
 
@@ -155,9 +243,11 @@ namespace Symptum.Editor.Controls
             cnTB.Text = string.Empty;
             titleTB.Text = string.Empty;
             descTB.Text = string.Empty;
+            paCB.IsChecked = hasPreviouslyBeenAsked = true;
+            importanceRC.Value = 0;
             LoadLists(ref yearsAsked, null);
             LoadLists(ref bookLocations, null);
-            casesTB.Text = string.Empty;
+            LoadLists(ref probableCases, null);
             LoadLists(ref referenceLinks, null);
         }
 

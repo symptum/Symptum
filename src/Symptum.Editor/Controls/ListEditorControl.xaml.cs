@@ -39,17 +39,26 @@ namespace Symptum.Editor.Controls
             listView.ItemTemplate = itemTemplate;
         }
 
+        private void listView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            int count = listView.SelectedItems.Count;
+            deleteItemsButton.IsEnabled = count > 0;
+            duplicateItemsButton.IsEnabled = count > 0;
+        }
+
         private void addItemButton_Click(object sender, RoutedEventArgs e)
         {
-            AddItemRequested?.Invoke(this, new ListEditorAddItemRequestedEventArgs());
+            AddItemRequested?.Invoke(this, new());
         }
 
         private void deleteItemsButton_Click(object sender, RoutedEventArgs e)
         {
             if (listView.SelectedItems.Count == 0) return;
 
-            DeleteItemsRequested?.Invoke(this, new ListEditorDeleteItemsRequested(listView.SelectedItems.ToList()));
+            List<object> list = listView.SelectedItems.ToList();
+            DeleteItemsRequested?.Invoke(this, new(list));
             listView.SelectedItems.Clear();
+            list.Clear();
         }
 
         private void selectAllButton_Click(object sender, RoutedEventArgs e)
@@ -57,9 +66,21 @@ namespace Symptum.Editor.Controls
             listView.SelectAll();
         }
 
+        private void duplicateItemsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (listView.SelectedItems.Count == 0) return;
+
+            List<object> list = listView.SelectedItems.ToList();
+            DuplicateItemsRequested?.Invoke(this, new(list));
+            listView.SelectedItems.Clear();
+            list.Clear();
+        }
+
         public event EventHandler<ListEditorAddItemRequestedEventArgs> AddItemRequested;
 
         public event EventHandler<ListEditorDeleteItemsRequested> DeleteItemsRequested;
+
+        public event EventHandler<ListEditorDuplicateItemsRequested> DuplicateItemsRequested;
     }
 
     public class ListEditorAddItemRequestedEventArgs : EventArgs
@@ -73,6 +94,16 @@ namespace Symptum.Editor.Controls
         public ListEditorDeleteItemsRequested(List<object> itemsToDelete)
         {
             ItemsToDelete = itemsToDelete;
+        }
+    }
+
+    public class ListEditorDuplicateItemsRequested : EventArgs
+    {
+        public List<object> ItemsToDuplicate { get; private set; }
+
+        public ListEditorDuplicateItemsRequested(List<object> itemsToDuplicate)
+        {
+            ItemsToDuplicate = itemsToDuplicate;
         }
     }
 }

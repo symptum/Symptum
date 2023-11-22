@@ -9,7 +9,7 @@
     xmlns:qbank="using:Symptum.Core.Subjects.QuestionBank"
     xmlns:secontrols="using:Symptum.Editor.Controls"
     xmlns:converters="using:Symptum.Editor.Converters"
-    mc:Ignorable="d">
+    mc:Ignorable="d" Title="Symptum Editor">
     <Window.SystemBackdrop>
         <MicaBackdrop />
     </Window.SystemBackdrop>
@@ -55,12 +55,12 @@
             <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
                 <AppBarButton x:Name="openFolderButton" IsCompact="True" Icon="Folder" Label="Open" Click="openFolderButton_Click" />
                 <AppBarButton x:Name="addTopicButton" IsCompact="True" Icon="Add" Label="Add" Click="addTopicButton_Click" />
-                <AppBarButton x:Name="editTopicButton" IsCompact="True" Icon="Edit" Label="Edit" Click="editTopicButton_Click" />
-                <AppBarButton x:Name="saveTopicsButton" IsCompact="True" Icon="Save" Label="Save" Click="saveTopicsButton_Click" />
-                <AppBarButton x:Name="deleteTopicsButton" IsCompact="True" Icon="Delete" Label="Delete" Click="deleteTopicsButton_Click" />
+                <AppBarButton x:Name="saveTopicsButton" IsCompact="True" Icon="Save" Label="Save All" Click="saveTopicsButton_Click" />
+                <AppBarButton x:Name="editTopicButton" IsEnabled="False" IsCompact="True" Icon="Edit" Label="Edit" Click="editTopicButton_Click" />
+                <AppBarButton x:Name="deleteTopicsButton" IsEnabled="False" IsCompact="True" Icon="Delete" Label="Delete" Click="deleteTopicsButton_Click" />
             </CommandBar>
             <TreeView x:Name="treeView1" ItemTemplate="{StaticResource TopicItemTemplate}"
-                      SelectionMode="Multiple" ItemInvoked="treeView1_ItemInvoked" />
+                      SelectionMode="Multiple" SelectionChanged="treeView1_SelectionChanged" ItemInvoked="treeView1_ItemInvoked" />
         </StackPanel>
 
         <Grid Grid.Row="1" Grid.Column="1"
@@ -72,28 +72,61 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition />
             </Grid.RowDefinitions>
-            <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
-                <AppBarButton x:Name="addQuestionButton" Icon="Add" Label="Add" Click="addQuestionButton_Click" />
-                <AppBarButton x:Name="editQuestionButton" Icon="Edit" Label="Edit" Click="editQuestionButton_Click" />
-                <AppBarButton x:Name="deleteQuestionsButton" Icon="Delete" Label="Delete" Click="deleteQuestionsButton_Click" />
+            <CommandBar x:Name="cmdbar2" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
+                <AppBarButton x:Name="findQuestionButton" IsEnabled="False" Icon="Find" Label="Find" Click="findQuestionButton_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="F" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+                <AppBarButton x:Name="addQuestionButton" IsEnabled="False" Icon="Add" Label="Add" Click="addQuestionButton_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="N" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+                <AppBarButton x:Name="editQuestionButton" IsEnabled="False" Icon="Edit" Label="Edit" Click="editQuestionButton_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="E" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+                <AppBarButton x:Name="duplicateQuestionButton" IsEnabled="False" Icon="Copy" Label="Duplicate" Click="duplicateQuestionButton_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="Control" Key="D" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
+                <AppBarButton x:Name="deleteQuestionsButton" IsEnabled="False" Icon="Delete" Label="Delete" Click="deleteQuestionsButton_Click">
+                    <AppBarButton.KeyboardAccelerators>
+                        <KeyboardAccelerator Modifiers="None" Key="Delete" />
+                    </AppBarButton.KeyboardAccelerators>
+                </AppBarButton>
             </CommandBar>
             <controls:DataGrid
-                Grid.Row="1" Grid.Column="1"
+                Grid.Row="1" Grid.Column="1" IsEnabled="False"
                 x:Name="dataGrid" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                 HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" AlternatingRowBackground="Transparent"
                 AreRowDetailsFrozen="False" AreRowGroupHeadersFrozen="True" AutoGenerateColumns="False"
                 CanUserSortColumns="False" CanUserReorderColumns="True" CanUserResizeColumns="True"
                 ColumnHeaderHeight="32" FrozenColumnCount="0" GridLinesVisibility="All"
                 HeadersVisibility="Column" IsReadOnly="True" RowDetailsVisibilityMode="Collapsed"
-                SelectionMode="Extended" DoubleTapped="dataGrid_DoubleTapped">
+                SelectionMode="Extended" DoubleTapped="dataGrid_DoubleTapped" SelectionChanged="dataGrid_SelectionChanged">
                 <controls:DataGrid.Columns>
-                    <controls:DataGridTextColumn Header="Id" Binding="{Binding Id.IdString}" Tag="Id" />
+                    <controls:DataGridTextColumn Header="Id" Binding="{Binding Id.IdString}" Tag="IdString" />
+                    <controls:DataGridTextColumn Header="Question Type" Binding="{Binding Id.QuestionType}" Tag="QuestionType" />
+                    <controls:DataGridTextColumn Header="Subject Code" Binding="{Binding Id.SubjectCode}" Tag="SubjectCode" />
+                    <controls:DataGridTextColumn Header="Competency Numbers" Binding="{Binding Id.CompetencyNumbers}" Tag="CompetencyNumbers" />
                     <controls:DataGridTextColumn Header="Title" Binding="{Binding Title}" Tag="Title" />
                     <controls:DataGridTextColumn Header="Description" Binding="{Binding Description}" Tag="Description" />
-                    <controls:DataGridTextColumn Header="Years Asked" Binding="{Binding YearsAsked, Converter={StaticResource DateOnlyListToStringConverter}}" Tag="Years Asked" />
-                    <controls:DataGridTextColumn Header="Book Locations" Binding="{Binding BookLocations, Converter={StaticResource BookLocationListToStringConverter}}" Tag="Book Locations" />
-                    <controls:DataGridTextColumn Header="Probable Cases" Binding="{Binding ProbableCases}" Tag="Probable Cases" />
-                    <controls:DataGridTextColumn Header="Reference Links" Binding="{Binding ReferenceLinks, Converter={StaticResource UriListToStringConverter}}" Tag="Reference Links" />
+                    <controls:DataGridCheckBoxColumn Header="Has Previously Been Asked" Binding="{Binding HasPreviouslyBeenAsked}" Tag="HasPreviouslyBeenAsked" />
+                    <controls:DataGridTemplateColumn Header="Importance" Tag="Importance">
+                        <controls:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <InfoBadge HorizontalAlignment="Center" Value="{Binding Importance}"/>
+                            </DataTemplate>
+                        </controls:DataGridTemplateColumn.CellTemplate>
+                    </controls:DataGridTemplateColumn>
+                    <controls:DataGridTextColumn Header="Years Asked" Binding="{Binding YearsAsked, Converter={StaticResource DateOnlyListToStringConverter}}" Tag="YearsAsked" />
+                    <controls:DataGridTextColumn Header="Book Locations" Binding="{Binding BookLocations, Converter={StaticResource BookLocationListToStringConverter}}" Tag="BookLocations" />
+                    <controls:DataGridTextColumn Header="Probable Cases" Binding="{Binding ProbableCases, Converter={StaticResource StringListToStringConverter}}" Tag="ProbableCases" />
+                    <controls:DataGridTextColumn Header="Reference Links" Binding="{Binding ReferenceLinks, Converter={StaticResource UriListToStringConverter}}" Tag="ReferenceLinks" />
                 </controls:DataGrid.Columns>
             </controls:DataGrid>
         </Grid>

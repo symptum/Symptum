@@ -4,15 +4,17 @@ namespace Symptum.Core.Subjects.Books
 {
     public class Book : ObservableObject
     {
-        public static readonly Dictionary<string, Book> BookStore = new()
-        {
-        };
-
-        public static readonly List<Book> Books = [.. BookStore.Values];
-
         #region Properties
 
-        private string _title;
+        private string _code = string.Empty;
+
+        public string Code
+        {
+            get => _code;
+            set => SetProperty(ref _code, value);
+        }
+
+        private string _title = string.Empty;
 
         public string Title
         {
@@ -20,12 +22,12 @@ namespace Symptum.Core.Subjects.Books
             set => SetProperty(ref _title, value);
         }
 
-        private string _author;
+        private string _authors = string.Empty;
 
-        public string Author
+        public string Authors
         {
-            get => _author;
-            set => SetProperty(ref _author, value);
+            get => _authors;
+            set => SetProperty(ref _authors, value);
         }
 
         #endregion
@@ -34,15 +36,16 @@ namespace Symptum.Core.Subjects.Books
         {
         }
 
-        public Book(string title, string author)
+        public Book(string code, string title, string author)
         {
+            _code = code;
             _title = title;
-            _author = author;
+            _authors = author;
         }
 
         public override string ToString()
         {
-            return Title + " by " + Author;
+            return Title + " by " + Authors + " (" + Code + ")";
         }
     }
 }

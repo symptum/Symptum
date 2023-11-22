@@ -1,6 +1,8 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Symptum.Core.Subjects.Books;
+using System.Collections.Generic;
+using System.Linq;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -38,15 +40,58 @@ namespace Symptum.Editor.Controls
         public BookLocationPicker()
         {
             this.InitializeComponent();
-            bookSelector.ItemsSource = Book.Books;
+            bookSelector.ItemsSource = BookStore.Books;
+            bookSelector.TextChanged += bookSelector_TextChanged;
+            bookSelector.SuggestionChosen += bookSelector_SuggestionChosen;
+            bookSelector.QuerySubmitted += bookSelector_QuerySubmitted;
             UpdatePreviewText();
+        }
+
+        private void bookSelector_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            {
+                var suitableItems = new List<Book>();
+                var splitText = sender.Text.ToLower().Split(" ");
+                foreach (var book in BookStore.Books)
+                {
+                    var found = splitText.All((key) => book.Title.ToLower().Contains(key)
+                        || book.Authors.ToLower().Contains(key) || book.Code.ToLower().Contains(key));
+                    if (found)
+                    {
+                        suitableItems.Add(book);
+                    }
+                }
+                if (suitableItems.Count == 0)
+                {
+                }
+                sender.ItemsSource = suitableItems;
+            }
+        }
+
+        private Book selectedBook;
+
+        private void bookSelector_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+        {
+            selectedBook = args.SelectedItem as Book;
+            sender.Text = selectedBook?.ToString();
+        }
+
+        private void bookSelector_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            if (args.ChosenSuggestion != null)
+            {
+                selectedBook = args.ChosenSuggestion as Book;
+                sender.Text = selectedBook?.ToString();
+            }
         }
 
         private void LoadBookLocation()
         {
             if (BookLocation == null) return;
 
-            bookSelector.SelectedItem = BookLocation.Book;
+            selectedBook = BookLocation.Book;
+            bookSelector.Text = selectedBook?.ToString();
             editionSelector.Value = BookLocation.Edition;
             volumeSelector.Value = BookLocation.Volume;
             pageNoSelector.Value = BookLocation.PageNumber;
@@ -56,7 +101,7 @@ namespace Symptum.Editor.Controls
         {
             if (BookLocation == null) return;
 
-            BookLocation.Book = bookSelector.SelectedItem as Book;
+            BookLocation.Book = selectedBook;
             BookLocation.Edition = (int)editionSelector.Value;
             BookLocation.Volume = (int)volumeSelector.Value;
             BookLocation.PageNumber = (int)pageNoSelector.Value;
@@ -67,7 +112,7 @@ namespace Symptum.Editor.Controls
         {
             if (BookLocation == null) return;
 
-            string previewText = $"{BookLocation.Book?.Title} by {BookLocation.Book?.Author}, " +
+            string previewText = $"{BookLocation.Book?.Title} by {BookLocation.Book?.Authors}, " +
                 $"Edition: {BookLocation.Edition}, Volume: {BookLocation.Volume}, Page Number: {BookLocation.PageNumber}";
             previewTextBlock.Text = previewText;
             ToolTipService.SetToolTip(previewButton, previewText);

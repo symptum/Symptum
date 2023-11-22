@@ -18,13 +18,21 @@
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
                         <StackPanel Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,0,0,10" Spacing="10">
-                            <ComboBox x:Name="bookSelector" Header="Book" MaxWidth="130" />
+                            <AutoSuggestBox x:Name="bookSelector" Grid.Row="2" Header="Book"
+                                        QueryIcon="Find" PlaceholderText="Select a book" MaxWidth="130">
+                                <AutoSuggestBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock ToolTipService.ToolTip="{Binding }" Text="{Binding }" />
+                                    </DataTemplate>
+                                </AutoSuggestBox.ItemTemplate>
+                            </AutoSuggestBox>
                             <NumberBox x:Name="editionSelector" Header="Edition" Minimum="0" SpinButtonPlacementMode="Compact" />
                             <NumberBox x:Name="volumeSelector" Header="Volume" Minimum="0" SpinButtonPlacementMode="Compact" />
                             <NumberBox x:Name="pageNoSelector" Header="Page Number" Minimum="0" SpinButtonPlacementMode="Compact" />
