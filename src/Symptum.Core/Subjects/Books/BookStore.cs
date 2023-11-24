@@ -28,13 +28,13 @@ namespace Symptum.Core.Subjects.Books
             }
         }
 
-        public static void LoadBooks(string path)
+        public static void LoadBooks(string csv)
         {
-            if (!File.Exists(path) || Path.GetExtension(path).ToLower() != ".csv") return;
+            if (string.IsNullOrEmpty(csv)) return;
 
-            using var reader = new StreamReader(path);
-            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-            var books = csv.GetRecords<Book>();
+            using var reader = new StringReader(csv);
+            using var csvReader = new CsvReader(reader, CultureInfo.InvariantCulture);
+            var books = csvReader.GetRecords<Book>();
             foreach (var book in books)
             {
                 Books.Add(book);

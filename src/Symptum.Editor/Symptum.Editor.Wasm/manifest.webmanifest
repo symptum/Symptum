@@ -1,0 +1,10 @@
+{
+  "background_color": "#ffffff",
+  "description": "Symptum.Editor",
+  "display": "standalone",
+  "name": "Symptum.Editor",
+  "short_name": "Symptum.Editor",
+  "start_url": "/index.html",
+  "theme_color": "#ffffff",
+  "scope": "/"
+}
