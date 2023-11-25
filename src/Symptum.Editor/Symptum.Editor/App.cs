@@ -23,6 +23,7 @@ public class App : Application
 #else
         MainWindow = Microsoft.UI.Xaml.Window.Current;
 #endif
+        MainWindow.Title = "Symptum Editor";
 
 #if DEBUG
         MainWindow.EnableHotReload();
@@ -52,6 +53,10 @@ public class App : Application
 
         // Ensure the current window is active
         MainWindow.Activate();
+
+#if HAS_UNO
+        Windows.Graphics.Display.DisplayInformation.AutoRotationPreferences = Windows.Graphics.Display.DisplayOrientations.Landscape;
+#endif
     }
 
     private async Task LoadAllBookListsAsync()

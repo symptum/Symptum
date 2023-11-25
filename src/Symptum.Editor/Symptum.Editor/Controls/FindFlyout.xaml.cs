@@ -17,7 +17,7 @@ public enum FindDirection
 
 public sealed partial class FindFlyout : Flyout
 {
-    private ObservableCollection<string> _queries = new();
+    private readonly ObservableCollection<string> _queries = [];
 
     public FindFlyout()
     {
@@ -201,13 +201,12 @@ public sealed partial class FindFlyout : Flyout
             MatchCase = findOptions.MatchCase;
             MatchWholeWord = findOptions.MatchWholeWord;
         }
-
         ShowAt(placementTarget, showOptions);
     }
 
     private void QueryBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
-        if (!_queries.Contains(args.QueryText))
+        if (!string.IsNullOrEmpty(args.QueryText) && !_queries.Contains(args.QueryText))
             _queries.Add(args.QueryText);
         QueryText = args.QueryText;
         Find(FindDirection.Next);

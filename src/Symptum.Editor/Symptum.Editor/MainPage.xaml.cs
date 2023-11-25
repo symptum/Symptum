@@ -39,14 +39,20 @@ public sealed partial class MainPage : Page
     {
         this.InitializeComponent();
 
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
         if (App.Current is App app && app.MainWindow is Window window)
+            mainWindow = window;
+
+#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+        if (mainWindow != null)
         {
-            hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
-            window.SetTitleBar(AppTitleBar);
-            topicEditorDialog.XamlRoot = questionEditorDialog.XamlRoot = deleteTopicDialog.XamlRoot = window.Content.XamlRoot;
+            hWnd = WinRT.Interop.WindowNative.GetWindowHandle(mainWindow);
+            mainWindow.SetTitleBar(AppTitleBar);
+            topicEditorDialog.XamlRoot = questionEditorDialog.XamlRoot = deleteTopicDialog.XamlRoot = mainWindow.Content.XamlRoot;
         }
+        Background = null;
 #endif
+        TitleTextBlock.Text = mainWindow?.Title;
+
         topicsView.SelectionChanged += (s, e) =>
         {
             int count = topicsView.SelectedItems.Count;
@@ -69,7 +75,7 @@ public sealed partial class MainPage : Page
         findQuestionButton.IsEnabled = true;
     }
 
-    private async void addTopicButton_Click(object sender, RoutedEventArgs e)
+    private async void AddTopicButton_Click(object sender, RoutedEventArgs e)
     {
 #if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
         topicEditorDialog.XamlRoot = Content.XamlRoot;
@@ -86,7 +92,7 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private async void editTopicButton_Click(object sender, RoutedEventArgs e)
+    private async void EditTopicButton_Click(object sender, RoutedEventArgs e)
     {
         if (topicsView.SelectedItems.Count == 0) return;
         if (topicsView.SelectedItems[0] is QuestionBankTopic topic)
@@ -102,7 +108,7 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private async void saveTopicsButton_Click(object sender, RoutedEventArgs e)
+    private async void SaveTopicsButton_Click(object sender, RoutedEventArgs e)
     {
         bool pathExists;
         if (workFolder == null)
@@ -152,7 +158,7 @@ public sealed partial class MainPage : Page
         //}
     }
 
-    private async void deleteTopicsButton_Click(object sender, RoutedEventArgs e)
+    private async void DeleteTopicsButton_Click(object sender, RoutedEventArgs e)
     {
         if (topicsView.SelectedItems.Count == 0) return;
         bool deleteCurrent = false;
@@ -190,7 +196,7 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private async void addQuestionButton_Click(object sender, RoutedEventArgs e)
+    private async void AddQuestionButton_Click(object sender, RoutedEventArgs e)
     {
         if (currentTopic != null)
         {
@@ -205,7 +211,7 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private void dataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         int count = dataGrid.SelectedItems.Count;
         deleteQuestionsButton.IsEnabled = count > 0;
@@ -213,12 +219,12 @@ public sealed partial class MainPage : Page
         editQuestionButton.IsEnabled = count == 1;
     }
 
-    private async void editQuestionButton_Click(object sender, RoutedEventArgs e)
+    private async void EditQuestionButton_Click(object sender, RoutedEventArgs e)
     {
         await EnterEditQuestionAsync();
     }
 
-    private async void dataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    private async void DataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
     {
         await EnterEditQuestionAsync();
     }
@@ -228,11 +234,14 @@ public sealed partial class MainPage : Page
         if (dataGrid.SelectedItems.Count == 0) return;
         if (dataGrid.SelectedItems[0] is QuestionEntry entry)
         {
+#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+            questionEditorDialog.XamlRoot = Content.XamlRoot;
+#endif
             await questionEditorDialog.EditAsync(entry);
         }
     }
 
-    private void duplicateQuestionButton_Click(object sender, RoutedEventArgs e)
+    private void DuplicateQuestionButton_Click(object sender, RoutedEventArgs e)
     {
         if (dataGrid.SelectedItems.Count == 0 || currentTopic == null) return;
         List<QuestionEntry> toDupe = new();
@@ -247,7 +256,7 @@ public sealed partial class MainPage : Page
         toDupe.Clear();
     }
 
-    private void deleteQuestionsButton_Click(object sender, RoutedEventArgs e)
+    private void DeleteQuestionsButton_Click(object sender, RoutedEventArgs e)
     {
         if (dataGrid.SelectedItems.Count == 0 || currentTopic == null) return;
         List<QuestionEntry> toDelete = new();
@@ -278,7 +287,7 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private async void openFolderButton_Click(object sender, RoutedEventArgs e)
+    private async void OpenFolderButton_Click(object sender, RoutedEventArgs e)
     {
         bool result = await SelectWorkPathAsync();
         if (result)
@@ -303,7 +312,7 @@ public sealed partial class MainPage : Page
         if (folder != null && workFolder != folder)
         {
             workFolder = folder;
-            WorkPathTextBlock.Text = $"• {workFolder.Path}";
+            mainWindow.Title = TitleTextBlock.Text = $"Symptum Editor • {workFolder.Path}";
             return true;
         }
 
@@ -326,7 +335,7 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private void findQuestionButton_Click(object sender, RoutedEventArgs e)
+    private void FindQuestionButton_Click(object sender, RoutedEventArgs e)
     {
         if (findFlyout == null)
         {
@@ -346,16 +355,17 @@ public sealed partial class MainPage : Page
             findFlyout.QuerySubmitted += FindFlyout_QuerySubmitted;
         }
 
+#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+        findFlyout.XamlRoot = Content.XamlRoot;
         FlyoutShowOptions flyoutShowOptions = new()
         {
             Position = new(ActualWidth, 80),
             Placement = FlyoutPlacementMode.Bottom
         };
-
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-        findFlyout.XamlRoot = Content.XamlRoot;
-#endif
         findFlyout.ShowAt(showOptions: flyoutShowOptions);
+#else
+        findFlyout.ShowAt(findQuestionButton);
+#endif
     }
 
     private void FindFlyout_QuerySubmitted(object sender, FindFlyoutQuerySubmittedEventArgs e)
@@ -391,5 +401,10 @@ public sealed partial class MainPage : Page
 
             default: return false;
         }
+    }
+
+    private void SidePaneButton_Click(object sender, RoutedEventArgs e)
+    {
+        splitView.IsPaneOpen = true;
     }
 }
