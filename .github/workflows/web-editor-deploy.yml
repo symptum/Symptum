@@ -14,7 +14,7 @@ jobs:
     - name: Correct Web Manifest Scope
       run: |
           cd ./src/Symptum.Editor/Symptum.Editor.Wasm/
-          (Get-Content manifest.webmanifest) -Replace '"scope": "/"', '"scope": "/Symptum/editor"' | Set-Content manifest.webmanifest
+          (Get-Content manifest.webmanifest) -Replace '/', '/Symptum/editor/' | Set-Content manifest.webmanifest
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
