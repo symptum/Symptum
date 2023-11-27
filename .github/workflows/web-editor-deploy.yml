@@ -11,6 +11,11 @@ jobs:
     name: Deploy to GitHub Pages
     steps:
     - uses: actions/checkout@v3
+    - name: Correct Web Manifest Scope
+      run: |
+          cd ./src/Symptum.Editor/Symptum.Editor.Wasm/
+          (Get-Content manifest.webmanifest) -Replace '"scope": "/"', '"scope": "/Symptum/editor"'
+          Set-Content manifest.webmanifest
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
