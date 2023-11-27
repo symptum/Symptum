@@ -22,7 +22,7 @@ jobs:
     - name: Create Symptum/Editor Folder
       run: mkdir "symptum/editor"
     - name: Copy Files to Symptum/Editor Folder
-      run: xcopy /s "out/wwwroot" "symptum/editor"
+      run: copy-item out\\wwwroot\\* symptum\\editor -force -recurse -verbose
     # add .nojekyll file to tell GitHub pages to not treat this as a Jekyll project. (Allow files and folders starting with an underscore)
     - name: Add .nojekyll file
       run: touch symptum/editor/.nojekyll
