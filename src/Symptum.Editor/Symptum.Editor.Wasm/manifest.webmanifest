@@ -1,10 +1,10 @@
 {
   "background_color": "#ffffff",
-  "description": "Symptum.Editor",
+  "description": "Symptum Online Editor (Developmental Build)",
   "display": "standalone",
-  "name": "Symptum.Editor",
-  "short_name": "Symptum.Editor",
+  "name": "Symptum Web Editor (Dev)",
+  "short_name": "Symptum Editor",
   "start_url": "/index.html",
-  "theme_color": "#ffffff",
+  "theme_color": "#000000",
   "scope": "/"
 }

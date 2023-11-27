@@ -6,6 +6,8 @@
       xmlns:qbank="using:Symptum.Core.Subjects.QuestionBank"
       xmlns:secontrols="using:Symptum.Editor.Controls"
       xmlns:converters="using:Symptum.Editor.Converters"
+      xmlns:toolkit="using:Uno.UI.Toolkit"
+      toolkit:VisibleBoundsPadding.PaddingMask="All"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
   <Grid>
     <Grid.RowDefinitions>
@@ -35,14 +37,14 @@
         </VisualState>
         <VisualState x:Name="MinimalState">
           <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="640" />
+            <AdaptiveTrigger MinWindowWidth="0" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="splitView.DisplayMode" Value="Overlay" />
             <Setter Target="splitView.PaneBackground" Value="{ThemeResource NavigationViewDefaultPaneBackground}" />
             <Setter Target="contentGrid.BorderThickness" Value="{ThemeResource NavigationViewMinimalContentGridBorderThickness}" />
             <Setter Target="contentGrid.CornerRadius" Value="{ThemeResource NavigationViewMinimalContentGridCornerRadius}" />
-            <Setter Target="sidePaneButton.Visibility" Value="Visible" />
+            <Setter Target="openSidePaneButton.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -61,11 +63,24 @@
     </Grid>
 
     <SplitView x:Name="splitView" Grid.Row="1" PaneBackground="Transparent"
-               IsPaneOpen="True" OpenPaneLength="460" CompactPaneLength="48" DisplayMode="Inline">
+               IsPaneOpen="True" OpenPaneLength="620" CompactPaneLength="48" DisplayMode="Inline">
       <SplitView.Pane>
-        <StackPanel Grid.Column="1" Width="460">
+        <StackPanel x:Name="sideStackPanel" Grid.Column="1" Width="620">
           <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
-            <AppBarButton x:Name="openFolderButton" Icon="Folder" Label="Open" Click="OpenFolderButton_Click">
+            <!--<AppBarButton x:Name="closeSidePaneButton" Visibility="Collapsed" Label="Close Side Pane" Click="CloseSidePaneButton_Click">
+              <AppBarButton.Icon>
+                <FontIcon Glyph="&#xEA49;" />
+              </AppBarButton.Icon>
+            </AppBarButton>-->
+            <AppBarButton x:Name="openFolderButton" Label="Open Folder" Click="OpenFolderButton_Click">
+              <AppBarButton.Icon>
+                <FontIcon Glyph="&#xE8DA;" />
+              </AppBarButton.Icon>
+              <AppBarButton.KeyboardAccelerators>
+                <KeyboardAccelerator Modifiers="Control,Menu" Key="O" />
+              </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+            <AppBarButton x:Name="openFileButton" Icon="OpenFile" Label="Open File(s)" Click="OpenFileButton_Click">
               <AppBarButton.KeyboardAccelerators>
                 <KeyboardAccelerator Modifiers="Control" Key="O" />
               </AppBarButton.KeyboardAccelerators>
@@ -111,7 +126,11 @@
           <RowDefinition />
         </Grid.RowDefinitions>
         <CommandBar x:Name="cmdbar2" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
-          <AppBarButton x:Name="sidePaneButton" Visibility="Collapsed" Icon="DockLeft" Label="Side Pane" Click="SidePaneButton_Click" />
+          <AppBarButton x:Name="openSidePaneButton" Visibility="Collapsed" Label="Open Side Pane" Click="OpenSidePaneButton_Click">
+            <AppBarButton.Icon>
+              <FontIcon Glyph="&#xEA5B;" />
+            </AppBarButton.Icon>
+          </AppBarButton>
           <AppBarButton x:Name="findQuestionButton" IsEnabled="False" Icon="Find" Label="Find" Click="FindQuestionButton_Click">
             <AppBarButton.KeyboardAccelerators>
               <KeyboardAccelerator Modifiers="Control" Key="F" />

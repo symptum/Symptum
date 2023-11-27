@@ -1,0 +1,37 @@
+name: Symptum Web Editor Deployment
+on:
+  pull_request:
+    branches: [ editor-uno ]
+  push:
+    branches: [ editor-uno ]
+  workflow_dispatch:  # Allows workflow to be ran via a button
+jobs:
+  deploy-to-github-pages:
+    runs-on: windows-latest
+    name: Deploy to GitHub Pages
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+    - name: Restore Dependencies
+      run: dotnet restore ./src/Symptum.Editor/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj
+    - name: Publish
+      run: dotnet publish ./src/Symptum.Editor/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj "-p:WasmShellWebAppBasePath=/symptum/editor" --no-restore -f net8.0 -c Debug -o out
+    
+    - name: Copy Files to Symptum/Editor Folder
+      run: |
+      mkdir "symptum/editor"
+      xcopy /s "out/wwwroot" "symptum/editor"
+    # add .nojekyll file to tell GitHub pages to not treat this as a Jekyll project. (Allow files and folders starting with an underscore)
+    - name: Add .nojekyll file
+      run: touch symptum/editor/.nojekyll
+    - name: Deploy to GitHub Pages
+      uses: crazy-max/ghaction-github-pages@v2
+      with:
+        target_branch: gh-pages
+        build_dir: ./symptum/
+        jekyll: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

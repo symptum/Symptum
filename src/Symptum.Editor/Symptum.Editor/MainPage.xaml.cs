@@ -6,7 +6,9 @@ using Microsoft.UI.Xaml.Input;
 using Symptum.Core.Subjects.QuestionBank;
 using Symptum.Core.TypeConversion;
 using Symptum.Editor.Controls;
+using Symptum.Editor.Helpers;
 using Windows.Storage.Pickers;
+using Windows.Storage.Pickers.Provider;
 
 namespace Symptum.Editor;
 
@@ -24,6 +26,7 @@ public sealed partial class MainPage : Page
     private Window mainWindow;
     private TopicEditorDialog topicEditorDialog = new();
     private QuestionEditorDialog questionEditorDialog = new();
+
     private ContentDialog deleteTopicDialog = new()
     {
         Title = "Delete Topic(s)?",
@@ -121,41 +124,38 @@ public sealed partial class MainPage : Page
 
     private async Task SaveCSVsAsync()
     {
-        foreach (var topic in topics)
+        if (_folderPicked)
         {
-            var file = await workFolder.CreateFileAsync(topic.TopicName + ".csv", CreationCollisionOption.ReplaceExisting);
-            await FileIO.WriteTextAsync(file, topic.ToCSV());
+            foreach (var topic in topics)
+            {
+                var file = await workFolder.CreateFileAsync(topic.TopicName + ".csv", CreationCollisionOption.ReplaceExisting);
+                await FileIO.WriteTextAsync(file, topic.ToCSV());
+            }
         }
-        //if (RuntimeInformation.IsOSPlatform(OSPlatform.Create("BROWSER")))
-        //{
-        //    foreach (var topic in topics)
-        //    {
-        //        var fileSavePicker = new FileSavePicker
-        //        {
-        //            SuggestedStartLocation = PickerLocationId.ComputerFolder,
-        //            SuggestedFileName = topic.TopicName + ".csv"
-        //        };
-        //        fileSavePicker.FileTypeChoices.Add("CSV File", new List<string>() { ".csv" });
+        else
+        {
+            foreach (var topic in topics)
+            {
+                var fileSavePicker = new FileSavePicker
+                {
+                    SuggestedFileName = topic.TopicName
+                };
+                fileSavePicker.FileTypeChoices.Add("CSV File", new List<string>() { ".csv" });
 
-        //        StorageFile saveFile = await fileSavePicker.PickSaveFileAsync();
-        //        if (saveFile != null)
-        //        {
-        //            CachedFileManager.DeferUpdates(saveFile);
+#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+                WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, hWnd);
+#endif
+                StorageFile saveFile = await fileSavePicker.PickSaveFileAsync();
+                if (saveFile != null)
+                {
+                    CachedFileManager.DeferUpdates(saveFile);
 
-        //            await FileIO.WriteTextAsync(saveFile, topic.ToCSV());
+                    await FileIO.WriteTextAsync(saveFile, topic.ToCSV());
 
-        //            await CachedFileManager.CompleteUpdatesAsync(saveFile);
-        //        }
-        //        else
-        //        {
-
-        //        }
-        //    }
-        //}
-        //else
-        //{
-
-        //}
+                    await CachedFileManager.CompleteUpdatesAsync(saveFile);
+                }
+            }
+        }
     }
 
     private async void DeleteTopicsButton_Click(object sender, RoutedEventArgs e)
@@ -179,7 +179,8 @@ public sealed partial class MainPage : Page
                     {
                         var csvfile = await workFolder.GetFileAsync(topic.TopicName + ".csv");
                         if (csvfile != null) await csvfile.DeleteAsync();
-                    } catch { }
+                    }
+                    catch { }
 
                     toDelete.Add(topic);
 
@@ -271,12 +272,17 @@ public sealed partial class MainPage : Page
         toDelete.Clear();
     }
 
-    private async Task LoadTopicsAsync()
+    private async Task LoadTopicsFromWorkPathAsync()
     {
         if (workFolder == null) return;
 
         var files = await workFolder.GetFilesAsync();
-        foreach (var file in files)
+        await LoadTopicsFromFilesAsync(files);
+    }
+
+    private async Task LoadTopicsFromFilesAsync(IEnumerable<StorageFile> files)
+    {
+        foreach (StorageFile file in files)
         {
             if (file.FileType.Equals(".csv", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -290,13 +296,30 @@ public sealed partial class MainPage : Page
     private async void OpenFolderButton_Click(object sender, RoutedEventArgs e)
     {
         bool result = await SelectWorkPathAsync();
-        if (result)
+        if (result && _folderPicked)
         {
             ResetData();
             topics.Clear();
-            await LoadTopicsAsync();
+            await LoadTopicsFromWorkPathAsync();
         }
     }
+
+    private async void OpenFileButton_Click(object sender, RoutedEventArgs e)
+    {
+        FileOpenPicker fileOpenPicker = new();
+        fileOpenPicker.FileTypeFilter.Add(".csv");
+
+#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+        WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, hWnd);
+#endif
+        var pickedFiles = await fileOpenPicker.PickMultipleFilesAsync();
+        if (pickedFiles.Count > 0)
+        {
+            await LoadTopicsFromFilesAsync(pickedFiles);
+        }
+    }
+
+    private bool _folderPicked = false;
 
     private async Task<bool> SelectWorkPathAsync()
     {
@@ -307,7 +330,18 @@ public sealed partial class MainPage : Page
         WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hWnd);
 #endif
 
-        StorageFolder folder = await folderPicker.PickSingleFolderAsync();
+        StorageFolder folder;
+        if (StorageHelper.IsFolderPickerSupported)
+        {
+            folder = await folderPicker.PickSingleFolderAsync();
+            _folderPicked = true;
+        }
+        else
+        {
+            var localFolder = ApplicationData.Current.LocalFolder;
+            folder = await localFolder.CreateFolderAsync("Temp", CreationCollisionOption.OpenIfExists);
+            _folderPicked = false;
+        }
 
         if (folder != null && workFolder != folder)
         {
@@ -403,8 +437,13 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private void SidePaneButton_Click(object sender, RoutedEventArgs e)
+    private void OpenSidePaneButton_Click(object sender, RoutedEventArgs e)
     {
         splitView.IsPaneOpen = true;
+    }
+
+    private void CloseSidePaneButton_Click(object sender, RoutedEventArgs e)
+    {
+        splitView.IsPaneOpen = false;
     }
 }

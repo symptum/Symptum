@@ -5,13 +5,13 @@
     <SingleProject>true</SingleProject>
     <OutputType>Exe</OutputType>
     <!-- Display name -->
-    <ApplicationTitle>Symptum.Editor</ApplicationTitle>
+    <ApplicationTitle>Symptum Editor (Dev)</ApplicationTitle>
     <!-- App Identifier -->
-    <ApplicationId>com.symptum.editor</ApplicationId>
+    <ApplicationId>com.symptum.editor.dev</ApplicationId>
     <ApplicationIdGuid>C2B09596-2551-4095-B7CB-B2F9B40E4B36</ApplicationIdGuid>
     <!-- Versions -->
-    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>0.0.1</ApplicationDisplayVersion>
+    <ApplicationVersion>0.0.1</ApplicationVersion>
 
     <AndroidManifest>Android\AndroidManifest.xml</AndroidManifest>
 

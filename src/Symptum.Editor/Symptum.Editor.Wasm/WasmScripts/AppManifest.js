@@ -1,3 +1,3 @@
 var UnoAppManifest = {
-    displayName: "Symptum.Editor"
+    displayName: "Symptum Editor"
 }

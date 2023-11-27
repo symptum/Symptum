@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml;
 using Uno.Resizetizer;
 
 namespace Symptum.Editor;
+
 public sealed partial class AppHead : App
 {
     static AppHead() =>

@@ -3,6 +3,7 @@ using System.IO;
 using Microsoft.UI.Xaml;
 using Symptum.Core.Subjects.Books;
 using Uno.UI.Toolkit;
+using Windows.UI.ViewManagement;
 
 namespace Symptum.Editor;
 
@@ -28,7 +29,6 @@ public class App : Application
 #if DEBUG
         MainWindow.EnableHotReload();
 #endif
-
 
         // Do not repeat app initialization when the Window already has content,
         // just ensure that the window is active
@@ -73,13 +73,12 @@ public class App : Application
         catch { }
     }
 
-
     /// <summary>
     /// Invoked when Navigation to a certain page fails
     /// </summary>
     /// <param name="sender">The Frame which failed navigation</param>
     /// <param name="e">Details about the navigation failure</param>
-    void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
+    private void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
     {
         throw new InvalidOperationException($"Failed to load {e.SourcePageType.FullName}: {e.Exception}");
     }
