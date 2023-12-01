@@ -13,7 +13,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       with:
-        path: Symptum
+        path: main
     - name: Checkout Symptum.Data
       uses: actions/checkout@v4
       with:
@@ -21,16 +21,16 @@ jobs:
         path: Symptum.Data
     - name: Correct Web Manifest Scope
       run: |
-          cd ./Symptum/src/Symptum.Editor/Symptum.Editor.Wasm/
+          cd ./main/src/Symptum.Editor/Symptum.Editor.Wasm/
           (Get-Content manifest.webmanifest) -Replace '/', '/Symptum/editor/' | Set-Content manifest.webmanifest
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 8.0.x
     - name: Restore Dependencies
-      run: dotnet restore ./Symptum/src/Symptum.Editor/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj
+      run: dotnet restore ./main/src/Symptum.Editor/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj
     - name: Publish
-      run: dotnet publish ./Symptum/src/Symptum.Editor/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj "-p:WasmShellWebAppBasePath=/Symptum/editor/" --no-restore -f net8.0 -c Debug -o out
+      run: dotnet publish ./main/src/Symptum.Editor/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj "-p:WasmShellWebAppBasePath=/Symptum/editor/" --no-restore -f net8.0 -c Debug -o out
     - name: Create Symptum/Editor Folder
       run: mkdir "symptum/editor"
     - name: Copy Files to Symptum/Editor Folder
