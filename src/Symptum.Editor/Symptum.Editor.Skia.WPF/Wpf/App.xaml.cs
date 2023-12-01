@@ -2,6 +2,7 @@ using Uno.UI.Runtime.Skia.Wpf;
 using WpfApp = System.Windows.Application;
 
 namespace Symptum.Editor.WPF;
+
 public partial class App : WpfApp
 {
     public App()

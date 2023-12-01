@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.Runtime.InteropServices;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
@@ -76,6 +77,15 @@ public sealed partial class MainPage : Page
         dataGrid.IsEnabled = true;
         addQuestionButton.IsEnabled = true;
         findQuestionButton.IsEnabled = true;
+        SetCountsText();
+    }
+
+    private void SetCountsText(bool clear = false)
+    {
+        if (clear)
+            countTextBlock.Text = null;
+        else
+            countTextBlock.Text = $"{currentTopic.QuestionEntries.Count} Entries, {dataGrid.SelectedItems.Count} Selected";
     }
 
     private async void AddTopicButton_Click(object sender, RoutedEventArgs e)
@@ -208,6 +218,7 @@ public sealed partial class MainPage : Page
             if (result == EditResult.Save)
             {
                 currentTopic.QuestionEntries.Add(questionEditorDialog.QuestionEntry);
+                SetCountsText();
             }
         }
     }
@@ -218,6 +229,7 @@ public sealed partial class MainPage : Page
         deleteQuestionsButton.IsEnabled = count > 0;
         duplicateQuestionButton.IsEnabled = count > 0;
         editQuestionButton.IsEnabled = count == 1;
+        SetCountsText();
     }
 
     private async void EditQuestionButton_Click(object sender, RoutedEventArgs e)
@@ -255,6 +267,7 @@ public sealed partial class MainPage : Page
         dataGrid.SelectedItems.Clear();
         toDupe.ForEach(x => currentTopic.QuestionEntries.Add(x.Clone()));
         toDupe.Clear();
+        SetCountsText();
     }
 
     private void DeleteQuestionsButton_Click(object sender, RoutedEventArgs e)
@@ -270,6 +283,7 @@ public sealed partial class MainPage : Page
         dataGrid.SelectedItems.Clear();
         toDelete.ForEach(x => currentTopic.QuestionEntries.Remove(x));
         toDelete.Clear();
+        SetCountsText();
     }
 
     private async Task LoadTopicsFromWorkPathAsync()
@@ -366,6 +380,7 @@ public sealed partial class MainPage : Page
             addQuestionButton.IsEnabled = false;
             findQuestionButton.IsEnabled = false;
             currentTopic = null;
+            SetCountsText(true);
         }
     }
 
@@ -376,7 +391,7 @@ public sealed partial class MainPage : Page
             List<string> columns =
             [
                 nameof(QuestionEntry.Title),
-                    nameof(QuestionEntry.Description),
+                    nameof(QuestionEntry.Descriptions),
                     nameof(QuestionEntry.ProbableCases)
             ];
 
@@ -423,9 +438,10 @@ public sealed partial class MainPage : Page
                 {
                     return question.Title.Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
                 };
-            case nameof(QuestionEntry.Description):
+            case nameof(QuestionEntry.Descriptions):
                 {
-                    return question.Description.Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
+                    string descriptions = ListToStringConversion.ConvertToString<string>(question.Descriptions, x => x);
+                    return descriptions.Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
                 };
             case nameof(QuestionEntry.ProbableCases):
                 {

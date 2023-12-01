@@ -1,8 +1,8 @@
-using System;
 using GLib;
 using Uno.UI.Runtime.Skia.Gtk;
 
 namespace Symptum.Editor.Skia.Gtk;
+
 public class Program
 {
     public static void Main(string[] args)

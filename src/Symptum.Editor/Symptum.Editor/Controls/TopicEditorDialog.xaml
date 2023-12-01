@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <ContentDialog
     x:Class="Symptum.Editor.Controls.TopicEditorDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -6,18 +6,18 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="using:Symptum.Editor.Controls"
-    mc:Ignorable="d" PrimaryButtonStyle="{ThemeResource AccentButtonStyle}"
-    PrimaryButtonText="Save" CloseButtonText="Cancel">
-    <ContentDialog.Resources>
-        <Style TargetType="local:TopicEditorDialog"
+    mc:Ignorable="d"
+    PrimaryButtonText="Save" CloseButtonText="Cancel" DefaultButton="Primary">
+  <ContentDialog.Resources>
+    <Style TargetType="local:TopicEditorDialog"
                BasedOn="{StaticResource DefaultContentDialogStyle}" />
-    </ContentDialog.Resources>
+  </ContentDialog.Resources>
 
+  <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
     <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-        <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-            <TextBox Name="topicNameTextBox" Header="Topic Name" />
-            <InfoBar x:Name="errorInfoBar" Message="Topic Name must not be empty" Severity="Error"
+      <TextBox Name="topicNameTextBox" Header="Topic Name" />
+      <InfoBar x:Name="errorInfoBar" Message="Topic Name must not be empty" Severity="Error"
                      IsOpen="False" IsClosable="False" />
-        </StackPanel>
     </StackPanel>
+  </StackPanel>
 </ContentDialog>

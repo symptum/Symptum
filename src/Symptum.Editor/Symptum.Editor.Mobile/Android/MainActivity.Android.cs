@@ -1,10 +1,8 @@
 using Android.App;
-using Android.Content.PM;
-using Android.OS;
 using Android.Views;
-using Android.Widget;
 
 namespace Symptum.Editor.Droid;
+
 [Activity(
     MainLauncher = true,
     ConfigurationChanges = global::Uno.UI.ActivityHelper.AllConfigChanges,

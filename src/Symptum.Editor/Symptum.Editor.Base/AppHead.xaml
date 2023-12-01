@@ -13,5 +13,4 @@
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </local:App.Resources>
-
 </local:App>

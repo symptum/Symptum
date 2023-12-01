@@ -1,6 +1,5 @@
-﻿using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Data;
 using Symptum.Core.Subjects.Books;
-using System;
 using static Symptum.Core.TypeConversion.ListToStringConversion;
 
 namespace Symptum.Editor.Converters;

@@ -11,7 +11,7 @@
     <ApplicationIdGuid>C2B09596-2551-4095-B7CB-B2F9B40E4B36</ApplicationIdGuid>
     <!-- Versions -->
     <ApplicationDisplayVersion>0.0.1</ApplicationDisplayVersion>
-    <ApplicationVersion>0.0.1</ApplicationVersion>
+    <ApplicationVersion>1</ApplicationVersion>
 
     <AndroidManifest>Android\AndroidManifest.xml</AndroidManifest>
 
@@ -20,6 +20,9 @@
     <!-- Required for C# Hot Reload -->
     <UseInterpreter Condition="'$(Configuration)' == 'Debug' and $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'maccatalyst'">True</UseInterpreter>
     <IsUnoHead>true</IsUnoHead>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>

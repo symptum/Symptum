@@ -1,5 +1,4 @@
-﻿using Microsoft.UI.Xaml.Data;
-using System;
+using Microsoft.UI.Xaml.Data;
 
 namespace Symptum.Editor.Converters;
 

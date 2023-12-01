@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <UserControl
     x:Class="Symptum.Editor.Controls.ListEditorControl"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -7,13 +7,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <StackPanel>
-        <CommandBar IsOpen="False" Background="Transparent" DefaultLabelPosition="Right">
-            <AppBarButton x:Name="selectAllButton" Icon="SelectAll" Label="SelectAll" Click="selectAllButton_Click" />
-            <AppBarButton x:Name="addItemButton" Icon="Add" Label="Add" Click="addItemButton_Click" />
-            <AppBarButton x:Name="duplicateItemsButton" IsEnabled="False" Icon="Copy" Label="Duplicate" Click="duplicateItemsButton_Click" />
-            <AppBarButton x:Name="deleteItemsButton" IsEnabled="False" Icon="Delete" Label="Delete" Click="deleteItemsButton_Click" />
-        </CommandBar>
-        <ListView x:Name="listView" SelectionMode="Multiple" SelectionChanged="listView_SelectionChanged" />
-    </StackPanel>
+  <StackPanel Width="456">
+    <CommandBar IsOpen="False" Background="Transparent" DefaultLabelPosition="Right">
+      <AppBarButton x:Name="selectAllButton" Icon="SelectAll" Label="SelectAll" Click="selectAllButton_Click" />
+      <AppBarButton x:Name="addItemButton" Icon="Add" Label="Add" Click="addItemButton_Click" />
+      <AppBarButton x:Name="duplicateItemsButton" IsEnabled="False" Icon="Copy" Label="Duplicate" Click="duplicateItemsButton_Click" />
+      <AppBarButton x:Name="deleteItemsButton" IsEnabled="False" Icon="Delete" Label="Delete" Click="deleteItemsButton_Click" />
+    </CommandBar>
+    <ListView x:Name="listView" SelectionMode="Multiple" SelectionChanged="listView_SelectionChanged" />
+  </StackPanel>
 </UserControl>

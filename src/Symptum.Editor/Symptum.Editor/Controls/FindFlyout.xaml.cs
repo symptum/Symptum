@@ -1,10 +1,5 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Microsoft.UI.Xaml.Controls.Primitives;
 
 namespace Symptum.Editor.Controls;
 

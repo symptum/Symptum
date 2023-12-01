@@ -1,12 +1,8 @@
-using Microsoft.UI.Xaml.Controls;
+using System.Collections.ObjectModel;
 using Symptum.Core.Management.Resource;
 using Symptum.Core.Subjects;
 using Symptum.Core.Subjects.Books;
 using Symptum.Core.Subjects.QuestionBank;
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 
 namespace Symptum.Editor.Controls;
 
@@ -29,12 +25,14 @@ public sealed partial class QuestionEditorDialog : ContentDialog
 
     public EditResult EditResult { get; private set; } = EditResult.None;
 
-    private ObservableCollection<ListItemWrapper<DateOnly>> yearsAsked = new();
-    private ObservableCollection<ListItemWrapper<BookLocation>> bookLocations = new();
-    private ObservableCollection<ListItemWrapper<string>> probableCases = new();
-    private ObservableCollection<ListItemWrapper<Uri>> referenceLinks = new();
+    private ObservableCollection<ListItemWrapper<string>> descriptions = [];
+    private ObservableCollection<ListItemWrapper<DateOnly>> yearsAsked = [];
+    private ObservableCollection<ListItemWrapper<BookLocation>> bookLocations = [];
+    private ObservableCollection<ListItemWrapper<string>> probableCases = [];
+    private ObservableCollection<ListItemWrapper<Uri>> referenceLinks = [];
 
     private bool hasPreviouslyBeenAsked = true;
+    private bool autoGenImp = true;
 
     public QuestionEditorDialog()
     {
@@ -42,6 +40,28 @@ public sealed partial class QuestionEditorDialog : ContentDialog
 
         qtCB.ItemsSource = Enum.GetValues(typeof(QuestionType));
         scCB.ItemsSource = Enum.GetValues(typeof(SubjectList));
+
+        dsLE.ItemsSource = descriptions;
+        dsLE.AddItemRequested += (s, e) =>
+        {
+            descriptions.Add(new ListItemWrapper<string>(string.Empty));
+        };
+        dsLE.DeleteItemsRequested += (s, e) =>
+        {
+            foreach (var item in e.ItemsToDelete)
+            {
+                if (item is ListItemWrapper<string> description)
+                    descriptions.Remove(description);
+            }
+        };
+        dsLE.DuplicateItemsRequested += (s, e) =>
+        {
+            foreach (var item in e.ItemsToDuplicate)
+            {
+                if (item is ListItemWrapper<string> description)
+                    descriptions.Add(new() { Value = description.Value });
+            }
+        };
 
         yaLE.ItemsSource = yearsAsked;
         yaLE.AddItemRequested += (s, e) =>
@@ -90,7 +110,7 @@ public sealed partial class QuestionEditorDialog : ContentDialog
             foreach (var item in e.ItemsToDuplicate)
             {
                 if (item is ListItemWrapper<BookLocation> x)
-                    bookLocations.Add(new() { Value = new() { Book = x.Value.Book, Edition = x.Value.Edition, Volume = x.Value.Volume, PageNumber = x.Value.PageNumber }});
+                    bookLocations.Add(new() { Value = new() { Book = x.Value.Book, Edition = x.Value.Edition, Volume = x.Value.Volume, PageNumber = x.Value.PageNumber } });
             }
         };
 
@@ -141,24 +161,58 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         paCB.Checked += (s, e) =>
         {
             hasPreviouslyBeenAsked = true;
-            importanceRC.IsReadOnly = true;
-            importanceRC.IsEnabled = false;
+            autoGenImpCB.IsEnabled = true;
             yaLE.IsEnabled = true;
-            CalculateImportance();
+            EnableAutoGenerateImportance();
         };
 
         paCB.Unchecked += (s, e) =>
         {
             hasPreviouslyBeenAsked = false;
-            importanceRC.IsReadOnly = false;
-            importanceRC.IsEnabled = true;
+            autoGenImpCB.IsEnabled = false;
+            DisableAutoGenerateImportance();
             yaLE.IsEnabled = false;
         };
         paCB.IsChecked = hasPreviouslyBeenAsked;
 
+        autoGenImpCB.Checked += (s, e) =>
+        {
+            EnableAutoGenerateImportance();
+        };
+        autoGenImpCB.Unchecked += (s, e) =>
+        {
+            DisableAutoGenerateImportance();
+        };
+
         Opened += QuestionEditorDialog_Opened;
         PrimaryButtonClick += QuestionEditorDialog_PrimaryButtonClick;
         CloseButtonClick += QuestionEditorDialog_CloseButtonClick;
+    }
+
+    private void EnableAutoGenerateImportance()
+    {
+        autoGenImp = autoGenImpCB.IsChecked ?? false;
+        if (autoGenImp)
+        {
+            importanceRC.IsReadOnly = true;
+            importanceRC.IsEnabled = false;
+            CalculateImportance();
+        }
+    }
+
+    private void DisableAutoGenerateImportance()
+    {
+        autoGenImp = false;
+        importanceRC.IsReadOnly = false;
+        importanceRC.IsEnabled = true;
+    }
+
+    private void CalculateImportance()
+    {
+        if (autoGenImp)
+        {
+            importanceRC.Value = Math.Min(yearsAsked.Count, 10);
+        }
     }
 
     private void QuestionEditorDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -195,14 +249,6 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         return EditResult;
     }
 
-    private void CalculateImportance()
-    {
-        if (hasPreviouslyBeenAsked)
-        {
-            importanceRC.Value = Math.Min(yearsAsked.Count, 10);
-        }
-    }
-
     private void LoadQuestionEntry()
     {
         if (QuestionEntry == null) return;
@@ -211,7 +257,7 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         scCB.SelectedItem = QuestionEntry.Id?.SubjectCode;
         cnTB.Text = QuestionEntry.Id?.CompetencyNumbers;
         titleTB.Text = QuestionEntry.Title;
-        descTB.Text = QuestionEntry.Description;
+        LoadLists(ref descriptions, QuestionEntry.Descriptions);
         paCB.IsChecked = hasPreviouslyBeenAsked = QuestionEntry.HasPreviouslyBeenAsked;
         importanceRC.Value = QuestionEntry.Importance;
         LoadLists(ref yearsAsked, QuestionEntry.YearsAsked);
@@ -227,7 +273,7 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         QuestionEntry.Id.SubjectCode = scCB.SelectedItem != null ? (SubjectList)scCB.SelectedItem : SubjectList.Anatomy;
         QuestionEntry.Id.CompetencyNumbers = cnTB.Text;
         QuestionEntry.Title = titleTB.Text;
-        QuestionEntry.Description = descTB.Text;
+        QuestionEntry.Descriptions = GetUpdateList(descriptions);
         QuestionEntry.HasPreviouslyBeenAsked = hasPreviouslyBeenAsked;
         QuestionEntry.Importance = (int)importanceRC.Value;
         QuestionEntry.YearsAsked = GetUpdateList(yearsAsked);
@@ -242,16 +288,18 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         scCB.SelectedItem = null;
         cnTB.Text = string.Empty;
         titleTB.Text = string.Empty;
-        descTB.Text = string.Empty;
+        LoadLists(ref descriptions, null);
         paCB.IsChecked = hasPreviouslyBeenAsked = true;
         importanceRC.Value = 0;
         LoadLists(ref yearsAsked, null);
         LoadLists(ref bookLocations, null);
         LoadLists(ref probableCases, null);
         LoadLists(ref referenceLinks, null);
+
+        autoGenImpCB.IsChecked = autoGenImp = true;
     }
 
-    private void LoadLists<T>(ref ObservableCollection<ListItemWrapper<T>> destination, IList<T> source)
+    private void LoadLists<T>(ref ObservableCollection<ListItemWrapper<T>> destination, IList<T>? source)
     {
         destination.Clear();
         if (source == null || source.Count == 0) return;
@@ -264,7 +312,7 @@ public sealed partial class QuestionEditorDialog : ContentDialog
 
     private List<T> GetUpdateList<T>(ObservableCollection<ListItemWrapper<T>> source)
     {
-        List<T> list = new();
+        List<T> list = [];
         if (source == null || source.Count == 0) return list;
 
         foreach (var item in source)

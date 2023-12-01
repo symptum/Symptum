@@ -21,12 +21,12 @@ jobs:
         dotnet-version: 8.0.x
     - name: Restore Dependencies
       run: dotnet restore ./src/Symptum.Editor/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj
-    - name: Publish
-      run: dotnet publish ./src/Symptum.Editor/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj "-p:WasmShellWebAppBasePath=/Symptum/editor/" --no-restore -f net8.0 -c Debug -o out
+    - name: Build
+      run: dotnet build ./src/Symptum.Editor/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj "-p:WasmShellWebAppBasePath=/Symptum/editor/" --no-restore -f net8.0 -c Debug -o out
     - name: Create Symptum/Editor Folder
       run: mkdir "symptum/editor"
     - name: Copy Files to Symptum/Editor Folder
-      run: copy-item out\\wwwroot\\* symptum\\editor -force -recurse -verbose
+      run: copy-item out\\dist\\* symptum\\editor -force -recurse -verbose
     # add .nojekyll file to tell GitHub pages to not treat this as a Jekyll project. (Allow files and folders starting with an underscore)
     - name: Add .nojekyll file
       run: touch symptum/editor/.nojekyll

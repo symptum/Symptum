@@ -29,7 +29,7 @@
       <VisualStateGroup>
         <VisualState x:Name="DefaultState">
           <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="1007"/>
+            <AdaptiveTrigger MinWindowWidth="1007" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="splitView.IsPaneOpen" Value="True" />
@@ -109,7 +109,7 @@
           <ListView x:Name="topicsView" SelectionMode="Extended">
             <ListView.ItemTemplate>
               <DataTemplate x:DataType="qbank:QuestionBankTopic">
-                <TextBlock Text="{x:Bind TopicName}" />
+                <TextBlock Text="{Binding TopicName}" />
               </DataTemplate>
             </ListView.ItemTemplate>
           </ListView>
@@ -123,7 +123,8 @@
             CornerRadius="{ThemeResource NavigationViewContentGridCornerRadius}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto" />
-          <RowDefinition />
+          <RowDefinition Height="*" />
+          <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <CommandBar x:Name="cmdbar2" Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
           <AppBarButton x:Name="openSidePaneButton" Visibility="Collapsed" Label="Open Side Pane" Click="OpenSidePaneButton_Click">
@@ -170,12 +171,12 @@
             <controls:DataGridTextColumn Header="Subject Code" Binding="{Binding Id.SubjectCode}" Tag="SubjectCode" />
             <controls:DataGridTextColumn Header="Competency Numbers" Binding="{Binding Id.CompetencyNumbers}" Tag="CompetencyNumbers" />
             <controls:DataGridTextColumn Header="Title" Binding="{Binding Title}" Tag="Title" />
-            <controls:DataGridTextColumn Header="Description" Binding="{Binding Description}" Tag="Description" />
+            <controls:DataGridTextColumn Header="Descriptions" Binding="{Binding Descriptions, Converter={StaticResource StringListToStringConverter}}" Tag="Descriptions" />
             <controls:DataGridCheckBoxColumn Header="Has Previously Been Asked" Binding="{Binding HasPreviouslyBeenAsked}" Tag="HasPreviouslyBeenAsked" />
             <controls:DataGridTemplateColumn Header="Importance" Tag="Importance">
               <controls:DataGridTemplateColumn.CellTemplate>
                 <DataTemplate>
-                  <InfoBadge HorizontalAlignment="Center" Value="{Binding Importance}"/>
+                  <InfoBadge HorizontalAlignment="Center" Value="{Binding Importance}" />
                 </DataTemplate>
               </controls:DataGridTemplateColumn.CellTemplate>
             </controls:DataGridTemplateColumn>
@@ -185,6 +186,9 @@
             <controls:DataGridTextColumn Header="Reference Links" Binding="{Binding ReferenceLinks, Converter={StaticResource UriListToStringConverter}}" Tag="ReferenceLinks" />
           </controls:DataGrid.Columns>
         </controls:DataGrid>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="10" Margin="10">
+          <TextBlock x:Name="countTextBlock" Style="{ThemeResource CaptionTextBlockStyle}" />
+        </StackPanel>
       </Grid>
     </SplitView>
   </Grid>

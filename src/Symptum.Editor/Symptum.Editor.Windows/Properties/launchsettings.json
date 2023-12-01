@@ -1,10 +1,10 @@
 {
-	"profiles": {
-		"Symptum.Editor.Windows (Unpackaged)": {
-			"commandName": "Project"
-		},
-		"Symptum.Editor.Windows (Package)": {
-			"commandName": "MsixPackage"
-		}
-	}
+  "profiles": {
+    "Symptum.Editor.Windows (Unpackaged)": {
+      "commandName": "Project"
+    },
+    "Symptum.Editor.Windows (Package)": {
+      "commandName": "MsixPackage"
+    }
+  }
 }

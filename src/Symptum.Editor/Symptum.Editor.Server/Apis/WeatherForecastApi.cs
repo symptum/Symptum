@@ -3,6 +3,7 @@ namespace Symptum.Editor.Server.Apis;
 internal static class WeatherForecastApi
 {
     private const string Tag = "Weather";
+
     private static readonly string[] Summaries = new[]
     {
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
