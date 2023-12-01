@@ -10,7 +10,15 @@ jobs:
     runs-on: windows-latest
     name: Deploy to GitHub Pages
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        path: Symptum
+    - name: Checkout Symptum.Data
+      uses: actions/checkout@v4
+      with:
+        repository: ShankarBUS/Symptum.Data
+        path: Symptum.Data
     - name: Correct Web Manifest Scope
       run: |
           cd ./src/Symptum.Editor/Symptum.Editor.Wasm/
@@ -21,12 +29,12 @@ jobs:
         dotnet-version: 8.0.x
     - name: Restore Dependencies
       run: dotnet restore ./src/Symptum.Editor/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj
-    - name: Build
-      run: dotnet build ./src/Symptum.Editor/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj "-p:WasmShellWebAppBasePath=/Symptum/editor/" --no-restore -f net8.0 -c Debug -o out
+    - name: Publish
+      run: dotnet publish ./src/Symptum.Editor/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj "-p:WasmShellWebAppBasePath=/Symptum/editor/" --no-restore -f net8.0 -c Debug -o out
     - name: Create Symptum/Editor Folder
       run: mkdir "symptum/editor"
     - name: Copy Files to Symptum/Editor Folder
-      run: copy-item out\\dist\\* symptum\\editor -force -recurse -verbose
+      run: copy-item out\\wwwroot\\* symptum\\editor -force -recurse -verbose
     # add .nojekyll file to tell GitHub pages to not treat this as a Jekyll project. (Allow files and folders starting with an underscore)
     - name: Add .nojekyll file
       run: touch symptum/editor/.nojekyll
