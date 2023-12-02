@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net8.0-android;net8.0-ios;net8.0-maccatalyst</TargetFrameworks>
-    <TargetFrameworks Condition="'$(OverrideTargetFrameworks)'!=''">$(OverrideTargetFrameworks)</TargetFrameworks>
+    <TargetFrameworks>$(DotNetVersion)-android;$(DotNetVersion)-ios;$(DotNetVersion)-maccatalyst</TargetFrameworks>
+    <TargetFrameworks Condition="'$(OverrideTargetFramework)'!=''">$(OverrideTargetFramework)</TargetFrameworks>
     <SingleProject>true</SingleProject>
     <OutputType>Exe</OutputType>
     <!-- Display name -->
     <ApplicationTitle>Symptum Editor (Dev)</ApplicationTitle>
     <!-- App Identifier -->
     <ApplicationId>com.symptum.editor.dev</ApplicationId>
-    <ApplicationIdGuid>C2B09596-2551-4095-B7CB-B2F9B40E4B36</ApplicationIdGuid>
+    <ApplicationIdGuid>DF0B4D0E-2900-429B-AE6F-9D00050C448A</ApplicationIdGuid>
     <!-- Versions -->
     <ApplicationDisplayVersion>0.0.1</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
@@ -21,12 +21,11 @@
     <UseInterpreter Condition="'$(Configuration)' == 'Debug' and $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'maccatalyst'">True</UseInterpreter>
     <IsUnoHead>true</IsUnoHead>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-android|AnyCPU'">
-    <AndroidPackageFormat>apk</AndroidPackageFormat>
-  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Uno.WinUI" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Uno.Toolkit.WinUI" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" />
     <PackageReference Include="Uno.Extensions.Logging.OSLog" />
     <PackageReference Include="Uno.UI.Adapter.Microsoft.Extensions.Logging" />
@@ -74,5 +73,11 @@
   <ItemGroup>
     <ProjectReference Include="..\Symptum.Editor\Symptum.Editor.csproj" />
   </ItemGroup>
-  <Import Project="..\Symptum.Editor.Base\base.props" />
+  <Import Project="..\Symptum.Editor.Shared\base.props" />
+
+  <Target Name="ValidateOverrides" BeforeTargets="Restore;_CheckForUnsupportedTargetFramework" Condition="'$(OverrideTargetFramework)' != ''">
+    <Error
+        Text="OverrideTargetFramework set to '$(OverrideTargetFramework)' is missing valid target. Set OverrideTargetFramework to one of the TargetFrameworks for this project or skip building this project (eg unload the project in Visual Studio)"
+        Condition="$(OverrideTargetFramework.Contains('windows10')) or !$(OverrideTargetFrameork.Contains('-'))" />
+  </Target>
 </Project>

@@ -15,11 +15,6 @@
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
     <Grid.Resources>
-      <DataTemplate x:Key="TopicItemTemplate" x:DataType="qbank:QuestionBankTopic">
-        <TreeViewItem AutomationProperties.Name="{x:Bind TopicName, Mode=OneWay}">
-          <TextBlock Text="{x:Bind TopicName, Mode=OneWay}" />
-        </TreeViewItem>
-      </DataTemplate>
       <converters:BookLocationListToStringConverter x:Key="BookLocationListToStringConverter" />
       <converters:DateOnlyListToStringConverter x:Key="DateOnlyListToStringConverter" />
       <converters:StringListToStringConverter x:Key="StringListToStringConverter" />

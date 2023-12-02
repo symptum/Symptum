@@ -1,8 +1,4 @@
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Symptum.Core.Subjects.Books;
-using System.Collections.Generic;
-using System.Linq;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.

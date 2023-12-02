@@ -19,7 +19,7 @@
       "type": "chrome",
       "request": "launch",
       "url": "http://localhost:5001",
-      "webRoot": "${workspaceFolder}/SymptumEditor.Wasm",
+      "webRoot": "${workspaceFolder}/Symptum.Editor.Wasm",
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
       "timeout": 30000,
       "server": {
@@ -27,7 +27,7 @@
         "program": "run",
         "outputCapture": "std",
         "timeout": 30000,
-        "cwd": "${workspaceFolder}/SymptumEditor.Wasm"
+        "cwd": "${workspaceFolder}/Symptum.Editor.Wasm"
       }
     },
     {
@@ -39,12 +39,12 @@
       "request": "launch",
       "preLaunchTask": "build-skia-gtk",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/SymptumEditor.Skia.Gtk/bin/Debug/net8.0/SymptumEditor.Skia.Gtk.dll",
+      "program": "${workspaceFolder}/Symptum.Editor.Skia.Gtk/bin/Debug/net8.0/Symptum.Editor.Skia.Gtk.dll",
       "args": [],
       "env": {
         "DOTNET_MODIFIABLE_ASSEMBLIES": "debug"
       },
-      "cwd": "${workspaceFolder}/SymptumEditor.Skia.Gtk",
+      "cwd": "${workspaceFolder}/Symptum.Editor.Skia.Gtk",
       // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
       "console": "internalConsole",
       "stopAtEntry": false

@@ -7,7 +7,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/SymptumEditor.Wasm/SymptumEditor.Wasm.csproj",
+        "${workspaceFolder}/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -19,7 +19,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/SymptumEditor.Wasm/SymptumEditor.Wasm.csproj",
+        "${workspaceFolder}/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -31,7 +31,7 @@
       "type": "process",
       "args": [
         "build",
-        "${workspaceFolder}/SymptumEditor.Skia.Gtk/SymptumEditor.Skia.Gtk.csproj",
+        "${workspaceFolder}/Symptum.Editor.Skia.Gtk/Symptum.Editor.Skia.Gtk.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],
@@ -43,7 +43,7 @@
       "type": "process",
       "args": [
         "publish",
-        "${workspaceFolder}/SymptumEditor.Skia.Gtk/SymptumEditor.Skia.Gtk.csproj",
+        "${workspaceFolder}/Symptum.Editor.Skia.Gtk/Symptum.Editor.Skia.Gtk.csproj",
         "/property:GenerateFullPaths=true",
         "/consoleloggerparameters:NoSummary"
       ],

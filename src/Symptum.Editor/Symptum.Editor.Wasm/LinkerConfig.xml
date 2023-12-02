@@ -1,11 +1,8 @@
 <linker>
+  <assembly fullname="CsvHelper" />
+  <assembly fullname="Symptum.Core">
+    <type fullname="Symptum.Core*" />
+  </assembly>
   <assembly fullname="Symptum.Editor" />
   <assembly fullname="Symptum.Editor.Wasm" />
-
-  <!--
-  Uncomment this section when using JSON.NET
-  <assembly fullname="System.Core">
-    <type fullname="System.Linq.Expressions*" />
-  </assembly>
-   -->
 </linker>

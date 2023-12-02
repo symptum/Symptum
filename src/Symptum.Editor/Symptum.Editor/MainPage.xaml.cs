@@ -123,6 +123,8 @@ public sealed partial class MainPage : Page
 
     private async void SaveTopicsButton_Click(object sender, RoutedEventArgs e)
     {
+        if (topics.Count == 0) return;
+
         bool pathExists;
         if (workFolder == null)
             pathExists = await SelectWorkPathAsync();
