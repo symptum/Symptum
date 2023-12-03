@@ -37,9 +37,9 @@ namespace Symptum.Core.Subjects.QuestionBank
             TopicName = topicName;
         }
 
-        public void SaveAsCSV(string path)
+        public string ToCSV()
         {
-            using var writer = new StreamWriter(path);
+            using var writer = new StringWriter();
             using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
             csv.WriteHeader<QuestionEntry>();
             csv.NextRecord();
@@ -48,16 +48,17 @@ namespace Symptum.Core.Subjects.QuestionBank
                 csv.WriteRecord(entry);
                 csv.NextRecord();
             }
+            return writer.ToString();
         }
 
-        public static QuestionBankTopic ReadTopicFromCSV(string path)
+        public static QuestionBankTopic CreateTopicFromCSV(string topicName, string csv)
         {
-            if (!File.Exists(path) || Path.GetExtension(path).ToLower() != ".csv") return null;
+            if (string.IsNullOrEmpty(csv)) return null;
 
-            QuestionBankTopic topic = new(Path.GetFileNameWithoutExtension(path));
-            using var reader = new StreamReader(path);
-            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-            topic.QuestionEntries = new(csv.GetRecords<QuestionEntry>().ToList());
+            QuestionBankTopic topic = new(topicName);
+            using var reader = new StringReader(csv);
+            using var csvReader = new CsvReader(reader, CultureInfo.InvariantCulture);
+            topic.QuestionEntries = new(csvReader.GetRecords<QuestionEntry>().ToList());
 
             return topic;
         }

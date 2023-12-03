@@ -3,7 +3,6 @@ using CsvHelper.Configuration.Attributes;
 using CsvHelper.TypeConversion;
 using Symptum.Core.Subjects.Books;
 using Symptum.Core.TypeConversion;
-using System.Runtime.CompilerServices;
 
 namespace Symptum.Core.Subjects.QuestionBank
 {
@@ -28,12 +27,13 @@ namespace Symptum.Core.Subjects.QuestionBank
             set => SetProperty(ref title, value);
         }
 
-        private string description = string.Empty;
+        private List<string> descriptions;
 
-        public string Description
+        [TypeConverter(typeof(StringListConverter))]
+        public List<string> Descriptions
         {
-            get => description;
-            set => SetProperty(ref description, value);
+            get => descriptions;
+            set => SetProperty(ref descriptions, value);
         }
 
         private bool hasPreviouslyBeenAsked;
@@ -100,7 +100,7 @@ namespace Symptum.Core.Subjects.QuestionBank
             {
                 Id = new() { QuestionType = id.QuestionType, SubjectCode = id.SubjectCode, CompetencyNumbers = id.CompetencyNumbers },
                 Title = Title,
-                Description = Description,
+                Descriptions = CloneList(Descriptions),
                 HasPreviouslyBeenAsked = HasPreviouslyBeenAsked,
                 Importance = Importance,
                 YearsAsked = CloneList(YearsAsked),
