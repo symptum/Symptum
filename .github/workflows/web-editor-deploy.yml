@@ -1,9 +1,9 @@
 name: Symptum Web Editor Deployment
 on:
   pull_request:
-    branches: [ editor-uno ]
+    branches: [ main ]
   push:
-    branches: [ editor-uno ]
+    branches: [ main ]
   workflow_dispatch:  # Allows workflow to be ran via a button
 jobs:
   deploy-to-github-pages:
