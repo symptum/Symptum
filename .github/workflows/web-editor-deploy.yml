@@ -17,12 +17,12 @@ jobs:
     - name: Checkout Symptum.Data
       uses: actions/checkout@v4
       with:
-        repository: ShankarBUS/Symptum.Data
+        repository: symptum/Symptum.Data
         path: Symptum.Data
     - name: Correct Web Manifest Scope
       run: |
           cd ./main/src/Symptum.Editor/Symptum.Editor.Wasm/
-          (Get-Content manifest.webmanifest) -Replace '/', '/Symptum/editor/' | Set-Content manifest.webmanifest
+          (Get-Content manifest.webmanifest) -Replace '/', '/editor/' | Set-Content manifest.webmanifest
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
@@ -30,19 +30,22 @@ jobs:
     - name: Restore Dependencies
       run: dotnet restore ./main/src/Symptum.Editor/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj
     - name: Publish
-      run: dotnet publish ./main/src/Symptum.Editor/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj "-p:WasmShellWebAppBasePath=/Symptum/editor/" --no-restore -f net8.0 -c Release -o out
-    - name: Create Symptum/Editor Folder
-      run: mkdir "symptum/editor"
-    - name: Copy Files to Symptum/Editor Folder
-      run: copy-item out\\wwwroot\\* symptum\\editor -force -recurse -verbose
+      run: dotnet publish ./main/src/Symptum.Editor/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj "-p:WasmShellWebAppBasePath=/editor/" --no-restore -f net8.0 -c Release -o out
+    - name: Create Editor Folder
+      run: mkdir editor
+    - name: Copy Files to Editor Folder
+      run: copy-item out\\wwwroot\\* editor -force -recurse -verbose
     # add .nojekyll file to tell GitHub pages to not treat this as a Jekyll project. (Allow files and folders starting with an underscore)
     - name: Add .nojekyll file
-      run: touch symptum/editor/.nojekyll
+      run: touch editor/.nojekyll
     - name: Deploy to GitHub Pages
       uses: crazy-max/ghaction-github-pages@v2
       with:
         target_branch: gh-pages
-        build_dir: ./symptum/
+        repo: symptum/editor
+        build_dir: ./editor/
+        author: Shankar <shankarbus04082001@hotmail.com>
+        committer: Shankar <shankarbus04082001@hotmail.com>
         jekyll: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
