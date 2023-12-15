@@ -1,47 +1,80 @@
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
-using System.Runtime.InteropServices;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Input;
-using Symptum.Core.Subjects.QuestionBank;
-using Symptum.Core.TypeConversion;
+using System.Text;
+using Symptum.Core.Management.Resources;
+using Symptum.Core.Subjects.QuestionBanks;
 using Symptum.Editor.Controls;
+using Symptum.Editor.EditorPages;
 using Symptum.Editor.Helpers;
 using Windows.Storage.Pickers;
-using Windows.Storage.Pickers.Provider;
 
 namespace Symptum.Editor;
 
 public sealed partial class MainPage : Page
 {
-    private ObservableCollection<QuestionBankTopic> topics = new();
-
-    private QuestionBankTopic currentTopic;
-
-    private StorageFolder workFolder;
-
-    private FindFlyout findFlyout;
+    private ObservableCollection<QuestionBankTopic> topics = [];
 
     private IntPtr hWnd = IntPtr.Zero;
     private Window mainWindow;
     private TopicEditorDialog topicEditorDialog = new();
-    private QuestionEditorDialog questionEditorDialog = new();
 
-    private ContentDialog deleteTopicDialog = new()
-    {
-        Title = "Delete Topic(s)?",
-        PrimaryButtonText = "Delete",
-        CloseButtonText = "Cancel",
-        Content = new TextBlock()
-        {
-            Text = "Do you want to delete the topic(s)? Once you delete you won't be able to restore."
-        }
-    };
+    //private ContentDialog deleteTopicDialog = new()
+    //{
+    //    Title = "Delete Topic(s)?",
+    //    PrimaryButtonText = "Delete",
+    //    CloseButtonText = "Cancel",
+    //    Content = new TextBlock()
+    //    {
+    //        Text = "Do you want to delete the topic(s)? Once you delete you won't be able to restore."
+    //    }
+    //};
 
     public MainPage()
     {
-        this.InitializeComponent();
+        InitializeComponent();
+
+        //Subject subject = new(SubjectList.Anatomy)
+        //{
+        //    Title = "Anatomy",
+        //    QuestionBank = new()
+        //    {
+        //        Title = "Anatomy Question Bank",
+        //        QuestionBankPapers =
+        //        [
+        //            new("Paper 1")
+        //            {
+        //                Topics =
+        //                [
+        //                    new("Abdomen")
+        //                    {
+        //                        QuestionEntries =
+        //                        [
+        //                            new()
+        //                            {
+        //                                Title = "Liver"
+        //                            }
+        //                        ]
+        //                    },
+        //                    new("Upper Limb"),
+        //                    new("Lower Limb")
+        //                ]
+        //            },
+        //            new("Paper 2")
+        //        ]
+        //    }
+        //};
+
+        //using StreamReader sr = new(File.OpenRead("D:\\Symptum.Data\\Abdomen.csv"));
+        //QuestionBankTopic topic = QuestionBankTopic.CreateTopicFromCSV("Abdomen", sr.ReadToEnd());
+
+        //ObservableCollection<NavigableResource> items =
+        //[
+        //    subject,
+        //    //topic
+        //];
+
+        //((IResource)subject).InitializeResource(null);
+
+        treeView.ItemsSource = topics;
 
         if (App.Current is App app && app.MainWindow is Window window)
             mainWindow = window;
@@ -51,253 +84,119 @@ public sealed partial class MainPage : Page
         {
             hWnd = WinRT.Interop.WindowNative.GetWindowHandle(mainWindow);
             mainWindow.SetTitleBar(AppTitleBar);
-            topicEditorDialog.XamlRoot = questionEditorDialog.XamlRoot = deleteTopicDialog.XamlRoot = mainWindow.Content.XamlRoot;
+            //topicEditorDialog.XamlRoot = questionEditorDialog.XamlRoot = deleteTopicDialog.XamlRoot = mainWindow.Content.XamlRoot;
         }
         Background = null;
 #endif
         TitleTextBlock.Text = mainWindow?.Title;
 
-        topicsView.SelectionChanged += (s, e) =>
+        treeView.ItemInvoked += (s, e) =>
         {
-            int count = topicsView.SelectedItems.Count;
-            deleteTopicsButton.IsEnabled = count > 0;
-            editTopicButton.IsEnabled = count == 1;
-            if (count == 1 && topicsView.SelectedItems[0] is QuestionBankTopic topic)
+            if (e.InvokedItem is IResource resource)
             {
-                SelectTopic(topic);
+                editorsTabView.SelectedItem = EditorPagesManager.CreateOrOpenEditorPage(resource);
             }
         };
-        topicsView.ItemsSource = topics;
-    }
 
-    private void SelectTopic(QuestionBankTopic topic)
-    {
-        currentTopic = topic;
-        dataGrid.ItemsSource = topic.QuestionEntries;
-        dataGrid.IsEnabled = true;
-        addQuestionButton.IsEnabled = true;
-        findQuestionButton.IsEnabled = true;
-        SetCountsText();
-    }
-
-    private void SetCountsText(bool clear = false)
-    {
-        if (clear)
-            countTextBlock.Text = null;
-        else
-            countTextBlock.Text = $"{currentTopic.QuestionEntries.Count} Entries, {dataGrid.SelectedItems.Count} Selected";
-    }
-
-    private async void AddTopicButton_Click(object sender, RoutedEventArgs e)
-    {
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-        topicEditorDialog.XamlRoot = Content.XamlRoot;
-#endif
-        var result = await topicEditorDialog.CreateAsync();
-        if (result == EditResult.Save)
+        expandPaneButton.Click += (s, e) =>
         {
-            QuestionBankTopic topic = new(topicEditorDialog.TopicName)
-            {
-                QuestionEntries = new()
-            };
+            splitView.IsPaneOpen = true;
+        };
 
-            topics.Add(topic);
-        }
+        editorsTabView.TabItemsSource = EditorPagesManager.EditorPages;
+        ResourceHelper.Initialize(XamlRoot, hWnd);
     }
 
-    private async void EditTopicButton_Click(object sender, RoutedEventArgs e)
+    //    private async void EditTopicButton_Click(object sender, RoutedEventArgs e)
+    //    {
+    //        if (topicsView.SelectedItems.Count == 0) return;
+    //        if (topicsView.SelectedItems[0] is QuestionBankTopic topic)
+    //        {
+    //#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+    //            topicEditorDialog.XamlRoot = Content.XamlRoot;
+    //#endif
+    //            var result = await topicEditorDialog.EditAsync(topic.Title);
+    //            if (result == EditResult.Save)
+    //            {
+    //                topic.Title = topicEditorDialog.TopicName;
+    //            }
+    //        }
+    //    }
+
+    private bool _isBeingSaved = false;
+
+    private async void SaveAll_Click(object sender, RoutedEventArgs e)
     {
-        if (topicsView.SelectedItems.Count == 0) return;
-        if (topicsView.SelectedItems[0] is QuestionBankTopic topic)
+        if (_isBeingSaved)
         {
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-            topicEditorDialog.XamlRoot = Content.XamlRoot;
-#endif
-            var result = await topicEditorDialog.EditAsync(topic.TopicName);
-            if (result == EditResult.Save)
-            {
-                topic.TopicName = topicEditorDialog.TopicName;
-            }
+            return;
         }
-    }
 
-    private async void SaveTopicsButton_Click(object sender, RoutedEventArgs e)
-    {
+        _isBeingSaved = true;
         if (topics.Count == 0) return;
 
-        bool pathExists;
-        if (workFolder == null)
-            pathExists = await SelectWorkPathAsync();
-        else pathExists = true;
+        bool pathExists = await ResourceHelper.VerifyWorkPathAsync();
 
         if (pathExists)
-            await SaveCSVsAsync();
-    }
-
-    private async Task SaveCSVsAsync()
-    {
-        if (_folderPicked)
         {
             foreach (var topic in topics)
             {
-                var file = await workFolder.CreateFileAsync(topic.TopicName + ".csv", CreationCollisionOption.ReplaceExisting);
-                await FileIO.WriteTextAsync(file, topic.ToCSV());
+                await ResourceHelper.SaveQuestionBankTopicAsync(topic);
             }
+            EditorPagesManager.MarkAllOpenEditorsAsSaved();
         }
-        else
-        {
-            foreach (var topic in topics)
-            {
-                var fileSavePicker = new FileSavePicker
-                {
-                    SuggestedFileName = topic.TopicName
-                };
-                fileSavePicker.FileTypeChoices.Add("CSV File", new List<string>() { ".csv" });
-
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-                WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, hWnd);
-#endif
-                StorageFile saveFile = await fileSavePicker.PickSaveFileAsync();
-                if (saveFile != null)
-                {
-                    CachedFileManager.DeferUpdates(saveFile);
-
-                    await FileIO.WriteTextAsync(saveFile, topic.ToCSV());
-
-                    await CachedFileManager.CompleteUpdatesAsync(saveFile);
-                }
-            }
-        }
+        _isBeingSaved = false;
     }
 
-    private async void DeleteTopicsButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (topicsView.SelectedItems.Count == 0) return;
-        bool deleteCurrent = false;
+    //    private async void DeleteTopicsButton_Click(object sender, RoutedEventArgs e)
+    //    {
+    //        if (topicsView.SelectedItems.Count == 0) return;
+    //        bool deleteCurrent = false;
 
-        List<QuestionBankTopic> toDelete = new();
+    //        List<QuestionBankTopic> toDelete = [];
 
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-        deleteTopicDialog.XamlRoot = Content.XamlRoot;
-#endif
-        var result = await deleteTopicDialog.ShowAsync();
-        if (result == ContentDialogResult.Primary)
-        {
-            foreach (var item in topicsView.SelectedItems)
-            {
-                if (item is QuestionBankTopic topic)
-                {
-                    try
-                    {
-                        var csvfile = await workFolder.GetFileAsync(topic.TopicName + ".csv");
-                        if (csvfile != null) await csvfile.DeleteAsync();
-                    }
-                    catch { }
+    //#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+    //        deleteTopicDialog.XamlRoot = Content.XamlRoot;
+    //#endif
+    //        var result = await deleteTopicDialog.ShowAsync();
+    //        if (result == ContentDialogResult.Primary)
+    //        {
+    //            foreach (var item in topicsView.SelectedItems)
+    //            {
+    //                if (item is QuestionBankTopic topic)
+    //                {
+    //                    try
+    //                    {
+    //                        var csvfile = await workFolder.GetFileAsync(topic.Title + ".csv");
+    //                        if (csvfile != null) await csvfile.DeleteAsync();
+    //                    }
+    //                    catch { }
 
-                    toDelete.Add(topic);
+    //                    toDelete.Add(topic);
 
-                    if (item == currentTopic)
-                        deleteCurrent = true;
-                }
-            }
+    //                    if (item == currentTopic)
+    //                        deleteCurrent = true;
+    //                }
+    //            }
 
-            topicsView.SelectedItems.Clear();
-            toDelete.ForEach(x => topics.Remove(x));
-            toDelete.Clear();
+    //            topicsView.SelectedItems.Clear();
+    //            toDelete.ForEach(x => topics.Remove(x));
+    //            toDelete.Clear();
 
-            ResetData(deleteCurrent);
-        }
-    }
-
-    private async void AddQuestionButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (currentTopic != null)
-        {
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-            questionEditorDialog.XamlRoot = Content.XamlRoot;
-#endif
-            var result = await questionEditorDialog.CreateAsync();
-            if (result == EditResult.Save)
-            {
-                currentTopic.QuestionEntries.Add(questionEditorDialog.QuestionEntry);
-                SetCountsText();
-            }
-        }
-    }
-
-    private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        int count = dataGrid.SelectedItems.Count;
-        deleteQuestionsButton.IsEnabled = count > 0;
-        duplicateQuestionButton.IsEnabled = count > 0;
-        editQuestionButton.IsEnabled = count == 1;
-        SetCountsText();
-    }
-
-    private async void EditQuestionButton_Click(object sender, RoutedEventArgs e)
-    {
-        await EnterEditQuestionAsync();
-    }
-
-    private async void DataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-    {
-        await EnterEditQuestionAsync();
-    }
-
-    private async Task EnterEditQuestionAsync()
-    {
-        if (dataGrid.SelectedItems.Count == 0) return;
-        if (dataGrid.SelectedItems[0] is QuestionEntry entry)
-        {
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-            questionEditorDialog.XamlRoot = Content.XamlRoot;
-#endif
-            await questionEditorDialog.EditAsync(entry);
-        }
-    }
-
-    private void DuplicateQuestionButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (dataGrid.SelectedItems.Count == 0 || currentTopic == null) return;
-        List<QuestionEntry> toDupe = new();
-
-        foreach (var item in dataGrid.SelectedItems)
-        {
-            if (item is QuestionEntry entry && currentTopic.QuestionEntries.Contains(entry))
-                toDupe.Add(entry);
-        }
-        dataGrid.SelectedItems.Clear();
-        toDupe.ForEach(x => currentTopic.QuestionEntries.Add(x.Clone()));
-        toDupe.Clear();
-        SetCountsText();
-    }
-
-    private void DeleteQuestionsButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (dataGrid.SelectedItems.Count == 0 || currentTopic == null) return;
-        List<QuestionEntry> toDelete = new();
-
-        foreach (var item in dataGrid.SelectedItems)
-        {
-            if (item is QuestionEntry entry && currentTopic.QuestionEntries.Contains(entry))
-                toDelete.Add(entry);
-        }
-        dataGrid.SelectedItems.Clear();
-        toDelete.ForEach(x => currentTopic.QuestionEntries.Remove(x));
-        toDelete.Clear();
-        SetCountsText();
-    }
+    //            ResetData(deleteCurrent);
+    //        }
+    //    }
 
     private async Task LoadTopicsFromWorkPathAsync()
     {
-        if (workFolder == null) return;
-
-        var files = await workFolder.GetFilesAsync();
+        var files = await ResourceHelper.GetFilesFromWorkPathAsync();
         await LoadTopicsFromFilesAsync(files);
     }
 
-    private async Task LoadTopicsFromFilesAsync(IEnumerable<StorageFile> files)
+    private async Task LoadTopicsFromFilesAsync(IEnumerable<StorageFile>? files)
     {
+        if (files == null) return;
+
         foreach (StorageFile file in files)
         {
             if (file.FileType.Equals(".csv", StringComparison.CurrentCultureIgnoreCase))
@@ -309,18 +208,18 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private async void OpenFolderButton_Click(object sender, RoutedEventArgs e)
+    private async void OpenFolder_Click(object sender, RoutedEventArgs e)
     {
-        bool result = await SelectWorkPathAsync();
-        if (result && _folderPicked)
+        bool result = await ResourceHelper.SelectWorkPathAsync();
+        if (result && ResourceHelper.FolderPicked)
         {
-            ResetData();
+            EditorPagesManager.ResetEditors();
             topics.Clear();
             await LoadTopicsFromWorkPathAsync();
         }
     }
 
-    private async void OpenFileButton_Click(object sender, RoutedEventArgs e)
+    private async void OpenFile_Click(object sender, RoutedEventArgs e)
     {
         FileOpenPicker fileOpenPicker = new();
         fileOpenPicker.FileTypeFilter.Add(".csv");
@@ -335,133 +234,60 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private bool _folderPicked = false;
-
-    private async Task<bool> SelectWorkPathAsync()
+    private async void Markdown_Click(object sender, RoutedEventArgs e)
     {
-        FolderPicker folderPicker = new();
-        folderPicker.FileTypeFilter.Add("*");
+        if (_isBeingSaved)
+        {
+            return;
+        }
+
+        _isBeingSaved = true;
+
+        StringBuilder mdBuilder = new();
+        foreach (var topic in topics)
+        {
+            MarkdownHelper.GenerateMarkdownForQuestionBankTopic(topic, ref mdBuilder);
+        }
+        var fileSavePicker = new FileSavePicker
+        {
+            SuggestedFileName = string.Empty
+        };
+        fileSavePicker.FileTypeChoices.Add("Markdown File", new List<string>() { ".md" });
 
 #if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hWnd);
+        WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, hWnd);
 #endif
-
-        StorageFolder folder;
-        if (StorageHelper.IsFolderPickerSupported)
+        StorageFile saveFile = await fileSavePicker.PickSaveFileAsync();
+        if (saveFile != null)
         {
-            folder = await folderPicker.PickSingleFolderAsync();
-            _folderPicked = true;
-        }
-        else
-        {
-            var localFolder = ApplicationData.Current.LocalFolder;
-            folder = await localFolder.CreateFolderAsync("Temp", CreationCollisionOption.OpenIfExists);
-            _folderPicked = false;
-        }
+            CachedFileManager.DeferUpdates(saveFile);
 
-        if (folder != null && workFolder != folder)
-        {
-            workFolder = folder;
-            mainWindow.Title = TitleTextBlock.Text = $"Symptum Editor • {workFolder.Path}";
-            return true;
-        }
+            await FileIO.WriteTextAsync(saveFile, mdBuilder.ToString());
 
-        return false;
+            await CachedFileManager.CompleteUpdatesAsync(saveFile);
+        }
+        _isBeingSaved = false;
     }
 
-    private void ResetData(bool currentTopicDeleted = true)
+    private void EditorsTabView_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
     {
-        topicsView.SelectedItems.Clear();
-        deleteTopicsButton.IsEnabled = false;
-        editTopicButton.IsEnabled = false;
-        if (currentTopicDeleted)
-        {
-            dataGrid.SelectedItems.Clear();
-            dataGrid.ItemsSource = null;
-            dataGrid.IsEnabled = false;
-            addQuestionButton.IsEnabled = false;
-            findQuestionButton.IsEnabled = false;
-            currentTopic = null;
-            SetCountsText(true);
-        }
+        EditorPagesManager.TryCloseEditorPage(args.Item as IEditorPage);
     }
 
-    private void FindQuestionButton_Click(object sender, RoutedEventArgs e)
+    private async void New_Click(object sender, RoutedEventArgs e)
     {
-        if (findFlyout == null)
+#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+        topicEditorDialog.XamlRoot = Content.XamlRoot;
+#endif
+        var result = await topicEditorDialog.CreateAsync();
+        if (result == EditorResult.Create)
         {
-            List<string> columns =
-            [
-                nameof(QuestionEntry.Title),
-                    nameof(QuestionEntry.Descriptions),
-                    nameof(QuestionEntry.ProbableCases)
-            ];
-
-            findFlyout = new()
+            QuestionBankTopic topic = new(topicEditorDialog.TopicName)
             {
-                FindContexts = columns,
-                SelectedContext = columns[0],
+                QuestionEntries = []
             };
 
-            findFlyout.QuerySubmitted += FindFlyout_QuerySubmitted;
+            topics.Add(topic);
         }
-
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-        findFlyout.XamlRoot = Content.XamlRoot;
-        FlyoutShowOptions flyoutShowOptions = new()
-        {
-            Position = new(ActualWidth, 80),
-            Placement = FlyoutPlacementMode.Bottom
-        };
-        findFlyout.ShowAt(showOptions: flyoutShowOptions);
-#else
-        findFlyout.ShowAt(findQuestionButton);
-#endif
-    }
-
-    private void FindFlyout_QuerySubmitted(object sender, FindFlyoutQuerySubmittedEventArgs e)
-    {
-        if (e.FindDirection != FindDirection.All)
-            return;
-        if (currentTopic != null)
-        {
-            dataGrid.ItemsSource = new ObservableCollection<QuestionEntry>(from question in currentTopic.QuestionEntries.ToList()
-                                                                           where QuestionEntryPropertyMatchValue(question, e)
-                                                                           select question);
-        }
-    }
-
-    // TODO: Implement Match Whole Word
-    private bool QuestionEntryPropertyMatchValue(QuestionEntry question, FindFlyoutQuerySubmittedEventArgs e)
-    {
-        switch (e.Context)
-        {
-            case nameof(QuestionEntry.Title):
-                {
-                    return question.Title.Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
-                };
-            case nameof(QuestionEntry.Descriptions):
-                {
-                    string descriptions = ListToStringConversion.ConvertToString<string>(question.Descriptions, x => x);
-                    return descriptions.Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
-                };
-            case nameof(QuestionEntry.ProbableCases):
-                {
-                    string probableCases = ListToStringConversion.ConvertToString<string>(question.ProbableCases, x => x);
-                    return probableCases.Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
-                };
-
-            default: return false;
-        }
-    }
-
-    private void OpenSidePaneButton_Click(object sender, RoutedEventArgs e)
-    {
-        splitView.IsPaneOpen = true;
-    }
-
-    private void CloseSidePaneButton_Click(object sender, RoutedEventArgs e)
-    {
-        splitView.IsPaneOpen = false;
     }
 }

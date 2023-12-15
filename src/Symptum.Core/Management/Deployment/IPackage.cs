@@ -1,19 +1,22 @@
-﻿namespace Symptum.Core.Management.Deployment
+using Symptum.Core.Management.Resources;
+
+namespace Symptum.Core.Management.Deployment;
+
+public interface IPackage
 {
-    public interface IPackage
-    {
-        public string Name { get; set; }
+    string Title { get; set; }
 
-        public string Description { get; set; }
+    string Description { get; set; }
 
-        public Version Version { get; set; }
+    Version Version { get; set; }
 
-        public string Authors { get; set; }
+    IList<AuthorInfo>? Authors { get; set; }
 
-        public object Content { get; set; }
+    IList<IResource>? Contents { get; set; }
 
-        public string Dependencies { get; set; }
+    IList<IResource>? Dependencies { get; set; }
 
-        public IList<string> Tags { get; set; }
-    }
+    IList<string>? DependencyIds { get; set; }
+
+    IList<string>? Tags { get; set; }
 }

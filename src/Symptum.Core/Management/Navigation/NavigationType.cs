@@ -1,11 +1,10 @@
-﻿namespace Symptum.Core.Management.Navigation
+﻿namespace Symptum.Core.Management.Navigation;
+
+public enum NavigationType
 {
-    public enum NavigationType
-    {
-        MarkdownContent,
-        ListOfContents,
-        QuestionBank,
-        TopLevel,
-        SubLevel
-    }
+    TopLevel,
+    SubLevel,
+    QuestionBank,
+    ListOfContents,
+    MarkdownContent
 }

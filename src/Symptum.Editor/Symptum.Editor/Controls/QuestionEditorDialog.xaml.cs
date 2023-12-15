@@ -1,8 +1,8 @@
 using System.Collections.ObjectModel;
-using Symptum.Core.Management.Resource;
+using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
 using Symptum.Core.Subjects.Books;
-using Symptum.Core.Subjects.QuestionBank;
+using Symptum.Core.Subjects.QuestionBanks;
 
 namespace Symptum.Editor.Controls;
 
@@ -23,7 +23,7 @@ public sealed partial class QuestionEditorDialog : ContentDialog
 {
     public QuestionEntry QuestionEntry { get; private set; }
 
-    public EditResult EditResult { get; private set; } = EditResult.None;
+    public EditorResult EditResult { get; private set; } = EditorResult.None;
 
     private ObservableCollection<ListItemWrapper<string>> descriptions = [];
     private ObservableCollection<ListItemWrapper<DateOnly>> yearsAsked = [];
@@ -36,7 +36,7 @@ public sealed partial class QuestionEditorDialog : ContentDialog
 
     public QuestionEditorDialog()
     {
-        this.InitializeComponent();
+        InitializeComponent();
 
         qtCB.ItemsSource = Enum.GetValues(typeof(QuestionType));
         scCB.ItemsSource = Enum.GetValues(typeof(SubjectList));
@@ -217,13 +217,13 @@ public sealed partial class QuestionEditorDialog : ContentDialog
 
     private void QuestionEditorDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        EditResult = EditResult.Cancel;
+        EditResult = EditorResult.Cancel;
         ClearQuestionEntry();
     }
 
     private void QuestionEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        EditResult = EditResult.Save;
+        EditResult = _isCreate ? EditorResult.Create : EditorResult.Update;
         QuestionEntry ??= new();
 
         UpdateQuestionEntry();
@@ -235,16 +235,24 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         LoadQuestionEntry();
     }
 
-    public async Task<EditResult> CreateAsync()
+    private bool _isCreate = false;
+
+    public async Task<EditorResult> CreateAsync()
     {
-        return await EditAsync(null, "Add a New Question");
+        Title = "Add a New Question";
+        PrimaryButtonText = "Add";
+        QuestionEntry = null;
+        _isCreate = true;
+        await ShowAsync();
+        return EditResult;
     }
 
-    public async Task<EditResult> EditAsync(QuestionEntry questionEntry, string dialogTitle = "Edit Question")
+    public async Task<EditorResult> EditAsync(QuestionEntry questionEntry)
     {
-        Title = dialogTitle;
+        Title = "Edit Question";
+        PrimaryButtonText = "Update";
         QuestionEntry = questionEntry;
-
+        _isCreate = false;
         await ShowAsync();
         return EditResult;
     }

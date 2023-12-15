@@ -12,7 +12,7 @@ public sealed partial class AppHead : App
     /// </summary>
     public AppHead()
     {
-        this.InitializeComponent();
+        InitializeComponent();
     }
 
     /// <summary>

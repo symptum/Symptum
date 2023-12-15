@@ -1,51 +1,50 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace Symptum.Core.Subjects.Books
+namespace Symptum.Core.Subjects.Books;
+
+public class Book : ObservableObject
 {
-    public class Book : ObservableObject
+    #region Properties
+
+    private string _code = string.Empty;
+
+    public string Code
     {
-        #region Properties
+        get => _code;
+        set => SetProperty(ref _code, value);
+    }
 
-        private string _code = string.Empty;
+    private string _title = string.Empty;
 
-        public string Code
-        {
-            get => _code;
-            set => SetProperty(ref _code, value);
-        }
+    public string Title
+    {
+        get => _title;
+        set => SetProperty(ref _title, value);
+    }
 
-        private string _title = string.Empty;
+    private string _authors = string.Empty;
 
-        public string Title
-        {
-            get => _title;
-            set => SetProperty(ref _title, value);
-        }
+    public string Authors
+    {
+        get => _authors;
+        set => SetProperty(ref _authors, value);
+    }
 
-        private string _authors = string.Empty;
+    #endregion
 
-        public string Authors
-        {
-            get => _authors;
-            set => SetProperty(ref _authors, value);
-        }
+    public Book()
+    {
+    }
 
-        #endregion
+    public Book(string code, string title, string author)
+    {
+        _code = code;
+        _title = title;
+        _authors = author;
+    }
 
-        public Book()
-        {
-        }
-
-        public Book(string code, string title, string author)
-        {
-            _code = code;
-            _title = title;
-            _authors = author;
-        }
-
-        public override string ToString()
-        {
-            return Title + " by " + Authors + " (" + Code + ")";
-        }
+    public override string ToString()
+    {
+        return Title + " by " + Authors + " (" + Code + ")";
     }
 }

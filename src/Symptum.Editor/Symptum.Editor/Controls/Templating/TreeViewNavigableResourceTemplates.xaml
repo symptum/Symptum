@@ -1,0 +1,29 @@
+﻿<ResourceDictionary
+    x:Class="Symptum.Editor.Controls.Templating.TreeViewNavigableResourceTemplates"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Symptum.Editor.Controls.Templating"
+    xmlns:sub="using:Symptum.Core.Subjects"
+    xmlns:res="using:Symptum.Core.Management.Resources"
+    xmlns:qbank="using:Symptum.Core.Subjects.QuestionBanks">
+  <local:TypedDataTemplate x:Key="SubjectDataTemplate" DataType="sub:Subject">
+    <DataTemplate>
+      <TreeViewItem ItemsSource="{Binding ChildrenResources}" Content="{Binding Title}" Background="Red" />
+    </DataTemplate>
+  </local:TypedDataTemplate>
+  <local:TypedDataTemplate x:Key="QuestionBankDataTemplate" DataType="qbank:QuestionBank">
+    <DataTemplate>
+      <TreeViewItem ItemsSource="{Binding ChildrenResources}" Content="{Binding Title}" Background="Yellow" />
+    </DataTemplate>
+  </local:TypedDataTemplate>
+  <local:TypedDataTemplate x:Key="QuestionBankPaperDataTemplate" DataType="qbank:QuestionBankPaper">
+    <DataTemplate>
+      <TreeViewItem ItemsSource="{Binding ChildrenResources}" Content="{Binding Title}" Background="Green" />
+    </DataTemplate>
+  </local:TypedDataTemplate>
+  <local:TypedDataTemplate x:Key="QuestionBankTopicDataTemplate" DataType="qbank:QuestionBankTopic">
+    <DataTemplate>
+      <TreeViewItem ItemsSource="{Binding ChildrenResources}" Content="{Binding Title}" />
+    </DataTemplate>
+  </local:TypedDataTemplate>
+</ResourceDictionary>

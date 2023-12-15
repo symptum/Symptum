@@ -35,7 +35,7 @@ public sealed partial class BookLocationPicker : UserControl
 
     public BookLocationPicker()
     {
-        this.InitializeComponent();
+        InitializeComponent();
         bookSelector.ItemsSource = BookStore.Books;
         bookSelector.TextChanged += bookSelector_TextChanged;
         bookSelector.SuggestionChosen += bookSelector_SuggestionChosen;

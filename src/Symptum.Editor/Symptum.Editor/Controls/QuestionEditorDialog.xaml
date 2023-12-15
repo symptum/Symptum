@@ -10,7 +10,7 @@
   xmlns:not_android="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
   xmlns:android="http://uno.ui/android"
   mc:Ignorable="d android"
-  PrimaryButtonText="Save" CloseButtonText="Cancel" PrimaryButtonStyle="{ThemeResource AccentButtonStyle}">
+  CloseButtonText="Cancel" PrimaryButtonStyle="{ThemeResource AccentButtonStyle}">
   <ContentDialog.Resources>
     <Style TargetType="local:QuestionEditorDialog"
            BasedOn="{StaticResource DefaultContentDialogStyle}" />
@@ -18,18 +18,16 @@
     <converters:UriToStringConverter x:Key="UriToStringConverter" />
   </ContentDialog.Resources>
   <ScrollViewer>
-    <StackPanel Spacing="10" Width="490">
+    <StackPanel Spacing="10">
       <StackPanel Spacing="10" Orientation="Horizontal">
         <ComboBox x:Name="qtCB" Header="Question Type" />
         <ComboBox x:Name="scCB" Header="Subject Code" />
         <TextBox x:Name="cnTB" Header="Competency Numbers" />
       </StackPanel>
-      <TextBox x:Name="titleTB" Header="Title"
-               AcceptsReturn="True" TextWrapping="Wrap"
-               MaxHeight="172" HorizontalAlignment="Stretch"
-               ScrollViewer.VerticalScrollBarVisibility="Auto" />
+      <TextBox x:Name="titleTB" Header="Title" TextWrapping="Wrap"
+               MaxHeight="172" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" />
       <CheckBox x:Name="paCB" Content="Has been asked previously" />
-      <Expander Header="Descriptions" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+      <Expander Header="Descriptions" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
         <local:ListEditorControl x:Name="dsLE">
           <local:ListEditorControl.ItemTemplate>
             <DataTemplate>
@@ -45,7 +43,7 @@
           <RatingControl x:Name="importanceRC" MaxRating="10" IsClearEnabled="True" />
         </StackPanel>
       </Expander>
-      <Expander Header="Years Asked" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+      <Expander Header="Years Asked" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
         <local:ListEditorControl x:Name="yaLE">
           <local:ListEditorControl.ItemTemplate>
             <DataTemplate>
@@ -55,7 +53,7 @@
           </local:ListEditorControl.ItemTemplate>
         </local:ListEditorControl>
       </Expander>
-      <Expander Header="Book Locations" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+      <Expander Header="Book Locations" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
         <local:ListEditorControl x:Name="blLE">
           <local:ListEditorControl.ItemTemplate>
             <DataTemplate>
@@ -64,12 +62,12 @@
           </local:ListEditorControl.ItemTemplate>
         </local:ListEditorControl>
       </Expander>
-      <Expander Header="Probable Cases" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+      <Expander Header="Probable Cases" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
         <local:ListEditorControl x:Name="pcLE">
           <local:ListEditorControl.ItemTemplate>
             <DataTemplate>
               <TextBox Text="{Binding Value, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap"
-                                     MaxHeight="172" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                       MaxHeight="172" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" />
             </DataTemplate>
           </local:ListEditorControl.ItemTemplate>
         </local:ListEditorControl>

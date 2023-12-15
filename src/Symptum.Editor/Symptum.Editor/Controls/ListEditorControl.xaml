@@ -7,8 +7,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-  <StackPanel Width="456">
-    <CommandBar IsOpen="False" Background="Transparent" DefaultLabelPosition="Right">
+  <StackPanel>
+    <CommandBar IsOpen="False" DefaultLabelPosition="Collapsed">
       <AppBarButton x:Name="selectAllButton" Icon="SelectAll" Label="SelectAll" Click="selectAllButton_Click" />
       <AppBarButton x:Name="addItemButton" Icon="Add" Label="Add" Click="addItemButton_Click" />
       <AppBarButton x:Name="duplicateItemsButton" IsEnabled="False" Icon="Copy" Label="Duplicate" Click="duplicateItemsButton_Click" />

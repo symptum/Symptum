@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="using:Symptum.Editor.Controls"
     mc:Ignorable="d"
-    PrimaryButtonText="Save" CloseButtonText="Cancel" DefaultButton="Primary">
+    PrimaryButtonText="Add" CloseButtonText="Cancel" DefaultButton="Primary">
   <ContentDialog.Resources>
     <Style TargetType="local:TopicEditorDialog"
                BasedOn="{StaticResource DefaultContentDialogStyle}" />

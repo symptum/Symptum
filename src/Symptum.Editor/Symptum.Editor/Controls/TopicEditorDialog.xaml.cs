@@ -1,21 +1,14 @@
 namespace Symptum.Editor.Controls;
 
-public enum EditResult
-{
-    None,
-    Save,
-    Cancel
-}
-
 public sealed partial class TopicEditorDialog : ContentDialog
 {
     public string TopicName { get; private set; }
 
-    public EditResult EditResult { get; private set; } = EditResult.None;
+    public EditorResult Result { get; private set; } = EditorResult.None;
 
     public TopicEditorDialog()
     {
-        this.InitializeComponent();
+        InitializeComponent();
         Opened += TopicEditorDialog_Opened;
         PrimaryButtonClick += TopicEditorDialog_PrimaryButtonClick;
         CloseButtonClick += TopicEditorDialog_CloseButtonClick;
@@ -23,7 +16,7 @@ public sealed partial class TopicEditorDialog : ContentDialog
 
     private void TopicEditorDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        EditResult = EditResult.Cancel;
+        Result = EditorResult.Cancel;
     }
 
     private void TopicEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -32,7 +25,7 @@ public sealed partial class TopicEditorDialog : ContentDialog
 
         if (args.Cancel == false)
         {
-            EditResult = EditResult.Save;
+            Result = EditorResult.Create;
             TopicName = topicNameTextBox.Text;
         }
     }
@@ -48,16 +41,19 @@ public sealed partial class TopicEditorDialog : ContentDialog
         return errorInfoBar.IsOpen = string.IsNullOrEmpty(topicNameTextBox.Text);
     }
 
-    public async Task<EditResult> CreateAsync()
+    public async Task<EditorResult> CreateAsync()
     {
-        return await EditAsync(string.Empty, "Add a New Topic");
+        Title = "Add a New Topic";
+        TopicName = string.Empty;
+        await ShowAsync(ContentDialogPlacement.Popup);
+        return Result;
     }
 
-    public async Task<EditResult> EditAsync(string topicName, string dialogTitle = "Edit Topic")
-    {
-        Title = dialogTitle;
-        TopicName = topicName;
-        await ShowAsync(ContentDialogPlacement.Popup);
-        return EditResult;
-    }
+    //public async Task<EditorResult> EditAsync(string topicName, string dialogTitle = "Edit Topic")
+    //{
+    //    Title = dialogTitle;
+    //    TopicName = topicName;
+    //    await ShowAsync(ContentDialogPlacement.Popup);
+    //    return Result;
+    //}
 }

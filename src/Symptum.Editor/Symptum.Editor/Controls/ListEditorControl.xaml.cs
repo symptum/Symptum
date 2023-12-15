@@ -28,7 +28,7 @@ public sealed partial class ListEditorControl : UserControl
 
     public ListEditorControl()
     {
-        this.InitializeComponent();
+        InitializeComponent();
         listView.ItemsSource = itemsSource;
         listView.ItemTemplate = itemTemplate;
     }
