@@ -10,7 +10,7 @@ public class MarkdownHelper
     private static string GetImportanceText(int importance)
     {
         if (importance > 1)
-            return new string('※', importance);
+            return new string('*', importance).Replace("*", "\\*");
         else
             return string.Empty;
     }
@@ -21,6 +21,12 @@ public class MarkdownHelper
         string lineBreak = ", ";
         x = x.Replace("\r\n", lineBreak).Replace("\n", lineBreak).Replace("\r", lineBreak).Replace("/", lineBreak);
         return x;
+    }
+
+    private static string GetYear(DateOnly date)
+    {
+        string month = date.ToString("MMMM").Substring(0, 3);
+        return $"{month} {date:yy}";
     }
 
     private static string GetOrdinal(int num)
@@ -51,8 +57,9 @@ public class MarkdownHelper
     private static string GetBookLocation(BookLocation? bookLocation)
     {
         if (bookLocation == null) return string.Empty;
+        string volString = bookLocation.Volume > 0 ? $" Volume {bookLocation.Volume}," : string.Empty;
 
-        return $"{bookLocation.Book.Code}, {GetOrdinal(bookLocation.Edition)} Edition, Volume {bookLocation.Volume}, Pg.No: {bookLocation.PageNumber}";
+        return $"{bookLocation.Book.Code}, {GetOrdinal(bookLocation.Edition)} Edition,{volString} Pg.No: {bookLocation.PageNumber}";
     }
 
     public static void GenerateMarkdownForQuestionBankTopic(QuestionBankTopic topic, ref StringBuilder mdBuilder)
@@ -102,7 +109,7 @@ public class MarkdownHelper
         mdBuilder.AppendLine();
     }
 
-    private static bool _includeYearsAsked = false;
+    private static bool _includeYearsAsked = true;
     private static bool _includeBookLocations = true;
 
     public static void GenerateMarkdownForQuestionEntry(QuestionEntry? entry, int quesno, ref StringBuilder mdBuilder)
@@ -115,7 +122,10 @@ public class MarkdownHelper
             quesno, qtitle, GetImportanceText(entry.Importance));
         if (_includeYearsAsked && entry.YearsAsked != null && entry.YearsAsked.Count > 0)
             mdBuilder.AppendFormat(" ({0})",
-                ListToStringConversion.ConvertToString<DateOnly>(entry.YearsAsked, ListToStringConversion.ElementToStringForDateOnly));
+                ListToStringConversion.ConvertToString<DateOnly>(entry.YearsAsked, GetYear));
+        if (_includeBookLocations && entry.BookLocations != null && entry.BookLocations.Count > 0)
+            mdBuilder.AppendFormat("\t({0})",
+                ListToStringConversion.ConvertToString<BookLocation>(entry.BookLocations, GetBookLocation));
         mdBuilder.AppendLine();
         if (entry.Descriptions != null && entry.Descriptions.Count > 0)
         {
@@ -134,12 +144,6 @@ public class MarkdownHelper
                 mdBuilder.AppendFormat("\t- {0}", @case);
                 mdBuilder.AppendLine();
             }
-            mdBuilder.AppendLine();
-        }
-        if (_includeBookLocations && entry.BookLocations != null && entry.BookLocations.Count > 0)
-        {
-            mdBuilder.AppendFormat("\t({0})",
-                ListToStringConversion.ConvertToString<BookLocation>(entry.BookLocations, GetBookLocation));
             mdBuilder.AppendLine();
         }
         mdBuilder.AppendLine();
