@@ -4,7 +4,7 @@ using Symptum.Core.Helpers;
 
 namespace Symptum.Core.Subjects.Books;
 
-public class BookLocation : ObservableObject
+public class BookReference : ObservableObject
 {
     private static readonly string _bookCodeId = "n";
     private static readonly string _bookEditionId = "ed";
@@ -36,38 +36,38 @@ public class BookLocation : ObservableObject
         set => SetProperty(ref _volume, value);
     }
 
-    private int _pageNumber;
+    private string _pageNumbers;
 
-    public int PageNumber
+    public string PageNumbers
     {
-        get => _pageNumber;
-        set => SetProperty(ref _pageNumber, value);
+        get => _pageNumbers;
+        set => SetProperty(ref _pageNumbers, value);
     }
 
     #endregion
 
-    public BookLocation()
+    public BookReference()
     {
     }
 
-    public static bool TryParse(string? text, out BookLocation? location)
+    public static bool TryParse(string? text, out BookReference? bookReference)
     {
         bool parsed = false;
-        location = null;
+        bookReference = null;
         if (!string.IsNullOrEmpty(text))
         {
-            var values = text.Split(ParserHelper.BookLocationDelimiter);
+            var values = text.Split(ParserHelper.BookReferenceDelimiter);
             if (values.Length == 2)
             {
-                location = new BookLocation();
+                bookReference = new BookReference();
 
                 string bookString = values[0];
                 (Book? book, int edition, int volume) = ParseBookString(bookString);
-                location.Book = book;
-                location.Edition = edition;
-                location.Volume = volume;
-                if (int.TryParse(values[1], out int pgNo))
-                    location.PageNumber = pgNo;
+                bookReference.Book = book;
+                bookReference.Edition = edition;
+                bookReference.Volume = volume;
+                if (!string.IsNullOrEmpty(values[1]))
+                    bookReference.PageNumbers = values[1];
                 parsed = true;
             }
         }
@@ -103,6 +103,6 @@ public class BookLocation : ObservableObject
         col.Add(_bookCodeId, _book?.Code ?? string.Empty);
         col.Add(_bookEditionId, _edition.ToString());
         col.Add(_bookVolumeId, _volume.ToString());
-        return col.ToString() + ParserHelper.BookLocationDelimiter + _pageNumber.ToString();
+        return col.ToString() + ParserHelper.BookReferenceDelimiter + _pageNumbers;
     }
 }

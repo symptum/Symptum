@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CsvHelper.Configuration.Attributes;
-using CsvHelper.TypeConversion;
 using Symptum.Core.Subjects.Books;
 using Symptum.Core.TypeConversion;
 
@@ -61,15 +60,6 @@ public class QuestionEntry : ObservableObject, IComparable, IComparable<Question
         set => SetProperty(ref yearsAsked, value);
     }
 
-    private List<BookLocation>? bookLocations;
-
-    [TypeConverter(typeof(BookLocationListConverter))]
-    public List<BookLocation>? BookLocations
-    {
-        get => bookLocations;
-        set => SetProperty(ref bookLocations, value);
-    }
-
     private List<string>? probableCases;
 
     [TypeConverter(typeof(StringListConverter))]
@@ -79,13 +69,22 @@ public class QuestionEntry : ObservableObject, IComparable, IComparable<Question
         set => SetProperty(ref probableCases, value);
     }
 
-    private List<Uri>? referenceLinks;
+    private List<BookReference>? bookReferences;
+
+    [TypeConverter(typeof(BookReferenceListConverter))]
+    public List<BookReference>? BookReferences
+    {
+        get => bookReferences;
+        set => SetProperty(ref bookReferences, value);
+    }
+
+    private List<Uri>? linkReferences;
 
     [TypeConverter(typeof(UriListConverter))]
-    public List<Uri>? ReferenceLinks
+    public List<Uri>? LinkReferences
     {
-        get => referenceLinks;
-        set => SetProperty(ref referenceLinks, value);
+        get => linkReferences;
+        set => SetProperty(ref linkReferences, value);
     }
 
     #endregion
@@ -104,9 +103,9 @@ public class QuestionEntry : ObservableObject, IComparable, IComparable<Question
             HasPreviouslyBeenAsked = HasPreviouslyBeenAsked,
             Importance = Importance,
             YearsAsked = CloneList(YearsAsked),
-            BookLocations = CloneList(BookLocations, x => new() { Book = x.Book, Edition = x.Edition, Volume = x.Volume, PageNumber = x.PageNumber }),
             ProbableCases = CloneList(probableCases),
-            ReferenceLinks = CloneList(referenceLinks)
+            BookReferences = CloneList(BookReferences, x => new() { Book = x.Book, Edition = x.Edition, Volume = x.Volume, PageNumbers = x.PageNumbers }),
+            LinkReferences = CloneList(LinkReferences)
         };
     }
 

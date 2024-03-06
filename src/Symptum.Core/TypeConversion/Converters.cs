@@ -45,9 +45,9 @@ public class StringListConverter : ListConverter<string>
     public override void ValidateData(string text, List<string> list) => ListToStringConversion.ValidateDataForString(text, list);
 }
 
-public class BookLocationListConverter : ListConverter<BookLocation>
+public class BookReferenceListConverter : ListConverter<BookReference>
 {
-    public override void ValidateData(string text, List<BookLocation> list) => ListToStringConversion.ValidateDataForBookLocation(text, list);
+    public override void ValidateData(string text, List<BookReference> list) => ListToStringConversion.ValidateDataForBookReference(text, list);
 }
 
 #endregion
@@ -111,11 +111,11 @@ public class ListToStringConversion
         }
     }
 
-    public static void ValidateDataForBookLocation(string text, List<BookLocation> list)
+    public static void ValidateDataForBookReference(string text, List<BookReference> list)
     {
-        if (BookLocation.TryParse(text, out BookLocation? location))
+        if (BookReference.TryParse(text, out BookReference? reference))
         {
-            list.Add(location);
+            list.Add(reference);
         }
     }
 

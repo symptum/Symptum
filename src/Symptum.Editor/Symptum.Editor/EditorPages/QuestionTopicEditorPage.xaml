@@ -16,7 +16,7 @@
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
     <Grid.Resources>
-      <converters:BookLocationListToStringConverter x:Key="BookLocationListToStringConverter" />
+      <converters:BookReferenceListToStringConverter x:Key="BookReferenceListToStringConverter" />
       <converters:DateOnlyListToStringConverter x:Key="DateOnlyListToStringConverter" />
       <converters:StringListToStringConverter x:Key="StringListToStringConverter" />
       <converters:UriListToStringConverter x:Key="UriListToStringConverter" />
@@ -42,12 +42,12 @@
           <KeyboardAccelerator Modifiers="Control" Key="E" />
         </AppBarButton.KeyboardAccelerators>
       </AppBarButton>
-      <AppBarButton x:Name="moveQuestionUpButton" IsEnabled="False" Label="Move Up" Click="moveQuestionUpButton_Click">
+      <AppBarButton x:Name="moveQuestionUpButton" IsEnabled="False" Label="Move Up" Click="MoveQuestionUpButton_Click">
         <AppBarButton.Icon>
           <FontIcon Glyph="&#xE70E;" />
         </AppBarButton.Icon>
       </AppBarButton>
-      <AppBarButton x:Name="moveQuestionDownButton" IsEnabled="False" Label="Move Down" Click="moveQuestionDownButton_Click">
+      <AppBarButton x:Name="moveQuestionDownButton" IsEnabled="False" Label="Move Down" Click="MoveQuestionDownButton_Click">
         <AppBarButton.Icon>
           <FontIcon Glyph="&#xE70D;" />
         </AppBarButton.Icon>
@@ -90,9 +90,9 @@
           </controls:DataGridTemplateColumn.CellTemplate>
         </controls:DataGridTemplateColumn>
         <controls:DataGridTextColumn Header="Years Asked" Binding="{Binding YearsAsked, Converter={StaticResource DateOnlyListToStringConverter}}" Tag="YearsAsked" />
-        <controls:DataGridTextColumn Header="Book Locations" Binding="{Binding BookLocations, Converter={StaticResource BookLocationListToStringConverter}}" Tag="BookLocations" />
         <controls:DataGridTextColumn Header="Probable Cases" Binding="{Binding ProbableCases, Converter={StaticResource StringListToStringConverter}}" Tag="ProbableCases" />
-        <controls:DataGridTextColumn Header="Reference Links" Binding="{Binding ReferenceLinks, Converter={StaticResource UriListToStringConverter}}" Tag="ReferenceLinks" />
+        <controls:DataGridTextColumn Header="Book References" Binding="{Binding BookReferences, Converter={StaticResource BookReferenceListToStringConverter}}" Tag="BookReferences" />
+        <controls:DataGridTextColumn Header="Link References" Binding="{Binding LinkReferences, Converter={StaticResource UriListToStringConverter}}" Tag="LinkReferences" />
       </controls:DataGrid.Columns>
     </controls:DataGrid>
     <StackPanel x:Name="statusBar" Grid.Row="2" Orientation="Horizontal" Spacing="10" Margin="10">

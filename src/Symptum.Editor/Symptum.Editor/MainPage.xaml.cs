@@ -87,8 +87,8 @@ public sealed partial class MainPage : Page
             //topicEditorDialog.XamlRoot = questionEditorDialog.XamlRoot = deleteTopicDialog.XamlRoot = mainWindow.Content.XamlRoot;
         }
         Background = null;
-#endif
         TitleTextBlock.Text = mainWindow?.Title;
+#endif
 
         treeView.ItemInvoked += (s, e) =>
         {
@@ -139,11 +139,12 @@ public sealed partial class MainPage : Page
 
         if (pathExists)
         {
+            bool allSaved = true;
             foreach (var topic in topics)
             {
-                await ResourceHelper.SaveQuestionBankTopicAsync(topic);
+                allSaved &= await ResourceHelper.SaveQuestionBankTopicAsync(topic);
             }
-            EditorPagesManager.MarkAllOpenEditorsAsSaved();
+            if (allSaved) EditorPagesManager.MarkAllOpenEditorsAsSaved();
         }
         _isBeingSaved = false;
     }
@@ -290,4 +291,34 @@ public sealed partial class MainPage : Page
             topics.Add(topic);
         }
     }
+
+//    private async void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
+//    {
+//        FileOpenPicker fileOpenPicker = new();
+//        fileOpenPicker.FileTypeFilter.Add(".csv");
+
+//#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+//        WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, hWnd);
+//#endif
+//        var pickedFiles = await fileOpenPicker.PickMultipleFilesAsync();
+//        if (pickedFiles.Count > 0)
+//        {
+//            await UpgradeCSVs(pickedFiles);
+//        }
+//    }
+
+//    private async Task UpgradeCSVs(IReadOnlyList<StorageFile> files)
+//    {
+//        if (files == null) return;
+
+//        foreach (StorageFile file in files)
+//        {
+//            if (file.FileType.Equals(".csv", StringComparison.CurrentCultureIgnoreCase))
+//            {
+//                string csv = await FileIO.ReadTextAsync(file);
+//                var newCSV = QuestionBankTopic.UpgradeCSV(csv);
+//                await FileIO.WriteTextAsync(file, newCSV);
+//            }
+//        }
+//    }
 }

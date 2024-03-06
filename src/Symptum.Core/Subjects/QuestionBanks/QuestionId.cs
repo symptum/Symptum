@@ -89,6 +89,7 @@ public class QuestionId : ObservableObject, IUniqueId, IEquatable<QuestionId>
             {
                 questionId.SubjectCode = subject;
             }
+            else questionId.SubjectCode = SubjectList.None;
 
             questionId.CompetencyNumbers = values[2];
         }

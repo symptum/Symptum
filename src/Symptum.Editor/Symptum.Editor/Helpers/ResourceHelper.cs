@@ -76,22 +76,25 @@ public class ResourceHelper
         return false;
     }
 
-    public static async Task SaveResourceAsync(IResource resource)
+    public static async Task<bool> SaveResourceAsync(IResource resource)
     {
         if (resource is QuestionBankTopic topic)
         {
-            await SaveQuestionBankTopicAsync(topic);
+            return await SaveQuestionBankTopicAsync(topic);
         }
+
+        return false;
     }
 
-    public static async Task SaveQuestionBankTopicAsync(QuestionBankTopic topic)
+    public static async Task<bool> SaveQuestionBankTopicAsync(QuestionBankTopic topic)
     {
-        if (topic == null) return;
+        if (topic == null) return false;
 
         if (_folderPicked && workFolder != null)
         {
             var file = await workFolder.CreateFileAsync(topic.Title + ".csv", CreationCollisionOption.ReplaceExisting);
             await FileIO.WriteTextAsync(file, topic.ToCSV());
+            return true;
         }
         else
         {
@@ -99,7 +102,7 @@ public class ResourceHelper
             {
                 SuggestedFileName = topic.Title
             };
-            fileSavePicker.FileTypeChoices.Add("CSV File", new List<string>() { ".csv" });
+            fileSavePicker.FileTypeChoices.Add("CSV File", [".csv"]);
 
 #if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
             WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, _hWnd);
@@ -108,11 +111,12 @@ public class ResourceHelper
             if (saveFile != null)
             {
                 CachedFileManager.DeferUpdates(saveFile);
-
                 await FileIO.WriteTextAsync(saveFile, topic.ToCSV());
-
                 await CachedFileManager.CompleteUpdatesAsync(saveFile);
+                return true;
             }
         }
+
+        return false;
     }
 }

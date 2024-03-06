@@ -1,4 +1,4 @@
-﻿namespace Symptum.Core.Helpers;
+namespace Symptum.Core.Helpers;
 
 public class ParserHelper
 {
@@ -6,5 +6,5 @@ public class ParserHelper
 
     public static readonly string ListDelimiter = ";";
 
-    public static readonly string BookLocationDelimiter = "#";
+    public static readonly string BookReferenceDelimiter = "#";
 }

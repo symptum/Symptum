@@ -30,6 +30,8 @@ public class BookStore
         var books = csvReader.GetRecords<Book>();
         foreach (var book in books)
         {
+            string subCode = book.Code[..2];
+            book.Subject = SubjectMap.SubjectCodes.FirstOrDefault(x => x.Key == subCode).Value;
             Books.Add(book);
         }
     }

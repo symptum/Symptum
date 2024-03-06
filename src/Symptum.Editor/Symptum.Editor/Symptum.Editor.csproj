@@ -76,6 +76,7 @@
 
   <ItemGroup>
     <UpToDateCheckInput Remove="Controls\AddNewItemDialog.xaml" />
+    <UpToDateCheckInput Remove="Controls\BookReferencePicker.xaml" />
     <UpToDateCheckInput Remove="Controls\TreeViewNavigableResourceTemplates.xaml" />
     <UpToDateCheckInput Remove="EditorPages\QuestionTopicEditorPage.xaml" />
   </ItemGroup>

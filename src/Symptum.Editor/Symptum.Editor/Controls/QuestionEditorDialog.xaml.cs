@@ -27,9 +27,9 @@ public sealed partial class QuestionEditorDialog : ContentDialog
 
     private ObservableCollection<ListItemWrapper<string>> descriptions = [];
     private ObservableCollection<ListItemWrapper<DateOnly>> yearsAsked = [];
-    private ObservableCollection<ListItemWrapper<BookLocation>> bookLocations = [];
     private ObservableCollection<ListItemWrapper<string>> probableCases = [];
-    private ObservableCollection<ListItemWrapper<Uri>> referenceLinks = [];
+    private ObservableCollection<ListItemWrapper<BookReference>> bookReferences = [];
+    private ObservableCollection<ListItemWrapper<Uri>> linkReferences = [];
 
     private bool hasPreviouslyBeenAsked = true;
     private bool autoGenImp = true;
@@ -92,28 +92,6 @@ public sealed partial class QuestionEditorDialog : ContentDialog
             CalculateImportance();
         };
 
-        blLE.ItemsSource = bookLocations;
-        blLE.AddItemRequested += (s, e) =>
-        {
-            bookLocations.Add(new ListItemWrapper<BookLocation>(new BookLocation()));
-        };
-        blLE.DeleteItemsRequested += (s, e) =>
-        {
-            foreach (var item in e.ItemsToDelete)
-            {
-                if (item is ListItemWrapper<BookLocation> bookLocation)
-                    bookLocations.Remove(bookLocation);
-            }
-        };
-        blLE.DuplicateItemsRequested += (s, e) =>
-        {
-            foreach (var item in e.ItemsToDuplicate)
-            {
-                if (item is ListItemWrapper<BookLocation> x)
-                    bookLocations.Add(new() { Value = new() { Book = x.Value.Book, Edition = x.Value.Edition, Volume = x.Value.Volume, PageNumber = x.Value.PageNumber } });
-            }
-        };
-
         pcLE.ItemsSource = probableCases;
         pcLE.AddItemRequested += (s, e) =>
         {
@@ -136,25 +114,47 @@ public sealed partial class QuestionEditorDialog : ContentDialog
             }
         };
 
-        rlLE.ItemsSource = referenceLinks;
-        rlLE.AddItemRequested += (s, e) =>
+        brLE.ItemsSource = bookReferences;
+        brLE.AddItemRequested += (s, e) =>
         {
-            referenceLinks.Add(new ListItemWrapper<Uri>(ResourceManager.DefaultUri));
+            bookReferences.Add(new ListItemWrapper<BookReference>(new BookReference()));
         };
-        rlLE.DeleteItemsRequested += (s, e) =>
+        brLE.DeleteItemsRequested += (s, e) =>
+        {
+            foreach (var item in e.ItemsToDelete)
+            {
+                if (item is ListItemWrapper<BookReference> bookReference)
+                    bookReferences.Remove(bookReference);
+            }
+        };
+        brLE.DuplicateItemsRequested += (s, e) =>
+        {
+            foreach (var item in e.ItemsToDuplicate)
+            {
+                if (item is ListItemWrapper<BookReference> x)
+                    bookReferences.Add(new() { Value = new() { Book = x.Value.Book, Edition = x.Value.Edition, Volume = x.Value.Volume, PageNumbers = x.Value.PageNumbers } });
+            }
+        };
+
+        lrLE.ItemsSource = linkReferences;
+        lrLE.AddItemRequested += (s, e) =>
+        {
+            linkReferences.Add(new ListItemWrapper<Uri>(ResourceManager.DefaultUri));
+        };
+        lrLE.DeleteItemsRequested += (s, e) =>
         {
             foreach (var item in e.ItemsToDelete)
             {
                 if (item is ListItemWrapper<Uri> uri)
-                    referenceLinks.Remove(uri);
+                    linkReferences.Remove(uri);
             }
         };
-        rlLE.DuplicateItemsRequested += (s, e) =>
+        lrLE.DuplicateItemsRequested += (s, e) =>
         {
             foreach (var item in e.ItemsToDuplicate)
             {
                 if (item is ListItemWrapper<Uri> uri)
-                    referenceLinks.Add(new() { Value = uri.Value });
+                    linkReferences.Add(new() { Value = uri.Value });
             }
         };
 
@@ -269,25 +269,25 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         paCB.IsChecked = hasPreviouslyBeenAsked = QuestionEntry.HasPreviouslyBeenAsked;
         importanceRC.Value = QuestionEntry.Importance;
         LoadLists(ref yearsAsked, QuestionEntry.YearsAsked);
-        LoadLists(ref bookLocations, QuestionEntry.BookLocations);
         LoadLists(ref probableCases, QuestionEntry.ProbableCases);
-        LoadLists(ref referenceLinks, QuestionEntry.ReferenceLinks);
+        LoadLists(ref bookReferences, QuestionEntry.BookReferences);
+        LoadLists(ref linkReferences, QuestionEntry.LinkReferences);
     }
 
     private void UpdateQuestionEntry()
     {
         QuestionEntry.Id ??= new();
         QuestionEntry.Id.QuestionType = qtCB.SelectedItem != null ? (QuestionType)qtCB.SelectedItem : QuestionType.Essay;
-        QuestionEntry.Id.SubjectCode = scCB.SelectedItem != null ? (SubjectList)scCB.SelectedItem : SubjectList.Anatomy;
+        QuestionEntry.Id.SubjectCode = scCB.SelectedItem != null ? (SubjectList)scCB.SelectedItem : SubjectList.None;
         QuestionEntry.Id.CompetencyNumbers = cnTB.Text;
         QuestionEntry.Title = titleTB.Text;
         QuestionEntry.Descriptions = GetUpdateList(descriptions);
         QuestionEntry.HasPreviouslyBeenAsked = hasPreviouslyBeenAsked;
         QuestionEntry.Importance = (int)importanceRC.Value;
         QuestionEntry.YearsAsked = GetUpdateList(yearsAsked);
-        QuestionEntry.BookLocations = GetUpdateList(bookLocations);
         QuestionEntry.ProbableCases = GetUpdateList(probableCases);
-        QuestionEntry.ReferenceLinks = GetUpdateList(referenceLinks);
+        QuestionEntry.BookReferences = GetUpdateList(bookReferences);
+        QuestionEntry.LinkReferences = GetUpdateList(linkReferences);
     }
 
     private void ClearQuestionEntry()
@@ -300,9 +300,9 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         paCB.IsChecked = hasPreviouslyBeenAsked = true;
         importanceRC.Value = 0;
         LoadLists(ref yearsAsked, null);
-        LoadLists(ref bookLocations, null);
         LoadLists(ref probableCases, null);
-        LoadLists(ref referenceLinks, null);
+        LoadLists(ref bookReferences, null);
+        LoadLists(ref linkReferences, null);
 
         autoGenImpCB.IsChecked = autoGenImp = true;
     }

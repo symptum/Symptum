@@ -93,6 +93,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         findQuestionButton.IsEnabled = false;
         currentTopic = null;
         SetCountsText(true);
+        DataContext = null;
     }
 
     private void LoadTopic(QuestionBankTopic? topic)
@@ -135,9 +136,8 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
 
         bool pathExists = await ResourceHelper.VerifyWorkPathAsync();
         if (pathExists && currentTopic != null)
-            await ResourceHelper.SaveQuestionBankTopicAsync(currentTopic);
+            HasUnsavedChanges = !await ResourceHelper.SaveQuestionBankTopicAsync(currentTopic);
         _isBeingSaved = false;
-        HasUnsavedChanges = false;
     }
 
     private async void AddQuestionButton_Click(object sender, RoutedEventArgs e)
@@ -258,7 +258,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         };
         findFlyout.ShowAt(showOptions: flyoutShowOptions);
 #else
-        findFlyout.ShowAt(findQuestionButton);
+        findFlyout.ShowAt(findQuestionButton, new() { Placement = FlyoutPlacementMode.Bottom });
 #endif
     }
 
@@ -335,7 +335,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         HasUnsavedChanges = true;
     }
 
-    private void moveQuestionUpButton_Click(object sender, RoutedEventArgs e)
+    private void MoveQuestionUpButton_Click(object sender, RoutedEventArgs e)
     {
         if (CanMoveUp())
         {
@@ -345,7 +345,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         }
     }
 
-    private void moveQuestionDownButton_Click(object sender, RoutedEventArgs e)
+    private void MoveQuestionDownButton_Click(object sender, RoutedEventArgs e)
     {
         if (CanMoveDown())
         {

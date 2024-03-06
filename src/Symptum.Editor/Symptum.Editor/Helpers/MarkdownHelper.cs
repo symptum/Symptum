@@ -54,12 +54,12 @@ public class MarkdownHelper
         };
     }
 
-    private static string GetBookLocation(BookLocation? bookLocation)
+    private static string GetBookReference(BookReference? bookReference)
     {
-        if (bookLocation == null) return string.Empty;
-        string volString = bookLocation.Volume > 0 ? $" Volume {bookLocation.Volume}," : string.Empty;
+        if (bookReference == null) return string.Empty;
+        string volString = bookReference.Volume > 0 ? $" Volume {bookReference.Volume}," : string.Empty;
 
-        return $"{bookLocation.Book.Code}, {GetOrdinal(bookLocation.Edition)} Edition,{volString} Pg.No: {bookLocation.PageNumber}";
+        return $"{bookReference.Book.Code}, {GetOrdinal(bookReference.Edition)} Edition,{volString} Pg.No: {bookReference.PageNumbers}";
     }
 
     public static void GenerateMarkdownForQuestionBankTopic(QuestionBankTopic topic, ref StringBuilder mdBuilder)
@@ -110,7 +110,7 @@ public class MarkdownHelper
     }
 
     private static bool _includeYearsAsked = true;
-    private static bool _includeBookLocations = true;
+    private static bool _includeBookReferences = true;
 
     public static void GenerateMarkdownForQuestionEntry(QuestionEntry? entry, int quesno, ref StringBuilder mdBuilder)
     {
@@ -123,9 +123,9 @@ public class MarkdownHelper
         if (_includeYearsAsked && entry.YearsAsked != null && entry.YearsAsked.Count > 0)
             mdBuilder.AppendFormat(" ({0})",
                 ListToStringConversion.ConvertToString<DateOnly>(entry.YearsAsked, GetYear));
-        if (_includeBookLocations && entry.BookLocations != null && entry.BookLocations.Count > 0)
+        if (_includeBookReferences && entry.BookReferences != null && entry.BookReferences.Count > 0)
             mdBuilder.AppendFormat("\t({0})",
-                ListToStringConversion.ConvertToString<BookLocation>(entry.BookLocations, GetBookLocation));
+                ListToStringConversion.ConvertToString<BookReference>(entry.BookReferences, GetBookReference));
         mdBuilder.AppendLine();
         if (entry.Descriptions != null && entry.Descriptions.Count > 0)
         {

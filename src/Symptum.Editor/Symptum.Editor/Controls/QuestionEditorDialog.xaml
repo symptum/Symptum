@@ -53,15 +53,6 @@
           </local:ListEditorControl.ItemTemplate>
         </local:ListEditorControl>
       </Expander>
-      <Expander Header="Book Locations" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-        <local:ListEditorControl x:Name="blLE">
-          <local:ListEditorControl.ItemTemplate>
-            <DataTemplate>
-              <local:BookLocationPicker BookLocation="{Binding Value, Mode=TwoWay}" />
-            </DataTemplate>
-          </local:ListEditorControl.ItemTemplate>
-        </local:ListEditorControl>
-      </Expander>
       <Expander Header="Probable Cases" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
         <local:ListEditorControl x:Name="pcLE">
           <local:ListEditorControl.ItemTemplate>
@@ -72,8 +63,17 @@
           </local:ListEditorControl.ItemTemplate>
         </local:ListEditorControl>
       </Expander>
-      <Expander Header="Reference Links" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-        <local:ListEditorControl x:Name="rlLE">
+      <Expander Header="Book References" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+        <local:ListEditorControl x:Name="brLE">
+          <local:ListEditorControl.ItemTemplate>
+            <DataTemplate>
+              <local:BookReferencePicker BookReference="{Binding Value, Mode=TwoWay}" />
+            </DataTemplate>
+          </local:ListEditorControl.ItemTemplate>
+        </local:ListEditorControl>
+      </Expander>
+      <Expander Header="Link References" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+        <local:ListEditorControl x:Name="lrLE">
           <local:ListEditorControl.ItemTemplate>
             <DataTemplate>
               <TextBox Text="{Binding Value, Mode=TwoWay, Converter={StaticResource UriToStringConverter}}" />

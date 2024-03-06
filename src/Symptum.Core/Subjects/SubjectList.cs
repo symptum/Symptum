@@ -1,7 +1,8 @@
-﻿namespace Symptum.Core.Subjects;
+namespace Symptum.Core.Subjects;
 
 public enum SubjectList
 {
+    None,
     Anatomy,
     Physiology,
     Biochemistry,

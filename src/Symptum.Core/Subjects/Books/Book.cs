@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CsvHelper.Configuration.Attributes;
 
 namespace Symptum.Core.Subjects.Books;
 
@@ -28,6 +29,15 @@ public class Book : ObservableObject
     {
         get => _authors;
         set => SetProperty(ref _authors, value);
+    }
+
+    private SubjectList _subjectList;
+
+    [Ignore]
+    public SubjectList Subject
+    {
+        get => _subjectList;
+        set => SetProperty(ref _subjectList, value);
     }
 
     #endregion

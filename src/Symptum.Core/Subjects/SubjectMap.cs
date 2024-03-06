@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 
 namespace Symptum.Core.Subjects;
 
@@ -11,6 +11,7 @@ public class SubjectMap
     {
         Dictionary<string, SubjectList> codes = new()
         {
+            { "", SubjectList.None },
             { "AN", SubjectList.Anatomy },
             { "PY", SubjectList.Physiology },
             { "BI", SubjectList.Biochemistry },
