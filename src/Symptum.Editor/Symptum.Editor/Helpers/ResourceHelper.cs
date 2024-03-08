@@ -47,16 +47,15 @@ public class ResourceHelper
 
     public static async Task<bool> SelectWorkPathAsync()
     {
-        FolderPicker folderPicker = new();
-        folderPicker.FileTypeFilter.Add("*");
-
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, _hWnd);
-#endif
-
         StorageFolder folder;
         if (StorageHelper.IsFolderPickerSupported)
         {
+            FolderPicker folderPicker = new();
+            folderPicker.FileTypeFilter.Add("*");
+
+#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+            WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, _hWnd);
+#endif
             folder = await folderPicker.PickSingleFolderAsync();
             _folderPicked = true;
         }

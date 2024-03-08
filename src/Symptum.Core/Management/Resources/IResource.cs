@@ -13,7 +13,7 @@ public interface IResource
 
     IResource? ParentResource { get; } // Id: Subjects.Anatomy.StudyMaterials.Notes.Abdomen
 
-    IList<IResource>? ChildrenResources { get; set; } // null because end resource
+    IList<IResource>? ChildrenResources { get; } // null if end resource
 
     IList<IResource>? Dependencies { get; set; }
 
@@ -22,6 +22,12 @@ public interface IResource
     void InitializeResource(IResource? parent);
 
     bool CanHandleChildResourceType(Type childResourceType);
+
+    bool CanAddChildResourceType(Type childResourceType);
+
+    void AddChildResource(IResource childResource);
+
+    void RemoveChildResource(IResource childResource);
 
     //IResource GetIResourceFromRelativeUri(Uri relativeUri);
 

@@ -8,17 +8,17 @@
     xmlns:qbank="using:Symptum.Core.Subjects.QuestionBanks">
   <local:TypedDataTemplate x:Key="SubjectDataTemplate" DataType="sub:Subject">
     <DataTemplate>
-      <TreeViewItem ItemsSource="{Binding ChildrenResources}" Content="{Binding Title}" Background="Red" />
+      <TreeViewItem ItemsSource="{Binding ChildrenResources}" Content="{Binding Title}" Background="#33FF0000" />
     </DataTemplate>
   </local:TypedDataTemplate>
   <local:TypedDataTemplate x:Key="QuestionBankDataTemplate" DataType="qbank:QuestionBank">
     <DataTemplate>
-      <TreeViewItem ItemsSource="{Binding ChildrenResources}" Content="{Binding Title}" Background="Yellow" />
+      <TreeViewItem ItemsSource="{Binding ChildrenResources}" Content="{Binding Title}" Background="#33FFFF00" />
     </DataTemplate>
   </local:TypedDataTemplate>
   <local:TypedDataTemplate x:Key="QuestionBankPaperDataTemplate" DataType="qbank:QuestionBankPaper">
     <DataTemplate>
-      <TreeViewItem ItemsSource="{Binding ChildrenResources}" Content="{Binding Title}" Background="Green" />
+      <TreeViewItem ItemsSource="{Binding ChildrenResources}" Content="{Binding Title}" Background="#3300FF00" />
     </DataTemplate>
   </local:TypedDataTemplate>
   <local:TypedDataTemplate x:Key="QuestionBankTopicDataTemplate" DataType="qbank:QuestionBankTopic">

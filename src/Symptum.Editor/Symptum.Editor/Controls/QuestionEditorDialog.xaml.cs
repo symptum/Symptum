@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using CommunityToolkit.WinUI.UI.Controls;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
 using Symptum.Core.Subjects.Books;
@@ -6,30 +7,17 @@ using Symptum.Core.Subjects.QuestionBanks;
 
 namespace Symptum.Editor.Controls;
 
-public class ListItemWrapper<T>
-{
-    public T Value { get; set; }
-
-    public ListItemWrapper()
-    { }
-
-    public ListItemWrapper(T value)
-    {
-        Value = value;
-    }
-}
-
 public sealed partial class QuestionEditorDialog : ContentDialog
 {
     public QuestionEntry QuestionEntry { get; private set; }
 
     public EditorResult EditResult { get; private set; } = EditorResult.None;
 
-    private ObservableCollection<ListItemWrapper<string>> descriptions = [];
-    private ObservableCollection<ListItemWrapper<DateOnly>> yearsAsked = [];
-    private ObservableCollection<ListItemWrapper<string>> probableCases = [];
-    private ObservableCollection<ListItemWrapper<BookReference>> bookReferences = [];
-    private ObservableCollection<ListItemWrapper<Uri>> linkReferences = [];
+    private ObservableCollection<ListEditorItemWrapper<string>> descriptions = [];
+    private ObservableCollection<ListEditorItemWrapper<DateOnly>> yearsAsked = [];
+    private ObservableCollection<ListEditorItemWrapper<string>> probableCases = [];
+    private ObservableCollection<ListEditorItemWrapper<BookReference>> bookReferences = [];
+    private ObservableCollection<ListEditorItemWrapper<Uri>> linkReferences = [];
 
     private bool hasPreviouslyBeenAsked = true;
     private bool autoGenImp = true;
@@ -41,122 +29,7 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         qtCB.ItemsSource = Enum.GetValues(typeof(QuestionType));
         scCB.ItemsSource = Enum.GetValues(typeof(SubjectList));
 
-        dsLE.ItemsSource = descriptions;
-        dsLE.AddItemRequested += (s, e) =>
-        {
-            descriptions.Add(new ListItemWrapper<string>(string.Empty));
-        };
-        dsLE.DeleteItemsRequested += (s, e) =>
-        {
-            foreach (var item in e.ItemsToDelete)
-            {
-                if (item is ListItemWrapper<string> description)
-                    descriptions.Remove(description);
-            }
-        };
-        dsLE.DuplicateItemsRequested += (s, e) =>
-        {
-            foreach (var item in e.ItemsToDuplicate)
-            {
-                if (item is ListItemWrapper<string> description)
-                    descriptions.Add(new() { Value = description.Value });
-            }
-        };
-
-        yaLE.ItemsSource = yearsAsked;
-        yaLE.AddItemRequested += (s, e) =>
-        {
-            yearsAsked.Add(new ListItemWrapper<DateOnly>(DateOnly.FromDateTime(DateTime.Now)));
-            CalculateImportance();
-        };
-        yaLE.DeleteItemsRequested += (s, e) =>
-        {
-            foreach (var item in e.ItemsToDelete)
-            {
-                if (item is ListItemWrapper<DateOnly> date)
-                {
-                    yearsAsked.Remove(date);
-                }
-            }
-            CalculateImportance();
-        };
-        yaLE.DuplicateItemsRequested += (s, e) =>
-        {
-            foreach (var item in e.ItemsToDuplicate)
-            {
-                if (item is ListItemWrapper<DateOnly> date)
-                {
-                    yearsAsked.Add(new() { Value = date.Value });
-                }
-            }
-            CalculateImportance();
-        };
-
-        pcLE.ItemsSource = probableCases;
-        pcLE.AddItemRequested += (s, e) =>
-        {
-            probableCases.Add(new ListItemWrapper<string>(string.Empty));
-        };
-        pcLE.DeleteItemsRequested += (s, e) =>
-        {
-            foreach (var item in e.ItemsToDelete)
-            {
-                if (item is ListItemWrapper<string> @case)
-                    probableCases.Remove(@case);
-            }
-        };
-        pcLE.DuplicateItemsRequested += (s, e) =>
-        {
-            foreach (var item in e.ItemsToDuplicate)
-            {
-                if (item is ListItemWrapper<string> @case)
-                    probableCases.Add(new() { Value = @case.Value });
-            }
-        };
-
-        brLE.ItemsSource = bookReferences;
-        brLE.AddItemRequested += (s, e) =>
-        {
-            bookReferences.Add(new ListItemWrapper<BookReference>(new BookReference()));
-        };
-        brLE.DeleteItemsRequested += (s, e) =>
-        {
-            foreach (var item in e.ItemsToDelete)
-            {
-                if (item is ListItemWrapper<BookReference> bookReference)
-                    bookReferences.Remove(bookReference);
-            }
-        };
-        brLE.DuplicateItemsRequested += (s, e) =>
-        {
-            foreach (var item in e.ItemsToDuplicate)
-            {
-                if (item is ListItemWrapper<BookReference> x)
-                    bookReferences.Add(new() { Value = new() { Book = x.Value.Book, Edition = x.Value.Edition, Volume = x.Value.Volume, PageNumbers = x.Value.PageNumbers } });
-            }
-        };
-
-        lrLE.ItemsSource = linkReferences;
-        lrLE.AddItemRequested += (s, e) =>
-        {
-            linkReferences.Add(new ListItemWrapper<Uri>(ResourceManager.DefaultUri));
-        };
-        lrLE.DeleteItemsRequested += (s, e) =>
-        {
-            foreach (var item in e.ItemsToDelete)
-            {
-                if (item is ListItemWrapper<Uri> uri)
-                    linkReferences.Remove(uri);
-            }
-        };
-        lrLE.DuplicateItemsRequested += (s, e) =>
-        {
-            foreach (var item in e.ItemsToDuplicate)
-            {
-                if (item is ListItemWrapper<Uri> uri)
-                    linkReferences.Add(new() { Value = uri.Value });
-            }
-        };
+        HandleListEditors();
 
         paCB.Checked += (s, e) =>
         {
@@ -307,18 +180,18 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         autoGenImpCB.IsChecked = autoGenImp = true;
     }
 
-    private void LoadLists<T>(ref ObservableCollection<ListItemWrapper<T>> destination, IList<T>? source)
+    private void LoadLists<T>(ref ObservableCollection<ListEditorItemWrapper<T>> destination, IList<T>? source)
     {
         destination.Clear();
         if (source == null || source.Count == 0) return;
 
         foreach (var item in source)
         {
-            destination.Add(new ListItemWrapper<T>(item));
+            destination.Add(new ListEditorItemWrapper<T>(item));
         }
     }
 
-    private List<T> GetUpdateList<T>(ObservableCollection<ListItemWrapper<T>> source)
+    private List<T> GetUpdateList<T>(ObservableCollection<ListEditorItemWrapper<T>> source)
     {
         List<T> list = [];
         if (source == null || source.Count == 0) return list;
@@ -330,4 +203,205 @@ public sealed partial class QuestionEditorDialog : ContentDialog
 
         return list;
     }
+
+    #region ListEditors Handling
+
+    private void HandleListEditors()
+    {
+        #region Descriptions
+
+        dsLE.ItemsSource = descriptions;
+        dsLE.AddItemRequested += (s, e) => descriptions.Add(new ListEditorItemWrapper<string>(string.Empty));
+        dsLE.ClearItemsRequested += (s, e) => descriptions.Clear();
+        dsLE.RemoveItemRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<string> description)
+                descriptions.Remove(description);
+        };
+        dsLE.DuplicateItemRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<string> description)
+                descriptions.Add(new() { Value = description.Value });
+        };
+        dsLE.MoveItemUpRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<string> description)
+            {
+                int oldIndex = descriptions.IndexOf(description);
+                int newIndex = Math.Max(oldIndex - 1, 0);
+                descriptions.Move(oldIndex, newIndex);
+            }
+        };
+        dsLE.MoveItemDownRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<string> description)
+            {
+                int oldIndex = descriptions.IndexOf(description);
+                int newIndex = Math.Min(oldIndex + 1, descriptions.Count - 1);
+                descriptions.Move(oldIndex, newIndex);
+            }
+        };
+
+        #endregion
+
+        #region YearsAsked
+
+        yaLE.ItemsSource = yearsAsked;
+        yaLE.AddItemRequested += (s, e) =>
+        {
+            yearsAsked.Add(new ListEditorItemWrapper<DateOnly>(DateOnly.FromDateTime(DateTime.Now)));
+            CalculateImportance();
+        };
+        yaLE.ClearItemsRequested += (s, e) =>
+        {
+            yearsAsked.Clear();
+            CalculateImportance();
+        };
+        yaLE.RemoveItemRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<DateOnly> date)
+            {
+                yearsAsked.Remove(date);
+                CalculateImportance();
+            }
+        };
+        yaLE.DuplicateItemRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<DateOnly> date)
+            {
+                yearsAsked.Add(new() { Value = date.Value });
+                CalculateImportance();
+            }
+        };
+        yaLE.MoveItemUpRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<DateOnly> date)
+            {
+                int oldIndex = yearsAsked.IndexOf(date);
+                int newIndex = Math.Max(oldIndex - 1, 0);
+                yearsAsked.Move(oldIndex, newIndex);
+            }
+        };
+        yaLE.MoveItemDownRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<DateOnly> date)
+            {
+                int oldIndex = yearsAsked.IndexOf(date);
+                int newIndex = Math.Min(oldIndex + 1, yearsAsked.Count - 1);
+                yearsAsked.Move(oldIndex, newIndex);
+            }
+        };
+
+        #endregion
+
+        #region Probable Cases
+
+        pcLE.ItemsSource = probableCases;
+        pcLE.AddItemRequested += (s, e) => probableCases.Add(new ListEditorItemWrapper<string>(string.Empty));
+        pcLE.ClearItemsRequested += (s, e) => probableCases.Clear();
+        pcLE.RemoveItemRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<string> @case)
+                probableCases.Remove(@case);
+        };
+        pcLE.DuplicateItemRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<string> @case)
+                probableCases.Add(new() { Value = @case.Value });
+        };
+        pcLE.MoveItemUpRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<string> @case)
+            {
+                int oldIndex = probableCases.IndexOf(@case);
+                int newIndex = Math.Max(oldIndex - 1, 0);
+                probableCases.Move(oldIndex, newIndex);
+            }
+        };
+        pcLE.MoveItemDownRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<string> @case)
+            {
+                int oldIndex = probableCases.IndexOf(@case);
+                int newIndex = Math.Min(oldIndex + 1, probableCases.Count - 1);
+                probableCases.Move(oldIndex, newIndex);
+            }
+        };
+
+        #endregion
+
+        #region Book References
+
+        brLE.ItemsSource = bookReferences;
+        brLE.AddItemRequested += (s, e) => bookReferences.Add(new ListEditorItemWrapper<BookReference>(new BookReference()));
+        brLE.ClearItemsRequested += (s, e) => bookReferences.Clear();
+        brLE.RemoveItemRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<BookReference> bookReference)
+                bookReferences.Remove(bookReference);
+        };
+        brLE.DuplicateItemRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<BookReference> x)
+                bookReferences.Add(new() { Value = new() { Book = x.Value.Book, Edition = x.Value.Edition, Volume = x.Value.Volume, PageNumbers = x.Value.PageNumbers } });
+        };
+        brLE.MoveItemUpRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<BookReference> bookReference)
+            {
+                int oldIndex = bookReferences.IndexOf(bookReference);
+                int newIndex = Math.Max(oldIndex - 1, 0);
+                bookReferences.Move(oldIndex, newIndex);
+            }
+        };
+        brLE.MoveItemDownRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<BookReference> bookReference)
+            {
+                int oldIndex = bookReferences.IndexOf(bookReference);
+                int newIndex = Math.Min(oldIndex + 1, bookReferences.Count - 1);
+                bookReferences.Move(oldIndex, newIndex);
+            }
+        };
+
+        #endregion
+
+        #region Link References
+
+        lrLE.ItemsSource = linkReferences;
+        lrLE.AddItemRequested += (s, e) => linkReferences.Add(new ListEditorItemWrapper<Uri>(ResourceManager.DefaultUri));
+        lrLE.ClearItemsRequested += (s, e) => linkReferences.Clear();
+        lrLE.RemoveItemRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<Uri> uri)
+                linkReferences.Remove(uri);
+        };
+        lrLE.DuplicateItemRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<Uri> uri)
+                linkReferences.Add(new() { Value = uri.Value });
+        };
+        lrLE.MoveItemUpRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<Uri> uri)
+            {
+                int oldIndex = linkReferences.IndexOf(uri);
+                int newIndex = Math.Max(oldIndex - 1, 0);
+                linkReferences.Move(oldIndex, newIndex);
+            }
+        };
+        lrLE.MoveItemDownRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<Uri> uri)
+            {
+                int oldIndex = linkReferences.IndexOf(uri);
+                int newIndex = Math.Min(oldIndex + 1, linkReferences.Count - 1);
+                linkReferences.Move(oldIndex, newIndex);
+            }
+        };
+
+        #endregion
+    }
+
+    #endregion
 }

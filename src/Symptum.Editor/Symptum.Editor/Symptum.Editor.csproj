@@ -70,6 +70,7 @@
 
   <ItemGroup>
     <None Remove="Controls\AddNewItemDialog.xaml" />
+    <None Remove="Controls\ListEditorItemCommandsButton.xaml" />
     <None Remove="Controls\TreeViewNavigableResourceTemplates.xaml" />
     <None Remove="EditorPages\QuestionTopicEditorPage.xaml" />
   </ItemGroup>
@@ -77,6 +78,7 @@
   <ItemGroup>
     <UpToDateCheckInput Remove="Controls\AddNewItemDialog.xaml" />
     <UpToDateCheckInput Remove="Controls\BookReferencePicker.xaml" />
+    <UpToDateCheckInput Remove="Controls\ListEditorItemCommandsButton.xaml" />
     <UpToDateCheckInput Remove="Controls\TreeViewNavigableResourceTemplates.xaml" />
     <UpToDateCheckInput Remove="EditorPages\QuestionTopicEditorPage.xaml" />
   </ItemGroup>

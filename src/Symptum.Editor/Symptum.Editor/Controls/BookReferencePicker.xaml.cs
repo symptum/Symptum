@@ -40,7 +40,7 @@ public sealed partial class BookReferencePicker : UserControl
         bookQueryBox.SuggestionChosen += BookQueryBox_SuggestionChosen;
 #else
         bookList.SelectionChanged += BookList_SelectionChanged;
-        bookQueryBox.ItemsSource = _queries;
+        //bookQueryBox.ItemsSource = _queries;
 #endif
         bookQueryBox.TextChanged += BookQueryBox_TextChanged;
         bookQueryBox.QuerySubmitted += BookQueryBox_QuerySubmitted;
@@ -70,8 +70,8 @@ public sealed partial class BookReferencePicker : UserControl
             sender.Text = selectedBook?.ToString();
         }
 #else
-        if (!string.IsNullOrEmpty(args.QueryText) && !_queries.Contains(args.QueryText))
-            _queries.Add(args.QueryText);
+        //if (!string.IsNullOrEmpty(args.QueryText) && !_queries.Contains(args.QueryText))
+        //    _queries.Add(args.QueryText);
         SearchBook(args.QueryText);
 #endif
     }
@@ -85,7 +85,7 @@ public sealed partial class BookReferencePicker : UserControl
     }
 
     private Book? selectedBook;
-    private readonly ObservableCollection<string> _queries = [];
+    //private readonly ObservableCollection<string> _queries = [];
 
     private IEnumerable GetBooksGrouped(IList<Book> books)
     {
@@ -167,6 +167,10 @@ public sealed partial class BookReferencePicker : UserControl
         bookGroupedSource.Source = GetBooksGrouped(BookStore.Books);
 #endif
         LoadBookReference();
+
+#if !HAS_UNO_WINUI
+        bookList.ScrollIntoView(selectedBook);
+#endif
     }
 
     private void CancelButton_Click(object sender, RoutedEventArgs e)

@@ -15,16 +15,16 @@ public class QuestionBankPaper : NavigableResource
 
     #region Properties
 
-    private ObservableCollection<QuestionBankTopic> topics;
+    private ObservableCollection<QuestionBankTopic>? topics;
 
-    public ObservableCollection<QuestionBankTopic> Topics
+    public ObservableCollection<QuestionBankTopic>? Topics
     {
         get => topics;
         set
         {
             UnobserveCollection(topics);
             SetProperty(ref topics, value);
-            ObserveCollection(topics);
+            SetChildrenResources(topics);
         }
     }
 
@@ -38,5 +38,22 @@ public class QuestionBankPaper : NavigableResource
     public override bool CanHandleChildResourceType(Type childResourceType)
     {
         return childResourceType == typeof(QuestionBankTopic);
+    }
+
+    public override bool CanAddChildResourceType(Type childResourceType)
+    {
+        return childResourceType == typeof(QuestionBankTopic);
+    }
+
+    protected override void OnAddChildResource(IResource childResource)
+    {
+        Topics ??= [];
+        if (childResource is QuestionBankTopic topic)
+            Topics.Add(topic);
+    }
+
+    protected override void OnRemoveChildResource(IResource childResource)
+    {
+        throw new NotImplementedException();
     }
 }

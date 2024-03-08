@@ -16,6 +16,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
     private QuestionBankTopic? currentTopic;
     private FindFlyout? findFlyout;
     private QuestionEditorDialog questionEditorDialog = new();
+    private bool _isFiltered = false;
 
     public QuestionTopicEditorPage()
     {
@@ -144,9 +145,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
     {
         if (currentTopic != null)
         {
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-            questionEditorDialog.XamlRoot = Content.XamlRoot;
-#endif
+            questionEditorDialog.XamlRoot = XamlRoot;
             var result = await questionEditorDialog.CreateAsync();
             if (result == EditorResult.Create)
             {
@@ -183,9 +182,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         if (dataGrid.SelectedItems.Count == 0) return;
         if (dataGrid.SelectedItems[0] is QuestionEntry entry)
         {
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-            questionEditorDialog.XamlRoot = Content.XamlRoot;
-#endif
+            questionEditorDialog.XamlRoot = XamlRoot;
             var result = await questionEditorDialog.EditAsync(entry);
             if (result == EditorResult.Update || result == EditorResult.Save)
             {
@@ -235,8 +232,8 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
             List<string> columns =
             [
                 nameof(QuestionEntry.Title),
-                    nameof(QuestionEntry.Descriptions),
-                    nameof(QuestionEntry.ProbableCases)
+                nameof(QuestionEntry.Descriptions),
+                nameof(QuestionEntry.ProbableCases)
             ];
 
             findFlyout = new()
@@ -249,8 +246,9 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
             findFlyout.QueryCleared += FindFlyout_QueryCleared;
         }
 
+        findFlyout.XamlRoot = XamlRoot;
+
 #if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-        findFlyout.XamlRoot = Content.XamlRoot;
         FlyoutShowOptions flyoutShowOptions = new()
         {
             Position = new(ActualWidth, 150),
@@ -267,19 +265,27 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         if (currentTopic != null)
             dataGrid.ItemsSource = currentTopic.QuestionEntries;
         findTextBlock.Text = string.Empty;
+        OnFilter(false);
     }
 
-    private void FindFlyout_QuerySubmitted(object sender, FindFlyoutQuerySubmittedEventArgs e)
+    private void FindFlyout_QuerySubmitted(object? sender, FindFlyoutQuerySubmittedEventArgs e)
     {
         if (e.FindDirection != FindDirection.All)
             return;
         if (currentTopic != null)
         {
-            dataGrid.ItemsSource = new ObservableCollection<QuestionEntry>(from question in currentTopic?.QuestionEntries?.ToList()
+            var entries = new ObservableCollection<QuestionEntry>(from question in currentTopic?.QuestionEntries?.ToList()
                                                                            where QuestionEntryPropertyMatchValue(question, e)
                                                                            select question);
-            findTextBlock.Text = $"Find results for '{e.QueryText}' in {e.Context}";
+            dataGrid.ItemsSource = entries;
+            findTextBlock.Text = $"Find results for '{e.QueryText}' in {e.Context}. Matching entries: {entries.Count}";
+            OnFilter(true);
         }
+    }
+
+    private void OnFilter(bool filtered)
+    {
+        _isFiltered = filtered;
     }
 
     // TODO: Implement Match Whole Word

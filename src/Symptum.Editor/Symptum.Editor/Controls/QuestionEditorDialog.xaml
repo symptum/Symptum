@@ -31,8 +31,10 @@
         <local:ListEditorControl x:Name="dsLE">
           <local:ListEditorControl.ItemTemplate>
             <DataTemplate>
-              <TextBox Text="{Binding Value, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap"
-                       MaxHeight="172" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
+                <TextBox Text="{Binding Value, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="Auto"
+                         MaxHeight="172" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+              </local:ListEditorItemCommandsButton>
             </DataTemplate>
           </local:ListEditorControl.ItemTemplate>
         </local:ListEditorControl>
@@ -47,8 +49,12 @@
         <local:ListEditorControl x:Name="yaLE">
           <local:ListEditorControl.ItemTemplate>
             <DataTemplate>
-              <not_android:DatePicker DayVisible="False" Date="{Binding Value, Mode=TwoWay, Converter={StaticResource DateOnlyToDateTimeOffsetConverter}}" />
-              <android:CalendarDatePicker Date="{Binding Value, Mode=TwoWay, Converter={StaticResource DateOnlyToDateTimeOffsetConverter}}" />
+              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
+                <not_android:DatePicker DayVisible="False" Date="{Binding Value, Mode=TwoWay, Converter={StaticResource DateOnlyToDateTimeOffsetConverter}}"
+                                        HorizontalAlignment="Stretch" />
+                <android:CalendarDatePicker Date="{Binding Value, Mode=TwoWay, Converter={StaticResource DateOnlyToDateTimeOffsetConverter}}"
+                                            HorizontalAlignment="Stretch"/>
+              </local:ListEditorItemCommandsButton>
             </DataTemplate>
           </local:ListEditorControl.ItemTemplate>
         </local:ListEditorControl>
@@ -57,8 +63,10 @@
         <local:ListEditorControl x:Name="pcLE">
           <local:ListEditorControl.ItemTemplate>
             <DataTemplate>
-              <TextBox Text="{Binding Value, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap"
-                       MaxHeight="172" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
+                <TextBox Text="{Binding Value, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="Auto"
+                        MaxHeight="172" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+              </local:ListEditorItemCommandsButton>
             </DataTemplate>
           </local:ListEditorControl.ItemTemplate>
         </local:ListEditorControl>
@@ -67,7 +75,9 @@
         <local:ListEditorControl x:Name="brLE">
           <local:ListEditorControl.ItemTemplate>
             <DataTemplate>
-              <local:BookReferencePicker BookReference="{Binding Value, Mode=TwoWay}" />
+              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
+                <local:BookReferencePicker BookReference="{Binding Value, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+              </local:ListEditorItemCommandsButton>
             </DataTemplate>
           </local:ListEditorControl.ItemTemplate>
         </local:ListEditorControl>
@@ -76,7 +86,9 @@
         <local:ListEditorControl x:Name="lrLE">
           <local:ListEditorControl.ItemTemplate>
             <DataTemplate>
-              <TextBox Text="{Binding Value, Mode=TwoWay, Converter={StaticResource UriToStringConverter}}" />
+              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
+                <TextBox Text="{Binding Value, Mode=TwoWay, Converter={StaticResource UriToStringConverter}}" HorizontalAlignment="Stretch" />
+              </local:ListEditorItemCommandsButton>
             </DataTemplate>
           </local:ListEditorControl.ItemTemplate>
         </local:ListEditorControl>

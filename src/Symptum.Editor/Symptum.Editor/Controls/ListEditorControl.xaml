@@ -7,13 +7,28 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-  <StackPanel>
-    <CommandBar IsOpen="False" DefaultLabelPosition="Collapsed">
-      <AppBarButton x:Name="selectAllButton" Icon="SelectAll" Label="SelectAll" Click="selectAllButton_Click" />
-      <AppBarButton x:Name="addItemButton" Icon="Add" Label="Add" Click="addItemButton_Click" />
-      <AppBarButton x:Name="duplicateItemsButton" IsEnabled="False" Icon="Copy" Label="Duplicate" Click="duplicateItemsButton_Click" />
-      <AppBarButton x:Name="deleteItemsButton" IsEnabled="False" Icon="Delete" Label="Delete" Click="deleteItemsButton_Click" />
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <!--<StackPanel>
+      <CommandBar IsOpen="False" DefaultLabelPosition="Collapsed">
+        <AppBarButton x:Name="selectAllButton" Icon="SelectAll" Label="SelectAll" Click="selectAllButton_Click" />
+        <AppBarButton x:Name="addItemButton" Icon="Add" Label="Add" Click="addItemButton_Click" />
+        <AppBarButton x:Name="duplicateItemsButton" IsEnabled="False" Icon="Copy" Label="Duplicate" Click="duplicateItemsButton_Click" />
+        <AppBarButton x:Name="deleteItemsButton" IsEnabled="False" Icon="Delete" Label="Delete" Click="deleteItemsButton_Click" />
+      </CommandBar>
+      <ListView x:Name="listView" SelectionMode="Multiple" SelectionChanged="listView_SelectionChanged" />
+    </StackPanel>-->
+    <CommandBar IsOpen="False" DefaultLabelPosition="Right">
+      <AppBarButton x:Name="addItemButton" Icon="Add" Label="Add" Command="{x:Bind AddItemCommand}" />
+      <AppBarButton x:Name="deleteAllItemsButton" Icon="Delete" Label="Delete All" Command="{x:Bind ClearItemsCommand}" />
     </CommandBar>
-    <ListView x:Name="listView" SelectionMode="Multiple" SelectionChanged="listView_SelectionChanged" />
-  </StackPanel>
+    <ItemsRepeater x:Name="itemsRepeater" Grid.Row="1">
+      <ItemsRepeater.Layout>
+        <StackLayout Spacing="10" Orientation="Vertical" />
+      </ItemsRepeater.Layout>
+    </ItemsRepeater>
+  </Grid>
 </UserControl>

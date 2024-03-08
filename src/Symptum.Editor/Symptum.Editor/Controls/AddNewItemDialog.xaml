@@ -8,6 +8,33 @@
     Title="Add New Item"
     Style="{ThemeResource DefaultContentDialogStyle}"
     PrimaryButtonText="Add" CloseButtonText="Cancel" DefaultButton="Primary">
-  <Grid>
-  </Grid>
+  <ContentDialog.Resources>
+    <Style TargetType="local:AddNewItemDialog"
+              BasedOn="{StaticResource DefaultContentDialogStyle}" />
+  </ContentDialog.Resources>
+  <ScrollViewer>
+    <StackPanel Spacing="10">
+      <AutoSuggestBox x:Name="queryBox" Header="Item Type" QueryIcon="Find" PlaceholderText="Search" />
+      <ListView x:Name="newItemsLV" SelectionMode="Single" MaxHeight="200">
+        <ListView.ItemTemplate>
+          <DataTemplate x:DataType="local:NewItemType">
+            <ListViewItem ToolTipService.ToolTip="{x:Bind DisplayName}">
+              <Grid HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*" />
+                  <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="{x:Bind DisplayName}" HorizontalAlignment="Stretch"
+                           TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                <TextBlock Grid.Column="1" Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind GroupName}"
+                           HorizontalAlignment="Right" VerticalAlignment="Center" />
+              </Grid>
+            </ListViewItem>
+          </DataTemplate>
+        </ListView.ItemTemplate>
+      </ListView>
+      <TextBox Name="titleTextBox" Header="Title" />
+      <InfoBar x:Name="errorInfoBar" Severity="Error" IsOpen="False" IsClosable="False" />
+    </StackPanel>
+  </ScrollViewer>
 </ContentDialog>

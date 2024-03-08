@@ -1,7 +1,11 @@
+using System.Collections;
+
 namespace Symptum.Editor.Controls;
 
 public sealed partial class ListEditorControl : UserControl
 {
+    #region Properties
+
     private object itemsSource;
 
     public object ItemsSource
@@ -10,7 +14,7 @@ public sealed partial class ListEditorControl : UserControl
         set
         {
             itemsSource = value;
-            listView.ItemsSource = value;
+            itemsRepeater.ItemsSource = value;
         }
     }
 
@@ -22,81 +26,89 @@ public sealed partial class ListEditorControl : UserControl
         set
         {
             itemTemplate = value;
-            listView.ItemTemplate = value;
+            itemsRepeater.ItemTemplate = value;
         }
     }
+
+    public ICommand AddItemCommand { get; }
+
+    public ICommand ClearItemsCommand { get; }
+
+    public ICommand RemoveItemCommand { get; }
+
+    public ICommand DuplicateItemCommand { get; }
+
+    public ICommand MoveItemUpCommand { get; }
+
+    public ICommand MoveItemDownCommand { get; }
+
+    #endregion
 
     public ListEditorControl()
     {
         InitializeComponent();
-        listView.ItemsSource = itemsSource;
-        listView.ItemTemplate = itemTemplate;
+        itemsRepeater.ItemsSource = itemsSource;
+        itemsRepeater.ItemTemplate = itemTemplate;
+        AddItemCommand = new RelayCommand(OnAddItem);
+        ClearItemsCommand = new RelayCommand(OnClearItems);
+        RemoveItemCommand = new RelayCommand<object>(OnRemoveItem);
+        DuplicateItemCommand = new RelayCommand<object>(OnDuplicateItem);
+        MoveItemUpCommand = new RelayCommand<object>(OnMoveItemUp);
+        MoveItemDownCommand = new RelayCommand<object>(OnMoveItemDown);
     }
 
-    private void listView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void OnAddItem()
     {
-        int count = listView.SelectedItems.Count;
-        deleteItemsButton.IsEnabled = count > 0;
-        duplicateItemsButton.IsEnabled = count > 0;
+        AddItemRequested?.Invoke(this, null);
     }
 
-    private void addItemButton_Click(object sender, RoutedEventArgs e)
+    private void OnClearItems()
     {
-        AddItemRequested?.Invoke(this, new());
+        ClearItemsRequested?.Invoke(this, null);
     }
 
-    private void deleteItemsButton_Click(object sender, RoutedEventArgs e)
+    private void OnRemoveItem(object? wrapper)
     {
-        if (listView.SelectedItems.Count == 0) return;
-
-        List<object> list = listView.SelectedItems.ToList();
-        DeleteItemsRequested?.Invoke(this, new(list));
-        listView.SelectedItems.Clear();
-        list.Clear();
+        RemoveItemRequested?.Invoke(this, wrapper);
     }
 
-    private void selectAllButton_Click(object sender, RoutedEventArgs e)
+    private void OnDuplicateItem(object? wrapper)
     {
-        listView.SelectAll();
+        DuplicateItemRequested?.Invoke(this, wrapper);
     }
 
-    private void duplicateItemsButton_Click(object sender, RoutedEventArgs e)
+    private void OnMoveItemUp(object? wrapper)
     {
-        if (listView.SelectedItems.Count == 0) return;
-
-        List<object> list = listView.SelectedItems.ToList();
-        DuplicateItemsRequested?.Invoke(this, new(list));
-        listView.SelectedItems.Clear();
-        list.Clear();
+        MoveItemUpRequested?.Invoke(this, wrapper);
     }
 
-    public event EventHandler<ListEditorAddItemRequestedEventArgs> AddItemRequested;
+    private void OnMoveItemDown(object? wrapper)
+    {
+        MoveItemDownRequested?.Invoke(this, wrapper);
+    }
 
-    public event EventHandler<ListEditorDeleteItemsRequested> DeleteItemsRequested;
+    public event EventHandler AddItemRequested;
 
-    public event EventHandler<ListEditorDuplicateItemsRequested> DuplicateItemsRequested;
+    public event EventHandler ClearItemsRequested;
+
+    public event EventHandler<object?> RemoveItemRequested;
+
+    public event EventHandler<object?> DuplicateItemRequested;
+
+    public event EventHandler<object?> MoveItemUpRequested;
+
+    public event EventHandler<object?> MoveItemDownRequested;
 }
 
-public class ListEditorAddItemRequestedEventArgs : EventArgs
+public class ListEditorItemWrapper<T>
 {
-}
+    public T Value { get; set; }
 
-public class ListEditorDeleteItemsRequested : EventArgs
-{
-    public List<object> ItemsToDelete { get; private set; }
+    public ListEditorItemWrapper()
+    { }
 
-    public ListEditorDeleteItemsRequested(List<object> itemsToDelete)
+    public ListEditorItemWrapper(T value)
     {
-        ItemsToDelete = itemsToDelete;
-    }
-}
-
-public class ListEditorDuplicateItemsRequested : EventArgs
-{
-    public List<object> ItemsToDuplicate { get; private set; }
-
-    public ListEditorDuplicateItemsRequested(List<object> itemsToDuplicate)
-    {
-        ItemsToDuplicate = itemsToDuplicate;
+        Value = value;
     }
 }

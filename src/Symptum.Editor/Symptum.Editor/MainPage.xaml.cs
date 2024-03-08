@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Text;
 using Symptum.Core.Management.Resources;
+using Symptum.Core.Subjects;
 using Symptum.Core.Subjects.QuestionBanks;
 using Symptum.Editor.Controls;
 using Symptum.Editor.EditorPages;
@@ -11,11 +12,11 @@ namespace Symptum.Editor;
 
 public sealed partial class MainPage : Page
 {
-    private ObservableCollection<QuestionBankTopic> topics = [];
+    private readonly ObservableCollection<IResource> resources = [];
 
     private IntPtr hWnd = IntPtr.Zero;
     private Window mainWindow;
-    private TopicEditorDialog topicEditorDialog = new();
+    private readonly AddNewItemDialog addNewItemDialog = new();
 
     //private ContentDialog deleteTopicDialog = new()
     //{
@@ -73,8 +74,21 @@ public sealed partial class MainPage : Page
         //];
 
         //((IResource)subject).InitializeResource(null);
+        //resources.Add(subject);
+        //QuestionBankTopic topic = new("test")
+        //{
+        //    QuestionEntries =
+        //    [
+        //        new()
+        //        {
+        //            Title = "Liver"
+        //        }
+        //    ]
+        //};
+        //((IResource)topic).InitializeResource(null);
+        //resources.Add(topic);
 
-        treeView.ItemsSource = topics;
+        treeView.ItemsSource = resources;
 
         if (App.Current is App app && app.MainWindow is Window window)
             mainWindow = window;
@@ -133,16 +147,16 @@ public sealed partial class MainPage : Page
         }
 
         _isBeingSaved = true;
-        if (topics.Count == 0) return;
+        if (resources.Count == 0) return;
 
         bool pathExists = await ResourceHelper.VerifyWorkPathAsync();
 
         if (pathExists)
         {
             bool allSaved = true;
-            foreach (var topic in topics)
+            foreach (var resource in resources)
             {
-                allSaved &= await ResourceHelper.SaveQuestionBankTopicAsync(topic);
+                allSaved &= await ResourceHelper.SaveResourceAsync(resource);
             }
             if (allSaved) EditorPagesManager.MarkAllOpenEditorsAsSaved();
         }
@@ -204,7 +218,7 @@ public sealed partial class MainPage : Page
             {
                 string csv = await FileIO.ReadTextAsync(file);
                 var topic = QuestionBankTopic.CreateTopicFromCSV(file.DisplayName, csv);
-                if (topic != null) topics.Add(topic);
+                if (topic != null) resources.Add(topic);
             }
         }
     }
@@ -215,7 +229,7 @@ public sealed partial class MainPage : Page
         if (result && ResourceHelper.FolderPicked)
         {
             EditorPagesManager.ResetEditors();
-            topics.Clear();
+            resources.Clear();
             await LoadTopicsFromWorkPathAsync();
         }
     }
@@ -245,15 +259,16 @@ public sealed partial class MainPage : Page
         _isBeingSaved = true;
 
         StringBuilder mdBuilder = new();
-        foreach (var topic in topics)
+        foreach (var resource in resources)
         {
-            MarkdownHelper.GenerateMarkdownForQuestionBankTopic(topic, ref mdBuilder);
+            if (resource is QuestionBankTopic topic)
+                MarkdownHelper.GenerateMarkdownForQuestionBankTopic(topic, ref mdBuilder);
         }
         var fileSavePicker = new FileSavePicker
         {
             SuggestedFileName = string.Empty
         };
-        fileSavePicker.FileTypeChoices.Add("Markdown File", new List<string>() { ".md" });
+        fileSavePicker.FileTypeChoices.Add("Markdown File", [".md"]);
 
 #if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
         WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, hWnd);
@@ -277,48 +292,66 @@ public sealed partial class MainPage : Page
 
     private async void New_Click(object sender, RoutedEventArgs e)
     {
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-        topicEditorDialog.XamlRoot = Content.XamlRoot;
-#endif
-        var result = await topicEditorDialog.CreateAsync();
+//#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+//#endif
+        addNewItemDialog.XamlRoot = mainWindow.Content?.XamlRoot;
+        IResource? parent = null;
+        if (treeView.SelectedItems.Count > 0 && treeView.SelectedItems[0] is IResource resource)
+            parent = resource;
+        var result = await addNewItemDialog.CreateAsync(parent);
         if (result == EditorResult.Create)
         {
-            QuestionBankTopic topic = new(topicEditorDialog.TopicName)
+            var selectedType = addNewItemDialog.SelectedItemType;
+            if (selectedType != null)
             {
-                QuestionEntries = []
-            };
+                if (Activator.CreateInstance(selectedType) is IResource instance)
+                {
+                    instance.Title = addNewItemDialog.ItemTitle;
+                    if (parent != null)
+                        parent.AddChildResource(instance);
+                    else
+                    {
+                        resources.Add(instance);
+                        instance.InitializeResource(null);
+                    }
+                }
+            }
+            //QuestionBankTopic topic = new(addNewItemDialog.ItemTitle)
+            //{
+            //    QuestionEntries = []
+            //};
 
-            topics.Add(topic);
+            //topics.Add(topic);
         }
     }
 
-//    private async void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
-//    {
-//        FileOpenPicker fileOpenPicker = new();
-//        fileOpenPicker.FileTypeFilter.Add(".csv");
+    //    private async void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
+    //    {
+    //        FileOpenPicker fileOpenPicker = new();
+    //        fileOpenPicker.FileTypeFilter.Add(".csv");
 
-//#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-//        WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, hWnd);
-//#endif
-//        var pickedFiles = await fileOpenPicker.PickMultipleFilesAsync();
-//        if (pickedFiles.Count > 0)
-//        {
-//            await UpgradeCSVs(pickedFiles);
-//        }
-//    }
+    //#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+    //        WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, hWnd);
+    //#endif
+    //        var pickedFiles = await fileOpenPicker.PickMultipleFilesAsync();
+    //        if (pickedFiles.Count > 0)
+    //        {
+    //            await UpgradeCSVs(pickedFiles);
+    //        }
+    //    }
 
-//    private async Task UpgradeCSVs(IReadOnlyList<StorageFile> files)
-//    {
-//        if (files == null) return;
+    //    private async Task UpgradeCSVs(IReadOnlyList<StorageFile> files)
+    //    {
+    //        if (files == null) return;
 
-//        foreach (StorageFile file in files)
-//        {
-//            if (file.FileType.Equals(".csv", StringComparison.CurrentCultureIgnoreCase))
-//            {
-//                string csv = await FileIO.ReadTextAsync(file);
-//                var newCSV = QuestionBankTopic.UpgradeCSV(csv);
-//                await FileIO.WriteTextAsync(file, newCSV);
-//            }
-//        }
-//    }
+    //        foreach (StorageFile file in files)
+    //        {
+    //            if (file.FileType.Equals(".csv", StringComparison.CurrentCultureIgnoreCase))
+    //            {
+    //                string csv = await FileIO.ReadTextAsync(file);
+    //                var newCSV = QuestionBankTopic.UpgradeCSV(csv);
+    //                await FileIO.WriteTextAsync(file, newCSV);
+    //            }
+    //        }
+    //    }
 }

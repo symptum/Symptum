@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Text.Json.Serialization;
+using System.Xml.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Symptum.Core.Management.Navigation;
 
@@ -48,13 +49,6 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
     IList<IResource>? IResource.ChildrenResources
     {
         get => childrenResources;
-        set
-        {
-            if (value == null)
-                ChildrenResources = null;
-            else
-                ChildrenResources = new(value);
-        }
     }
 
     private ObservableCollection<IResource>? childrenResources;
@@ -63,7 +57,7 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
     public ObservableCollection<IResource>? ChildrenResources
     {
         get => childrenResources;
-        set
+        private set
         {
             //UnobserveCollection(childrenResources, true);
             SetProperty(ref childrenResources, value);
@@ -104,6 +98,7 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
     void IResource.InitializeResource(IResource? parent)
     {
         ParentResource = parent;
+        ChildrenResources = [];
         OnInitializeResource(parent);
 
         // Temporary
@@ -133,15 +128,37 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
 
     public abstract bool CanHandleChildResourceType(Type childResourceType);
 
-    protected void SetChildrenResources<T>(ObservableCollection<T> collection) where T : IResource
+    public abstract bool CanAddChildResourceType(Type childResourceType);
+
+    public void AddChildResource(IResource childResource)
     {
-        if (collection != null)
-            ChildrenResources = new(collection.OfType<IResource>());
-        else
-            ChildrenResources = [];
+        OnAddChildResource(childResource);
+        if (hasInitialized)
+            childResource.InitializeResource(this);
     }
 
-    protected void UnobserveCollection<T>(ObservableCollection<T> collection, bool isChildrenResources = false) where T : IResource
+    public void RemoveChildResource(IResource childResource)
+    {
+        OnRemoveChildResource(childResource);
+    }
+
+    protected abstract void OnAddChildResource(IResource childResource);
+
+    protected abstract void OnRemoveChildResource(IResource childResource);
+
+    protected void SetChildrenResources<T>(ObservableCollection<T>? collection) where T : IResource
+    {
+        if (collection != null)
+        {
+            foreach(var item in collection)
+            {
+                ChildrenResources?.Add(item);
+            }
+            ObserveCollection(collection);
+        }
+    }
+
+    protected void UnobserveCollection<T>(ObservableCollection<T>? collection, bool isChildrenResources = false) where T : IResource
     {
         if (hasInitialized && !isChildrenResources)
             childrenResources?.Clear();

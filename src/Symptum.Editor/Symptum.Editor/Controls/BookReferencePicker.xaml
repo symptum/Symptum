@@ -13,7 +13,7 @@
     <CollectionViewSource x:Key="BookGroupedSource" x:Name="bookGroupedSource" IsSourceGrouped="True" />
   </UserControl.Resources>
   <Grid>
-    <Button x:Name="previewButton">
+    <Button x:Name="previewButton" HorizontalAlignment="Stretch">
       <Button.Content>
         <TextBlock x:Name="previewTextBlock" TextTrimming="CharacterEllipsis" />
       </Button.Content>

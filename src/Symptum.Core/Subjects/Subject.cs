@@ -1,4 +1,4 @@
-﻿using Symptum.Core.Management.Resources;
+using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects.QuestionBanks;
 
 namespace Symptum.Core.Subjects;
@@ -23,9 +23,9 @@ public class Subject : PackageResource
         set => SetProperty(ref _subjectCode, value);
     }
 
-    private QuestionBank questionBank;
+    private QuestionBank? questionBank;
 
-    public QuestionBank QuestionBank
+    public QuestionBank? QuestionBank
     {
         get => questionBank;
         set
@@ -39,11 +39,8 @@ public class Subject : PackageResource
 
     protected override void OnInitializeResource(IResource? parent)
     {
-        ChildrenResources = [questionBank];
-        foreach (IResource resource in ChildrenResources)
-        {
-            resource.InitializeResource(this);
-        }
+        if (questionBank != null)
+            ChildrenResources?.Add(questionBank);
     }
 
     public override bool CanHandleChildResourceType(Type childResourceType)
@@ -51,19 +48,37 @@ public class Subject : PackageResource
         return childResourceType == typeof(QuestionBank);
     }
 
-    private void UpdateChildrenResources(QuestionBank value)
+    public override bool CanAddChildResourceType(Type childResourceType)
+    {
+        if (childResourceType == typeof(QuestionBank))
+        {
+            return QuestionBank == null;
+        }
+
+        return false;
+    }
+
+    protected override void OnAddChildResource(IResource childResource)
+    {
+        if (childResource is QuestionBank questionBank)
+        {
+            QuestionBank = questionBank;
+        }
+    }
+
+    protected override void OnRemoveChildResource(IResource childResource)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void UpdateChildrenResources(QuestionBank? value)
     {
         if (ChildrenResources != null)
         {
-            if (value != null)
-            {
-                if (ChildrenResources.Contains(questionBank))
-                    ChildrenResources.Remove(questionBank);
-
-                ChildrenResources.Add(value);
-            }
-            else
+            if (questionBank != null && ChildrenResources.Contains(questionBank))
                 ChildrenResources.Remove(questionBank);
+            if (value != null)
+                ChildrenResources.Add(value);
         }
     }
 }

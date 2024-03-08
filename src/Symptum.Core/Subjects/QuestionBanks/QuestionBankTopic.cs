@@ -34,12 +34,26 @@ public class QuestionBankTopic : NavigableResource
 
     protected override void OnInitializeResource(IResource? parent)
     {
-        ChildrenResources = null;
     }
 
     public override bool CanHandleChildResourceType(Type childResourceType)
     {
         return false;
+    }
+
+    public override bool CanAddChildResourceType(Type childResourceType)
+    {
+        return false;
+    }
+
+    protected override void OnAddChildResource(IResource childResource)
+    {
+        throw new NotImplementedException();
+    }
+
+    protected override void OnRemoveChildResource(IResource childResource)
+    {
+        throw new NotImplementedException();
     }
 
     public string ToCSV()
