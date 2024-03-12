@@ -1,51 +1,60 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CsvHelper.Configuration.Attributes;
 
-namespace Symptum.Core.Subjects.Books
+namespace Symptum.Core.Subjects.Books;
+
+public class Book : ObservableObject
 {
-    public class Book : ObservableObject
+    #region Properties
+
+    private string _code = string.Empty;
+
+    public string Code
     {
-        #region Properties
+        get => _code;
+        set => SetProperty(ref _code, value);
+    }
 
-        private string _code = string.Empty;
+    private string _title = string.Empty;
 
-        public string Code
-        {
-            get => _code;
-            set => SetProperty(ref _code, value);
-        }
+    public string Title
+    {
+        get => _title;
+        set => SetProperty(ref _title, value);
+    }
 
-        private string _title = string.Empty;
+    private string _authors = string.Empty;
 
-        public string Title
-        {
-            get => _title;
-            set => SetProperty(ref _title, value);
-        }
+    public string Authors
+    {
+        get => _authors;
+        set => SetProperty(ref _authors, value);
+    }
 
-        private string _authors = string.Empty;
+    private SubjectList _subjectList;
 
-        public string Authors
-        {
-            get => _authors;
-            set => SetProperty(ref _authors, value);
-        }
+    [Ignore]
+    public SubjectList Subject
+    {
+        get => _subjectList;
+        set => SetProperty(ref _subjectList, value);
+    }
 
-        #endregion
+    #endregion
 
-        public Book()
-        {
-        }
+    public Book()
+    {
+    }
 
-        public Book(string code, string title, string author)
-        {
-            _code = code;
-            _title = title;
-            _authors = author;
-        }
+    public Book(string code, string title, string author)
+    {
+        _code = code;
+        _title = title;
+        _authors = author;
+    }
 
-        public override string ToString()
-        {
-            return Title + " by " + Authors + " (" + Code + ")";
-        }
+    public override string ToString()
+    {
+        return Title + " by " + Authors + " (" + Code + ")";
     }
 }

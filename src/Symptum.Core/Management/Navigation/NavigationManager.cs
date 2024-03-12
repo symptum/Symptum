@@ -1,8 +1,7 @@
-﻿namespace Symptum.Core.Management.Navigation
+﻿namespace Symptum.Core.Management.Navigation;
+
+public class NavigationManager
 {
-    public class NavigationManager
-    {
-        public NavigationManager()
-        { }
-    }
+    public NavigationManager()
+    { }
 }

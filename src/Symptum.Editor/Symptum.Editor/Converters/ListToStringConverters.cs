@@ -43,15 +43,15 @@ public class StringListToStringConverter : IValueConverter
     }
 }
 
-public class BookLocationListToStringConverter : IValueConverter
+public class BookReferenceListToStringConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
-        return ConvertToString<BookLocation>(value, ElementToStringDefault);
+        return ConvertToString<BookReference>(value, ElementToStringDefault);
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, string language)
     {
-        return ConvertFromString<BookLocation>(value.ToString(), ValidateDataForBookLocation);
+        return ConvertFromString<BookReference>(value.ToString(), ValidateDataForBookReference);
     }
 }

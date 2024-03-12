@@ -16,14 +16,15 @@ public sealed partial class FindFlyout : Flyout
 
     public FindFlyout()
     {
-        this.InitializeComponent();
-        this.Opened += FindFlyout_Opened;
+        InitializeComponent();
+        Opened += FindFlyout_Opened;
         queryBox.ItemsSource = _queries;
         queryBox.TextChanged += (s, e) => QueryText = queryBox.Text;
         queryBox.QuerySubmitted += QueryBox_QuerySubmitted;
         fNextButton.Click += (s, e) => Find(FindDirection.Next);
         fPrevButton.Click += (s, e) => Find(FindDirection.Previous);
         fAllButton.Click += (s, e) => Find(FindDirection.All);
+        fClearButton.Click += (s, e) => Clear();
         fContextComboBox.SelectionChanged += (s, e) =>
         {
             if (e.AddedItems.Count > 0)
@@ -36,6 +37,8 @@ public sealed partial class FindFlyout : Flyout
     }
 
     public event EventHandler<FindFlyoutQuerySubmittedEventArgs> QuerySubmitted;
+
+    public event EventHandler<EventArgs> QueryCleared;
 
     #region Properties
 
@@ -81,9 +84,9 @@ public sealed partial class FindFlyout : Flyout
         }
     }
 
-    public IList<string> FindContexts
+    public IList<string>? FindContexts
     {
-        get => (IList<string>)GetValue(FindContextsProperty);
+        get => (IList<string>?)GetValue(FindContextsProperty);
         set => SetValue(FindContextsProperty, value);
     }
 
@@ -177,17 +180,14 @@ public sealed partial class FindFlyout : Flyout
 
     #endregion
 
-    public void ShowAt(FindOptions findOptions = null, DependencyObject placementTarget = null, FlyoutShowOptions showOptions = null)
+    public void ShowAt(FindOptions? findOptions = null, DependencyObject? placementTarget = null, FlyoutShowOptions? showOptions = null)
     {
-        if (showOptions == null)
+        showOptions ??= new()
         {
-            showOptions = new()
-            {
-                Position = new(),
-                ShowMode = FlyoutShowMode.Standard,
-                Placement = FlyoutPlacementMode.Bottom
-            };
-        }
+            Position = new(),
+            ShowMode = FlyoutShowMode.Standard,
+            Placement = FlyoutPlacementMode.Bottom
+        };
 
         if (findOptions != null)
         {
@@ -204,7 +204,7 @@ public sealed partial class FindFlyout : Flyout
         if (!string.IsNullOrEmpty(args.QueryText) && !_queries.Contains(args.QueryText))
             _queries.Add(args.QueryText);
         QueryText = args.QueryText;
-        Find(FindDirection.Next);
+        Find(FindDirection.All);
     }
 
     private void FindFlyout_Opened(object sender, object e)
@@ -214,6 +214,12 @@ public sealed partial class FindFlyout : Flyout
 
     private void Find(FindDirection findDirection)
     {
+        if (string.IsNullOrEmpty(QueryText) || string.IsNullOrWhiteSpace(QueryText))
+        {
+            Clear();
+            return;
+        }
+
         FindFlyoutQuerySubmittedEventArgs args = new()
         {
             Context = SelectedContext,
@@ -224,6 +230,12 @@ public sealed partial class FindFlyout : Flyout
         };
 
         RaiseQuerySubmitted(args);
+    }
+
+    private void Clear()
+    {
+        QueryText = string.Empty;
+        QueryCleared?.Invoke(this, new());
     }
 
     private void RaiseQuerySubmitted(FindFlyoutQuerySubmittedEventArgs e)
@@ -253,7 +265,7 @@ public class FindOptions : ObservableObject
 {
     public string InitialQueryText { get; init; } = string.Empty;
 
-    public IList<string> Contexts { get; init; } = null;
+    public IList<string>? Contexts { get; init; } = null;
 
     public bool MatchCase { get; init; } = false;
 

@@ -1,9 +1,4 @@
-using System.Diagnostics;
-using System.IO;
-using Microsoft.UI.Xaml;
 using Symptum.Core.Subjects.Books;
-using Uno.UI.Toolkit;
-using Windows.UI.ViewManagement;
 
 namespace Symptum.Editor;
 
@@ -35,7 +30,7 @@ public class App : Application
         if (MainWindow.Content is not Frame rootFrame)
         {
             // Create a Frame to act as the navigation context and navigate to the first page
-            rootFrame = new Frame();
+            rootFrame = new();
 
             // Place the frame in the current Window
             MainWindow.Content = rootFrame;
@@ -55,7 +50,7 @@ public class App : Application
         MainWindow.Activate();
 
 #if HAS_UNO
-        Windows.Graphics.Display.DisplayInformation.AutoRotationPreferences = Windows.Graphics.Display.DisplayOrientations.Landscape;
+        //Windows.Graphics.Display.DisplayInformation.AutoRotationPreferences = Windows.Graphics.Display.DisplayOrientations.Landscape;
 #endif
     }
 
@@ -67,6 +62,9 @@ public class App : Application
             string content = await FileIO.ReadTextAsync(file);
             BookStore.LoadBooks(content);
             file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Books/Second Year Books.csv"));
+            content = await FileIO.ReadTextAsync(file);
+            BookStore.LoadBooks(content);
+            file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Books/Third Year Books.csv"));
             content = await FileIO.ReadTextAsync(file);
             BookStore.LoadBooks(content);
         }

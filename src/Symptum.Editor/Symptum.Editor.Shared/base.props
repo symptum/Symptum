@@ -16,11 +16,11 @@
         Link="AppHead.xaml.cs" />
     <UnoIcon Include="$(MSBuildThisFileDirectory)Icons\icon.svg"
         ForegroundFile="$(MSBuildThisFileDirectory)Icons\icon_foreground.svg"
-        ForegroundScale="0.65"
+        AndroidForegroundScale="0.6"
         Color="#00003148" />
     <UnoSplashScreen
       Include="$(MSBuildThisFileDirectory)Splash\splash_screen.svg"
-      BaseSize="128,128"
+      BaseSize="1024,1024"
       Color="#003148" />
     <!-- NOTE: Files explicitly linked to display in the head projects for clarity. -->
     <None Include="$(MSBuildThisFileDirectory)Icons\icon.svg" Link="Icons\icon.svg" />

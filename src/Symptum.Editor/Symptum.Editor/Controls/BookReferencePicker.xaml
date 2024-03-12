@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+    x:Class="Symptum.Editor.Controls.BookReferencePicker"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Symptum.Editor.Controls"
+    xmlns:win="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:not_win="http://uno.ui/not_win"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:book="using:Symptum.Core.Subjects.Books"
+    mc:Ignorable="d not_win">
+  <UserControl.Resources>
+    <CollectionViewSource x:Key="BookGroupedSource" x:Name="bookGroupedSource" IsSourceGrouped="True" />
+  </UserControl.Resources>
+  <Grid>
+    <Button x:Name="previewButton" HorizontalAlignment="Stretch">
+      <Button.Content>
+        <TextBlock x:Name="previewTextBlock" TextTrimming="CharacterEllipsis" />
+      </Button.Content>
+      <Button.Flyout>
+        <Flyout x:Name="flyout" Opening="Flyout_Opening" Closed="Flyout_Closed" ShouldConstrainToRootBounds="False">
+          <Grid Width="300">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition />
+              <ColumnDefinition />
+            </Grid.ColumnDefinitions>
+            <StackPanel win:Grid.ColumnSpan="2" win:Orientation="Horizontal" Spacing="10"
+                        win:Margin="0,0,0,10" not_win:Margin="0,0,5,10">
+              <TextBlock Text="Book" VerticalAlignment="Center" />
+              <AutoSuggestBox x:Name="bookQueryBox" QueryIcon="Find" PlaceholderText="Search"
+                              VerticalAlignment="Center" not_win:Width="145" win:Width="255" />
+            </StackPanel>
+            <win:ListView x:Name="bookList" SelectionMode="Single" Height="200" Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,0,10"
+                      ItemsSource="{Binding Source={StaticResource BookGroupedSource}}">
+              <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <ItemsStackPanel AreStickyGroupHeadersEnabled="True"/>
+                </ItemsPanelTemplate>
+              </ListView.ItemsPanel>
+              <ListView.GroupStyle>
+                <GroupStyle>
+                  <GroupStyle.HeaderTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Key}" />
+                    </DataTemplate>
+                  </GroupStyle.HeaderTemplate>
+                </GroupStyle>
+              </ListView.GroupStyle>
+              <ListView.ItemTemplate>
+                <DataTemplate x:DataType="book:Book">
+                  <ListViewItem>
+                    <TextBlock ToolTipService.ToolTip="{Binding }" Text="{Binding }" />
+                  </ListViewItem>
+                </DataTemplate>
+              </ListView.ItemTemplate>
+            </win:ListView>
+            <NumberBox x:Name="editionSelector" win:Grid.Row="2" win:Grid.Column="0"
+                       not_win:Grid.Column="1" win:Margin="0,0,5,10" not_win:Margin="5,0,0,10"
+                       Header="Edition" Minimum="0" SpinButtonPlacementMode="Inline" />
+            <NumberBox x:Name="volumeSelector" Grid.Row="2" win:Grid.Column="1"
+                       not_win:Grid.Column="0" win:Margin="5,0,0,10" not_win:Margin="0,0,5,10"
+                       Header="Volume" Minimum="0" SpinButtonPlacementMode="Inline" />
+            <TextBox x:Name="pageNoSelector" win:Grid.Row="3" win:Grid.ColumnSpan="2"
+                     win:Margin="0,0,0,10" not_win:Margin="5,0,0,10" not_win:Grid.Row="2" not_win:Grid.Column="1"
+                     Header="Page Numbers" />
+            <Button x:Name="okButton" Grid.Row="4" Grid.Column="0"
+                    HorizontalAlignment="Stretch" Click="OkButton_Click" Margin="0,0,5,0">
+              <SymbolIcon Symbol="Accept" />
+            </Button>
+            <Button x:Name="cancelButton" Grid.Row="4" Grid.Column="1"
+                    HorizontalAlignment="Stretch" Click="CancelButton_Click" Margin="5,0,0,0">
+              <SymbolIcon Symbol="Cancel" />
+            </Button>
+          </Grid>
+        </Flyout>
+      </Button.Flyout>
+    </Button>
+  </Grid>
+</UserControl>
