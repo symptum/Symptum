@@ -1,3 +1,4 @@
+using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
 using Symptum.Core.Subjects.QuestionBanks;
@@ -9,9 +10,12 @@ public sealed partial class AddNewItemDialog : ContentDialog
     public static readonly List<NewItemType> itemTypes =
         [
             new ("Subject", typeof(Subject), "Subjects"),
-            new("Question Bank", typeof(QuestionBank), "Question Bank"),
-            new("Question Bank Paper", typeof(QuestionBankPaper), "Question Bank"),
-            new("Question Bank Topic", typeof(QuestionBankTopic), "Question Bank"),
+            new("Question Bank", typeof(QuestionBank), "Question Banks"),
+            new("Question Bank Paper", typeof(QuestionBankPaper), "Question Banks"),
+            new("Question Bank Topic", typeof(QuestionBankTopic), "Question Banks"),
+            new("Reference Values Package", typeof(ReferenceValuesPackage), "Reference Values"),
+            new("Reference Value Family", typeof(ReferenceValueFamily), "Reference Values"),
+            new("Reference Value Group", typeof(ReferenceValueGroup), "Reference Values")
         ];
 
     private List<NewItemType> availItemTypes;

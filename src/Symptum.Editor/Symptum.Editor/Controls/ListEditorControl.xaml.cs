@@ -1,5 +1,3 @@
-using System.Collections;
-
 namespace Symptum.Editor.Controls;
 
 public sealed partial class ListEditorControl : UserControl

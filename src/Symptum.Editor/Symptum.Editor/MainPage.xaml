@@ -106,7 +106,7 @@
     <SplitView x:Name="splitView" Grid.Row="2" PaneBackground="Transparent"
                IsPaneOpen="True" OpenPaneLength="300" CompactPaneLength="48" DisplayMode="Inline">
       <SplitView.Pane>
-        <StackPanel x:Name="sideStackPanel" Grid.Column="1" Width="300">
+        <ScrollViewer x:Name="sideStackPanel" Width="300" HorizontalScrollBarVisibility="Auto">
           <!--<CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
             <AppBarButton x:Name="openFolderButton" Label="Open Folder">
               <AppBarButton.Icon>
@@ -145,7 +145,7 @@
           <TreeView x:Name="treeView" SelectionMode="Multiple"
                     CanReorderItems="False" CanDragItems="False" CanDrag="False"
                     ItemTemplateSelector="{StaticResource NavigableResourceTemplateSelector}" />
-        </StackPanel>
+        </ScrollViewer>
       </SplitView.Pane>
 
       <Grid x:Name="contentGrid"

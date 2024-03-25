@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using CommunityToolkit.WinUI.UI.Controls;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
 using Symptum.Core.Subjects.Books;

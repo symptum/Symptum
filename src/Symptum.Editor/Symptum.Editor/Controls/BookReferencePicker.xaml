@@ -41,7 +41,7 @@
                       ItemsSource="{Binding Source={StaticResource BookGroupedSource}}">
               <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
-                  <ItemsStackPanel AreStickyGroupHeadersEnabled="True"/>
+                  <ItemsStackPanel AreStickyGroupHeadersEnabled="True" />
                 </ItemsPanelTemplate>
               </ListView.ItemsPanel>
               <ListView.GroupStyle>

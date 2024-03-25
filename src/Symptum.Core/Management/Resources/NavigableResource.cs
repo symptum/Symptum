@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Text.Json.Serialization;
-using System.Xml.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Symptum.Core.Management.Navigation;
 
@@ -87,6 +86,7 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
 
     private bool hasInitialized = false;
 
+    [JsonIgnore]
     public bool HasInitialized
     {
         get => hasInitialized;
@@ -150,7 +150,7 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
     {
         if (collection != null)
         {
-            foreach(var item in collection)
+            foreach (var item in collection)
             {
                 ChildrenResources?.Add(item);
             }

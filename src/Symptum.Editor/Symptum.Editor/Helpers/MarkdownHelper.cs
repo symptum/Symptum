@@ -64,12 +64,12 @@ public class MarkdownHelper
 
     public static void GenerateMarkdownForQuestionBankTopic(QuestionBankTopic topic, ref StringBuilder mdBuilder)
     {
-        if (topic != null && topic.QuestionEntries != null && topic.QuestionEntries.Count > 0)
+        if (topic != null && topic.Entries != null && topic.Entries.Count > 0)
         {
             mdBuilder.AppendLine("### " + topic.Title);
             mdBuilder.AppendLine();
 
-            GenerateMarkdownForQuestionEntries(topic.QuestionEntries.Order(), ref mdBuilder);
+            GenerateMarkdownForQuestionEntries(topic.Entries.Order(), ref mdBuilder);
         }
     }
 

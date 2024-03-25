@@ -90,8 +90,8 @@ public sealed partial class BookReferencePicker : UserControl
     private IEnumerable GetBooksGrouped(IList<Book> books)
     {
         var groups = from book in books
-                    group book by book.Subject into g
-                    select g;
+                     group book by book.Subject into g
+                     select g;
 
         return groups;
     }

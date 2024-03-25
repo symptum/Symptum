@@ -7,4 +7,6 @@ public class ParserHelper
     public static readonly string ListDelimiter = ";";
 
     public static readonly string BookReferenceDelimiter = "#";
+
+    public static readonly string ReferenceValueDataDelimiter = "|";
 }

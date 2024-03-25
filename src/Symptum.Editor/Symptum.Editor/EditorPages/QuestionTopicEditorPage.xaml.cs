@@ -102,8 +102,8 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         if (topic == null) return;
 
         currentTopic = topic;
-        topic.QuestionEntries ??= [];
-        dataGrid.ItemsSource = topic.QuestionEntries;
+        topic.Entries ??= [];
+        dataGrid.ItemsSource = topic.Entries;
         dataGrid.IsEnabled = true;
         saveTopicButton.IsEnabled = true;
         addQuestionButton.IsEnabled = true;
@@ -121,7 +121,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         if (clear)
             countTextBlock.Text = null;
         else
-            countTextBlock.Text = $"{currentTopic?.QuestionEntries?.Count} Entries, {dataGrid.SelectedItems.Count} Selected";
+            countTextBlock.Text = $"{currentTopic?.Entries?.Count} Entries, {dataGrid.SelectedItems.Count} Selected";
     }
 
     private bool _isBeingSaved = false;
@@ -137,7 +137,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
 
         bool pathExists = await ResourceHelper.VerifyWorkPathAsync();
         if (pathExists && currentTopic != null)
-            HasUnsavedChanges = !await ResourceHelper.SaveQuestionBankTopicAsync(currentTopic);
+            HasUnsavedChanges = !await ResourceHelper.SaveCSVFileAsync(currentTopic);
         _isBeingSaved = false;
     }
 
@@ -149,7 +149,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
             var result = await questionEditorDialog.CreateAsync();
             if (result == EditorResult.Create)
             {
-                currentTopic?.QuestionEntries?.Add(questionEditorDialog.QuestionEntry);
+                currentTopic?.Entries?.Add(questionEditorDialog.QuestionEntry);
                 HasUnsavedChanges = true;
                 SetCountsText();
             }
@@ -198,11 +198,11 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
 
         foreach (var item in dataGrid.SelectedItems)
         {
-            if (item is QuestionEntry entry && currentTopic.QuestionEntries.Contains(entry))
+            if (item is QuestionEntry entry && currentTopic.Entries.Contains(entry))
                 toDupe.Add(entry);
         }
         dataGrid.SelectedItems.Clear();
-        toDupe.ForEach(x => currentTopic?.QuestionEntries?.Add(x.Clone()));
+        toDupe.ForEach(x => currentTopic?.Entries?.Add(x.Clone()));
         toDupe.Clear();
         HasUnsavedChanges = true;
         SetCountsText();
@@ -215,11 +215,11 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
 
         foreach (var item in dataGrid.SelectedItems)
         {
-            if (item is QuestionEntry entry && currentTopic.QuestionEntries.Contains(entry))
+            if (item is QuestionEntry entry && currentTopic.Entries.Contains(entry))
                 toDelete.Add(entry);
         }
         dataGrid.SelectedItems.Clear();
-        toDelete.ForEach(x => currentTopic?.QuestionEntries?.Remove(x));
+        toDelete.ForEach(x => currentTopic?.Entries?.Remove(x));
         toDelete.Clear();
         HasUnsavedChanges = true;
         SetCountsText();
@@ -263,7 +263,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
     private void FindFlyout_QueryCleared(object? sender, EventArgs e)
     {
         if (currentTopic != null)
-            dataGrid.ItemsSource = currentTopic.QuestionEntries;
+            dataGrid.ItemsSource = currentTopic.Entries;
         findTextBlock.Text = string.Empty;
         OnFilter(false);
     }
@@ -274,9 +274,9 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
             return;
         if (currentTopic != null)
         {
-            var entries = new ObservableCollection<QuestionEntry>(from question in currentTopic?.QuestionEntries?.ToList()
-                                                                           where QuestionEntryPropertyMatchValue(question, e)
-                                                                           select question);
+            var entries = new ObservableCollection<QuestionEntry>(from question in currentTopic?.Entries?.ToList()
+                                                                  where QuestionEntryPropertyMatchValue(question, e)
+                                                                  select question);
             dataGrid.ItemsSource = entries;
             findTextBlock.Text = $"Find results for '{e.QueryText}' in {e.Context}. Matching entries: {entries.Count}";
             OnFilter(true);
@@ -332,9 +332,9 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
 
     private void SortYearsAsked()
     {
-        if (currentTopic?.QuestionEntries == null) return;
+        if (currentTopic?.Entries == null) return;
 
-        foreach (var entry in currentTopic.QuestionEntries)
+        foreach (var entry in currentTopic.Entries)
         {
             entry?.YearsAsked?.Sort(new Comparison<DateOnly>((d1, d2) => d2.CompareTo(d1)));
         }
@@ -347,7 +347,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         {
             int oldIndex = dataGrid.SelectedIndex;
             int newIndex = Math.Max(dataGrid.SelectedIndex - 1, 0);
-            currentTopic?.QuestionEntries?.Move(oldIndex, newIndex);
+            currentTopic?.Entries?.Move(oldIndex, newIndex);
         }
     }
 
@@ -356,13 +356,13 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         if (CanMoveDown())
         {
             int oldIndex = dataGrid.SelectedIndex;
-            int count = currentTopic?.QuestionEntries?.Count - 1 ?? 0;
+            int count = currentTopic?.Entries?.Count - 1 ?? 0;
             int newIndex = Math.Min(dataGrid.SelectedIndex + 1, count);
-            currentTopic?.QuestionEntries?.Move(oldIndex, newIndex);
+            currentTopic?.Entries?.Move(oldIndex, newIndex);
         }
     }
 
     private bool CanMoveUp() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != 0;
 
-    private bool CanMoveDown() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != currentTopic?.QuestionEntries?.Count - 1;
+    private bool CanMoveDown() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != currentTopic?.Entries?.Count - 1;
 }

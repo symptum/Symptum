@@ -53,7 +53,7 @@
                 <not_android:DatePicker DayVisible="False" Date="{Binding Value, Mode=TwoWay, Converter={StaticResource DateOnlyToDateTimeOffsetConverter}}"
                                         HorizontalAlignment="Stretch" />
                 <android:CalendarDatePicker Date="{Binding Value, Mode=TwoWay, Converter={StaticResource DateOnlyToDateTimeOffsetConverter}}"
-                                            HorizontalAlignment="Stretch"/>
+                                            HorizontalAlignment="Stretch" />
               </local:ListEditorItemCommandsButton>
             </DataTemplate>
           </local:ListEditorControl.ItemTemplate>

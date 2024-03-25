@@ -1,4 +1,7 @@
+using Symptum.Core.Helpers;
+using System.Web;
 using Symptum.Core.Subjects.Books;
+using Symptum.Core.Data.ReferenceValues;
 
 namespace Symptum.Editor;
 
@@ -8,6 +11,21 @@ public class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
+        //ReferenceValueEntry entry = new()
+        //{
+        //    Title = "Lymphocytes",
+        //    Data = [ new() { Values = "[x,y] md/dL"}, new() { Values = "x %"} ],
+        //    Inference = "Lymphocytosis",
+        //    Remarks = "Hello bro! +=-`~$%& 😂😊(❁´◡`❁)©£←→ \r\n kskmsiqkeqomeo"
+        //};
+
+        //System.Diagnostics.Debug.WriteLine(entry);
+        //string x = "n=Lymphocytes&data=%5bx%2cy%5d+md%2fdL%7cx+%25&inf=Lymphocytosis&rem=Hello+bro!+%2b%3d-%60%7e%24%25%26+%f0%9f%98%82%f0%9f%98%8a(%e2%9d%81%c2%b4%e2%97%a1%60%e2%9d%81)%c2%a9%c2%a3%e2%86%90%e2%86%92+%0d%0a+kskmsiqkeqomeo";
+        //if (ReferenceValueEntry.TryParse(x, out ReferenceValueEntry? entry))
+        //{
+        //    System.Diagnostics.Debug.WriteLine("E");
+        //}
+
         LoadAllBookListsAsync();
 
 #if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO

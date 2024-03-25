@@ -1,7 +1,7 @@
-using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Text;
+using CsvHelper;
 using Symptum.Core.Management.Resources;
-using Symptum.Core.Subjects;
 using Symptum.Core.Subjects.QuestionBanks;
 using Symptum.Editor.Controls;
 using Symptum.Editor.EditorPages;
@@ -12,8 +12,6 @@ namespace Symptum.Editor;
 
 public sealed partial class MainPage : Page
 {
-    private readonly ObservableCollection<IResource> resources = [];
-
     private IntPtr hWnd = IntPtr.Zero;
     private Window mainWindow;
     private readonly AddNewItemDialog addNewItemDialog = new();
@@ -88,7 +86,7 @@ public sealed partial class MainPage : Page
         //((IResource)topic).InitializeResource(null);
         //resources.Add(topic);
 
-        treeView.ItemsSource = resources;
+        treeView.ItemsSource = ResourceManager.Resources;
 
         if (App.Current is App app && app.MainWindow is Window window)
             mainWindow = window;
@@ -147,14 +145,14 @@ public sealed partial class MainPage : Page
         }
 
         _isBeingSaved = true;
-        if (resources.Count == 0) return;
+        if (ResourceManager.Resources.Count == 0) return;
 
         bool pathExists = await ResourceHelper.VerifyWorkPathAsync();
 
         if (pathExists)
         {
             bool allSaved = true;
-            foreach (var resource in resources)
+            foreach (var resource in ResourceManager.Resources)
             {
                 allSaved &= await ResourceHelper.SaveResourceAsync(resource);
             }
@@ -202,42 +200,26 @@ public sealed partial class MainPage : Page
     //        }
     //    }
 
-    private async Task LoadTopicsFromWorkPathAsync()
-    {
-        var files = await ResourceHelper.GetFilesFromWorkPathAsync();
-        await LoadTopicsFromFilesAsync(files);
-    }
-
-    private async Task LoadTopicsFromFilesAsync(IEnumerable<StorageFile>? files)
-    {
-        if (files == null) return;
-
-        foreach (StorageFile file in files)
-        {
-            if (file.FileType.Equals(".csv", StringComparison.CurrentCultureIgnoreCase))
-            {
-                string csv = await FileIO.ReadTextAsync(file);
-                var topic = QuestionBankTopic.CreateTopicFromCSV(file.DisplayName, csv);
-                if (topic != null) resources.Add(topic);
-            }
-        }
-    }
-
     private async void OpenFolder_Click(object sender, RoutedEventArgs e)
     {
         bool result = await ResourceHelper.SelectWorkPathAsync();
         if (result && ResourceHelper.FolderPicked)
         {
             EditorPagesManager.ResetEditors();
-            resources.Clear();
-            await LoadTopicsFromWorkPathAsync();
+            ResourceManager.Resources.Clear();
+            await ResourceHelper.LoadResourcesFromWorkPathAsync();
         }
     }
 
     private async void OpenFile_Click(object sender, RoutedEventArgs e)
     {
+        IResource? parent = null;
+        if (treeView.SelectedItems.Count > 0 && treeView.SelectedItems[0] is IResource resource)
+            parent = resource;
+
         FileOpenPicker fileOpenPicker = new();
         fileOpenPicker.FileTypeFilter.Add(".csv");
+        fileOpenPicker.FileTypeFilter.Add(".json");
 
 #if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
         WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, hWnd);
@@ -245,12 +227,79 @@ public sealed partial class MainPage : Page
         var pickedFiles = await fileOpenPicker.PickMultipleFilesAsync();
         if (pickedFiles.Count > 0)
         {
-            await LoadTopicsFromFilesAsync(pickedFiles);
+            await ResourceHelper.LoadResourcesFromFilesAsync(pickedFiles, parent);
         }
     }
 
     private async void Markdown_Click(object sender, RoutedEventArgs e)
     {
+        Dictionary<int, Dictionary<QuestionBankTopic, int>> totalW = [];
+        List<QuestionBankTopic> topics = [];
+        foreach (var resource in ResourceManager.Resources)
+        {
+            if (resource is QuestionBankTopic topic)
+            {
+                var weightages = topic.GenerateWeightage();
+                foreach (var weightage in weightages)
+                {
+                    var year = weightage.Key;
+                    if (totalW.TryGetValue(year, out Dictionary<QuestionBankTopic, int>? values))
+                    {
+                        values.Add(topic, weightage.Value);
+                    }
+                    else totalW.Add(year, new() { { topic, weightage.Value } });
+                }
+                topics.Add(topic);
+            }
+        }
+
+        using var writer = new StringWriter();
+        using var csvW = new CsvWriter(writer, CultureInfo.InvariantCulture);
+
+        csvW.WriteField("Year");
+        foreach (var topic in topics)
+        {
+            csvW.WriteField(topic.Title);
+        }
+        csvW.NextRecord();
+        //if (Entries != null)
+        //{
+        //    foreach (var entry in Entries)
+        //    {
+        //        csvW.WriteRecord(entry);
+        //        csvW.NextRecord();
+        //    }
+        //}
+
+        foreach (var w in totalW.OrderBy(x => x.Key))
+        {
+            csvW.WriteField(w.Key);
+            if (w.Value is Dictionary<QuestionBankTopic, int> d)
+            {
+                foreach (var topic in topics)
+                {
+                    int value = 0;
+                    foreach (var w2 in d)
+                    {
+                        if (w2.Key == topic)
+                            value = w2.Value;
+                    }
+                    csvW.WriteField(value);
+                }
+            }
+            csvW.NextRecord();
+            //if (w.Value is Dictionary<QuestionBankTopic, int> d)
+            //{
+            //    foreach (var w2 in d)
+            //    {
+            //    }
+            //}
+        }
+
+        System.Diagnostics.Debug.WriteLine(writer.ToString());
+
+        return;
+
         if (_isBeingSaved)
         {
             return;
@@ -259,7 +308,7 @@ public sealed partial class MainPage : Page
         _isBeingSaved = true;
 
         StringBuilder mdBuilder = new();
-        foreach (var resource in resources)
+        foreach (var resource in ResourceManager.Resources)
         {
             if (resource is QuestionBankTopic topic)
                 MarkdownHelper.GenerateMarkdownForQuestionBankTopic(topic, ref mdBuilder);
@@ -292,8 +341,8 @@ public sealed partial class MainPage : Page
 
     private async void New_Click(object sender, RoutedEventArgs e)
     {
-//#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-//#endif
+        //#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+        //#endif
         addNewItemDialog.XamlRoot = mainWindow.Content?.XamlRoot;
         IResource? parent = null;
         if (treeView.SelectedItems.Count > 0 && treeView.SelectedItems[0] is IResource resource)
@@ -311,7 +360,7 @@ public sealed partial class MainPage : Page
                         parent.AddChildResource(instance);
                     else
                     {
-                        resources.Add(instance);
+                        ResourceManager.Resources.Add(instance);
                         instance.InitializeResource(null);
                     }
                 }

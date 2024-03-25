@@ -1,7 +1,14 @@
+using System.Text.Json.Serialization;
+using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Deployment;
+using Symptum.Core.Subjects;
 
 namespace Symptum.Core.Management.Resources;
 
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "$feature",
+    UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor)]
+[JsonDerivedType(typeof(Subject), "subject")]
+[JsonDerivedType(typeof(ReferenceValuesPackage), "referenceValues")]
 public abstract class PackageResource : NavigableResource, IPackage
 {
     #region Properties
