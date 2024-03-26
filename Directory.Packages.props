@@ -1,5 +1,12 @@
 <Project ToolsVersion="15.0">
+  <!--
+    Note that the $(UnoVersion) comes from the Uno.Sdk. You should not update it manually. To update the version of Uno,
+    you should instead update the Sdk version in the global.json file.
+    
+    See https://aka.platform.uno/upgrade-uno-packages for more information.
+  -->
   <ItemGroup>
+    <PackageVersion Include="CsvHelper" Version="31.0.2" />
     <PackageVersion Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
     <PackageVersion Include="Uno.CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.200" />
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.2.2" />
@@ -16,17 +23,17 @@
     <PackageVersion Include="Uno.Extensions.Logging.WebAssembly.Console" Version="1.8.0-dev.1" />
     <PackageVersion Include="Uno.Toolkit.WinUI" Version="5.2.0-dev.38" />
     <PackageVersion Include="Uno.Resizetizer" Version="1.4.0-dev.11" />
-    <PackageVersion Include="Uno.UI.Adapter.Microsoft.Extensions.Logging" Version="5.2.0-dev.1851" />
+    <PackageVersion Include="Uno.UI.Adapter.Microsoft.Extensions.Logging" Version="$(UnoVersion)" />
     <PackageVersion Include="Uno.UniversalImageLoader" Version="1.9.36" />
     <PackageVersion Include="Uno.Wasm.Bootstrap" Version="9.0.0-dev.35" />
     <PackageVersion Include="Uno.Wasm.Bootstrap.DevServer" Version="9.0.0-dev.35" />
     <PackageVersion Include="Uno.Wasm.Bootstrap.Server" Version="8.0.4" />
-    <PackageVersion Include="Uno.WinUI" Version="5.2.0-dev.1851" />
-    <PackageVersion Include="Uno.WinUI.Lottie" Version="5.2.0-dev.1851" />
-    <PackageVersion Include="Uno.WinUI.DevServer" Version="5.2.0-dev.1851" />
-    <PackageVersion Include="Uno.WinUI.Skia.Gtk" Version="5.2.0-dev.1660" />
-    <PackageVersion Include="Uno.WinUI.Skia.Wpf" Version="5.2.0-dev.1851" />
-    <PackageVersion Include="Uno.WinUI.WebAssembly" Version="5.2.0-dev.1660" />
+    <PackageVersion Include="Uno.WinUI" Version="$(UnoVersion)" />
+    <PackageVersion Include="Uno.WinUI.Lottie" Version="$(UnoVersion)" />
+    <PackageVersion Include="Uno.WinUI.DevServer" Version="$(UnoVersion)" />
+    <PackageVersion Include="Uno.WinUI.Skia.Gtk" Version="$(UnoVersion)" />
+    <PackageVersion Include="Uno.WinUI.Skia.Wpf" Version="$(UnoVersion)" />
+    <PackageVersion Include="Uno.WinUI.WebAssembly" Version="$(UnoVersion)" />
     <PackageVersion Include="Xamarin.Google.Android.Material" Version="1.10.0.3" />
   </ItemGroup>
 </Project>

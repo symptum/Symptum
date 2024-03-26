@@ -1,0 +1,10 @@
+{
+	"profiles": {
+		"Symptum.Windows (Unpackaged)": {
+			"commandName": "Project"
+		},
+		"Symptum.Windows (Package)": {
+			"commandName": "MsixPackage"
+		}
+	}
+}
