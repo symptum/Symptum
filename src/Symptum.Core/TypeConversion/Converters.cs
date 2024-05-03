@@ -2,16 +2,17 @@ using System.Text;
 using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
+using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Helpers;
 using Symptum.Core.Subjects.Books;
 using Symptum.Core.Subjects.QuestionBanks;
 
 namespace Symptum.Core.TypeConversion;
 
-#region Question Bank
-
 // These are not named as "...ToStringConverter" because they are used for CSV and are essentially converting to and from string.
 // Another reason is to differentiate them from XAML Type Converters used for Data Binding. Where there is a convention of adding "...ToStringConverter" to their names.
+
+#region Question Bank
 
 public class QuestionIdConverter : DefaultTypeConverter
 {
@@ -48,6 +49,15 @@ public class StringListConverter : ListConverter<string>
 public class BookReferenceListConverter : ListConverter<BookReference>
 {
     public override void ValidateData(string text, List<BookReference> list) => ListToStringConversion.ValidateDataForBookReference(text, list);
+}
+
+#endregion
+
+#region Reference Values
+
+public class ReferenceValueEntryListConverter : ListConverter<ReferenceValueEntry>
+{
+    public override void ValidateData(string text, List<ReferenceValueEntry> list) => ListToStringConversion.ValidateDataForReferenceValueEntry(text, list);
 }
 
 #endregion
@@ -116,6 +126,14 @@ public class ListToStringConversion
         if (BookReference.TryParse(text, out BookReference? reference))
         {
             list.Add(reference);
+        }
+    }
+
+    public static void ValidateDataForReferenceValueEntry(string text, List<ReferenceValueEntry> list)
+    {
+        if (ReferenceValueEntry.TryParse(text, out ReferenceValueEntry? entry))
+        {
+            list.Add(entry);
         }
     }
 

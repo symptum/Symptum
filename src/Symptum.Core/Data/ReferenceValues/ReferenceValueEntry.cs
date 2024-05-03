@@ -1,3 +1,4 @@
+using System.Text;
 using System.Web;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Symptum.Core.Helpers;
@@ -86,12 +87,12 @@ public class ReferenceValueEntry : ObservableObject
             var dataString = col[_entryDataId];
             if (!string.IsNullOrEmpty(dataString))
             {
-                var values = dataString.Split(ParserHelper.ReferenceValueDataDelimiter);
-                if (values.Length > 0)
+                var data1 = dataString.Split(ParserHelper.ReferenceValueDataDelimiter);
+                if (data1.Length > 0)
                 {
-                    for (int i = 0; i < values.Length; i++)
+                    for (int i = 0; i < data1.Length; i++)
                     {
-                        data.Add(new() { Values = values[i] });
+                        data.Add(new(data1[i]));
                     }
                 }
             }
@@ -109,7 +110,7 @@ public class ReferenceValueEntry : ObservableObject
         {
             for (int i = 0; i < _data.Count; i++)
             {
-                dataString += _data[i].Values;
+                dataString += _data[i].ToString();
                 if (i < _data.Count - 1) dataString += ParserHelper.ReferenceValueDataDelimiter;
             }
         }
@@ -117,5 +118,28 @@ public class ReferenceValueEntry : ObservableObject
         col?.Add(_entryInfId, _inference);
         col?.Add(_entryRemId, _remarks);
         return col?.ToString() ?? string.Empty;
+    }
+
+    public string GetPreviewText()
+    {
+        StringBuilder sb = new();
+        sb.Append(_title);
+        sb.Append(": ");
+        if (_data != null)
+        {
+            foreach (var data in _data)
+            {
+                sb.Append(data.Values);
+                sb.Append(' ');
+                sb.Append(data.Unit);
+                sb.Append(", ");
+            }
+        }
+        sb.Append("Inference: ");
+        sb.Append(_inference);
+        sb.Append("Remarks: ");
+        sb.Append(_remarks);
+        sb.AppendLine();
+        return sb.ToString();
     }
 }

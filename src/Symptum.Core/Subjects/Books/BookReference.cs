@@ -105,4 +105,10 @@ public class BookReference : ObservableObject
         col.Add(_bookVolumeId, _volume.ToString());
         return col.ToString() + ParserHelper.BookReferenceDelimiter + _pageNumbers;
     }
+
+    public string GetPreviewText()
+    {
+        return $"{Book?.Title} by {Book?.Authors}, " +
+            $"Edition: {Edition}, Volume: {Volume}, Page Numbers: {PageNumbers}";
+    }
 }

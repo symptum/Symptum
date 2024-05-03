@@ -37,4 +37,23 @@ public class ReferenceValueData : ObservableObject
     public ReferenceValueData()
     {
     }
+
+    public ReferenceValueData(string data)
+    {
+        Load(data);
+    }
+
+    private void Load(string data)
+    {
+        string[] _parts = data.Split(' ');
+        if (_parts.Length > 0)
+            values = _parts[0];
+        if (_parts.Length > 1)
+            unit = _parts[1];
+    }
+
+    public override string ToString()
+    {
+        return values + (!string.IsNullOrEmpty(unit) && !string.IsNullOrWhiteSpace(unit) ? " " + unit : string.Empty);
+    }
 }

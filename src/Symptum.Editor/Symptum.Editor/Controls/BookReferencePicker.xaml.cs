@@ -155,8 +155,7 @@ public sealed partial class BookReferencePicker : UserControl
     {
         if (BookReference == null) return;
 
-        string previewText = $"{BookReference.Book?.Title} by {BookReference.Book?.Authors}, " +
-            $"Edition: {BookReference.Edition}, Volume: {BookReference.Volume}, Page Numbers: {BookReference.PageNumbers}";
+        string previewText = BookReference.GetPreviewText();
         previewTextBlock.Text = previewText;
         ToolTipService.SetToolTip(previewButton, previewText);
     }

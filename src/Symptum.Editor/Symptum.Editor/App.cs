@@ -2,6 +2,8 @@ using Symptum.Core.Helpers;
 using System.Web;
 using Symptum.Core.Subjects.Books;
 using Symptum.Core.Data.ReferenceValues;
+using Symptum.Core.Management.Resources;
+using Symptum.Core.Subjects;
 
 namespace Symptum.Editor;
 
@@ -11,6 +13,32 @@ public class App : Application
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
+        //Subject sub = new()
+        //{
+        //    Title = "Test Subject",
+        //    Id = "Subjects.Test",
+        //    DependencyIds = ["Subjects.X", "Subjects.Y"]
+        //};
+        //Subject x = new()
+        //{
+        //    Title = "X",
+        //    Id = "Subjects.X",
+        //    DependencyIds = ["Subjects.Z"]
+        //};
+        //Subject y = new()
+        //{
+        //    Title = "Y",
+        //    Id = "Subjects.Y",
+        //    DependencyIds = ["Subjects.P"]
+        //};
+        //ResourceManager.Resources.Add(sub);
+        //ResourceManager.ResolveDependencies(sub);
+        //ResourceManager.Resources.Add(x);
+        //ResourceManager.Resources.Add(y);
+        //ResourceManager.ResolveDependencies(x);
+        //ResourceManager.ResolveDependencies(y);
+        //ResourceManager.StartDependencyResolution();
+
         //ReferenceValueEntry entry = new()
         //{
         //    Title = "Lymphocytes",

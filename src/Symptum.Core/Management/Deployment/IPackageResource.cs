@@ -2,21 +2,15 @@ using Symptum.Core.Management.Resources;
 
 namespace Symptum.Core.Management.Deployment;
 
-public interface IPackage
+public interface IPackageResource : IResource
 {
-    string Title { get; set; }
-
     string Description { get; set; }
 
     Version Version { get; set; }
 
     IList<AuthorInfo>? Authors { get; set; }
 
-    IList<IResource>? Contents { get; set; }
-
-    IList<IResource>? Dependencies { get; set; }
-
-    IList<string>? DependencyIds { get; set; }
+    IList<string>? Contents { get; set; }
 
     IList<string>? Tags { get; set; }
 }

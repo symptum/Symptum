@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Symptum.Core.Management.Deployment;
 
 namespace Symptum.Core.Management.Resources;
 
@@ -16,14 +17,116 @@ public class ResourceManager
 
     public static Uri GetAbsoluteUri(string path) => new(defaultUriScheme + path);
 
-    public static IList<IResource>? ResolveDependencies(IResource resource, IList<string> dependencyIds)
+    // TODO: Make thread safe
+    public static void ResolveDependencies(IResource? resource)
     {
-        throw new NotImplementedException();
+        if (resource != null && resource.DependencyIds != null)
+        {
+            ObservableCollection<IResource>? dependencies = [];
+            resource.Dependencies = dependencies;
+            foreach (var dependencyId in resource.DependencyIds)
+            {
+                ResolveDependencyAsync(resource, dependencyId);
+            }
+        }
     }
 
-    public static async Task<IList<IResource>?> ResolveDependenciesAsync(IResource resource, IList<string> dependencyIds)
+    private static readonly Dictionary<string, List<TaskCompletionSource<IResource?>>> dependencyLinks = [];
+
+    private static async void ResolveDependencyAsync(IResource? resource, string dependencyId)
     {
-        return await Task.Run(() => ResolveDependencies(resource, dependencyIds));
+        IResource? dependency = await GetDependencyAsync(dependencyId);
+        if (dependency != null)
+            resource?.Dependencies?.Add(dependency);
+    }
+
+    private static async Task<IResource?> GetDependencyAsync(string id)
+    {
+        TaskCompletionSource<IResource?> taskCompletionSource = new();
+        if (!dependencyLinks.TryGetValue(id, out List<TaskCompletionSource<IResource?>>? tasks))
+        {
+            tasks = [];
+            dependencyLinks.Add(id, tasks);
+        }
+
+        tasks.Add(taskCompletionSource);
+        var resource = await taskCompletionSource.Task;
+        return resource;
+    }
+
+    static int resolutions = 0;
+    // Called first after loading all the local resources.
+    // Then again after all the primary dependencies have been loaded.
+    // Then so on after loading further dependencies.
+    public static void StartDependencyResolution()
+    {
+        resolutions++;
+        List<string> finishedIds = [];
+        foreach (var pair in dependencyLinks)
+        {
+            var id = pair.Key;
+            var tasks = pair.Value;
+            IResource? dependency = Resources.FirstOrDefault(x => x.Id == id);
+            if (dependency != null)
+            {
+                foreach (var task in tasks)
+                {
+                    task.SetResult(dependency);
+                }
+                tasks.Clear();
+                finishedIds.Add(id);
+            }
+            else
+            {
+                // Load Dependency?
+                LoadDependencyAsync(id);
+            }
+        }
+        foreach (var id in finishedIds)
+        {
+            dependencyLinks.Remove(id);
+        }
+        finishedIds.Clear();
+        //System.Diagnostics.Debug.WriteLine("No. of resolutions: " + resolutions);
+        //foreach (var resource in resources)
+        //{
+        //    string output = $"{resource.Title}[{resource.Id}] depends on: ";
+        //    foreach (var dependency in resource.Dependencies)
+        //    {
+        //        output += $"{dependency.Title}[{dependency.Id}],";
+        //    }
+        //    System.Diagnostics.Debug.WriteLine(output);
+        //}
+    }
+
+    // idk what or how this works, made sense to me
+    private static int loadWaits = 0;
+    private static async void LoadDependencyAsync(string id)
+    {
+        loadWaits++;
+        // Ask PackageManager to fetch (from remote or cache) the package.
+        var package = await PackageManager.LoadPackageAsync(id);
+        if (package != null)
+        {
+            Resources.Add(package);
+            // Link the newly loaded dependencies
+            if (dependencyLinks.TryGetValue(id, out var tasks))
+            {
+                foreach (var task in tasks)
+                {
+                    task.SetResult(package);
+                }
+                dependencyLinks.Remove(id);
+            }
+            ResolveDependencies(package);
+
+            loadWaits--;
+        }
+        if (loadWaits == 0)
+        {
+            StartDependencyResolution();
+            _ = id;
+        }
     }
 
     public static void LoadResourceFile(FileResource fileResource, string content)

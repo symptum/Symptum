@@ -76,12 +76,12 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
 
     #endregion
 
-    private void SetEditableContent(IResource? topic)
+    private void SetEditableContent(IResource? resource)
     {
-        if (topic == null)
-            Reset();
+        if (resource is QuestionBankTopic topic)
+            LoadTopic(topic);
         else
-            LoadTopic(topic as QuestionBankTopic);
+            Reset();
     }
 
     private void Reset()

@@ -9,7 +9,7 @@ namespace Symptum.Core.Management.Resources;
     UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor)]
 [JsonDerivedType(typeof(Subject), "subject")]
 [JsonDerivedType(typeof(ReferenceValuesPackage), "referenceValues")]
-public abstract class PackageResource : NavigableResource, IPackage
+public abstract class PackageResource : NavigableResource, IPackageResource
 {
     #region Properties
 
@@ -37,9 +37,9 @@ public abstract class PackageResource : NavigableResource, IPackage
         set => SetProperty(ref authors, value);
     }
 
-    private IList<IResource>? contents;
+    private IList<string>? contents;
 
-    public IList<IResource>? Contents
+    public IList<string>? Contents
     {
         get => contents;
         set => SetProperty(ref contents, value);
