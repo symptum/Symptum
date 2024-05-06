@@ -2,17 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="CsvHelper" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Data\Nutrition\" />
   </ItemGroup>
 
 </Project>
