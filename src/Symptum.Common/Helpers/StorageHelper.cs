@@ -1,4 +1,4 @@
-namespace Symptum.Editor.Helpers;
+namespace Symptum.Common.Helpers;
 
 public class StorageHelper
 {

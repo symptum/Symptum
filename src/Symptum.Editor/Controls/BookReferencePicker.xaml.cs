@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.ObjectModel;
 using Symptum.Core.Subjects.Books;
 
 namespace Symptum.Editor.Controls;
@@ -24,7 +23,7 @@ public sealed partial class BookReferencePicker : UserControl
         }
     }
 
-    public BookReference BookReference
+    public BookReference? BookReference
     {
         get => (BookReference)GetValue(BookReferenceProperty);
         set => SetValue(BookReferenceProperty, value);
@@ -113,8 +112,8 @@ public sealed partial class BookReferencePicker : UserControl
         var splitText = queryText.ToLower().Split(" ");
         foreach (var book in BookStore.Books)
         {
-            var found = splitText.All((key) => book.Title.Contains(key, StringComparison.CurrentCultureIgnoreCase)
-                || book.Authors.Contains(key, StringComparison.CurrentCultureIgnoreCase) || book.Code.Contains(key, StringComparison.CurrentCultureIgnoreCase));
+            var found = splitText.All((key) => book.Title.Contains(key, StringComparison.InvariantCultureIgnoreCase)
+                || book.Authors.Contains(key, StringComparison.InvariantCultureIgnoreCase) || book.Code.Contains(key, StringComparison.InvariantCultureIgnoreCase));
             if (found)
             {
                 suitableItems.Add(book);

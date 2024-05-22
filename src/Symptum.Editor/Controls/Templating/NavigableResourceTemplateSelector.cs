@@ -10,7 +10,7 @@ public class NavigableResourceTemplateSelector : DataTemplateSelector
     {
         if (item is NavigableResource resource)
         {
-            var template = NavigableResourceTemplatesHandler.Instance?.Templates.FirstOrDefault(x => x.DataType == item.GetType())?.DataTemplate;
+            var template = NavigableResourceTemplatesHandler.Current?.Templates.FirstOrDefault(x => x.DataType == item.GetType())?.DataTemplate;
             return template ?? DefaultDataTemplate;
         }
         return base.SelectTemplateCore(item);

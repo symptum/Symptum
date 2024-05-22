@@ -4,13 +4,13 @@ namespace Symptum.Core.Management.Deployment;
 
 public interface IPackageResource : IResource
 {
-    string Description { get; set; }
+    public string? Description { get; set; }
 
-    Version Version { get; set; }
+    public Version? Version { get; set; }
 
-    IList<AuthorInfo>? Authors { get; set; }
+    public IList<AuthorInfo>? Authors { get; set; }
 
-    IList<string>? Contents { get; set; }
+    public IList<string>? Contents { get; set; } // Is this necessary?
 
-    IList<string>? Tags { get; set; }
+    public IList<string>? Tags { get; set; }
 }

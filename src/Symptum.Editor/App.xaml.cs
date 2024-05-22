@@ -1,10 +1,12 @@
-using System;
-using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using Symptum.Core.Management.Resources;
+using Symptum.Core.Subjects;
 using Symptum.Core.Subjects.Books;
+using Symptum.Core.Subjects.QuestionBanks;
 using Uno.Resizetizer;
 
 #if __WASM__
-using Symptum.Editor.Helpers;
+using Symptum.Common.Helpers;
 using static Uno.Storage.Pickers.FileSystemAccessApiInformation;
 #endif
 
@@ -22,8 +24,83 @@ public partial class App : Application
 
     public Window? MainWindow { get; private set; }
 
+    private Uri lastUri;
+
+    private string lastId;
+
+    private void LoadSubjects()
+    {
+        for (int i = 0; i < 100; i++)
+        {
+            Subject sub = new()
+            {
+                Title = "Subject " + i,
+                Id = "Subjects." + i,
+                Uri = ResourceManager.GetAbsoluteUri("subjects/" + i),
+            };
+            QuestionBank qb = new()
+            {
+                Title = "QBank " + i,
+                Id = sub?.Id + ".QBank" + i,
+                Uri = new(sub?.Uri?.ToString() + "/qbank" + i),
+                Papers = []
+            };
+            sub.QuestionBank = qb;
+            for (int j = 0; j < 100; j++)
+            {
+                QuestionBankPaper paper = new()
+                {
+                    Title = $"Paper {i}-{j}",
+                    Id = qb?.Id + $".Paper{i}-{j}",
+                    Uri = new(qb?.Uri?.ToString() + $"/paper{i}-{j}"),
+                    Topics = []
+                };
+                qb.Papers.Add(paper);
+
+                for (int k = 0; k < 100; k++)
+                {
+                    QuestionBankTopic topic = new()
+                    {
+                        Title = $"Topic {i}-{j}-{k}",
+                        Id = paper?.Id + $".Topic{i}-{j}-{k}",
+                        Uri = new(paper?.Uri?.ToString() + $"/topic{i}-{j}-{k}")
+                    };
+                    paper.Topics.Add(topic);
+
+                    if (i == 99 && j == 99 && k == 99)
+                    {
+                        lastUri = topic.Uri;
+                        lastId = topic.Id;
+                        Debug.WriteLine(lastUri);
+                        Debug.WriteLine(lastId);
+                    }
+                }
+            }
+
+            ResourceManager.Resources.Add(sub);
+            ((IResource)sub).InitializeResource(null);
+        }
+    }
+
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
+        //DateTime now = DateTime.Now;
+        //LoadSubjects();
+        //TimeSpan diff = DateTime.Now - now;
+        //Debug.WriteLine("LoadSubjects(): " + diff.TotalMilliseconds + " ms");
+
+        //now = DateTime.Now;
+        //IResource? res = ResourceManager.TryGetResourceFromUri(lastUri);
+        //diff = DateTime.Now - now;
+        //Debug.WriteLine("TryGetResourceFromUri(): " + diff.TotalMilliseconds + " ms");
+        //Debug.WriteLine("Found " + res?.Uri);
+
+        //now = DateTime.Now;
+        //res = ResourceManager.TryGetResourceFromId(lastId);
+        //diff = DateTime.Now - now;
+        //Debug.WriteLine("TryGetResourceFromId(): " + diff.TotalMilliseconds + " ms");
+        //Debug.WriteLine("Found " + res?.Id);
+
 #if __WASM__
         Uno.WinRTFeatureConfiguration.Storage.Pickers.WasmConfiguration = Uno.WasmPickerConfiguration.FileSystemAccessApiWithFallback;
         StorageHelper.SetPickerSupport(IsOpenPickerSupported, IsSavePickerSupported, IsFolderPickerSupported);

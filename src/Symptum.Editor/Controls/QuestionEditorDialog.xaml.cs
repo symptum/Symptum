@@ -3,6 +3,7 @@ using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
 using Symptum.Core.Subjects.Books;
 using Symptum.Core.Subjects.QuestionBanks;
+using Symptum.Editor.Helpers;
 
 namespace Symptum.Editor.Controls;
 
@@ -21,9 +22,13 @@ public sealed partial class QuestionEditorDialog : ContentDialog
     private bool hasPreviouslyBeenAsked = true;
     private bool autoGenImp = true;
 
+    private QuestionBankContext? context;
+
     public QuestionEditorDialog()
     {
         InitializeComponent();
+
+        context ??= QuestionBankContextHelper.CurrentContext;
 
         qtCB.ItemsSource = Enum.GetValues(typeof(QuestionType));
         scCB.ItemsSource = Enum.GetValues(typeof(SubjectList));
@@ -131,7 +136,11 @@ public sealed partial class QuestionEditorDialog : ContentDialog
 
     private void LoadQuestionEntry()
     {
-        if (QuestionEntry == null) return;
+        if (QuestionEntry == null)
+        {
+            scCB.SelectedItem = context?.SubjectCode;
+            return;
+        }
 
         qtCB.SelectedItem = QuestionEntry.Id?.QuestionType;
         scCB.SelectedItem = QuestionEntry.Id?.SubjectCode;
@@ -248,7 +257,8 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         yaLE.ItemsSource = yearsAsked;
         yaLE.AddItemRequested += (s, e) =>
         {
-            yearsAsked.Add(new ListEditorItemWrapper<DateOnly>(DateOnly.FromDateTime(DateTime.Now)));
+            DateOnly date = context?.LastInputDate ?? DateOnly.FromDateTime(DateTime.Now);
+            yearsAsked.Add(new ListEditorItemWrapper<DateOnly>(date));
             CalculateImportance();
         };
         yaLE.ClearItemsRequested += (s, e) =>
@@ -332,7 +342,11 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         #region Book References
 
         brLE.ItemsSource = bookReferences;
-        brLE.AddItemRequested += (s, e) => bookReferences.Add(new ListEditorItemWrapper<BookReference>(new BookReference()));
+        brLE.AddItemRequested += (s, e) =>
+        {
+            BookReference? bookReference = context?.PreferredBook;
+            bookReferences.Add(new ListEditorItemWrapper<BookReference>(new() { Book = bookReference?.Book, Edition = bookReference?.Edition ?? 0, Volume = bookReference?.Volume ?? 0 }));
+        };
         brLE.ClearItemsRequested += (s, e) => bookReferences.Clear();
         brLE.RemoveItemRequested += (s, e) =>
         {

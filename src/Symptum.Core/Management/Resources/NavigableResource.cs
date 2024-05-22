@@ -12,25 +12,25 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
 
     #region IResource
 
-    private Uri uri;
+    private Uri? uri;
 
-    public Uri Uri
+    public Uri? Uri
     {
         get => uri;
         set => SetProperty(ref uri, value);
     }
 
-    private string id = string.Empty;
+    private string? id = string.Empty;
 
-    public string Id
+    public string? Id
     {
         get => id;
         set => SetProperty(ref id, value);
     }
 
-    private string _title = string.Empty;
+    private string? _title = string.Empty;
 
-    public string Title
+    public string? Title
     {
         get => _title;
         set => SetProperty(ref _title, value);
@@ -134,7 +134,7 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
     {
         OnAddChildResource(childResource);
         if (hasInitialized)
-            childResource.InitializeResource(this);
+            childResource.InitializeResource(this); // Temporary
     }
 
     public void RemoveChildResource(IResource childResource)
@@ -152,7 +152,7 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
         {
             foreach (var item in collection)
             {
-                ChildrenResources?.Add(item);
+                childrenResources?.Add(item);
             }
             ObserveCollection(collection);
         }

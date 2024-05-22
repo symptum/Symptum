@@ -97,10 +97,19 @@
             <KeyboardAccelerator Modifiers="Control,Menu" Key="S" />
           </MenuFlyoutItem.KeyboardAccelerators>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="Generate Markdown" Icon="Document" Click="Markdown_Click" />
+        <MenuFlyoutItem Text="Close Folder" Click="CloseFolder_Click" />
+        <!--<MenuFlyoutItem Text="Generate Markdown" Icon="Document" Click="Markdown_Click" />-->
         <MenuFlyoutItem Text="Exit" />
       </MenuBarItem>
-      <!--<MenuBarItem Title="Edit" />-->
+      <MenuBarItem Title="Edit">
+        <MenuFlyoutSubItem Text="Question Bank">
+          <MenuFlyoutItem Text="Configure Context" Click="ConfigureContext_Click">
+            <MenuFlyoutItem.KeyboardAccelerators>
+              <KeyboardAccelerator Modifiers="Control" Key="Q" />
+            </MenuFlyoutItem.KeyboardAccelerators>
+          </MenuFlyoutItem>
+        </MenuFlyoutSubItem>
+      </MenuBarItem>
     </MenuBar>
 
     <SplitView x:Name="splitView" Grid.Row="2" PaneBackground="Transparent"

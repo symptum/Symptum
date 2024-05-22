@@ -50,6 +50,7 @@
     <PackageReference Include="Uno.CommunityToolkit.WinUI.UI.Controls.DataGrid" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Symptum.Common\Symptum.Common.csproj" />
     <ProjectReference Include="..\Symptum.Core\Symptum.Core.csproj" />
   </ItemGroup>
 
@@ -58,11 +59,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <UnoIcon Include="$(MSBuildThisFileDirectory)\Assets\Icons\icon.svg"
-             ForegroundFile="$(MSBuildThisFileDirectory)\Assets\Icons\icon_foreground.svg"
-             AndroidForegroundScale="0.6" WindowsForegroundScale="1" Color="#00003148" />
-    <UnoSplashScreen Include="$(MSBuildThisFileDirectory)Assets\Splash\splash_screen.svg"
-                     BaseSize="1024,1024" Color="#003148" />
+    <UnoIcon Include="$(MSBuildThisFileDirectory)\Assets\Icons\icon.svg" ForegroundFile="$(MSBuildThisFileDirectory)\Assets\Icons\icon_foreground.svg" AndroidForegroundScale="0.6" WindowsForegroundScale="1" Color="#00003148" />
+    <UnoSplashScreen Include="$(MSBuildThisFileDirectory)Assets\Splash\splash_screen.svg" BaseSize="1024,1024" Color="#003148" />
   </ItemGroup>
 
 </Project>

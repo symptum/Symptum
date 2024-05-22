@@ -4,5 +4,5 @@ namespace Symptum.Core;
 // Will be helpful for navigation, bookmarking, etc.
 public interface IUniqueId
 {
-    static abstract IUniqueId? Parse(string? idText);
+    public static abstract IUniqueId? Parse(string? idText);
 }

@@ -15,4 +15,6 @@ public abstract class CsvFileResource : FileResource
     protected abstract void OnReadCSV(string csv);
 
     protected abstract string OnWriteCSV();
+
+    public override ContentFileType FileType { get; } = ContentFileType.Csv;
 }

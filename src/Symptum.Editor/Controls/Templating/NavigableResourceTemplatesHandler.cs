@@ -4,7 +4,7 @@ namespace Symptum.Editor.Controls.Templating;
 
 public class NavigableResourceTemplatesHandler
 {
-    public static NavigableResourceTemplatesHandler Instance { get; set; } = new();
+    public static NavigableResourceTemplatesHandler Current { get; set; } = new();
 
     public NavigableResourceTemplatesHandler()
     {

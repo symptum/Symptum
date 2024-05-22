@@ -1,8 +1,55 @@
+
 namespace Symptum.Core.Management.Resources;
 
-public abstract class FileResource : NavigableResource
+public abstract class FileResource : NavigableResource, IContent
 {
     #region Properties
+
+    #region IContent
+
+    public abstract ContentFileType FileType { get; }
+
+    private string? description = string.Empty;
+
+    public string? Description
+    {
+        get => description;
+        set => SetProperty(ref description, value);
+    }
+
+    private IList<AuthorInfo>? authors;
+
+    public IList<AuthorInfo>? Authors
+    {
+        get => authors;
+        set => SetProperty(ref authors, value);
+    }
+
+    private DateOnly? dateModified;
+
+    public DateOnly? DateModified
+    {
+        get => dateModified;
+        set => SetProperty(ref dateModified, value);
+    }
+
+    private IList<string>? tags;
+
+    public IList<string>? Tags
+    {
+        get => tags;
+        set => SetProperty(ref tags, value);
+    }
+
+    private IList<string>? seeAlso;
+
+    public IList<string>? SeeAlso
+    {
+        get => seeAlso;
+        set => SetProperty(ref seeAlso, value);
+    }
+
+    #endregion
 
     private string path = string.Empty;
 

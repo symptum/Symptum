@@ -4,9 +4,9 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
+using Symptum.Common.Helpers;
 using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
-using Symptum.Editor.Helpers;
 
 namespace Symptum.Editor.EditorPages;
 
@@ -133,8 +133,7 @@ public sealed partial class ReferenceValueGroupEditorPage : Page, IEditorPage
 
         _isBeingSaved = true;
 
-        bool pathExists = await ResourceHelper.VerifyWorkPathAsync();
-        if (pathExists && currentGroup != null)
+        if (currentGroup != null)
             HasUnsavedChanges = !await ResourceHelper.SaveCSVFileAsync(currentGroup);
         _isBeingSaved = false;
     }

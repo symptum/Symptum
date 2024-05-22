@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:primitives="using:CommunityToolkit.WinUI.UI.Controls.Primitives"
     xmlns:converters="using:Symptum.Editor.Converters"
     mc:Ignorable="d">
 
@@ -20,18 +21,17 @@
       <converters:DateOnlyListToStringConverter x:Key="DateOnlyListToStringConverter" />
       <converters:StringListToStringConverter x:Key="StringListToStringConverter" />
       <converters:UriListToStringConverter x:Key="UriListToStringConverter" />
+      <Style x:Key="DataGridRowHeaderStyle" TargetType="primitives:DataGridRowHeader">
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="primitives:DataGridRowHeader" >
+              <ContentPresenter Padding="10" />
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
     </Grid.Resources>
     <CommandBar x:Name="cmdbar" Background="Transparent" IsOpen="False" DefaultLabelPosition="Collapsed">
-      <AppBarButton x:Name="saveTopicButton" Icon="Save" IsEnabled="False" Label="Save" Click="SaveTopicButton_Click">
-        <AppBarButton.KeyboardAccelerators>
-          <KeyboardAccelerator Modifiers="Control" Key="S" />
-        </AppBarButton.KeyboardAccelerators>
-      </AppBarButton>
-      <AppBarButton x:Name="findQuestionButton" IsEnabled="False" Icon="Find" Label="Find" Click="FindQuestionButton_Click">
-        <AppBarButton.KeyboardAccelerators>
-          <KeyboardAccelerator Modifiers="Control" Key="F" />
-        </AppBarButton.KeyboardAccelerators>
-      </AppBarButton>
       <AppBarButton x:Name="addQuestionButton" IsEnabled="False" Icon="Add" Label="Add" Click="AddQuestionButton_Click">
         <AppBarButton.KeyboardAccelerators>
           <KeyboardAccelerator Modifiers="Control,Shift" Key="N" />
@@ -42,15 +42,15 @@
           <KeyboardAccelerator Modifiers="Control" Key="E" />
         </AppBarButton.KeyboardAccelerators>
       </AppBarButton>
-      <AppBarButton x:Name="moveQuestionUpButton" IsEnabled="False" Label="Move Up" Click="MoveQuestionUpButton_Click">
-        <AppBarButton.Icon>
-          <FontIcon Glyph="&#xE70E;" />
-        </AppBarButton.Icon>
+      <AppBarButton x:Name="saveTopicButton" Icon="Save" IsEnabled="False" Label="Save" Click="SaveTopicButton_Click">
+        <AppBarButton.KeyboardAccelerators>
+          <KeyboardAccelerator Modifiers="Control" Key="S" />
+        </AppBarButton.KeyboardAccelerators>
       </AppBarButton>
-      <AppBarButton x:Name="moveQuestionDownButton" IsEnabled="False" Label="Move Down" Click="MoveQuestionDownButton_Click">
-        <AppBarButton.Icon>
-          <FontIcon Glyph="&#xE70D;" />
-        </AppBarButton.Icon>
+      <AppBarButton x:Name="findQuestionButton" IsEnabled="False" Icon="Find" Label="Find" Click="FindQuestionButton_Click">
+        <AppBarButton.KeyboardAccelerators>
+          <KeyboardAccelerator Modifiers="Control" Key="F" />
+        </AppBarButton.KeyboardAccelerators>
       </AppBarButton>
       <AppBarButton x:Name="duplicateQuestionButton" IsEnabled="False" Icon="Copy" Label="Duplicate" Click="DuplicateQuestionButton_Click">
         <AppBarButton.KeyboardAccelerators>
@@ -62,6 +62,26 @@
           <KeyboardAccelerator Modifiers="None" Key="Delete" />
         </AppBarButton.KeyboardAccelerators>
       </AppBarButton>
+      <AppBarButton x:Name="moveQuestionToTopButton" IsEnabled="False" Label="Move To Top" Click="MoveQuestionToTopButton_Click">
+        <AppBarButton.Icon>
+          <FontIcon Glyph="&#xE74A;" />
+        </AppBarButton.Icon>
+      </AppBarButton>
+      <AppBarButton x:Name="moveQuestionToBottomButton" IsEnabled="False" Label="Move To Bottom" Click="MoveQuestionToBottomButton_Click">
+        <AppBarButton.Icon>
+          <FontIcon Glyph="&#xE74B;" />
+        </AppBarButton.Icon>
+      </AppBarButton>
+      <AppBarButton x:Name="moveQuestionUpButton" IsEnabled="False" Label="Move Up" Click="MoveQuestionUpButton_Click">
+        <AppBarButton.Icon>
+          <FontIcon Glyph="&#xE70E;" />
+        </AppBarButton.Icon>
+      </AppBarButton>
+      <AppBarButton x:Name="moveQuestionDownButton" IsEnabled="False" Label="Move Down" Click="MoveQuestionDownButton_Click">
+        <AppBarButton.Icon>
+          <FontIcon Glyph="&#xE70D;" />
+        </AppBarButton.Icon>
+      </AppBarButton>
       <CommandBar.SecondaryCommands>
         <!--<AppBarButton x:Name="sortButton" Icon="Sort" Label="Sort" Click="SortButton_Click" />-->
         <AppBarButton x:Name="sortYearsButton" Icon="Sort" Label="Sort Years" Click="SortYearsButton_Click" />
@@ -72,8 +92,9 @@
              AreRowDetailsFrozen="False" AreRowGroupHeadersFrozen="True" AutoGenerateColumns="False"
              CanUserSortColumns="False" CanUserReorderColumns="True" CanUserResizeColumns="True"
              ColumnHeaderHeight="32" FrozenColumnCount="0" GridLinesVisibility="All"
-             HeadersVisibility="Column" IsReadOnly="True" RowDetailsVisibilityMode="Collapsed"
-             SelectionMode="Extended" DoubleTapped="DataGrid_DoubleTapped" SelectionChanged="DataGrid_SelectionChanged">
+             HeadersVisibility="All" IsReadOnly="True" RowDetailsVisibilityMode="Collapsed"
+             SelectionMode="Extended" DoubleTapped="DataGrid_DoubleTapped" SelectionChanged="DataGrid_SelectionChanged"
+             RowHeaderStyle="{StaticResource DataGridRowHeaderStyle}" LoadingRow="DataGrid_LoadingRow">
       <controls:DataGrid.Columns>
         <controls:DataGridTextColumn Header="Id" Binding="{Binding Id.IdString}" Tag="IdString" />
         <controls:DataGridTextColumn Header="Question Type" Binding="{Binding Id.QuestionType}" Tag="QuestionType" />

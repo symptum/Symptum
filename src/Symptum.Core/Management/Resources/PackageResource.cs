@@ -13,17 +13,17 @@ public abstract class PackageResource : NavigableResource, IPackageResource
 {
     #region Properties
 
-    private string description = string.Empty;
+    private string? description = string.Empty;
 
-    public string Description
+    public string? Description
     {
         get => description;
         set => SetProperty(ref description, value);
     }
 
-    private Version version = new(0, 0, 0);
+    private Version? version = new(0, 0, 0);
 
-    public Version Version
+    public Version? Version
     {
         get => version;
         set => SetProperty(ref version, value);

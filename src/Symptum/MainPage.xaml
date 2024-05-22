@@ -4,11 +4,42 @@
       xmlns:local="using:Symptum"
       xmlns:utu="using:Uno.Toolkit.UI"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-  <StackPanel utu:SafeArea.Insets="VisibleBounds"
-        HorizontalAlignment="Center"
-        VerticalAlignment="Center">
-    <TextBlock AutomationProperties.AutomationId="HelloTextBlock"
-          Text="Hello Uno Platform"
-          HorizontalAlignment="Center" />
-  </StackPanel>
+  <NavigationView x:Name="NavView" PaneTitle="Symptum" IsTabStop="False" IsBackButtonVisible="Visible"
+                    SelectionChanged="NavView_SelectionChanged" BackRequested="NavView_BackRequested">
+    <!--MenuItemsSource="{x:Bind nav:NavigationManager.NavigationInfos}"-->
+    <NavigationView.AutoSuggestBox>
+      <AutoSuggestBox PlaceholderText="Search" QueryIcon="Find" />
+    </NavigationView.AutoSuggestBox>
+    <NavigationView.FooterMenuItems>
+      <NavigationViewItem Content="User Profile" Icon="Contact" Tag="user" />
+    </NavigationView.FooterMenuItems>
+    <!--<NavigationView.MenuItemTemplate>
+            <DataTemplate x:DataType="nav:NavigationInfo">
+                <NavigationViewItem Content="{Binding Title}" Tag="{Binding Path}" MenuItemsSource="{Binding Children}" />
+            </DataTemplate>
+        </NavigationView.MenuItemTemplate>-->
+    <NavigationView.MenuItems>
+      <NavigationViewItem Content="Home" Icon="Home" Tag="home" />
+      <NavigationViewItem Content="Subjects" Icon="Library" Tag="subjects" />
+      <NavigationViewItem Content="Managements" Icon="Manage" Tag="managements" />
+      <NavigationViewItem Content="Reference Values" Icon="AllApps" Tag="reference" />
+      <NavigationViewItem Content="Differential Diagnosis" Tag="dd">
+        <NavigationViewItem.Icon>
+          <FontIcon Glyph="&#xEA3D;" />
+        </NavigationViewItem.Icon>
+      </NavigationViewItem>
+      <NavigationViewItem Content="Grading/Staging Scores" Icon="Sort" Tag="gs" />
+      <NavigationViewItem Content="Formulae" Icon="Calculator" Tag="formulae" />
+      <NavigationViewItem Content="Terminologies" Icon="Font" Tag="terms" />
+      <NavigationViewItem Content="To Do" Icon="Accept" Tag="todo" />
+      <NavigationViewItem Content="Quiz" Icon="Help" Tag="quiz" />
+      <NavigationViewItem Content="Bookmarks" Icon="Flag" Tag="bookmarks" />
+      <NavigationViewItem Content="Focus Sessions" Tag="focus" >
+        <NavigationViewItem.Icon>
+          <FontIcon Glyph="&#xF272;" />
+        </NavigationViewItem.Icon>
+      </NavigationViewItem>
+    </NavigationView.MenuItems>
+    <Frame x:Name="ContentFrame" IsTabStop="True" Navigated="ContentFrame_Navigated" />
+  </NavigationView>
 </Page>

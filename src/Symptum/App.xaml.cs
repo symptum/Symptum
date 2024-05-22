@@ -1,5 +1,4 @@
-using System;
-using Microsoft.Extensions.Logging;
+using Symptum.Navigation;
 using Uno.Resizetizer;
 
 namespace Symptum;
@@ -23,6 +22,7 @@ public partial class App : Application
         MainWindow.EnableHotReload();
 #endif
 
+        NavigationManager.Initialize();
 
         // Do not repeat app initialization when the Window already has content,
         // just ensure that the window is active

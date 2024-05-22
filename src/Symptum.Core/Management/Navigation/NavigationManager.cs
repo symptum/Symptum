@@ -1,7 +1,16 @@
-﻿namespace Symptum.Core.Management.Navigation;
+namespace Symptum.Core.Management.Navigation;
 
 public class NavigationManager
 {
-    public NavigationManager()
-    { }
+    static NavigationManager()
+    {
+        
+    }
+
+    public static event EventHandler<NavigationRequestedEventArgs> NavigationRequested;
+}
+
+public class NavigationRequestedEventArgs : EventArgs
+{
+
 }

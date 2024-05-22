@@ -137,7 +137,7 @@ public class ReferenceValueEntry : ObservableObject
         }
         sb.Append("Inference: ");
         sb.Append(_inference);
-        sb.Append("Remarks: ");
+        sb.Append(" Remarks: ");
         sb.Append(_remarks);
         sb.AppendLine();
         return sb.ToString();

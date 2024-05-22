@@ -5,9 +5,9 @@ using Microsoft.UI.Xaml.Input;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects.QuestionBanks;
 using Symptum.Core.TypeConversion;
+using Symptum.Common.Helpers;
 using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
-using Symptum.Editor.Helpers;
 
 namespace Symptum.Editor.EditorPages;
 
@@ -135,8 +135,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
 
         _isBeingSaved = true;
 
-        bool pathExists = await ResourceHelper.VerifyWorkPathAsync();
-        if (pathExists && currentTopic != null)
+        if (currentTopic != null)
             HasUnsavedChanges = !await ResourceHelper.SaveCSVFileAsync(currentTopic);
         _isBeingSaved = false;
     }
@@ -149,7 +148,9 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
             var result = await questionEditorDialog.CreateAsync();
             if (result == EditorResult.Create)
             {
-                currentTopic?.Entries?.Add(questionEditorDialog.QuestionEntry);
+                QuestionEntry entry = questionEditorDialog.QuestionEntry;
+                currentTopic?.Entries?.Add(entry);
+                dataGrid.SelectedItem = entry;
                 HasUnsavedChanges = true;
                 SetCountsText();
             }
@@ -162,8 +163,8 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         deleteQuestionsButton.IsEnabled = count > 0;
         duplicateQuestionButton.IsEnabled = count > 0;
         editQuestionButton.IsEnabled = count == 1;
-        moveQuestionDownButton.IsEnabled = CanMoveDown();
-        moveQuestionUpButton.IsEnabled = CanMoveUp();
+        moveQuestionDownButton.IsEnabled = moveQuestionToBottomButton.IsEnabled = CanMoveDown();
+        moveQuestionUpButton.IsEnabled = moveQuestionToTopButton.IsEnabled = CanMoveUp();
         SetCountsText();
     }
 
@@ -262,8 +263,10 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
 
     private void FindFlyout_QueryCleared(object? sender, EventArgs e)
     {
+        var selectedItem = dataGrid.SelectedItem;
         if (currentTopic != null)
             dataGrid.ItemsSource = currentTopic.Entries;
+        dataGrid.SelectedItem = selectedItem;
         findTextBlock.Text = string.Empty;
         OnFilter(false);
     }
@@ -341,28 +344,65 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         HasUnsavedChanges = true;
     }
 
-    private void MoveQuestionUpButton_Click(object sender, RoutedEventArgs e)
+    private bool CanMoveUp() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != 0;
+
+    private bool CanMoveDown() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != currentTopic?.Entries?.Count - 1;
+
+    private void MoveEntry(int oldIndex, int newIndex)
+    {
+        currentTopic?.Entries?.Move(oldIndex, newIndex);
+        dataGrid.SelectedItems.Clear();
+        dataGrid.SelectedItem = null;
+        dataGrid.SelectedIndex = newIndex;
+        moveQuestionUpButton.IsEnabled = moveQuestionToTopButton.IsEnabled = CanMoveUp();
+        moveQuestionDownButton.IsEnabled = moveQuestionToBottomButton.IsEnabled = CanMoveDown();
+        HasUnsavedChanges = true;
+        dataGrid.ScrollIntoView(dataGrid.SelectedItem, null);
+    }
+
+    private void MoveEntryUp(bool toTop)
     {
         if (CanMoveUp())
         {
             int oldIndex = dataGrid.SelectedIndex;
-            int newIndex = Math.Max(dataGrid.SelectedIndex - 1, 0);
-            currentTopic?.Entries?.Move(oldIndex, newIndex);
+            int newIndex = toTop ? 0 : Math.Max(dataGrid.SelectedIndex - 1, 0);
+            MoveEntry(oldIndex, newIndex);
         }
     }
 
-    private void MoveQuestionDownButton_Click(object sender, RoutedEventArgs e)
+    private void MoveEntryDown(bool toBottom)
     {
         if (CanMoveDown())
         {
             int oldIndex = dataGrid.SelectedIndex;
-            int count = currentTopic?.Entries?.Count - 1 ?? 0;
-            int newIndex = Math.Min(dataGrid.SelectedIndex + 1, count);
-            currentTopic?.Entries?.Move(oldIndex, newIndex);
+            int last = currentTopic?.Entries?.Count - 1 ?? 0;
+            int newIndex = toBottom ? last : Math.Min(dataGrid.SelectedIndex + 1, last);
+            MoveEntry(oldIndex, newIndex);
         }
     }
 
-    private bool CanMoveUp() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != 0;
+    private void MoveQuestionUpButton_Click(object sender, RoutedEventArgs e)
+    {
+        MoveEntryUp(false);
+    }
 
-    private bool CanMoveDown() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != currentTopic?.Entries?.Count - 1;
+    private void MoveQuestionToTopButton_Click(object sender, RoutedEventArgs e)
+    {
+        MoveEntryUp(true);
+    }
+
+    private void MoveQuestionDownButton_Click(object sender, RoutedEventArgs e)
+    {
+        MoveEntryDown(false);
+    }
+
+    private void MoveQuestionToBottomButton_Click(object sender, RoutedEventArgs e)
+    {
+        MoveEntryDown(true);
+    }
+
+    private void DataGrid_LoadingRow(object sender, CommunityToolkit.WinUI.UI.Controls.DataGridRowEventArgs e)
+    {
+        e.Row.Header = e.Row.GetIndex() + 1;
+    }
 }
