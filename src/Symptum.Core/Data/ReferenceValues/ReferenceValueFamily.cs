@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
 
 namespace Symptum.Core.Data.ReferenceValues;
@@ -45,15 +46,15 @@ public class ReferenceValueFamily : NavigableResource
         return childResourceType == typeof(ReferenceValueGroup);
     }
 
-    protected override void OnAddChildResource(IResource childResource)
+    protected override void OnAddChildResource(IResource? childResource)
     {
         Groups ??= [];
         if (childResource is ReferenceValueGroup group)
             Groups.Add(group);
     }
 
-    protected override void OnRemoveChildResource(IResource childResource)
+    protected override void OnRemoveChildResource(IResource? childResource)
     {
-        throw new NotImplementedException();
+        Groups.RemoveItemFromListIfExists(childResource);
     }
 }

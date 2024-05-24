@@ -6,11 +6,4 @@ public class NavigationManager
     {
         
     }
-
-    public static event EventHandler<NavigationRequestedEventArgs> NavigationRequested;
-}
-
-public class NavigationRequestedEventArgs : EventArgs
-{
-
 }

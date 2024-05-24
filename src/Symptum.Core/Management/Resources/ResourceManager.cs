@@ -177,7 +177,7 @@ public class ResourceManager
         return TryGetResourceFromUri(uri, _resources);
     }
 
-    internal static IResource? TryGetResourceFromUri(Uri? uri, IList<IResource>? resources)
+    internal static IResource? TryGetResourceFromUri(Uri? uri, IReadOnlyList<IResource>? resources)
     {
         if (uri == null || resources == null) return null;
         foreach (IResource resource in resources)
@@ -238,7 +238,7 @@ public class ResourceManager
         return TryGetResourceFromId(id, _resources);
     }
 
-    internal static IResource? TryGetResourceFromId(string? id, IList<IResource>? resources)
+    internal static IResource? TryGetResourceFromId(string? id, IReadOnlyList<IResource>? resources)
     {
         if (string.IsNullOrEmpty(id) || resources == null) return null;
         foreach (IResource resource in resources)

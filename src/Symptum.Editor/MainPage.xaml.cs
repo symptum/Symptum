@@ -1,92 +1,30 @@
-using System.Globalization;
-using System.Text;
-using CsvHelper;
 using Symptum.Core.Management.Resources;
-using Symptum.Core.Subjects.QuestionBanks;
 using Symptum.Common.Helpers;
 using Symptum.Editor.Controls;
 using Symptum.Editor.EditorPages;
-using Symptum.Editor.Helpers;
 using Windows.Storage.Pickers;
+using Symptum.Core.Subjects.QuestionBanks;
 
 namespace Symptum.Editor;
 
 public sealed partial class MainPage : Page
 {
     private IntPtr hWnd = IntPtr.Zero;
-    private Window mainWindow;
+    private Window? mainWindow;
     private readonly AddNewItemDialog addNewItemDialog = new();
     private readonly QuestionBankContextConfigureDialog contextConfigureDialog = new();
 
-    //private ContentDialog deleteTopicDialog = new()
-    //{
-    //    Title = "Delete Topic(s)?",
-    //    PrimaryButtonText = "Delete",
-    //    CloseButtonText = "Cancel",
-    //    Content = new TextBlock()
-    //    {
-    //        Text = "Do you want to delete the topic(s)? Once you delete you won't be able to restore."
-    //    }
-    //};
+    private ContentDialog deleteResourceDialog = new()
+    {
+        Title = "Delete Resource(s)?",
+        PrimaryButtonText = "Delete",
+        CloseButtonText = "Cancel",
+        Content = "Do you want to delete the resources(s)?\nOnce you delete you won't be able to restore."
+    };
 
     public MainPage()
     {
         InitializeComponent();
-
-        //Subject subject = new(SubjectList.Anatomy)
-        //{
-        //    Title = "Anatomy",
-        //    QuestionBank = new()
-        //    {
-        //        Title = "Anatomy Question Bank",
-        //        QuestionBankPapers =
-        //        [
-        //            new("Paper 1")
-        //            {
-        //                Topics =
-        //                [
-        //                    new("Abdomen")
-        //                    {
-        //                        QuestionEntries =
-        //                        [
-        //                            new()
-        //                            {
-        //                                Title = "Liver"
-        //                            }
-        //                        ]
-        //                    },
-        //                    new("Upper Limb"),
-        //                    new("Lower Limb")
-        //                ]
-        //            },
-        //            new("Paper 2")
-        //        ]
-        //    }
-        //};
-
-        //using StreamReader sr = new(File.OpenRead("D:\\Symptum.Data\\Abdomen.csv"));
-        //QuestionBankTopic topic = QuestionBankTopic.CreateTopicFromCSV("Abdomen", sr.ReadToEnd());
-
-        //ObservableCollection<NavigableResource> items =
-        //[
-        //    subject,
-        //    //topic
-        //];
-
-        //((IResource)subject).InitializeResource(null);
-        //resources.Add(subject);
-        //QuestionBankTopic topic = new("test")
-        //{
-        //    QuestionEntries =
-        //    [
-        //        new()
-        //        {
-        //            Title = "Liver"
-        //        }
-        //    ]
-        //};
-        //((IResource)topic).InitializeResource(null);
-        //resources.Add(topic);
 
         treeView.ItemsSource = ResourceManager.Resources;
 
@@ -98,19 +36,20 @@ public sealed partial class MainPage : Page
         {
             hWnd = WinRT.Interop.WindowNative.GetWindowHandle(mainWindow);
             mainWindow.SetTitleBar(AppTitleBar);
-            //topicEditorDialog.XamlRoot = questionEditorDialog.XamlRoot = deleteTopicDialog.XamlRoot = mainWindow.Content.XamlRoot;
         }
         Background = null;
         TitleTextBlock.Text = mainWindow?.Title;
 #endif
 
-        treeView.ItemInvoked += (s, e) =>
-        {
-            if (e.InvokedItem is IResource resource)
-            {
-                editorsTabView.SelectedItem = EditorPagesManager.CreateOrOpenEditorPage(resource);
-            }
-        };
+        treeView.SelectionChanged += TreeView_SelectionChanged;
+
+        //treeView.ItemInvoked += (s, e) =>
+        //{
+        //    if (e.InvokedItem is IResource resource)
+        //    {
+        //        editorsTabView.SelectedItem = EditorPagesManager.CreateOrOpenEditorPage(resource);
+        //    }
+        //};
 
         expandPaneButton.Click += (s, e) =>
         {
@@ -121,105 +60,11 @@ public sealed partial class MainPage : Page
         ResourceHelper.Initialize(XamlRoot, hWnd);
     }
 
-    //    private async void EditTopicButton_Click(object sender, RoutedEventArgs e)
-    //    {
-    //        if (topicsView.SelectedItems.Count == 0) return;
-    //        if (topicsView.SelectedItems[0] is QuestionBankTopic topic)
-    //        {
-    //#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-    //            topicEditorDialog.XamlRoot = Content.XamlRoot;
-    //#endif
-    //            var result = await topicEditorDialog.EditAsync(topic.Title);
-    //            if (result == EditResult.Save)
-    //            {
-    //                topic.Title = topicEditorDialog.TopicName;
-    //            }
-    //        }
-    //    }
-
-    private bool _isBeingSaved = false;
-
-    private async void SaveAll_Click(object sender, RoutedEventArgs e)
+    private void TreeView_SelectionChanged(TreeView sender, TreeViewSelectionChangedEventArgs args)
     {
-        if (_isBeingSaved)
-        {
-            return;
-        }
-
-        _isBeingSaved = true;
-
-        bool allSaved = await ResourceHelper.SaveAllResourcesAsync();
-        if (allSaved) EditorPagesManager.MarkAllOpenEditorsAsSaved();
-
-        _isBeingSaved = false;
-    }
-
-    //    private async void DeleteTopicsButton_Click(object sender, RoutedEventArgs e)
-    //    {
-    //        if (topicsView.SelectedItems.Count == 0) return;
-    //        bool deleteCurrent = false;
-
-    //        List<QuestionBankTopic> toDelete = [];
-
-    //#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-    //        deleteTopicDialog.XamlRoot = Content.XamlRoot;
-    //#endif
-    //        var result = await deleteTopicDialog.ShowAsync();
-    //        if (result == ContentDialogResult.Primary)
-    //        {
-    //            foreach (var item in topicsView.SelectedItems)
-    //            {
-    //                if (item is QuestionBankTopic topic)
-    //                {
-    //                    try
-    //                    {
-    //                        var csvfile = await workFolder.GetFileAsync(topic.Title + ".csv");
-    //                        if (csvfile != null) await csvfile.DeleteAsync();
-    //                    }
-    //                    catch { }
-
-    //                    toDelete.Add(topic);
-
-    //                    if (item == currentTopic)
-    //                        deleteCurrent = true;
-    //                }
-    //            }
-
-    //            topicsView.SelectedItems.Clear();
-    //            toDelete.ForEach(x => topics.Remove(x));
-    //            toDelete.Clear();
-
-    //            ResetData(deleteCurrent);
-    //        }
-    //    }
-
-    private async void OpenFolder_Click(object sender, RoutedEventArgs e)
-    {
-        bool result = await ResourceHelper.OpenWorkPathAsync();
-        if (result)
-        {
-            EditorPagesManager.ResetEditors();
-        }
-    }
-
-    private async void OpenFile_Click(object sender, RoutedEventArgs e)
-    {
-        IResource? parent = null;
-        if (treeView.SelectedItems.Count > 0 && treeView.SelectedItems[0] is IResource resource)
-            parent = resource;
-
-        FileOpenPicker fileOpenPicker = new();
-        fileOpenPicker.FileTypeFilter.Add(".csv");
-        fileOpenPicker.FileTypeFilter.Add(".json");
-
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-        WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, hWnd);
-#endif
-        var pickedFiles = await fileOpenPicker.PickMultipleFilesAsync();
-        if (pickedFiles.Count > 0)
-        {
-            await ResourceHelper.LoadResourcesFromFilesAsync(pickedFiles, parent);
-        }
+        int count = args.AddedItems.Count;
+        editResourceButton.IsEnabled = count == 1;
+        deleteResourcesButton.IsEnabled = count > 0;
     }
 
     //    private async void Markdown_Click(object sender, RoutedEventArgs e)
@@ -332,7 +177,7 @@ public sealed partial class MainPage : Page
 
     private async void New_Click(object sender, RoutedEventArgs e)
     {
-        addNewItemDialog.XamlRoot = mainWindow.Content?.XamlRoot;
+        addNewItemDialog.XamlRoot = mainWindow?.Content?.XamlRoot;
         IResource? parent = null;
         if (treeView.SelectedItems.Count > 0 && treeView.SelectedItems[0] is IResource resource)
             parent = resource;
@@ -354,19 +199,53 @@ public sealed partial class MainPage : Page
                     }
                 }
             }
-            //QuestionBankTopic topic = new(addNewItemDialog.ItemTitle)
-            //{
-            //    QuestionEntries = []
-            //};
-
-            //topics.Add(topic);
         }
     }
 
-    private async void ConfigureContext_Click(object sender, RoutedEventArgs e)
+    private async void OpenFile_Click(object sender, RoutedEventArgs e)
     {
-        contextConfigureDialog.XamlRoot = mainWindow.Content?.XamlRoot;
-        await contextConfigureDialog.ShowAsync();
+        IResource? parent = null;
+        if (treeView.SelectedItems.Count > 0 && treeView.SelectedItems[0] is IResource resource)
+            parent = resource;
+
+        FileOpenPicker fileOpenPicker = new();
+        fileOpenPicker.FileTypeFilter.Add(".csv");
+        fileOpenPicker.FileTypeFilter.Add(".json");
+
+#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+        WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, hWnd);
+#endif
+        var pickedFiles = await fileOpenPicker.PickMultipleFilesAsync();
+        if (pickedFiles.Count > 0)
+        {
+            await ResourceHelper.LoadResourcesFromFilesAsync(pickedFiles, parent);
+        }
+    }
+
+    private async void OpenFolder_Click(object sender, RoutedEventArgs e)
+    {
+        bool result = await ResourceHelper.OpenWorkPathAsync();
+        if (result)
+        {
+            EditorPagesManager.ResetEditors();
+        }
+    }
+
+    private bool _isBeingSaved = false;
+
+    private async void SaveAll_Click(object sender, RoutedEventArgs e)
+    {
+        if (_isBeingSaved)
+        {
+            return;
+        }
+
+        _isBeingSaved = true;
+
+        bool allSaved = await ResourceHelper.SaveAllResourcesAsync();
+        if (allSaved) EditorPagesManager.MarkAllOpenEditorsAsSaved();
+
+        _isBeingSaved = false;
     }
 
     private void CloseFolder_Click(object sender, RoutedEventArgs e)
@@ -375,33 +254,53 @@ public sealed partial class MainPage : Page
         ResourceHelper.CloseWorkPath();
     }
 
-    //    private async void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
-    //    {
-    //        FileOpenPicker fileOpenPicker = new();
-    //        fileOpenPicker.FileTypeFilter.Add(".csv");
+    private void Exit_Click(object sender, RoutedEventArgs e)
+    {
+        Application.Current.Exit();
+    }
 
-    //#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-    //        WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, hWnd);
-    //#endif
-    //        var pickedFiles = await fileOpenPicker.PickMultipleFilesAsync();
-    //        if (pickedFiles.Count > 0)
-    //        {
-    //            await UpgradeCSVs(pickedFiles);
-    //        }
-    //    }
+    private async void ConfigureContext_Click(object sender, RoutedEventArgs e)
+    {
+        contextConfigureDialog.XamlRoot = mainWindow.Content?.XamlRoot;
+        await contextConfigureDialog.ShowAsync();
+    }
 
-    //    private async Task UpgradeCSVs(IReadOnlyList<StorageFile> files)
-    //    {
-    //        if (files == null) return;
+    private void EditResourceButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (treeView.SelectedItem is IResource resource)
+        {
+            editorsTabView.SelectedItem = EditorPagesManager.CreateOrOpenEditorPage(resource);
+        }
+    }
 
-    //        foreach (StorageFile file in files)
-    //        {
-    //            if (file.FileType.Equals(".csv", StringComparison.InvariantCultureIgnoreCase))
-    //            {
-    //                string csv = await FileIO.ReadTextAsync(file);
-    //                var newCSV = QuestionBankTopic.UpgradeCSV(csv);
-    //                await FileIO.WriteTextAsync(file, newCSV);
-    //            }
-    //        }
-    //    }
+    private void MultiSelectButton_Click(object sender, RoutedEventArgs e)
+    {
+        treeView.SelectionMode = multiSelectButton.IsChecked switch
+        {
+            true => TreeViewSelectionMode.Multiple,
+            false => TreeViewSelectionMode.Single,
+            _ => TreeViewSelectionMode.None
+        };
+    }
+
+    private async void DeleteResourcesButton_Click(object sender, RoutedEventArgs e)
+    {
+        IList<object> toDelete = treeView.SelectedItems.ToList();
+        treeView.SelectedItems.Clear();
+        if (toDelete.Count > 0)
+        {
+            deleteResourceDialog.XamlRoot = mainWindow?.Content?.XamlRoot;
+            var result = await deleteResourceDialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                foreach (var item in toDelete)
+                {
+                    if (item is IResource resource)
+                    {
+                        await ResourceHelper.DeleteResourceAsync(resource);
+                    }
+                }
+            }
+        }
+    }
 }

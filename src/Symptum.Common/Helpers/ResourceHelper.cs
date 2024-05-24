@@ -1,3 +1,4 @@
+using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects.QuestionBanks;
 using Windows.Foundation;
@@ -7,17 +8,21 @@ namespace Symptum.Common.Helpers;
 
 public class ResourceHelper
 {
-    private static StorageFolder? workFolder;
-
     private static XamlRoot? _xamlRoot;
     private static IntPtr _hWnd = IntPtr.Zero;
+
+    private static StorageFolder? workFolder;
+
+    public static StorageFolder? WorkFolder
+    {
+        get => workFolder;
+    }
 
     private static bool _folderPicked = false;
 
     public static bool FolderPicked
     {
         get => _folderPicked;
-        set => _folderPicked = value;
     }
 
     public static void Initialize(XamlRoot? xamlRoot, IntPtr hWnd)
@@ -26,12 +31,7 @@ public class ResourceHelper
         _hWnd = hWnd;
     }
 
-    public static void CloseWorkPath()
-    {
-        workFolder = null;
-        _folderPicked = false;
-        ResourceManager.Resources.Clear();
-    }
+    #region Work Path Handling
 
     public static async Task<bool> OpenWorkPathAsync(StorageFolder? folder = null)
     {
@@ -46,6 +46,13 @@ public class ResourceHelper
         return false;
     }
 
+    public static void CloseWorkPath()
+    {
+        workFolder = null;
+        _folderPicked = false;
+        ResourceManager.Resources.Clear();
+    }
+
     private static async Task<bool> VerifyWorkPathAsync()
     {
         bool pathExists = true;
@@ -55,7 +62,7 @@ public class ResourceHelper
         return pathExists;
     }
 
-    public static async Task<bool> SelectWorkPathAsync(StorageFolder? folder = null)
+    private static async Task<bool> SelectWorkPathAsync(StorageFolder? folder = null)
     {
         if (folder == null)
         {
@@ -96,6 +103,10 @@ public class ResourceHelper
 
         return null;
     }
+
+    #endregion
+
+    #region Loading Resources
 
     public static async Task LoadResourcesFromWorkPathAsync()
     {
@@ -175,6 +186,10 @@ public class ResourceHelper
             ResourceManager.LoadResourceFile(csvResource, content);
         }
     }
+
+    #endregion
+
+    #region Saving Resources
 
     public static async Task<bool> SaveAllResourcesAsync()
     {
@@ -285,6 +300,10 @@ public class ResourceHelper
         return saveFile;
     }
 
+    #endregion
+
+    #region Storage Methods
+
     private static async Task<StorageFolder?> SubFolderFuncAsync(StorageFolder? parent, string? path, Func<StorageFolder?, string, IAsyncOperation<StorageFolder>> func)
     {
         if (path == null) return parent;
@@ -303,8 +322,7 @@ public class ResourceHelper
                 {
                     folder = await func(folder, folderName);
                 }
-                catch { }
-                if (folder == null) return parent;
+                catch { return null; }
             }
         }
 
@@ -318,7 +336,7 @@ public class ResourceHelper
         return folder;
     }
 
-    private static async Task<StorageFolder?> CreateSubFoldersAsync(StorageFolder? parent, string? path)
+    private static async Task<StorageFolder?> CreateSubFoldersAsync(StorageFolder? parent, string? path = null)
     {
         StorageFolder? folder = await SubFolderFuncAsync(parent, path,
             (f, name) => f?.CreateFolderAsync(name, CreationCollisionOption.OpenIfExists));
@@ -342,6 +360,96 @@ public class ResourceHelper
         }
         return _path;
     }
+
+    #endregion
+
+    #region Deleting Resources
+
+    public static async Task<bool> DeleteResourceAsync(IResource? resource)
+    {
+        if (resource == null) return false;
+
+        bool result;
+        if (resource is CsvFileResource csvResource)
+        {
+            result = await DeleteCSVFileAsync(csvResource);
+        }
+        else if (resource is PackageResource package)
+        {
+            result = true;
+            result &= await DeleteChildrenAsync(package);
+            result &= await DeletePackageAsync(package);
+        }
+        else
+        {
+            result = await DeleteChildrenAsync(resource);
+        }
+
+        IResource? parent = resource.ParentResource;
+        if (parent != null)
+            parent.RemoveChildResource(resource);
+        else
+            ResourceManager.Resources.RemoveItemFromListIfExists(resource);
+
+        return result;
+    }
+
+    public static async Task<bool> DeleteCSVFileAsync(CsvFileResource? csvResource)
+    {
+        if (csvResource == null) return false;
+        if (_folderPicked && workFolder != null)
+        {
+            try
+            {
+                string path = GetPath(csvResource.ParentResource);
+                var folder = await GetSubFolderAsync(workFolder, path);
+                IStorageItem? file = await folder?.TryGetItemAsync(csvResource.Title + ".csv");
+                if (file != null)
+                {
+                    await file.DeleteAsync();
+                    return true;
+                }
+            }
+            catch { }
+        }
+
+        return false;
+    }
+
+    public static async Task<bool> DeletePackageAsync(PackageResource? package)
+    {
+        if (package == null) return false;
+        if (_folderPicked && workFolder != null)
+        {
+            try
+            {
+                IStorageItem? file = await workFolder?.TryGetItemAsync(package.Title + ".json");
+                if (file != null) await file.DeleteAsync();
+                IStorageItem? folder = await workFolder?.TryGetItemAsync(package.Title);
+                if (folder != null) await folder.DeleteAsync();
+            }
+            catch { }
+        }
+
+        return false;
+    }
+
+    private static async Task<bool> DeleteChildrenAsync(IResource? resource)
+    {
+        if (resource != null && resource.ChildrenResources != null)
+        {
+            bool allChildrenDeleted = true;
+            var children = resource.ChildrenResources.ToList();
+            foreach (var child in children)
+            {
+                allChildrenDeleted &= await DeleteResourceAsync(child);
+            }
+            return allChildrenDeleted;
+        }
+        return true;
+    }
+
+    #endregion
 
     private const char PathSeparator = '\\';
 }

@@ -13,7 +13,7 @@ public interface IResource
 
     public IResource? ParentResource { get; } // Id: Subjects.Anatomy.StudyMaterials.Notes.Abdomen
 
-    public IList<IResource>? ChildrenResources { get; } // null if end resource
+    public IReadOnlyList<IResource>? ChildrenResources { get; } // null if end resource
 
     public IList<IResource>? Dependencies { get; set; }
 

@@ -87,11 +87,6 @@
             <KeyboardAccelerator Modifiers="Control, Menu" Key="O" />
           </MenuFlyoutItem.KeyboardAccelerators>
         </MenuFlyoutItem>
-        <!--<MenuFlyoutItem Text="Upgrade CSVs" Click="MenuFlyoutItem_Click">
-          <MenuFlyoutItem.KeyboardAccelerators>
-            <KeyboardAccelerator Modifiers="Control" Key="U" />
-          </MenuFlyoutItem.KeyboardAccelerators>
-        </MenuFlyoutItem>-->
         <MenuFlyoutItem Text="Save All" Icon="Save" Click="SaveAll_Click">
           <MenuFlyoutItem.KeyboardAccelerators>
             <KeyboardAccelerator Modifiers="Control,Menu" Key="S" />
@@ -99,7 +94,7 @@
         </MenuFlyoutItem>
         <MenuFlyoutItem Text="Close Folder" Click="CloseFolder_Click" />
         <!--<MenuFlyoutItem Text="Generate Markdown" Icon="Document" Click="Markdown_Click" />-->
-        <MenuFlyoutItem Text="Exit" />
+        <win:MenuFlyoutItem Text="Exit" Click="Exit_Click" />
       </MenuBarItem>
       <MenuBarItem Title="Edit">
         <MenuFlyoutSubItem Text="Question Bank">
@@ -115,46 +110,34 @@
     <SplitView x:Name="splitView" Grid.Row="2" PaneBackground="Transparent"
                IsPaneOpen="True" OpenPaneLength="300" CompactPaneLength="48" DisplayMode="Inline">
       <SplitView.Pane>
-        <ScrollViewer x:Name="sideStackPanel" Width="300" HorizontalScrollBarVisibility="Auto">
-          <!--<CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right">
-            <AppBarButton x:Name="openFolderButton" Label="Open Folder">
-              <AppBarButton.Icon>
-                <FontIcon Glyph="&#xE8DA;" />
-              </AppBarButton.Icon>
+        <Grid Width="300">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <CommandBar x:Name="cmdbar" Background="Transparent" IsOpen="False" DefaultLabelPosition="Collapsed">
+            <AppBarButton x:Name="editResourceButton" IsEnabled="False" Icon="Edit" Label="Edit" Click="EditResourceButton_Click">
               <AppBarButton.KeyboardAccelerators>
-                <KeyboardAccelerator Modifiers="Control,Menu" Key="O" />
+                <KeyboardAccelerator Modifiers="Control,Menu" Key="E" />
               </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
-            <AppBarButton x:Name="openFileButton" Icon="OpenFile" Label="Open File(s)">
+            <AppBarToggleButton x:Name="multiSelectButton" Label="Multi Select" Click="MultiSelectButton_Click">
+              <AppBarToggleButton.Icon>
+                <FontIcon Glyph="&#xE762;" />
+              </AppBarToggleButton.Icon>
+            </AppBarToggleButton>
+            <AppBarButton x:Name="deleteResourcesButton" IsEnabled="False" Icon="Delete" Label="Delete" Click="DeleteResourcesButton_Click">
               <AppBarButton.KeyboardAccelerators>
-                <KeyboardAccelerator Modifiers="Control" Key="O" />
+                <KeyboardAccelerator Modifiers="Shift" Key="Delete" />
               </AppBarButton.KeyboardAccelerators>
             </AppBarButton>
-            <AppBarButton x:Name="addTopicButton" Icon="Add" Label="Add">
-              <AppBarButton.KeyboardAccelerators>
-                <KeyboardAccelerator Modifiers="Control" Key="N" />
-              </AppBarButton.KeyboardAccelerators>
-            </AppBarButton>
-            <AppBarButton x:Name="saveTopicsButton" Icon="Save" Label="Save All">
-              <AppBarButton.KeyboardAccelerators>
-                <KeyboardAccelerator Modifiers="Control" Key="S" />
-              </AppBarButton.KeyboardAccelerators>
-            </AppBarButton>
-            <AppBarButton x:Name="editTopicButton" IsEnabled="False" Icon="Edit" Label="Edit">
-              <AppBarButton.KeyboardAccelerators>
-                <KeyboardAccelerator Modifiers="Control" Key="E" />
-              </AppBarButton.KeyboardAccelerators>
-            </AppBarButton>
-            <AppBarButton x:Name="deleteTopicsButton" IsEnabled="False" Icon="Delete" Label="Delete">
-              <AppBarButton.KeyboardAccelerators>
-                <KeyboardAccelerator Modifiers="None" Key="Delete" />
-              </AppBarButton.KeyboardAccelerators>
-            </AppBarButton>
-          </CommandBar>-->
-          <TreeView x:Name="treeView" SelectionMode="Multiple"
-                    CanReorderItems="False" CanDragItems="False" CanDrag="False"
-                    ItemTemplateSelector="{StaticResource NavigableResourceTemplateSelector}" />
-        </ScrollViewer>
+          </CommandBar>
+          <ScrollViewer x:Name="sideStackPanel" Grid.Row="1" HorizontalScrollBarVisibility="Auto">
+            <TreeView x:Name="treeView" SelectionMode="Single"
+                      CanReorderItems="False" CanDragItems="False" CanDrag="False"
+                      ItemTemplateSelector="{StaticResource NavigableResourceTemplateSelector}" />
+          </ScrollViewer>
+        </Grid>
       </SplitView.Pane>
 
       <Grid x:Name="contentGrid"

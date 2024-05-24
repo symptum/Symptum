@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
 
 namespace Symptum.Core.Subjects.QuestionBanks;
@@ -48,15 +49,15 @@ public class QuestionBank : NavigableResource
         return childResourceType == typeof(QuestionBankPaper);
     }
 
-    protected override void OnAddChildResource(IResource childResource)
+    protected override void OnAddChildResource(IResource? childResource)
     {
         Papers ??= [];
         if (childResource is QuestionBankPaper paper)
-            papers?.Add(paper);
+            Papers?.Add(paper);
     }
 
-    protected override void OnRemoveChildResource(IResource childResource)
+    protected override void OnRemoveChildResource(IResource? childResource)
     {
-        throw new NotImplementedException();
+        Papers.RemoveItemFromListIfExists(childResource);
     }
 }

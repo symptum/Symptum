@@ -40,7 +40,7 @@ public class Subject : PackageResource
     protected override void OnInitializeResource(IResource? parent)
     {
         if (questionBank != null)
-            ChildrenResources?.Add(questionBank);
+            AddChildResourceInternal(questionBank);
     }
 
     public override bool CanHandleChildResourceType(Type childResourceType)
@@ -58,17 +58,16 @@ public class Subject : PackageResource
         return false;
     }
 
-    protected override void OnAddChildResource(IResource childResource)
+    protected override void OnAddChildResource(IResource? childResource)
     {
-        if (childResource is QuestionBank questionBank)
-        {
-            QuestionBank = questionBank;
-        }
+        if (childResource is QuestionBank _qb)
+            QuestionBank = _qb;
     }
 
-    protected override void OnRemoveChildResource(IResource childResource)
+    protected override void OnRemoveChildResource(IResource? childResource)
     {
-        throw new NotImplementedException();
+        if (childResource is QuestionBank _qb)
+            QuestionBank = null;
     }
 
     private void UpdateChildrenResources(QuestionBank? value)
@@ -76,9 +75,9 @@ public class Subject : PackageResource
         if (ChildrenResources != null)
         {
             if (questionBank != null && ChildrenResources.Contains(questionBank))
-                ChildrenResources.Remove(questionBank);
+                RemoveChildResourceInternal(questionBank);
             if (value != null)
-                ChildrenResources.Add(value);
+                AddChildResourceInternal(value);
         }
     }
 }

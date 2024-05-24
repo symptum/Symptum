@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
 
 namespace Symptum.Core.Data.ReferenceValues;
@@ -45,15 +46,15 @@ public class ReferenceValuesPackage : PackageResource
         return childResourceType == typeof(ReferenceValueFamily);
     }
 
-    protected override void OnAddChildResource(IResource childResource)
+    protected override void OnAddChildResource(IResource? childResource)
     {
         Families ??= [];
         if (childResource is ReferenceValueFamily family)
-            families?.Add(family);
+            Families?.Add(family);
     }
 
-    protected override void OnRemoveChildResource(IResource childResource)
+    protected override void OnRemoveChildResource(IResource? childResource)
     {
-        throw new NotImplementedException();
+        Families.RemoveItemFromListIfExists(childResource);
     }
 }

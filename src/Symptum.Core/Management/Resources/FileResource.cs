@@ -94,12 +94,12 @@ public abstract class FileResource : NavigableResource, IContent
         return false;
     }
 
-    protected override void OnAddChildResource(IResource childResource)
+    protected override void OnAddChildResource(IResource? childResource)
     {
         throw new NotImplementedException();
     }
 
-    protected override void OnRemoveChildResource(IResource childResource)
+    protected override void OnRemoveChildResource(IResource? childResource)
     {
         throw new NotImplementedException();
     }
