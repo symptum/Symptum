@@ -14,6 +14,7 @@ public sealed partial class ReferenceValueGroupEditorPage : Page, IEditorPage
 {
     private ReferenceValueGroup? currentGroup;
     private FindFlyout? findFlyout;
+    private ReferenceValueParameterEditorDialog parameterEditorDialog = new();
     private bool _isFiltered = false;
 
     public ReferenceValueGroupEditorPage()
@@ -142,16 +143,14 @@ public sealed partial class ReferenceValueGroupEditorPage : Page, IEditorPage
     {
         if (currentGroup != null)
         {
-            ReferenceValueEntry entry = new() { Title = "entry" + currentGroup?.Parameters?.Count, Data = [new() { Values = "[13,16]", Unit = "g/dL" }], Inference = "Normal", Remarks = "Normal range" };
-            currentGroup?.Parameters?.Add(new("test" + currentGroup?.Parameters?.Count) { Entries = [entry] });
-            //questionEditorDialog.XamlRoot = XamlRoot;
-            //var result = await questionEditorDialog.CreateAsync();
-            //if (result == EditorResult.Create)
-            //{
-            //    currentTopic?.Entries?.Add(questionEditorDialog.QuestionEntry);
-            //    HasUnsavedChanges = true;
-            //    SetCountsText();
-            //}
+            parameterEditorDialog.XamlRoot = XamlRoot;
+            var result = await parameterEditorDialog.CreateAsync();
+            if (result == EditorResult.Create && parameterEditorDialog.Parameter != null)
+            {
+                currentGroup?.Parameters?.Add(parameterEditorDialog.Parameter);
+                HasUnsavedChanges = true;
+                SetCountsText();
+            }
         }
     }
 
@@ -161,18 +160,39 @@ public sealed partial class ReferenceValueGroupEditorPage : Page, IEditorPage
         deleteButton.IsEnabled = count > 0;
         duplicateButton.IsEnabled = count > 0;
         editButton.IsEnabled = count == 1;
-        moveDownButton.IsEnabled = CanMoveDown();
-        moveUpButton.IsEnabled = CanMoveUp();
+        moveDownButton.IsEnabled = moveToBottomButton.IsEnabled = CanMoveDown();
+        moveUpButton.IsEnabled = moveToTopButton.IsEnabled = CanMoveUp();
         SetCountsText();
     }
 
-    private void DataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    private async void EditButton_Click(object sender, RoutedEventArgs e)
     {
+        await EnterEditParameterAsync();
+    }
+
+    private async void DataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        await EnterEditParameterAsync();
+    }
+
+    private async Task EnterEditParameterAsync()
+    {
+        if (dataGrid.SelectedItems.Count == 0) return;
+        if (dataGrid.SelectedItems[0] is ReferenceValueParameter parameter)
+        {
+            parameterEditorDialog.XamlRoot = XamlRoot;
+            var result = await parameterEditorDialog.EditAsync(parameter);
+            if (result == EditorResult.Update || result == EditorResult.Save)
+            {
+                HasUnsavedChanges = true;
+            }
+        }
     }
 
     private void DuplicateButton_Click(object sender, RoutedEventArgs e)
     {
-        if (dataGrid.SelectedItems.Count == 0 || currentGroup == null) return;
+        if (dataGrid.SelectedItems.Count == 0
+            || currentGroup == null || currentGroup.Parameters == null) return;
         List<ReferenceValueParameter> toDupe = [];
 
         foreach (var item in dataGrid.SelectedItems)
@@ -189,7 +209,8 @@ public sealed partial class ReferenceValueGroupEditorPage : Page, IEditorPage
 
     private void DeleteButton_Click(object sender, RoutedEventArgs e)
     {
-        if (dataGrid.SelectedItems.Count == 0 || currentGroup == null) return;
+        if (dataGrid.SelectedItems.Count == 0
+            || currentGroup == null || currentGroup.Parameters == null) return;
         List<ReferenceValueParameter> toDelete = [];
 
         foreach (var item in dataGrid.SelectedItems)
@@ -239,8 +260,10 @@ public sealed partial class ReferenceValueGroupEditorPage : Page, IEditorPage
 
     private void FindFlyout_QueryCleared(object? sender, EventArgs e)
     {
+        var selectedItem = dataGrid.SelectedItem;
         if (currentGroup != null)
             dataGrid.ItemsSource = currentGroup.Parameters;
+        dataGrid.SelectedItem = selectedItem;
         findTextBlock.Text = string.Empty;
         OnFilter(false);
     }
@@ -279,28 +302,65 @@ public sealed partial class ReferenceValueGroupEditorPage : Page, IEditorPage
         }
     }
 
-    private void MoveUpButton_Click(object sender, RoutedEventArgs e)
+    private bool CanMoveUp() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != 0;
+
+    private bool CanMoveDown() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != currentGroup?.Parameters?.Count - 1;
+
+    private void MoveParameter(int oldIndex, int newIndex)
+    {
+        currentGroup?.Parameters?.Move(oldIndex, newIndex);
+        dataGrid.SelectedItems.Clear();
+        dataGrid.SelectedItem = null;
+        dataGrid.SelectedIndex = newIndex;
+        moveUpButton.IsEnabled = moveToTopButton.IsEnabled = CanMoveUp();
+        moveDownButton.IsEnabled = moveToBottomButton.IsEnabled = CanMoveDown();
+        HasUnsavedChanges = true;
+        dataGrid.ScrollIntoView(dataGrid.SelectedItem, null);
+    }
+
+    private void MoveParameterUp(bool toTop)
     {
         if (CanMoveUp())
         {
             int oldIndex = dataGrid.SelectedIndex;
-            int newIndex = Math.Max(dataGrid.SelectedIndex - 1, 0);
-            currentGroup?.Parameters?.Move(oldIndex, newIndex);
+            int newIndex = toTop ? 0 : Math.Max(dataGrid.SelectedIndex - 1, 0);
+            MoveParameter(oldIndex, newIndex);
         }
     }
 
-    private void MoveDownButton_Click(object sender, RoutedEventArgs e)
+    private void MoveParameterDown(bool toBottom)
     {
         if (CanMoveDown())
         {
             int oldIndex = dataGrid.SelectedIndex;
-            int count = currentGroup?.Parameters?.Count - 1 ?? 0;
-            int newIndex = Math.Min(dataGrid.SelectedIndex + 1, count);
-            currentGroup?.Parameters?.Move(oldIndex, newIndex);
+            int last = currentGroup?.Parameters?.Count - 1 ?? 0;
+            int newIndex = toBottom ? last : Math.Min(dataGrid.SelectedIndex + 1, last);
+            MoveParameter(oldIndex, newIndex);
         }
     }
 
-    private bool CanMoveUp() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != 0;
+    private void MoveUpButton_Click(object sender, RoutedEventArgs e)
+    {
+        MoveParameterUp(false);
+    }
 
-    private bool CanMoveDown() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != currentGroup?.Parameters?.Count - 1;
+    private void MoveToTopButton_Click(object sender, RoutedEventArgs e)
+    {
+        MoveParameterUp(true);
+    }
+
+    private void MoveDownButton_Click(object sender, RoutedEventArgs e)
+    {
+        MoveParameterDown(false);
+    }
+
+    private void MoveToBottomButton_Click(object sender, RoutedEventArgs e)
+    {
+        MoveParameterDown(true);
+    }
+
+    private void DataGrid_LoadingRow(object sender, CommunityToolkit.WinUI.UI.Controls.DataGridRowEventArgs e)
+    {
+        e.Row.Header = e.Row.GetIndex() + 1;
+    }
 }

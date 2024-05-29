@@ -97,10 +97,25 @@ public sealed partial class AddNewItemDialog : ContentDialog
     public async Task<EditorResult> CreateAsync(IResource? parentResource)
     {
         ParentResource = parentResource;
+        SetParentInfo(parentResource);
         FilterItems(parentResource);
         ItemTitle = titleTextBox.Text = string.Empty;
         await ShowAsync(ContentDialogPlacement.Popup);
         return Result;
+    }
+
+    private void SetParentInfo(IResource? parentResource)
+    {
+        if (parentResource == null)
+        {
+            parentInfo.Text = string.Empty;
+            parentInfo.Visibility = Visibility.Collapsed;
+        }
+        else
+        {
+            parentInfo.Visibility = Visibility.Visible;
+            parentInfo.Text = $"The new item will be added to {parentResource.Title}";
+        }
     }
 
     private void FilterItems(IResource? parentResource)

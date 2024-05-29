@@ -9,15 +9,15 @@ namespace Symptum.Editor.Controls;
 
 public sealed partial class QuestionEditorDialog : ContentDialog
 {
-    public QuestionEntry QuestionEntry { get; private set; }
+    public QuestionEntry? QuestionEntry { get; private set; }
 
     public EditorResult EditResult { get; private set; } = EditorResult.None;
 
-    private ObservableCollection<ListEditorItemWrapper<string>> descriptions = [];
-    private ObservableCollection<ListEditorItemWrapper<DateOnly>> yearsAsked = [];
-    private ObservableCollection<ListEditorItemWrapper<string>> probableCases = [];
-    private ObservableCollection<ListEditorItemWrapper<BookReference>> bookReferences = [];
-    private ObservableCollection<ListEditorItemWrapper<Uri>> linkReferences = [];
+    private readonly ObservableCollection<ListEditorItemWrapper<string>> descriptions = [];
+    private readonly ObservableCollection<ListEditorItemWrapper<DateOnly>> yearsAsked = [];
+    private readonly ObservableCollection<ListEditorItemWrapper<string>> probableCases = [];
+    private readonly ObservableCollection<ListEditorItemWrapper<BookReference>> bookReferences = [];
+    private readonly ObservableCollection<ListEditorItemWrapper<Uri>> linkReferences = [];
 
     private bool hasPreviouslyBeenAsked = true;
     private bool autoGenImp = true;
@@ -101,8 +101,6 @@ public sealed partial class QuestionEditorDialog : ContentDialog
     private void QuestionEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
         EditResult = _isCreate ? EditorResult.Create : EditorResult.Update;
-        QuestionEntry ??= new();
-
         UpdateQuestionEntry();
         ClearQuestionEntry();
     }
@@ -146,29 +144,30 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         scCB.SelectedItem = QuestionEntry.Id?.SubjectCode;
         cnTB.Text = QuestionEntry.Id?.CompetencyNumbers;
         titleTB.Text = QuestionEntry.Title;
-        LoadLists(ref descriptions, QuestionEntry.Descriptions);
+        descriptions.LoadFromList(QuestionEntry.Descriptions);
         paCB.IsChecked = hasPreviouslyBeenAsked = QuestionEntry.HasPreviouslyBeenAsked;
         importanceRC.Value = QuestionEntry.Importance;
-        LoadLists(ref yearsAsked, QuestionEntry.YearsAsked);
-        LoadLists(ref probableCases, QuestionEntry.ProbableCases);
-        LoadLists(ref bookReferences, QuestionEntry.BookReferences);
-        LoadLists(ref linkReferences, QuestionEntry.LinkReferences);
+        yearsAsked.LoadFromList(QuestionEntry.YearsAsked);
+        probableCases.LoadFromList(QuestionEntry.ProbableCases);
+        bookReferences.LoadFromList(QuestionEntry.BookReferences);
+        linkReferences.LoadFromList(QuestionEntry.LinkReferences);
     }
 
     private void UpdateQuestionEntry()
     {
+        QuestionEntry ??= new();
         QuestionEntry.Id ??= new();
         QuestionEntry.Id.QuestionType = qtCB.SelectedItem != null ? (QuestionType)qtCB.SelectedItem : QuestionType.Essay;
         QuestionEntry.Id.SubjectCode = scCB.SelectedItem != null ? (SubjectList)scCB.SelectedItem : SubjectList.None;
         QuestionEntry.Id.CompetencyNumbers = cnTB.Text;
         QuestionEntry.Title = titleTB.Text;
-        QuestionEntry.Descriptions = GetUpdateList(descriptions);
+        QuestionEntry.Descriptions = descriptions.UnwrapToList();
         QuestionEntry.HasPreviouslyBeenAsked = hasPreviouslyBeenAsked;
         QuestionEntry.Importance = (int)importanceRC.Value;
-        QuestionEntry.YearsAsked = GetUpdateList(yearsAsked);
-        QuestionEntry.ProbableCases = GetUpdateList(probableCases);
-        QuestionEntry.BookReferences = GetUpdateList(bookReferences);
-        QuestionEntry.LinkReferences = GetUpdateList(linkReferences);
+        QuestionEntry.YearsAsked = yearsAsked.UnwrapToList();
+        QuestionEntry.ProbableCases = probableCases.UnwrapToList();
+        QuestionEntry.BookReferences = bookReferences.UnwrapToList();
+        QuestionEntry.LinkReferences = linkReferences.UnwrapToList();
     }
 
     private void ClearQuestionEntry()
@@ -177,39 +176,15 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         scCB.SelectedItem = null;
         cnTB.Text = string.Empty;
         titleTB.Text = string.Empty;
-        LoadLists(ref descriptions, null);
+        descriptions.Clear();
         paCB.IsChecked = hasPreviouslyBeenAsked = true;
         importanceRC.Value = 0;
-        LoadLists(ref yearsAsked, null);
-        LoadLists(ref probableCases, null);
-        LoadLists(ref bookReferences, null);
-        LoadLists(ref linkReferences, null);
+        yearsAsked.Clear();
+        probableCases.Clear();
+        bookReferences.Clear();
+        linkReferences.Clear();
 
         autoGenImpCB.IsChecked = autoGenImp = true;
-    }
-
-    private void LoadLists<T>(ref ObservableCollection<ListEditorItemWrapper<T>> destination, IList<T>? source)
-    {
-        destination.Clear();
-        if (source == null || source.Count == 0) return;
-
-        foreach (var item in source)
-        {
-            destination.Add(new ListEditorItemWrapper<T>(item));
-        }
-    }
-
-    private List<T> GetUpdateList<T>(ObservableCollection<ListEditorItemWrapper<T>> source)
-    {
-        List<T> list = [];
-        if (source == null || source.Count == 0) return list;
-
-        foreach (var item in source)
-        {
-            list.Add(item.Value);
-        }
-
-        return list;
     }
 
     #region ListEditors Handling

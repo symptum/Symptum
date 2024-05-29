@@ -59,12 +59,12 @@ public class BookReferenceListToStringConverter : IValueConverter
 
 public class ReferenceValueEntryListToStringConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, string language)
+    public object? Convert(object value, Type targetType, object parameter, string language)
     {
-        return ConvertToString<ReferenceValueEntry>(value, x => x?.GetPreviewText() ?? string.Empty);
+        return ConvertToString<ReferenceValueEntry>(value, x => x?.GetPreviewText() ?? string.Empty, "\n");
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    public object? ConvertBack(object value, Type targetType, object parameter, string language)
     {
         throw new NotImplementedException();
     }

@@ -16,6 +16,13 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
     private QuestionBankTopic? currentTopic;
     private FindFlyout? findFlyout;
     private QuestionEditorDialog questionEditorDialog = new();
+
+    private DeleteItemsDialog deleteEntriesDialog = new()
+    {
+        Title = "Delete Question(s)?",
+        Content = "Do you want to delete the question(s)?\nOnce you delete you won't be able to restore."
+    };
+
     private bool _isFiltered = false;
 
     public QuestionTopicEditorPage()
@@ -89,9 +96,9 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         dataGrid.SelectedItems.Clear();
         dataGrid.ItemsSource = null;
         dataGrid.IsEnabled = false;
-        saveTopicButton.IsEnabled = false;
-        addQuestionButton.IsEnabled = false;
-        findQuestionButton.IsEnabled = false;
+        saveButton.IsEnabled = false;
+        addButton.IsEnabled = false;
+        findButton.IsEnabled = false;
         currentTopic = null;
         SetCountsText(true);
         DataContext = null;
@@ -105,9 +112,9 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         topic.Entries ??= [];
         dataGrid.ItemsSource = topic.Entries;
         dataGrid.IsEnabled = true;
-        saveTopicButton.IsEnabled = true;
-        addQuestionButton.IsEnabled = true;
-        findQuestionButton.IsEnabled = true;
+        saveButton.IsEnabled = true;
+        addButton.IsEnabled = true;
+        findButton.IsEnabled = true;
         SetCountsText();
 
         DataContext = currentTopic;
@@ -126,7 +133,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
 
     private bool _isBeingSaved = false;
 
-    private async void SaveTopicButton_Click(object sender, RoutedEventArgs e)
+    private async void SaveButton_Click(object sender, RoutedEventArgs e)
     {
         if (_isBeingSaved)
         {
@@ -140,15 +147,14 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         _isBeingSaved = false;
     }
 
-    private async void AddQuestionButton_Click(object sender, RoutedEventArgs e)
+    private async void AddButton_Click(object sender, RoutedEventArgs e)
     {
         if (currentTopic != null)
         {
             questionEditorDialog.XamlRoot = XamlRoot;
             var result = await questionEditorDialog.CreateAsync();
-            if (result == EditorResult.Create)
+            if (result == EditorResult.Create && questionEditorDialog.QuestionEntry is QuestionEntry entry)
             {
-                QuestionEntry entry = questionEditorDialog.QuestionEntry;
                 currentTopic?.Entries?.Add(entry);
                 dataGrid.SelectedItem = entry;
                 HasUnsavedChanges = true;
@@ -160,15 +166,15 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
     private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         int count = dataGrid.SelectedItems.Count;
-        deleteQuestionsButton.IsEnabled = count > 0;
-        duplicateQuestionButton.IsEnabled = count > 0;
-        editQuestionButton.IsEnabled = count == 1;
-        moveQuestionDownButton.IsEnabled = moveQuestionToBottomButton.IsEnabled = CanMoveDown();
-        moveQuestionUpButton.IsEnabled = moveQuestionToTopButton.IsEnabled = CanMoveUp();
+        deleteButton.IsEnabled = count > 0;
+        duplicateButton.IsEnabled = count > 0;
+        editButton.IsEnabled = count == 1;
+        moveDownButton.IsEnabled = moveToBottomButton.IsEnabled = CanMoveDown();
+        moveUpButton.IsEnabled = moveToTopButton.IsEnabled = CanMoveUp();
         SetCountsText();
     }
 
-    private async void EditQuestionButton_Click(object sender, RoutedEventArgs e)
+    private async void EditButton_Click(object sender, RoutedEventArgs e)
     {
         await EnterEditQuestionAsync();
     }
@@ -192,9 +198,10 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         }
     }
 
-    private void DuplicateQuestionButton_Click(object sender, RoutedEventArgs e)
+    private void DuplicateButton_Click(object sender, RoutedEventArgs e)
     {
-        if (dataGrid.SelectedItems.Count == 0 || currentTopic == null) return;
+        if (dataGrid.SelectedItems.Count == 0
+            || currentTopic?.Entries == null) return;
         List<QuestionEntry> toDupe = [];
 
         foreach (var item in dataGrid.SelectedItems)
@@ -209,24 +216,31 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         SetCountsText();
     }
 
-    private void DeleteQuestionsButton_Click(object sender, RoutedEventArgs e)
+    private async void DeleteButton_Click(object sender, RoutedEventArgs e)
     {
-        if (dataGrid.SelectedItems.Count == 0 || currentTopic == null) return;
-        List<QuestionEntry> toDelete = [];
+        if (dataGrid.SelectedItems.Count == 0
+            || currentTopic?.Entries == null) return;
 
-        foreach (var item in dataGrid.SelectedItems)
+        deleteEntriesDialog.XamlRoot = XamlRoot;
+        var result = await deleteEntriesDialog.ShowAsync();
+        if (result == ContentDialogResult.Primary)
         {
-            if (item is QuestionEntry entry && currentTopic.Entries.Contains(entry))
-                toDelete.Add(entry);
+            List<QuestionEntry> toDelete = [];
+
+            foreach (var item in dataGrid.SelectedItems)
+            {
+                if (item is QuestionEntry entry && currentTopic.Entries.Contains(entry))
+                    toDelete.Add(entry);
+            }
+            dataGrid.SelectedItems.Clear();
+            toDelete.ForEach(x => currentTopic?.Entries?.Remove(x));
+            toDelete.Clear();
+            HasUnsavedChanges = true;
+            SetCountsText();
         }
-        dataGrid.SelectedItems.Clear();
-        toDelete.ForEach(x => currentTopic?.Entries?.Remove(x));
-        toDelete.Clear();
-        HasUnsavedChanges = true;
-        SetCountsText();
     }
 
-    private void FindQuestionButton_Click(object sender, RoutedEventArgs e)
+    private void FindButton_Click(object sender, RoutedEventArgs e)
     {
         if (findFlyout == null)
         {
@@ -234,6 +248,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
             [
                 nameof(QuestionEntry.Title),
                 nameof(QuestionEntry.Descriptions),
+                nameof(QuestionEntry.YearsAsked),
                 nameof(QuestionEntry.ProbableCases)
             ];
 
@@ -257,7 +272,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         };
         findFlyout.ShowAt(showOptions: flyoutShowOptions);
 #else
-        findFlyout.ShowAt(findQuestionButton, new() { Placement = FlyoutPlacementMode.Bottom });
+        findFlyout.ShowAt(findButton, new() { Placement = FlyoutPlacementMode.Bottom });
 #endif
     }
 
@@ -278,7 +293,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         if (currentTopic != null)
         {
             var entries = new ObservableCollection<QuestionEntry>(from question in currentTopic?.Entries?.ToList()
-                                                                  where QuestionEntryPropertyMatchValue(question, e)
+                                                                  where (QuestionEntryPropertyMatchValue(question, e) ?? false)
                                                                   select question);
             dataGrid.ItemsSource = entries;
             findTextBlock.Text = $"Find results for '{e.QueryText}' in {e.Context}. Matching entries: {entries.Count}";
@@ -292,27 +307,23 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
     }
 
     // TODO: Implement Match Whole Word
-    private bool QuestionEntryPropertyMatchValue(QuestionEntry question, FindFlyoutQuerySubmittedEventArgs e)
+    private bool? QuestionEntryPropertyMatchValue(QuestionEntry question, FindFlyoutQuerySubmittedEventArgs e)
     {
-        switch (e.Context)
+        return e.Context switch
         {
-            case nameof(QuestionEntry.Title):
-                {
-                    return question.Title.Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
-                };
-            case nameof(QuestionEntry.Descriptions):
-                {
-                    string descriptions = ListToStringConversion.ConvertToString<string>(question.Descriptions, x => x);
-                    return descriptions.Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
-                };
-            case nameof(QuestionEntry.ProbableCases):
-                {
-                    string probableCases = ListToStringConversion.ConvertToString<string>(question.ProbableCases, x => x);
-                    return probableCases.Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
-                };
-
-            default: return false;
-        }
+            nameof(QuestionEntry.Title) =>
+                question?.Title?.Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase),
+            nameof(QuestionEntry.Descriptions) =>
+                ListToStringConversion.ConvertToString<string>(question?.Descriptions, x => x)?
+                    .Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase),
+            nameof(QuestionEntry.YearsAsked) =>
+                ListToStringConversion.ConvertToString<DateOnly>(question?.YearsAsked, ListToStringConversion.ElementToStringForDateOnly)?
+                    .Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase),
+            nameof(QuestionEntry.ProbableCases) =>
+                ListToStringConversion.ConvertToString<string>(question?.ProbableCases, x => x)?
+                    .Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase),
+            _ => false,
+        };
     }
 
     private void SortButton_Click(object sender, RoutedEventArgs e)
@@ -350,12 +361,13 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
 
     private void MoveEntry(int oldIndex, int newIndex)
     {
+        if (oldIndex == newIndex) return;
         currentTopic?.Entries?.Move(oldIndex, newIndex);
         dataGrid.SelectedItems.Clear();
         dataGrid.SelectedItem = null;
         dataGrid.SelectedIndex = newIndex;
-        moveQuestionUpButton.IsEnabled = moveQuestionToTopButton.IsEnabled = CanMoveUp();
-        moveQuestionDownButton.IsEnabled = moveQuestionToBottomButton.IsEnabled = CanMoveDown();
+        moveUpButton.IsEnabled = moveToTopButton.IsEnabled = CanMoveUp();
+        moveDownButton.IsEnabled = moveToBottomButton.IsEnabled = CanMoveDown();
         HasUnsavedChanges = true;
         dataGrid.ScrollIntoView(dataGrid.SelectedItem, null);
     }
@@ -381,22 +393,22 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         }
     }
 
-    private void MoveQuestionUpButton_Click(object sender, RoutedEventArgs e)
+    private void MoveUpButton_Click(object sender, RoutedEventArgs e)
     {
         MoveEntryUp(false);
     }
 
-    private void MoveQuestionToTopButton_Click(object sender, RoutedEventArgs e)
+    private void MoveToTopButton_Click(object sender, RoutedEventArgs e)
     {
         MoveEntryUp(true);
     }
 
-    private void MoveQuestionDownButton_Click(object sender, RoutedEventArgs e)
+    private void MoveDownButton_Click(object sender, RoutedEventArgs e)
     {
         MoveEntryDown(false);
     }
 
-    private void MoveQuestionToBottomButton_Click(object sender, RoutedEventArgs e)
+    private void MoveToBottomButton_Click(object sender, RoutedEventArgs e)
     {
         MoveEntryDown(true);
     }
@@ -404,5 +416,34 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
     private void DataGrid_LoadingRow(object sender, CommunityToolkit.WinUI.UI.Controls.DataGridRowEventArgs e)
     {
         e.Row.Header = e.Row.GetIndex() + 1;
+    }
+
+    private void ReorderButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (dataGrid.SelectedItems.Count == 0) return;
+        if (dataGrid.SelectedItems[0] is QuestionEntry currentEntry
+            && currentEntry.YearsAsked?.Count > 0)
+        {
+            var entries = currentTopic?.Entries;
+            if (entries != null)
+            {
+                // Finds the first entry which has a year greater than or equal to the selected one
+                QuestionEntry? neighbor = null;
+                foreach (var entry in entries)
+                {
+                    if (entry == currentEntry) continue;
+                    if (entry.YearsAsked?.Count > 0
+                        && entry.YearsAsked[0] >= currentEntry.YearsAsked[0])
+                        neighbor = entry;
+                    else break;
+                }
+
+                int oldIndex = entries.IndexOf(currentEntry);
+                int newIndex = neighbor != null ? Math.Min(entries.IndexOf(neighbor) + 1, entries.Count - 1) : 0; // Puts it next to it
+                // If we move from up to down, the index will be +1 due to the current entry being included in the neighbor's index
+                int dI = oldIndex < newIndex ? -1 : 0;
+                MoveEntry(oldIndex, newIndex + dI);
+            }
+        }
     }
 }

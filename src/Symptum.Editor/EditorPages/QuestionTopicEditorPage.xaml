@@ -9,7 +9,6 @@
     xmlns:primitives="using:CommunityToolkit.WinUI.UI.Controls.Primitives"
     xmlns:converters="using:Symptum.Editor.Converters"
     mc:Ignorable="d">
-
   <Grid x:Name="contentGrid">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
@@ -31,53 +30,53 @@
         </Setter>
       </Style>
     </Grid.Resources>
-    <CommandBar x:Name="cmdbar" Background="Transparent" IsOpen="False" DefaultLabelPosition="Collapsed">
-      <AppBarButton x:Name="addQuestionButton" IsEnabled="False" Icon="Add" Label="Add" Click="AddQuestionButton_Click">
+    <CommandBar x:Name="cmdbar" IsOpen="False" DefaultLabelPosition="Collapsed">
+      <AppBarButton x:Name="addButton" IsEnabled="False" Icon="Add" Label="Add" Click="AddButton_Click">
         <AppBarButton.KeyboardAccelerators>
           <KeyboardAccelerator Modifiers="Control,Shift" Key="N" />
         </AppBarButton.KeyboardAccelerators>
       </AppBarButton>
-      <AppBarButton x:Name="editQuestionButton" IsEnabled="False" Icon="Edit" Label="Edit" Click="EditQuestionButton_Click">
+      <AppBarButton x:Name="editButton" IsEnabled="False" Icon="Edit" Label="Edit" Click="EditButton_Click">
         <AppBarButton.KeyboardAccelerators>
           <KeyboardAccelerator Modifiers="Control" Key="E" />
         </AppBarButton.KeyboardAccelerators>
       </AppBarButton>
-      <AppBarButton x:Name="saveTopicButton" Icon="Save" IsEnabled="False" Label="Save" Click="SaveTopicButton_Click">
+      <AppBarButton x:Name="saveButton" Icon="Save" IsEnabled="False" Label="Save" Click="SaveButton_Click">
         <AppBarButton.KeyboardAccelerators>
           <KeyboardAccelerator Modifiers="Control" Key="S" />
         </AppBarButton.KeyboardAccelerators>
       </AppBarButton>
-      <AppBarButton x:Name="findQuestionButton" IsEnabled="False" Icon="Find" Label="Find" Click="FindQuestionButton_Click">
+      <AppBarButton x:Name="findButton" IsEnabled="False" Icon="Find" Label="Find" Click="FindButton_Click">
         <AppBarButton.KeyboardAccelerators>
           <KeyboardAccelerator Modifiers="Control" Key="F" />
         </AppBarButton.KeyboardAccelerators>
       </AppBarButton>
-      <AppBarButton x:Name="duplicateQuestionButton" IsEnabled="False" Icon="Copy" Label="Duplicate" Click="DuplicateQuestionButton_Click">
+      <AppBarButton x:Name="duplicateButton" IsEnabled="False" Icon="Copy" Label="Duplicate" Click="DuplicateButton_Click">
         <AppBarButton.KeyboardAccelerators>
           <KeyboardAccelerator Modifiers="Control" Key="D" />
         </AppBarButton.KeyboardAccelerators>
       </AppBarButton>
-      <AppBarButton x:Name="deleteQuestionsButton" IsEnabled="False" Icon="Delete" Label="Delete" Click="DeleteQuestionsButton_Click">
+      <AppBarButton x:Name="deleteButton" IsEnabled="False" Icon="Delete" Label="Delete" Click="DeleteButton_Click">
         <AppBarButton.KeyboardAccelerators>
           <KeyboardAccelerator Modifiers="None" Key="Delete" />
         </AppBarButton.KeyboardAccelerators>
       </AppBarButton>
-      <AppBarButton x:Name="moveQuestionToTopButton" IsEnabled="False" Label="Move To Top" Click="MoveQuestionToTopButton_Click">
+      <AppBarButton x:Name="moveToTopButton" IsEnabled="False" Label="Move To Top" Click="MoveToTopButton_Click">
         <AppBarButton.Icon>
           <FontIcon Glyph="&#xE74A;" />
         </AppBarButton.Icon>
       </AppBarButton>
-      <AppBarButton x:Name="moveQuestionToBottomButton" IsEnabled="False" Label="Move To Bottom" Click="MoveQuestionToBottomButton_Click">
+      <AppBarButton x:Name="moveToBottomButton" IsEnabled="False" Label="Move To Bottom" Click="MoveToBottomButton_Click">
         <AppBarButton.Icon>
           <FontIcon Glyph="&#xE74B;" />
         </AppBarButton.Icon>
       </AppBarButton>
-      <AppBarButton x:Name="moveQuestionUpButton" IsEnabled="False" Label="Move Up" Click="MoveQuestionUpButton_Click">
+      <AppBarButton x:Name="moveUpButton" IsEnabled="False" Label="Move Up" Click="MoveUpButton_Click">
         <AppBarButton.Icon>
           <FontIcon Glyph="&#xE70E;" />
         </AppBarButton.Icon>
       </AppBarButton>
-      <AppBarButton x:Name="moveQuestionDownButton" IsEnabled="False" Label="Move Down" Click="MoveQuestionDownButton_Click">
+      <AppBarButton x:Name="moveDownButton" IsEnabled="False" Label="Move Down" Click="MoveDownButton_Click">
         <AppBarButton.Icon>
           <FontIcon Glyph="&#xE70D;" />
         </AppBarButton.Icon>
@@ -85,16 +84,21 @@
       <CommandBar.SecondaryCommands>
         <!--<AppBarButton x:Name="sortButton" Icon="Sort" Label="Sort" Click="SortButton_Click" />-->
         <AppBarButton x:Name="sortYearsButton" Icon="Sort" Label="Sort Years" Click="SortYearsButton_Click" />
+        <AppBarButton x:Name="reorderButton" Label="Reorder" Click="ReorderButton_Click">
+          <AppBarButton.KeyboardAccelerators>
+            <KeyboardAccelerator Modifiers="Control" Key="R" />
+          </AppBarButton.KeyboardAccelerators>
+        </AppBarButton>
       </CommandBar.SecondaryCommands>
     </CommandBar>
     <controls:DataGrid Grid.Row="1" x:Name="dataGrid" IsEnabled="False" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-             HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" AlternatingRowBackground="Transparent"
-             AreRowDetailsFrozen="False" AreRowGroupHeadersFrozen="True" AutoGenerateColumns="False"
-             CanUserSortColumns="False" CanUserReorderColumns="True" CanUserResizeColumns="True"
-             ColumnHeaderHeight="32" FrozenColumnCount="0" GridLinesVisibility="All"
-             HeadersVisibility="All" IsReadOnly="True" RowDetailsVisibilityMode="Collapsed"
-             SelectionMode="Extended" DoubleTapped="DataGrid_DoubleTapped" SelectionChanged="DataGrid_SelectionChanged"
-             RowHeaderStyle="{StaticResource DataGridRowHeaderStyle}" LoadingRow="DataGrid_LoadingRow">
+                       HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" AlternatingRowBackground="Transparent"
+                       AreRowDetailsFrozen="False" AreRowGroupHeadersFrozen="True" AutoGenerateColumns="False"
+                       CanUserSortColumns="False" CanUserReorderColumns="True" CanUserResizeColumns="True"
+                       ColumnHeaderHeight="32" FrozenColumnCount="0" GridLinesVisibility="All"
+                       HeadersVisibility="All" IsReadOnly="True" RowDetailsVisibilityMode="Collapsed"
+                       SelectionMode="Extended" DoubleTapped="DataGrid_DoubleTapped" SelectionChanged="DataGrid_SelectionChanged"
+                       RowHeaderStyle="{StaticResource DataGridRowHeaderStyle}" LoadingRow="DataGrid_LoadingRow">
       <controls:DataGrid.Columns>
         <controls:DataGridTextColumn Header="Id" Binding="{Binding Id.IdString}" Tag="IdString" />
         <controls:DataGridTextColumn Header="Question Type" Binding="{Binding Id.QuestionType}" Tag="QuestionType" />

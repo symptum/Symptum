@@ -33,7 +33,15 @@
         DisplayName="Symptum"
         Description="Symptum">
         <uap:SplashScreen />
+        <uap:DefaultTile/>
       </uap:VisualElements>
+      <Extensions>
+        <uap:Extension Category="windows.protocol">
+          <uap:Protocol Name="symptum">
+            <uap:DisplayName>Symptum</uap:DisplayName>
+          </uap:Protocol>
+        </uap:Extension>
+      </Extensions>
     </Application>
   </Applications>
 

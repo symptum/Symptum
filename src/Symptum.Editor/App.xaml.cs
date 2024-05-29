@@ -4,6 +4,7 @@ using Symptum.Core.Subjects;
 using Symptum.Core.Subjects.Books;
 using Symptum.Core.Subjects.QuestionBanks;
 using Uno.Resizetizer;
+using Windows.System;
 
 #if __WASM__
 using Symptum.Common.Helpers;

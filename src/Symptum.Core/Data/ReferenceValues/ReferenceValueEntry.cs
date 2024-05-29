@@ -1,17 +1,13 @@
 using System.Text;
-using System.Web;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Symptum.Core.Helpers;
+using Symptum.Core.TypeConversion;
 
 namespace Symptum.Core.Data.ReferenceValues;
 
 public class ReferenceValueEntry : ObservableObject
 {
-    private static readonly string _entryTitleId = "n";
-    private static readonly string _entryInfId = "inf";
-    private static readonly string _entryRemId = "rem";
-    private static readonly string _entryDataId = "data";
-
     #region Properties
 
     private string _title = string.Empty;
@@ -58,88 +54,31 @@ public class ReferenceValueEntry : ObservableObject
         entry = null;
         if (!string.IsNullOrEmpty(text))
         {
-            entry = new ReferenceValueEntry();
-
-            (string title, List<ReferenceValueData> data, string inference, string remarks) = ParseEntryString(text);
-            entry.Title = title;
-            entry.Data = data;
-            entry.Inference = inference;
-            entry.Remarks = remarks;
+            entry = JsonSerializer.Deserialize<ReferenceValueEntry>(text, options);
             parsed = true;
         }
 
         return parsed;
     }
 
-    private static (string title, List<ReferenceValueData> data, string inference, string remarks) ParseEntryString(string entryString)
-    {
-        string title = string.Empty;
-        string inference = string.Empty;
-        string remarks = string.Empty;
-        List<ReferenceValueData> data = [];
-        var col = HttpUtility.ParseQueryString(entryString);
-        if (col != null && col.Count > 0)
-        {
-            title = col[_entryTitleId];
-            inference = col[_entryInfId];
-            remarks = col[_entryRemId];
-
-            var dataString = col[_entryDataId];
-            if (!string.IsNullOrEmpty(dataString))
-            {
-                var data1 = dataString.Split(ParserHelper.ReferenceValueDataDelimiter);
-                if (data1.Length > 0)
-                {
-                    for (int i = 0; i < data1.Length; i++)
-                    {
-                        data.Add(new(data1[i]));
-                    }
-                }
-            }
-        }
-
-        return (title, data, inference, remarks);
-    }
-
     public override string ToString()
     {
-        var col = HttpUtility.ParseQueryString(string.Empty);
-        col?.Add(_entryTitleId, _title);
-        string dataString = string.Empty;
-        if (_data != null)
-        {
-            for (int i = 0; i < _data.Count; i++)
-            {
-                dataString += _data[i].ToString();
-                if (i < _data.Count - 1) dataString += ParserHelper.ReferenceValueDataDelimiter;
-            }
-        }
-        col?.Add(_entryDataId, dataString);
-        col?.Add(_entryInfId, _inference);
-        col?.Add(_entryRemId, _remarks);
-        return col?.ToString() ?? string.Empty;
+        return JsonSerializer.Serialize(this, options);
     }
+
+    private static JsonSerializerOptions options = new() { WriteIndented = false,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault | JsonIgnoreCondition.WhenWritingNull };
 
     public string GetPreviewText()
     {
         StringBuilder sb = new();
         sb.Append(_title);
         sb.Append(": ");
-        if (_data != null)
-        {
-            foreach (var data in _data)
-            {
-                sb.Append(data.Values);
-                sb.Append(' ');
-                sb.Append(data.Unit);
-                sb.Append(", ");
-            }
-        }
-        sb.Append("Inference: ");
+        sb.Append(ListToStringConversion.ConvertToString<ReferenceValueData>(_data, x => x.ToString(), ", "));
+        sb.Append(" Inference: ");
         sb.Append(_inference);
         sb.Append(" Remarks: ");
         sb.Append(_remarks);
-        sb.AppendLine();
         return sb.ToString();
     }
 }

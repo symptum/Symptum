@@ -84,6 +84,8 @@ public abstract class FileResource : NavigableResource, IContent
     // Since the instances of FileResource are always the end resources (i.e. no children),
     // they shouldn't have any implementations for ChildResources
 
+    public override bool CanHandleChildren => false;
+
     public override bool CanHandleChildResourceType(Type childResourceType)
     {
         return false;

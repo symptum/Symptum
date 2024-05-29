@@ -4,28 +4,43 @@ public sealed partial class ListEditorControl : UserControl
 {
     #region Properties
 
-    private object itemsSource;
+    public static readonly DependencyProperty HeaderProperty =
+        DependencyProperty.Register(
+            nameof(Header),
+            typeof(string),
+            typeof(ListEditorItemCommandsButton),
+            new(string.Empty));
+
+    public string Header
+    {
+        get => (string)GetValue(HeaderProperty);
+        set => SetValue(HeaderProperty, value);
+    }
+
+    public static readonly DependencyProperty ItemsSourceProperty =
+    DependencyProperty.Register(
+        nameof(ItemsSource),
+        typeof(object),
+        typeof(ListEditorItemCommandsButton),
+        new(null));
 
     public object ItemsSource
     {
-        get => itemsSource;
-        set
-        {
-            itemsSource = value;
-            itemsRepeater.ItemsSource = value;
-        }
+        get => GetValue(ItemsSourceProperty);
+        set => SetValue(ItemsSourceProperty, value);
     }
 
-    private DataTemplate itemTemplate;
+    public static readonly DependencyProperty ItemTemplateProperty =
+        DependencyProperty.Register(
+            nameof(ItemTemplate),
+            typeof(DataTemplate),
+            typeof(ListEditorItemCommandsButton),
+            new(null));
 
     public DataTemplate ItemTemplate
     {
-        get => itemTemplate;
-        set
-        {
-            itemTemplate = value;
-            itemsRepeater.ItemTemplate = value;
-        }
+        get => (DataTemplate)GetValue(ItemTemplateProperty);
+        set => SetValue(ItemTemplateProperty, value);
     }
 
     public ICommand AddItemCommand { get; }
@@ -45,8 +60,6 @@ public sealed partial class ListEditorControl : UserControl
     public ListEditorControl()
     {
         InitializeComponent();
-        itemsRepeater.ItemsSource = itemsSource;
-        itemsRepeater.ItemTemplate = itemTemplate;
         AddItemCommand = new RelayCommand(OnAddItem);
         ClearItemsCommand = new RelayCommand(OnClearItems);
         RemoveItemCommand = new RelayCommand<object>(OnRemoveItem);
@@ -96,17 +109,4 @@ public sealed partial class ListEditorControl : UserControl
     public event EventHandler<object?> MoveItemUpRequested;
 
     public event EventHandler<object?> MoveItemDownRequested;
-}
-
-public class ListEditorItemWrapper<T>
-{
-    public T Value { get; set; }
-
-    public ListEditorItemWrapper()
-    { }
-
-    public ListEditorItemWrapper(T value)
-    {
-        Value = value;
-    }
 }

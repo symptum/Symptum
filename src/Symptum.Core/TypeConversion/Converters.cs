@@ -80,7 +80,7 @@ public class ListToStringConversion
         return list;
     }
 
-    public static string? ConvertToString<T>(object? value, Func<T, string> elementToString)
+    public static string? ConvertToString<T>(object? value, Func<T, string> elementToString, string? separator = null)
     {
         var stringBuilder = new StringBuilder();
 
@@ -90,11 +90,16 @@ public class ListToStringConversion
             {
                 var data = values[i];
                 stringBuilder.Append(elementToString(data));
-                if (i < values.Count - 1) stringBuilder.Append(ParserHelper.ListDelimiter);
+                if (i < values.Count - 1) stringBuilder.Append(separator);
             }
         }
 
         return stringBuilder.ToString();
+    }
+
+    public static string? ConvertToString<T>(object? value, Func<T, string> elementToString)
+    {
+        return ConvertToString(value, elementToString, ParserHelper.ListDelimiter);
     }
 
     public static void ValidateDataForDate(string text, List<DateOnly> list)

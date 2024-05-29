@@ -1,8 +1,7 @@
-<Application x:Class="Symptum.Editor.App"
+﻿<Application x:Class="Symptum.Editor.App"
        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
        xmlns:wasm="http://platform.uno/wasm"
-       xmlns:utum="using:Uno.Toolkit.UI.Material"
        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
        mc:Ignorable="wasm">
 

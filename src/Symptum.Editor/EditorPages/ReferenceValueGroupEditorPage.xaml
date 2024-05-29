@@ -6,9 +6,9 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:primitives="using:CommunityToolkit.WinUI.UI.Controls.Primitives"
     xmlns:converters="using:Symptum.Editor.Converters"
     mc:Ignorable="d">
-
   <Grid x:Name="contentGrid">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
@@ -17,8 +17,27 @@
     </Grid.RowDefinitions>
     <Grid.Resources>
       <converters:ReferenceValueEntryListToStringConverter x:Key="ReferenceValueEntryListToStringConverter" />
+      <Style x:Key="DataGridRowHeaderStyle" TargetType="primitives:DataGridRowHeader">
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="primitives:DataGridRowHeader" >
+              <ContentPresenter Padding="10" />
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
     </Grid.Resources>
-    <CommandBar x:Name="cmdbar" Background="Transparent" IsOpen="False" DefaultLabelPosition="Collapsed">
+    <CommandBar x:Name="cmdbar" IsOpen="False" DefaultLabelPosition="Collapsed">
+      <AppBarButton x:Name="addButton" IsEnabled="False" Icon="Add" Label="Add" Click="AddButton_Click">
+        <AppBarButton.KeyboardAccelerators>
+          <KeyboardAccelerator Modifiers="Control,Shift" Key="N" />
+        </AppBarButton.KeyboardAccelerators>
+      </AppBarButton>
+      <AppBarButton x:Name="editButton" IsEnabled="False" Icon="Edit" Label="Edit" Click="EditButton_Click">
+        <AppBarButton.KeyboardAccelerators>
+          <KeyboardAccelerator Modifiers="Control" Key="E" />
+        </AppBarButton.KeyboardAccelerators>
+      </AppBarButton>
       <AppBarButton x:Name="saveButton" Icon="Save" IsEnabled="False" Label="Save" Click="SaveButton_Click">
         <AppBarButton.KeyboardAccelerators>
           <KeyboardAccelerator Modifiers="Control" Key="S" />
@@ -28,26 +47,6 @@
         <AppBarButton.KeyboardAccelerators>
           <KeyboardAccelerator Modifiers="Control" Key="F" />
         </AppBarButton.KeyboardAccelerators>
-      </AppBarButton>
-      <AppBarButton x:Name="addButton" IsEnabled="False" Icon="Add" Label="Add" Click="AddButton_Click">
-        <AppBarButton.KeyboardAccelerators>
-          <KeyboardAccelerator Modifiers="Control,Shift" Key="N" />
-        </AppBarButton.KeyboardAccelerators>
-      </AppBarButton>
-      <AppBarButton x:Name="editButton" IsEnabled="False" Icon="Edit" Label="Edit">
-        <AppBarButton.KeyboardAccelerators>
-          <KeyboardAccelerator Modifiers="Control" Key="E" />
-        </AppBarButton.KeyboardAccelerators>
-      </AppBarButton>
-      <AppBarButton x:Name="moveUpButton" IsEnabled="False" Label="Move Up" Click="MoveUpButton_Click">
-        <AppBarButton.Icon>
-          <FontIcon Glyph="&#xE70E;" />
-        </AppBarButton.Icon>
-      </AppBarButton>
-      <AppBarButton x:Name="moveDownButton" IsEnabled="False" Label="Move Down" Click="MoveDownButton_Click">
-        <AppBarButton.Icon>
-          <FontIcon Glyph="&#xE70D;" />
-        </AppBarButton.Icon>
       </AppBarButton>
       <AppBarButton x:Name="duplicateButton" IsEnabled="False" Icon="Copy" Label="Duplicate" Click="DuplicateButton_Click">
         <AppBarButton.KeyboardAccelerators>
@@ -59,34 +58,38 @@
           <KeyboardAccelerator Modifiers="None" Key="Delete" />
         </AppBarButton.KeyboardAccelerators>
       </AppBarButton>
+      <AppBarButton x:Name="moveToTopButton" IsEnabled="False" Label="Move To Top" Click="MoveToTopButton_Click">
+        <AppBarButton.Icon>
+          <FontIcon Glyph="&#xE74A;" />
+        </AppBarButton.Icon>
+      </AppBarButton>
+      <AppBarButton x:Name="moveToBottomButton" IsEnabled="False" Label="Move To Bottom" Click="MoveToBottomButton_Click">
+        <AppBarButton.Icon>
+          <FontIcon Glyph="&#xE74B;" />
+        </AppBarButton.Icon>
+      </AppBarButton>
+      <AppBarButton x:Name="moveUpButton" IsEnabled="False" Label="Move Up" Click="MoveUpButton_Click">
+        <AppBarButton.Icon>
+          <FontIcon Glyph="&#xE70E;" />
+        </AppBarButton.Icon>
+      </AppBarButton>
+      <AppBarButton x:Name="moveDownButton" IsEnabled="False" Label="Move Down" Click="MoveDownButton_Click">
+        <AppBarButton.Icon>
+          <FontIcon Glyph="&#xE70D;" />
+        </AppBarButton.Icon>
+      </AppBarButton>
     </CommandBar>
     <controls:DataGrid Grid.Row="1" x:Name="dataGrid" IsEnabled="False" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-             HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" AlternatingRowBackground="Transparent"
-             AreRowDetailsFrozen="False" AreRowGroupHeadersFrozen="True" AutoGenerateColumns="False"
-             CanUserSortColumns="False" CanUserReorderColumns="True" CanUserResizeColumns="True"
-             ColumnHeaderHeight="32" FrozenColumnCount="0" GridLinesVisibility="All"
-             HeadersVisibility="Column" IsReadOnly="True" RowDetailsVisibilityMode="Collapsed"
-             SelectionMode="Extended" DoubleTapped="DataGrid_DoubleTapped" SelectionChanged="DataGrid_SelectionChanged">
+                       HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible" AlternatingRowBackground="Transparent"
+                       AreRowDetailsFrozen="False" AreRowGroupHeadersFrozen="True" AutoGenerateColumns="False"
+                       CanUserSortColumns="False" CanUserReorderColumns="True" CanUserResizeColumns="True"
+                       ColumnHeaderHeight="32" FrozenColumnCount="0" GridLinesVisibility="All"
+                       HeadersVisibility="All" IsReadOnly="True" RowDetailsVisibilityMode="Collapsed"
+                       SelectionMode="Extended" DoubleTapped="DataGrid_DoubleTapped" SelectionChanged="DataGrid_SelectionChanged"
+                       RowHeaderStyle="{StaticResource DataGridRowHeaderStyle}" LoadingRow="DataGrid_LoadingRow">
       <controls:DataGrid.Columns>
-        <!--<controls:DataGridTextColumn Header="Id" Binding="{Binding Id.IdString}" Tag="IdString" />
-        <controls:DataGridTextColumn Header="Question Type" Binding="{Binding Id.QuestionType}" Tag="QuestionType" />
-        <controls:DataGridTextColumn Header="Subject Code" Binding="{Binding Id.SubjectCode}" Tag="SubjectCode" />
-        <controls:DataGridTextColumn Header="Competency Numbers" Binding="{Binding Id.CompetencyNumbers}" Tag="CompetencyNumbers" />-->
         <controls:DataGridTextColumn Header="Title" Binding="{Binding Title}" Tag="Title" />
         <controls:DataGridTextColumn Header="Entries" Binding="{Binding Entries, Converter={StaticResource ReferenceValueEntryListToStringConverter}}" Tag="Entries" />
-        <!--<controls:DataGridTextColumn Header="Descriptions" Binding="{Binding Descriptions, Converter={StaticResource StringListToStringConverter}}" Tag="Descriptions" />
-        <controls:DataGridCheckBoxColumn Header="Has Previously Been Asked" Binding="{Binding HasPreviouslyBeenAsked}" Tag="HasPreviouslyBeenAsked" />
-        <controls:DataGridTemplateColumn Header="Importance" Tag="Importance">
-          <controls:DataGridTemplateColumn.CellTemplate>
-            <DataTemplate>
-              <InfoBadge HorizontalAlignment="Center" Value="{Binding Importance}" />
-            </DataTemplate>
-          </controls:DataGridTemplateColumn.CellTemplate>
-        </controls:DataGridTemplateColumn>
-        <controls:DataGridTextColumn Header="Years Asked" Binding="{Binding YearsAsked, Converter={StaticResource DateOnlyListToStringConverter}}" Tag="YearsAsked" />
-        <controls:DataGridTextColumn Header="Probable Cases" Binding="{Binding ProbableCases, Converter={StaticResource StringListToStringConverter}}" Tag="ProbableCases" />
-        <controls:DataGridTextColumn Header="Book References" Binding="{Binding BookReferences, Converter={StaticResource BookReferenceListToStringConverter}}" Tag="BookReferences" />
-        <controls:DataGridTextColumn Header="Link References" Binding="{Binding LinkReferences, Converter={StaticResource UriListToStringConverter}}" Tag="LinkReferences" />-->
       </controls:DataGrid.Columns>
     </controls:DataGrid>
     <StackPanel x:Name="statusBar" Grid.Row="2" Orientation="Horizontal" Spacing="10" Margin="10">

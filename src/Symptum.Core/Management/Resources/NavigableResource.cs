@@ -73,6 +73,8 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
         set => SetProperty(ref dependencyIds, value);
     }
 
+    public virtual bool CanHandleChildren { get; } = true;
+
     #endregion
 
     private bool hasInitialized = false;
@@ -89,7 +91,7 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
     void IResource.InitializeResource(IResource? parent)
     {
         ParentResource = parent;
-        SetProperty(ref childrenResources, [], nameof(ChildrenResources));
+        SetProperty(ref childrenResources, CanHandleChildren ? [] : null, nameof(ChildrenResources));
         OnInitializeResource(parent);
 
         // Temporary

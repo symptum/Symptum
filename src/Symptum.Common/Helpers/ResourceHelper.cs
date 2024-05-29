@@ -16,6 +16,11 @@ public class ResourceHelper
     public static StorageFolder? WorkFolder
     {
         get => workFolder;
+        private set
+        {
+            workFolder = value;
+            WorkFolderChanged?.Invoke(null, workFolder);
+        }
     }
 
     private static bool _folderPicked = false;
@@ -31,11 +36,11 @@ public class ResourceHelper
         _hWnd = hWnd;
     }
 
-    #region Work Path Handling
+    #region Work Folder Handling
 
-    public static async Task<bool> OpenWorkPathAsync(StorageFolder? folder = null)
+    public static async Task<bool> OpenWorkFolderAsync(StorageFolder? folder = null)
     {
-        bool result = await SelectWorkPathAsync(folder);
+        bool result = await SelectWorkFolderAsync(folder);
         if (result && _folderPicked)
         {
             ResourceManager.Resources.Clear();
@@ -46,23 +51,23 @@ public class ResourceHelper
         return false;
     }
 
-    public static void CloseWorkPath()
+    public static void CloseWorkFolder()
     {
-        workFolder = null;
+        WorkFolder = null;
         _folderPicked = false;
         ResourceManager.Resources.Clear();
     }
 
-    private static async Task<bool> VerifyWorkPathAsync()
+    private static async Task<bool> VerifyWorkFolderAsync()
     {
         bool pathExists = true;
         if (workFolder == null)
-            pathExists = await SelectWorkPathAsync();
+            pathExists = await SelectWorkFolderAsync();
 
         return pathExists;
     }
 
-    private static async Task<bool> SelectWorkPathAsync(StorageFolder? folder = null)
+    private static async Task<bool> SelectWorkFolderAsync(StorageFolder? folder = null)
     {
         if (folder == null)
         {
@@ -87,7 +92,7 @@ public class ResourceHelper
 
         if (folder != null && workFolder != folder && workFolder?.Path != folder.Path)
         {
-            workFolder = folder;
+            WorkFolder = folder;
             return true;
         }
 
@@ -193,7 +198,7 @@ public class ResourceHelper
 
     public static async Task<bool> SaveAllResourcesAsync()
     {
-        if (ResourceManager.Resources.Count > 0 && await VerifyWorkPathAsync())
+        if (ResourceManager.Resources.Count > 0 && await VerifyWorkFolderAsync())
         {
             bool allSaved = true;
             foreach (var resource in ResourceManager.Resources)
@@ -209,7 +214,7 @@ public class ResourceHelper
     public static async Task<bool> SaveResourceAsync(IResource resource)
     {
         if (resource == null) return false;
-        bool pathExists = await VerifyWorkPathAsync();
+        bool pathExists = await VerifyWorkFolderAsync();
         if (!pathExists) return false;
 
         if (resource is CsvFileResource csvResource)
@@ -230,7 +235,7 @@ public class ResourceHelper
     public static async Task<bool> SaveCSVFileAsync(CsvFileResource csvResource)
     {
         if (csvResource == null) return false;
-        bool pathExists = await VerifyWorkPathAsync();
+        bool pathExists = await VerifyWorkFolderAsync();
         if (!pathExists) return false;
 
         csvResource.Path = GetPath(csvResource.ParentResource);
@@ -248,7 +253,7 @@ public class ResourceHelper
     public static async Task<bool> SavePackageAsync(PackageResource package)
     {
         if (package == null) return false;
-        bool pathExists = await VerifyWorkPathAsync();
+        bool pathExists = await VerifyWorkFolderAsync();
         if (!pathExists) return false;
 
         StorageFile saveFile = await PickSaveFileAsync(package.Title, ".json", "JSON File");
@@ -450,6 +455,8 @@ public class ResourceHelper
     }
 
     #endregion
+
+    public static event EventHandler<StorageFolder?> WorkFolderChanged;
 
     private const char PathSeparator = '\\';
 }

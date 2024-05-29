@@ -2,7 +2,6 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:local="using:Symptum.Editor"
-      xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
       xmlns:qbank="using:Symptum.Core.Subjects.QuestionBanks"
       xmlns:secontrols="using:Symptum.Editor.Controls"
       xmlns:converters="using:Symptum.Editor.Converters"
@@ -20,7 +19,16 @@
     </Grid.RowDefinitions>
     <Grid.Resources>
       <DataTemplate x:Key="DefaultDataTemplate" x:DataType="res:NavigableResource">
-        <TreeViewItem ItemsSource="{x:Bind ChildrenResources}" Content="{x:Bind Title}" />
+        <TreeViewItem ItemsSource="{x:Bind ChildrenResources}" Content="{Binding Title}">
+          <TreeViewItem.ContextFlyout>
+            <MenuFlyout>
+              <MenuFlyoutItem Icon="Document" Text="Add New Item" Click="AddNewFlyoutItem_Click"
+                              Visibility="{Binding CanHandleChildren, Converter={StaticResource BooleanToVisibilityConverter}}" />
+              <!--<MenuFlyoutItem Icon="Document" Text="Add Existing Item" />-->
+              <MenuFlyoutItem Icon="Delete" Text="Delete" Click="DeleteFlyoutItem_Click" />
+            </MenuFlyout>
+          </TreeViewItem.ContextFlyout>
+        </TreeViewItem>
       </DataTemplate>
       <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
       <templating:NavigableResourceTemplateSelector x:Key="NavigableResourceTemplateSelector"
@@ -115,12 +123,12 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
           </Grid.RowDefinitions>
-          <CommandBar x:Name="cmdbar" Background="Transparent" IsOpen="False" DefaultLabelPosition="Collapsed">
-            <AppBarButton x:Name="editResourceButton" IsEnabled="False" Icon="Edit" Label="Edit" Click="EditResourceButton_Click">
-              <AppBarButton.KeyboardAccelerators>
-                <KeyboardAccelerator Modifiers="Control,Menu" Key="E" />
-              </AppBarButton.KeyboardAccelerators>
-            </AppBarButton>
+          <CommandBar x:Name="cmdbar" IsOpen="False" DefaultLabelPosition="Collapsed">
+            <AppBarElementContainer VerticalAlignment="Center">
+              <Button x:Name="workFolderButton" Visibility="Collapsed" MaxWidth="100" Margin="5,0">
+                <TextBlock x:Name="workFolderText" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+              </Button>
+            </AppBarElementContainer>
             <AppBarToggleButton x:Name="multiSelectButton" Label="Multi Select" Click="MultiSelectButton_Click">
               <AppBarToggleButton.Icon>
                 <FontIcon Glyph="&#xE762;" />

@@ -3,7 +3,7 @@ using Symptum.Common.Helpers;
 using Symptum.Editor.Controls;
 using Symptum.Editor.EditorPages;
 using Windows.Storage.Pickers;
-using Symptum.Core.Subjects.QuestionBanks;
+using Windows.System;
 
 namespace Symptum.Editor;
 
@@ -14,11 +14,9 @@ public sealed partial class MainPage : Page
     private readonly AddNewItemDialog addNewItemDialog = new();
     private readonly QuestionBankContextConfigureDialog contextConfigureDialog = new();
 
-    private ContentDialog deleteResourceDialog = new()
+    private DeleteItemsDialog deleteResourceDialog = new()
     {
         Title = "Delete Resource(s)?",
-        PrimaryButtonText = "Delete",
-        CloseButtonText = "Cancel",
         Content = "Do you want to delete the resources(s)?\nOnce you delete you won't be able to restore."
     };
 
@@ -39,17 +37,30 @@ public sealed partial class MainPage : Page
         }
         Background = null;
         TitleTextBlock.Text = mainWindow?.Title;
+
+        workFolderButton.Click += async (s, e) =>
+        {
+            if (ResourceHelper.WorkFolder != null)
+                await Launcher.LaunchFolderAsync(ResourceHelper.WorkFolder);
+        };
 #endif
 
-        treeView.SelectionChanged += TreeView_SelectionChanged;
+        ResourceHelper.WorkFolderChanged += (s, e) =>
+        {
+            workFolderText.Text = e?.DisplayName;
+            ToolTipService.SetToolTip(workFolderButton, e?.Path);
+            workFolderButton.Visibility = e != null ? Visibility.Visible : Visibility.Collapsed;
+        };
 
-        //treeView.ItemInvoked += (s, e) =>
-        //{
-        //    if (e.InvokedItem is IResource resource)
-        //    {
-        //        editorsTabView.SelectedItem = EditorPagesManager.CreateOrOpenEditorPage(resource);
-        //    }
-        //};
+        treeView.SelectionChanged += (_, _) => UpdateDeleteButtonEnabled();
+
+        treeView.ItemInvoked += (s, e) =>
+        {
+            if (e.InvokedItem is IResource resource)
+            {
+                editorsTabView.SelectedItem = EditorPagesManager.CreateOrOpenEditorPage(resource);
+            }
+        };
 
         expandPaneButton.Click += (s, e) =>
         {
@@ -58,13 +69,6 @@ public sealed partial class MainPage : Page
 
         editorsTabView.TabItemsSource = EditorPagesManager.EditorPages;
         ResourceHelper.Initialize(XamlRoot, hWnd);
-    }
-
-    private void TreeView_SelectionChanged(TreeView sender, TreeViewSelectionChangedEventArgs args)
-    {
-        int count = args.AddedItems.Count;
-        editResourceButton.IsEnabled = count == 1;
-        deleteResourcesButton.IsEnabled = count > 0;
     }
 
     //    private async void Markdown_Click(object sender, RoutedEventArgs e)
@@ -177,10 +181,12 @@ public sealed partial class MainPage : Page
 
     private async void New_Click(object sender, RoutedEventArgs e)
     {
+        await AddNewItemAsync();
+    }
+
+    private async Task AddNewItemAsync(IResource? parent = null)
+    {
         addNewItemDialog.XamlRoot = mainWindow?.Content?.XamlRoot;
-        IResource? parent = null;
-        if (treeView.SelectedItems.Count > 0 && treeView.SelectedItems[0] is IResource resource)
-            parent = resource;
         var result = await addNewItemDialog.CreateAsync(parent);
         if (result == EditorResult.Create)
         {
@@ -224,7 +230,7 @@ public sealed partial class MainPage : Page
 
     private async void OpenFolder_Click(object sender, RoutedEventArgs e)
     {
-        bool result = await ResourceHelper.OpenWorkPathAsync();
+        bool result = await ResourceHelper.OpenWorkFolderAsync();
         if (result)
         {
             EditorPagesManager.ResetEditors();
@@ -251,7 +257,7 @@ public sealed partial class MainPage : Page
     private void CloseFolder_Click(object sender, RoutedEventArgs e)
     {
         EditorPagesManager.ResetEditors();
-        ResourceHelper.CloseWorkPath();
+        ResourceHelper.CloseWorkFolder();
     }
 
     private void Exit_Click(object sender, RoutedEventArgs e)
@@ -265,14 +271,6 @@ public sealed partial class MainPage : Page
         await contextConfigureDialog.ShowAsync();
     }
 
-    private void EditResourceButton_Click(object sender, RoutedEventArgs e)
-    {
-        if (treeView.SelectedItem is IResource resource)
-        {
-            editorsTabView.SelectedItem = EditorPagesManager.CreateOrOpenEditorPage(resource);
-        }
-    }
-
     private void MultiSelectButton_Click(object sender, RoutedEventArgs e)
     {
         treeView.SelectionMode = multiSelectButton.IsChecked switch
@@ -281,12 +279,18 @@ public sealed partial class MainPage : Page
             false => TreeViewSelectionMode.Single,
             _ => TreeViewSelectionMode.None
         };
+        UpdateDeleteButtonEnabled();
+    }
+
+    private void UpdateDeleteButtonEnabled()
+    {
+        int count = treeView.SelectedItems.Count;
+        deleteResourcesButton.IsEnabled = (multiSelectButton.IsChecked ?? false) && count > 0;
     }
 
     private async void DeleteResourcesButton_Click(object sender, RoutedEventArgs e)
     {
         IList<object> toDelete = treeView.SelectedItems.ToList();
-        treeView.SelectedItems.Clear();
         if (toDelete.Count > 0)
         {
             deleteResourceDialog.XamlRoot = mainWindow?.Content?.XamlRoot;
@@ -301,6 +305,30 @@ public sealed partial class MainPage : Page
                     }
                 }
             }
+        }
+        treeView.SelectedItems.Clear();
+    }
+
+    private async void DeleteFlyoutItem_Click(object sender, RoutedEventArgs e)
+    {
+        var context = (sender as MenuFlyoutItem)?.DataContext;
+        if (context is IResource resource)
+        {
+            deleteResourceDialog.XamlRoot = mainWindow?.Content?.XamlRoot;
+            var result = await deleteResourceDialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                await ResourceHelper.DeleteResourceAsync(resource);
+            }
+        }
+    }
+
+    private async void AddNewFlyoutItem_Click(object sender, RoutedEventArgs e)
+    {
+        var context = (sender as MenuFlyoutItem)?.DataContext;
+        if (context is IResource parent)
+        {
+            await AddNewItemAsync(parent);
         }
     }
 }

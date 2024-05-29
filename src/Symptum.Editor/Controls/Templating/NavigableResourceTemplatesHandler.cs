@@ -9,7 +9,7 @@ public class NavigableResourceTemplatesHandler
     public NavigableResourceTemplatesHandler()
     {
         Templates = [];
-        AddDefaultTemplates();
+        //AddDefaultTemplates();
     }
 
     public ObservableCollection<TypedDataTemplate> Templates { get; set; }

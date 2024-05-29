@@ -19,6 +19,8 @@ public interface IResource
 
     public IList<string>? DependencyIds { get; set; }
 
+    public bool CanHandleChildren { get; }
+
     public void InitializeResource(IResource? parent);
 
     public bool CanHandleChildResourceType(Type childResourceType);
