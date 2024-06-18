@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
+using Symptum.Core.Serialization;
 
 namespace Symptum.Core.Data.ReferenceValues;
 
@@ -18,6 +19,7 @@ public class ReferenceValuesPackage : PackageResource
 
     private ObservableCollection<ReferenceValueFamily>? families;
 
+    [ListOfMetadataResource]
     public ObservableCollection<ReferenceValueFamily>? Families
     {
         get => families;

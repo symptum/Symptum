@@ -101,7 +101,7 @@
           </MenuFlyoutItem.KeyboardAccelerators>
         </MenuFlyoutItem>
         <MenuFlyoutItem Text="Close Folder" Click="CloseFolder_Click" />
-        <!--<MenuFlyoutItem Text="Generate Markdown" Icon="Document" Click="Markdown_Click" />-->
+        <MenuFlyoutItem Text="Generate Markdown" Icon="Document" Click="Markdown_Click" />
         <win:MenuFlyoutItem Text="Exit" Click="Exit_Click" />
       </MenuBarItem>
       <MenuBarItem Title="Edit">

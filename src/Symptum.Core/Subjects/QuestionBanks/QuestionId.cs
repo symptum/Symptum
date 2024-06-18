@@ -43,9 +43,9 @@ public class QuestionId : ObservableObject, IUniqueId, IEquatable<QuestionId>
         }
     }
 
-    private string competencyNumbers = string.Empty;
+    private string? competencyNumbers;
 
-    public string CompetencyNumbers
+    public string? CompetencyNumbers
     {
         get => competencyNumbers;
         set

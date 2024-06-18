@@ -4,7 +4,7 @@ using Symptum.Core.Management.Resources;
 
 namespace Symptum.Core.Data.ReferenceValues;
 
-public class ReferenceValueFamily : NavigableResource
+public class ReferenceValueFamily : MetadataResource
 {
     public ReferenceValueFamily()
     { }

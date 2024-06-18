@@ -4,7 +4,7 @@ using Symptum.Core.Management.Resources;
 
 namespace Symptum.Core.Subjects.QuestionBanks;
 
-public class QuestionBankPaper : NavigableResource
+public class QuestionBankPaper : MetadataResource
 {
     public QuestionBankPaper()
     { }

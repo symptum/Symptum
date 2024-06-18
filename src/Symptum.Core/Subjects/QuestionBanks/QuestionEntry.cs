@@ -18,9 +18,9 @@ public class QuestionEntry : ObservableObject, IComparable, IComparable<Question
         set => SetProperty(ref id, value);
     }
 
-    private string title = string.Empty;
+    private string? title;
 
-    public string Title
+    public string? Title
     {
         get => title;
         set => SetProperty(ref title, value);

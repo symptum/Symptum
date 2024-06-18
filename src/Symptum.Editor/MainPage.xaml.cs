@@ -1,9 +1,12 @@
 using Symptum.Core.Management.Resources;
 using Symptum.Common.Helpers;
+using Symptum.Editor.Helpers;
 using Symptum.Editor.Controls;
 using Symptum.Editor.EditorPages;
 using Windows.Storage.Pickers;
 using Windows.System;
+using System.Text;
+using Symptum.Core.Subjects.QuestionBanks;
 
 namespace Symptum.Editor;
 
@@ -71,108 +74,108 @@ public sealed partial class MainPage : Page
         ResourceHelper.Initialize(XamlRoot, hWnd);
     }
 
-    //    private async void Markdown_Click(object sender, RoutedEventArgs e)
-    //    {
-    //        Dictionary<int, Dictionary<QuestionBankTopic, int>> totalW = [];
-    //        List<QuestionBankTopic> topics = [];
-    //        foreach (var resource in ResourceManager.Resources)
-    //        {
-    //            if (resource is QuestionBankTopic topic)
-    //            {
-    //                var weightages = topic.GenerateWeightage();
-    //                foreach (var weightage in weightages)
-    //                {
-    //                    var year = weightage.Key;
-    //                    if (totalW.TryGetValue(year, out Dictionary<QuestionBankTopic, int>? values))
-    //                    {
-    //                        values.Add(topic, weightage.Value);
-    //                    }
-    //                    else totalW.Add(year, new() { { topic, weightage.Value } });
-    //                }
-    //                topics.Add(topic);
-    //            }
-    //        }
+    private async void Markdown_Click(object sender, RoutedEventArgs e)
+    {
+        //Dictionary<int, Dictionary<QuestionBankTopic, int>> totalW = [];
+        //List<QuestionBankTopic> topics = [];
+        //foreach (var resource in ResourceManager.Resources)
+        //{
+        //    if (resource is QuestionBankTopic topic)
+        //    {
+        //        var weightages = topic.GenerateWeightage();
+        //        foreach (var weightage in weightages)
+        //        {
+        //            var year = weightage.Key;
+        //            if (totalW.TryGetValue(year, out Dictionary<QuestionBankTopic, int>? values))
+        //            {
+        //                values.Add(topic, weightage.Value);
+        //            }
+        //            else totalW.Add(year, new() { { topic, weightage.Value } });
+        //        }
+        //        topics.Add(topic);
+        //    }
+        //}
 
-    //        using var writer = new StringWriter();
-    //        using var csvW = new CsvWriter(writer, CultureInfo.InvariantCulture);
+        //using var writer = new StringWriter();
+        //using var csvW = new CsvWriter(writer, CultureInfo.InvariantCulture);
 
-    //        csvW.WriteField("Year");
-    //        foreach (var topic in topics)
-    //        {
-    //            csvW.WriteField(topic.Title);
-    //        }
-    //        csvW.NextRecord();
-    //        //if (Entries != null)
-    //        //{
-    //        //    foreach (var entry in Entries)
-    //        //    {
-    //        //        csvW.WriteRecord(entry);
-    //        //        csvW.NextRecord();
-    //        //    }
-    //        //}
+        //csvW.WriteField("Year");
+        //foreach (var topic in topics)
+        //{
+        //    csvW.WriteField(topic.Title);
+        //}
+        //csvW.NextRecord();
+        ////if (Entries != null)
+        ////{
+        ////    foreach (var entry in Entries)
+        ////    {
+        ////        csvW.WriteRecord(entry);
+        ////        csvW.NextRecord();
+        ////    }
+        ////}
 
-    //        foreach (var w in totalW.OrderBy(x => x.Key))
-    //        {
-    //            csvW.WriteField(w.Key);
-    //            if (w.Value is Dictionary<QuestionBankTopic, int> d)
-    //            {
-    //                foreach (var topic in topics)
-    //                {
-    //                    int value = 0;
-    //                    foreach (var w2 in d)
-    //                    {
-    //                        if (w2.Key == topic)
-    //                            value = w2.Value;
-    //                    }
-    //                    csvW.WriteField(value);
-    //                }
-    //            }
-    //            csvW.NextRecord();
-    //            //if (w.Value is Dictionary<QuestionBankTopic, int> d)
-    //            //{
-    //            //    foreach (var w2 in d)
-    //            //    {
-    //            //    }
-    //            //}
-    //        }
+        //foreach (var w in totalW.OrderBy(x => x.Key))
+        //{
+        //    csvW.WriteField(w.Key);
+        //    if (w.Value is Dictionary<QuestionBankTopic, int> d)
+        //    {
+        //        foreach (var topic in topics)
+        //        {
+        //            int value = 0;
+        //            foreach (var w2 in d)
+        //            {
+        //                if (w2.Key == topic)
+        //                    value = w2.Value;
+        //            }
+        //            csvW.WriteField(value);
+        //        }
+        //    }
+        //    csvW.NextRecord();
+        //    //if (w.Value is Dictionary<QuestionBankTopic, int> d)
+        //    //{
+        //    //    foreach (var w2 in d)
+        //    //    {
+        //    //    }
+        //    //}
+        //}
 
-    //        System.Diagnostics.Debug.WriteLine(writer.ToString());
+        //System.Diagnostics.Debug.WriteLine(writer.ToString());
 
-    //        return;
+        //return;
 
-    //        if (_isBeingSaved)
-    //        {
-    //            return;
-    //        }
+        if (_isBeingSaved)
+        {
+            return;
+        }
 
-    //        _isBeingSaved = true;
+        _isBeingSaved = true;
 
-    //        StringBuilder mdBuilder = new();
-    //        foreach (var resource in ResourceManager.Resources)
-    //        {
-    //            if (resource is QuestionBankTopic topic)
-    //                MarkdownHelper.GenerateMarkdownForQuestionBankTopic(topic, ref mdBuilder);
-    //        }
-    //        var fileSavePicker = new FileSavePicker
-    //        {
-    //            SuggestedFileName = string.Empty
-    //        };
-    //        fileSavePicker.FileTypeChoices.Add("Markdown File", [".md"]);
+        StringBuilder mdBuilder = new();
+        foreach (var resource in ResourceManager.Resources)
+        {
+            if (resource is QuestionBankTopic topic)
+                MarkdownHelper.GenerateMarkdownForQuestionBankTopic(topic, ref mdBuilder);
+        }
+        var fileSavePicker = new FileSavePicker
+        {
+            SuggestedFileName = string.Empty
+        };
+        fileSavePicker.FileTypeChoices.Add("Markdown File", [".md"]);
 
-    //#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-    //        WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, hWnd);
-    //#endif
-    //        StorageFile saveFile = await fileSavePicker.PickSaveFileAsync();
-    //        if (saveFile != null)
-    //        {
-    //            CachedFileManager.DeferUpdates(saveFile);
+#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+            WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, hWnd);
+#endif
+        StorageFile saveFile = await fileSavePicker.PickSaveFileAsync();
+        if (saveFile != null)
+        {
+            CachedFileManager.DeferUpdates(saveFile);
 
-    //            await FileIO.WriteTextAsync(saveFile, mdBuilder.ToString());
+            await FileIO.WriteTextAsync(saveFile, mdBuilder.ToString());
 
-    //            await CachedFileManager.CompleteUpdatesAsync(saveFile);
-    //        }
-    //        _isBeingSaved = false;
-    //    }
+            await CachedFileManager.CompleteUpdatesAsync(saveFile);
+        }
+        _isBeingSaved = false;
+    }
 
     private void EditorsTabView_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
     {

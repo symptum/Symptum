@@ -1,4 +1,5 @@
 using Symptum.Core.Management.Resources;
+using Symptum.Core.Serialization;
 using Symptum.Core.Subjects.QuestionBanks;
 
 namespace Symptum.Core.Subjects;
@@ -25,6 +26,7 @@ public class Subject : PackageResource
 
     private QuestionBank? questionBank;
 
+    [MetadataResource]
     public QuestionBank? QuestionBank
     {
         get => questionBank;

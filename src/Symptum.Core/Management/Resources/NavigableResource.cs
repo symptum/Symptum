@@ -22,7 +22,7 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
         set => SetProperty(ref uri, value);
     }
 
-    private string? id = string.Empty;
+    private string? id;
 
     public string? Id
     {
@@ -30,7 +30,7 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
         set => SetProperty(ref id, value);
     }
 
-    private string? _title = string.Empty;
+    private string? _title;
 
     public string? Title
     {
@@ -73,6 +73,7 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
         set => SetProperty(ref dependencyIds, value);
     }
 
+    [JsonIgnore]
     public virtual bool CanHandleChildren { get; } = true;
 
     #endregion
@@ -94,7 +95,11 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
         SetProperty(ref childrenResources, CanHandleChildren ? [] : null, nameof(ChildrenResources));
         OnInitializeResource(parent);
 
-        // Temporary
+        hasInitialized = true;
+    }
+
+    void IResource.ActivateResource()
+    {
         if (childrenResources != null)
         {
             foreach (var child in childrenResources)
@@ -102,7 +107,6 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
                 child.InitializeResource(this);
             }
         }
-        hasInitialized = true;
     }
 
     protected abstract void OnInitializeResource(IResource? parent);
@@ -189,10 +193,7 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
     private void Collection_Changed(object? sender, NotifyCollectionChangedEventArgs e)
     {
         if (!hasInitialized || childrenResources == null) return;
-        //bool isCR = sender == childrenResources;
 
-        //if (!isCR)
-        //{
         switch (e.Action)
         {
             case NotifyCollectionChangedAction.Reset:
@@ -211,30 +212,5 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
                     break;
                 }
         }
-        //}
-        //else
-        //    HandleChildrenChanged(e);
     }
-
-    //private void HandleChildrenChanged(NotifyCollectionChangedEventArgs e)
-    //{
-    //    switch (e.Action)
-    //    {
-    //        case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
-    //            {
-    //                OnChildrenReset();
-    //                break;
-    //            }
-    //        case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
-    //            {
-    //                OnChildrenAdded(e.NewItems?.OfType<IResource>());
-    //                break;
-    //            }
-    //        case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
-    //            {
-    //                OnChildrenRemoved(e.OldItems?.OfType<IResource>());
-    //                break;
-    //            }
-    //    }
-    //}
 }

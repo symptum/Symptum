@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 
 namespace Symptum.Core.Management.Resources;
 
@@ -9,7 +10,7 @@ public abstract class FileResource : NavigableResource, IContent
 
     public abstract ContentFileType FileType { get; }
 
-    private string? description = string.Empty;
+    private string? description;
 
     public string? Description
     {
@@ -51,12 +52,12 @@ public abstract class FileResource : NavigableResource, IContent
 
     #endregion
 
-    private string path = string.Empty;
+    private string? filePath;
 
-    public string Path
+    public string? FilePath
     {
-        get => path;
-        set => SetProperty(ref path, value);
+        get => filePath;
+        set => SetProperty(ref filePath, value);
     }
 
     #endregion
@@ -84,6 +85,7 @@ public abstract class FileResource : NavigableResource, IContent
     // Since the instances of FileResource are always the end resources (i.e. no children),
     // they shouldn't have any implementations for ChildResources
 
+    [JsonIgnore]
     public override bool CanHandleChildren => false;
 
     public override bool CanHandleChildResourceType(Type childResourceType)

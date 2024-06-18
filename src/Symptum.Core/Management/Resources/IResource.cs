@@ -23,6 +23,8 @@ public interface IResource
 
     public void InitializeResource(IResource? parent);
 
+    public void ActivateResource(); // Needs renaming?
+
     public bool CanHandleChildResourceType(Type childResourceType);
 
     public bool CanAddChildResourceType(Type childResourceType);

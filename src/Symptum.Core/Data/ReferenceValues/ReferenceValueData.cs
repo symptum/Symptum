@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Symptum.Core.Extensions;
 
 namespace Symptum.Core.Data.ReferenceValues;
 
@@ -6,7 +7,7 @@ public class ReferenceValueData : ObservableObject
 {
     #region Properties
 
-    private string values = string.Empty;
+    private string? values;
 
     // TODO: Add math support to check if a test value satisfies the value, range or interval
     // [x,y] : x to y, x and y included;
@@ -17,16 +18,16 @@ public class ReferenceValueData : ObservableObject
     // [_,x] : lesser than or equal to x;
     // x{y} : x + y or x - y;
     // x : single value
-    public string Values
+    public string? Values
     {
         get => values;
         set => SetProperty(ref values, value);
     }
 
-    private string unit = string.Empty;
+    private string? unit;
 
     // TODO: Add unit conversion support
-    public string Unit
+    public string? Unit
     {
         get => unit;
         set => SetProperty(ref unit, value);
@@ -40,6 +41,6 @@ public class ReferenceValueData : ObservableObject
 
     public override string ToString()
     {
-        return values + (!string.IsNullOrEmpty(unit) && !string.IsNullOrWhiteSpace(unit) ? " " + unit : string.Empty);
+        return values + (!unit.IsNullOrEmptyOrWhiteSpace() ? " " + unit : string.Empty);
     }
 }

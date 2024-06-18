@@ -10,9 +10,9 @@ public class ReferenceValueEntry : ObservableObject
 {
     #region Properties
 
-    private string _title = string.Empty;
+    private string? _title;
 
-    public string Title
+    public string? Title
     {
         get => _title;
         set => SetProperty(ref _title, value);
@@ -26,17 +26,17 @@ public class ReferenceValueEntry : ObservableObject
         set => SetProperty(ref _data, value);
     }
 
-    private string _inference = string.Empty;
+    private string? _inference;
 
-    public string Inference
+    public string? Inference
     {
         get => _inference;
         set => SetProperty(ref _inference, value);
     }
 
-    private string _remarks = string.Empty;
+    private string? _remarks;
 
-    public string Remarks
+    public string? Remarks
     {
         get => _remarks;
         set => SetProperty(ref _remarks, value);

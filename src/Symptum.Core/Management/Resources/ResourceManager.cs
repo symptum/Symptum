@@ -2,7 +2,9 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using static Symptum.Core.Helpers.FileHelper;
 using Symptum.Core.Management.Deployment;
+using Symptum.Core.Extensions;
 
 namespace Symptum.Core.Management.Resources;
 
@@ -138,23 +140,75 @@ public class ResourceManager
 
     #region Resource File Handling
 
-    public static void LoadResourceFile(FileResource fileResource, string content)
+    public static string? GetResourceFileName(IResource? resource)
     {
-        fileResource.ReadFileContent(content);
+        return resource?.Title;
     }
 
-    public static string WriteResourceFile(FileResource fileResource)
+    public static (string folder, string fileName, string extension) GetDetailsFromFilePath(string? filePath)
     {
-        return fileResource.WriteFileContent();
+        string folder = string.Empty;
+        string fileName = string.Empty;
+        string extension = string.Empty;
+
+        if (filePath.IsNullOrEmptyOrWhiteSpace()) return (folder, fileName, extension);
+     
+        var l1 = filePath.Split(ExtensionSeparator);
+        if (l1.Length > 1)
+        {
+            extension = ExtensionSeparator + l1[l1.Length - 1];
+        }
+
+        var l2 = filePath.Split(PathSeparator);
+        if (l2.Length > 1)
+        {
+            fileName = l2[l2.Length - 1];
+            fileName = fileName.Remove(fileName.Length - extension.Length, extension.Length);
+        }
+
+        folder = filePath.Remove(filePath.Length - fileName.Length - extension.Length, fileName.Length + extension.Length);
+
+        return (folder, fileName, extension);
     }
 
-    public static PackageResource? LoadPackageMetadata(string content)
+    public static string GetResourceFolderPath(IResource? parent)
     {
-        var package = JsonSerializer.Deserialize<PackageResource>(content);
+        string _path = PathSeparator.ToString();
+        if (parent != null)
+        {
+            _path = GetResourceFolderPath(parent.ParentResource) + GetResourceFileName(parent) + PathSeparator;
+        }
+        return _path;
+    }
+
+    public static string GetResourceFilePath(IResource? resource, string? extension)
+    {
+        string path = GetResourceFolderPath(resource?.ParentResource);
+        return path + GetResourceFileName(resource) + extension;
+    }
+
+    public static void LoadResourceFile(FileResource? fileResource, string content)
+    {
+        fileResource?.ReadFileContent(content);
+    }
+
+    public static string? WriteResourceFile(FileResource? fileResource)
+    {
+        return fileResource?.WriteFileContent();
+    }
+
+    public static PackageResource? LoadPackageMetadata(string metadata)
+    {
+        var package = JsonSerializer.Deserialize<PackageResource>(metadata);
         return package;
     }
 
-    private static readonly JsonSerializerOptions jsonSerializerOptions = new()
+    public static void LoadResourceMetadata(MetadataResource? resource, string metadata)
+    {
+        resource?.LoadMetadata(metadata);
+    }
+
+    private static readonly JsonSerializerOptions options = new()
     {
         WriteIndented = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault | JsonIgnoreCondition.WhenWritingNull
@@ -162,7 +216,12 @@ public class ResourceManager
 
     public static string WritePackageMetadata(PackageResource package)
     {
-        return JsonSerializer.Serialize(package, jsonSerializerOptions);
+        return JsonSerializer.Serialize(package, options);
+    }
+
+    public static string WriteResourceMetadata<T>(T resource) where T : MetadataResource
+    {
+        return JsonSerializer.Serialize(resource, resource.GetType(), options);
     }
 
     #endregion

@@ -1,10 +1,11 @@
 using System.Collections.ObjectModel;
 using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
+using Symptum.Core.Serialization;
 
 namespace Symptum.Core.Subjects.QuestionBanks;
 
-public class QuestionBank : NavigableResource
+public class QuestionBank : MetadataResource
 {
     public QuestionBank()
     { }
@@ -21,6 +22,7 @@ public class QuestionBank : NavigableResource
 
     private ObservableCollection<QuestionBankPaper>? papers;
 
+    [ListOfMetadataResource]
     public ObservableCollection<QuestionBankPaper>? Papers
     {
         get => papers;

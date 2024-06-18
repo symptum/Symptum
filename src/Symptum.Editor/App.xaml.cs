@@ -1,10 +1,8 @@
-using System.Diagnostics;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
 using Symptum.Core.Subjects.Books;
 using Symptum.Core.Subjects.QuestionBanks;
 using Uno.Resizetizer;
-using Windows.System;
 
 #if __WASM__
 using Symptum.Common.Helpers;
@@ -31,7 +29,7 @@ public partial class App : Application
 
     private void LoadSubjects()
     {
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < 10; i++)
         {
             Subject sub = new()
             {
@@ -44,21 +42,23 @@ public partial class App : Application
                 Title = "QBank " + i,
                 Id = sub?.Id + ".QBank" + i,
                 Uri = new(sub?.Uri?.ToString() + "/qbank" + i),
-                Papers = []
+                Papers = [],
+                SplitMetadata = true
             };
             sub.QuestionBank = qb;
-            for (int j = 0; j < 100; j++)
+            for (int j = 0; j < 10; j++)
             {
                 QuestionBankPaper paper = new()
                 {
                     Title = $"Paper {i}-{j}",
                     Id = qb?.Id + $".Paper{i}-{j}",
                     Uri = new(qb?.Uri?.ToString() + $"/paper{i}-{j}"),
-                    Topics = []
+                    Topics = [],
+                    SplitMetadata = int.IsEvenInteger(j)
                 };
                 qb.Papers.Add(paper);
 
-                for (int k = 0; k < 100; k++)
+                for (int k = 0; k < 1; k++)
                 {
                     QuestionBankTopic topic = new()
                     {
@@ -68,25 +68,38 @@ public partial class App : Application
                     };
                     paper.Topics.Add(topic);
 
-                    if (i == 99 && j == 99 && k == 99)
-                    {
-                        lastUri = topic.Uri;
-                        lastId = topic.Id;
-                        Debug.WriteLine(lastUri);
-                        Debug.WriteLine(lastId);
-                    }
+                    //if (i == 9 && j == 9 && k == 9)
+                    //{
+                    //    lastUri = topic.Uri;
+                    //    lastId = topic.Id;
+                    //    Debug.WriteLine(lastUri);
+                    //    Debug.WriteLine(lastId);
+                    //}
                 }
             }
 
             ResourceManager.Resources.Add(sub);
-            ((IResource)sub).InitializeResource(null);
+            if (sub is IResource res)
+            {
+                res.InitializeResource(null);
+                res.ActivateResource();
+
+                foreach (var child in res.ChildrenResources)
+                {
+                    child.ActivateResource();
+                    foreach (var child1 in child.ChildrenResources)
+                    {
+                        child1.ActivateResource();
+                    }
+                }
+            }
         }
     }
 
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
+    protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
         //DateTime now = DateTime.Now;
-        //LoadSubjects();
+        LoadSubjects();
         //TimeSpan diff = DateTime.Now - now;
         //Debug.WriteLine("LoadSubjects(): " + diff.TotalMilliseconds + " ms");
 
