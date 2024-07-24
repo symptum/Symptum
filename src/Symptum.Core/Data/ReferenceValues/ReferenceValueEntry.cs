@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -8,6 +9,9 @@ namespace Symptum.Core.Data.ReferenceValues;
 
 public class ReferenceValueEntry : ObservableObject
 {
+    public ReferenceValueEntry()
+    { }
+
     #region Properties
 
     private string? _title;
@@ -18,9 +22,9 @@ public class ReferenceValueEntry : ObservableObject
         set => SetProperty(ref _title, value);
     }
 
-    private List<ReferenceValueData>? _data;
+    private List<Quantity>? _data;
 
-    public List<ReferenceValueData>? Data
+    public List<Quantity>? Data
     {
         get => _data;
         set => SetProperty(ref _data, value);
@@ -44,11 +48,7 @@ public class ReferenceValueEntry : ObservableObject
 
     #endregion
 
-    public ReferenceValueEntry()
-    {
-    }
-
-    public static bool TryParse(string? text, out ReferenceValueEntry? entry)
+    public static bool TryParse(string? text, [NotNullWhen(true)] out ReferenceValueEntry? entry)
     {
         bool parsed = false;
         entry = null;
@@ -66,15 +66,18 @@ public class ReferenceValueEntry : ObservableObject
         return JsonSerializer.Serialize(this, options);
     }
 
-    private static JsonSerializerOptions options = new() { WriteIndented = false,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault | JsonIgnoreCondition.WhenWritingNull };
+    private static JsonSerializerOptions options = new()
+    {
+        WriteIndented = false,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault | JsonIgnoreCondition.WhenWritingNull
+    };
 
     public string GetPreviewText()
     {
         StringBuilder sb = new();
         sb.Append(_title);
         sb.Append(": ");
-        sb.Append(ListToStringConversion.ConvertToString<ReferenceValueData>(_data, x => x.ToString(), ", "));
+        sb.Append(ListToStringConversion.ConvertToString<Quantity>(_data, x => x.ToString(), ", "));
         sb.Append(" Inference: ");
         sb.Append(_inference);
         sb.Append(" Remarks: ");

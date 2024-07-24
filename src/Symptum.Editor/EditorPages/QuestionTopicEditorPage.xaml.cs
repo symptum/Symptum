@@ -28,7 +28,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
     public QuestionTopicEditorPage()
     {
         InitializeComponent();
-        IconSource = DefaultIconSources.QuestionBankTopicIconSource;
+        IconSource = DefaultIconSources.DataGridIconSource;
     }
 
     #region Properties
@@ -293,7 +293,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         if (currentTopic != null)
         {
             var entries = new ObservableCollection<QuestionEntry>(from question in currentTopic?.Entries?.ToList()
-                                                                  where (QuestionEntryPropertyMatchValue(question, e) ?? false)
+                                                                  where QuestionEntryPropertyMatchValue(question, e)
                                                                   select question);
             dataGrid.ItemsSource = entries;
             findTextBlock.Text = $"Find results for '{e.QueryText}' in {e.Context}. Matching entries: {entries.Count}";
@@ -307,7 +307,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
     }
 
     // TODO: Implement Match Whole Word
-    private bool? QuestionEntryPropertyMatchValue(QuestionEntry question, FindFlyoutQuerySubmittedEventArgs e)
+    private bool QuestionEntryPropertyMatchValue(QuestionEntry question, FindFlyoutQuerySubmittedEventArgs e)
     {
         return e.Context switch
         {
@@ -323,7 +323,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
                 ListToStringConversion.ConvertToString<string>(question?.ProbableCases, x => x)?
                     .Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase),
             _ => false,
-        };
+        } ?? false;
     }
 
     private void SortButton_Click(object sender, RoutedEventArgs e)

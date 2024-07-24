@@ -8,6 +8,6 @@ public sealed partial class SubjectViewPage : Page
 {
     public SubjectViewPage()
     {
-        this.InitializeComponent();
+        InitializeComponent();
     }
 }

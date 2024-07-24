@@ -1,4 +1,8 @@
+using System.Diagnostics;
+using Microsoft.UI.Xaml.Controls;
+using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Management.Resources;
+using Symptum.Core.Math;
 using Symptum.Core.Subjects;
 using Symptum.Core.Subjects.Books;
 using Symptum.Core.Subjects.QuestionBanks;
@@ -10,6 +14,7 @@ using static Uno.Storage.Pickers.FileSystemAccessApiInformation;
 #endif
 
 namespace Symptum.Editor;
+
 public partial class App : Application
 {
     /// <summary>
@@ -18,7 +23,7 @@ public partial class App : Application
     /// </summary>
     public App()
     {
-        this.InitializeComponent();
+        InitializeComponent();
     }
 
     public Window? MainWindow { get; private set; }
@@ -29,7 +34,7 @@ public partial class App : Application
 
     private void LoadSubjects()
     {
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 100; i++)
         {
             Subject sub = new()
             {
@@ -46,7 +51,7 @@ public partial class App : Application
                 SplitMetadata = true
             };
             sub.QuestionBank = qb;
-            for (int j = 0; j < 10; j++)
+            for (int j = 0; j < 100; j++)
             {
                 QuestionBankPaper paper = new()
                 {
@@ -58,7 +63,7 @@ public partial class App : Application
                 };
                 qb.Papers.Add(paper);
 
-                for (int k = 0; k < 1; k++)
+                for (int k = 0; k < 100; k++)
                 {
                     QuestionBankTopic topic = new()
                     {
@@ -68,13 +73,13 @@ public partial class App : Application
                     };
                     paper.Topics.Add(topic);
 
-                    //if (i == 9 && j == 9 && k == 9)
-                    //{
-                    //    lastUri = topic.Uri;
-                    //    lastId = topic.Id;
-                    //    Debug.WriteLine(lastUri);
-                    //    Debug.WriteLine(lastId);
-                    //}
+                    if (i == 99 && j == 99 && k == 99)
+                    {
+                        lastUri = topic.Uri;
+                        lastId = topic.Id;
+                        Debug.WriteLine(lastUri);
+                        Debug.WriteLine(lastId);
+                    }
                 }
             }
 
@@ -98,22 +103,78 @@ public partial class App : Application
 
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
+        NutritionPackage nutrition = new("Nutrition")
+        {
+            DataSet = new("Data")
+            {
+                Groups =
+                [
+                    new("Fruits")
+                    {
+                        Foods =
+                        [
+                            new()
+                            {
+                                Id = "fruits-banana",
+                                Title = "Banana",
+                                Energy = new(300, "kcal"),
+                                Protein = new(50, "g"),
+                                Measures =
+                                [
+                                    new("Long Banana", 150),
+                                    new("Small Banana", 70)
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        ResourceManager.Resources.Add(nutrition);
+        if (nutrition is IResource res)
+        {
+            res.InitializeResource(null);
+            res.ActivateResource();
+
+            foreach (var child in res.ChildrenResources)
+            {
+                child.ActivateResource();
+                foreach (var child1 in child.ChildrenResources)
+                {
+                    child1.ActivateResource();
+                }
+            }
+        }
+        //Temp.JsonTest();
         //DateTime now = DateTime.Now;
-        LoadSubjects();
+        //LoadSubjects();
         //TimeSpan diff = DateTime.Now - now;
         //Debug.WriteLine("LoadSubjects(): " + diff.TotalMilliseconds + " ms");
 
         //now = DateTime.Now;
-        //IResource? res = ResourceManager.TryGetResourceFromUri(lastUri);
-        //diff = DateTime.Now - now;
-        //Debug.WriteLine("TryGetResourceFromUri(): " + diff.TotalMilliseconds + " ms");
-        //Debug.WriteLine("Found " + res?.Uri);
+
+        //if (ResourceManager.TryGetResourceFromUri(lastUri, out IResource? resource))
+        //{
+        //    diff = DateTime.Now - now;
+        //    Debug.WriteLine("TryGetResourceFromUri(): " + diff.TotalMilliseconds + " ms");
+        //    Debug.WriteLine("Found " + resource?.Uri);
+        //}
 
         //now = DateTime.Now;
-        //res = ResourceManager.TryGetResourceFromId(lastId);
+        //if (ResourceManager.TryGetResourceFromId(lastId, out IResource? resource1))
+        //{
+        //    diff = DateTime.Now - now;
+        //    Debug.WriteLine("TryGetResourceFromId(): " + diff.TotalMilliseconds + " ms");
+        //    Debug.WriteLine("Found " + resource1?.Id);
+        //}
+
+        //now = DateTime.Now;
+        //string testId = "Subjects.99.QBank99.Paper99-99.TopicX";
+        //ResourceManager.TryGetAvailableChildResourceFromId(testId, out IResource? avail);
         //diff = DateTime.Now - now;
-        //Debug.WriteLine("TryGetResourceFromId(): " + diff.TotalMilliseconds + " ms");
-        //Debug.WriteLine("Found " + res?.Id);
+        //Debug.WriteLine("TryGetAvailableChildResourceFromId(): " + diff.TotalMilliseconds + " ms");
+        //if (avail != null) Debug.WriteLine("Found " + avail?.Id);
 
 #if __WASM__
         Uno.WinRTFeatureConfiguration.Storage.Pickers.WasmConfiguration = Uno.WasmPickerConfiguration.FileSystemAccessApiWithFallback;
@@ -164,7 +225,7 @@ public partial class App : Application
     /// </summary>
     /// <param name="sender">The Frame which failed navigation</param>
     /// <param name="e">Details about the navigation failure</param>
-    void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
+    private void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
     {
         throw new InvalidOperationException($"Failed to load {e.SourcePageType.FullName}: {e.Exception}");
     }

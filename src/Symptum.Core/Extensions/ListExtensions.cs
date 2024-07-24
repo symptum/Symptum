@@ -19,4 +19,19 @@ public static class ListExtensions
                 list.Remove(_item);
         }
     }
+
+    public static List<T> CloneList<T>(this IList<T>? values, Func<T, T>? function = null)
+    {
+        List<T> results = [];
+        if (values != null)
+        {
+            foreach (T item in values)
+            {
+                T result = function != null ? function(item) : item;
+                results.Add(result);
+            }
+        }
+
+        return results;
+    }
 }

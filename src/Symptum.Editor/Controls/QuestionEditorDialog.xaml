@@ -22,8 +22,7 @@
         <ComboBox x:Name="scCB" Header="Subject Code" />
         <TextBox x:Name="cnTB" Header="Competency Numbers" />
       </StackPanel>
-      <TextBox x:Name="titleTB" Header="Title" TextWrapping="Wrap"
-               MaxHeight="172" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+      <TextBox x:Name="titleTB" Header="Title" HorizontalAlignment="Stretch" />
       <CheckBox x:Name="paCB" Content="Has been asked previously" />
       <Expander Header="Descriptions" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
         <local:ListEditorControl x:Name="dsLE">
@@ -63,7 +62,7 @@
             <DataTemplate>
               <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
                 <TextBox Text="{Binding Value, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="Auto"
-                        MaxHeight="172" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                         MaxHeight="172" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" />
               </local:ListEditorItemCommandsButton>
             </DataTemplate>
           </local:ListEditorControl.ItemTemplate>

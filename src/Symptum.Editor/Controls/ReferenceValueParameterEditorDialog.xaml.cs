@@ -13,7 +13,7 @@ public sealed partial class ReferenceValueParameterEditorDialog : ContentDialog
 
     public ReferenceValueParameterEditorDialog()
     {
-        this.InitializeComponent();
+        InitializeComponent();
         Opened += ReferenceValueParameterEditor_Opened;
         PrimaryButtonClick += ReferenceValueParameterEditor_PrimaryButtonClick;
         CloseButtonClick += ReferenceValueParameterEditor_CloseButtonClick;

@@ -37,9 +37,9 @@ public class ReferenceValueGroup : CsvFileResource
         csvW.NextRecord();
         if (Parameters != null)
         {
-            foreach (var set in Parameters)
+            foreach (var parameter in Parameters)
             {
-                csvW.WriteRecord(set);
+                csvW.WriteRecord(parameter);
                 csvW.NextRecord();
             }
         }

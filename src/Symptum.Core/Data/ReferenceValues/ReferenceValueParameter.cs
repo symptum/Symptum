@@ -6,11 +6,19 @@ namespace Symptum.Core.Data.ReferenceValues;
 
 public class ReferenceValueParameter : ObservableObject
 {
+    public ReferenceValueParameter()
+    { }
+
+    public ReferenceValueParameter(string title)
+    {
+        Title = title;
+    }
+
     #region Properties
 
-    private string _title = string.Empty;
+    private string? _title;
 
-    public string Title
+    public string? Title
     {
         get => _title;
         set => SetProperty(ref _title, value);
@@ -26,13 +34,4 @@ public class ReferenceValueParameter : ObservableObject
     }
 
     #endregion
-
-    public ReferenceValueParameter()
-    {
-    }
-
-    public ReferenceValueParameter(string title)
-    {
-        Title = title;
-    }
 }

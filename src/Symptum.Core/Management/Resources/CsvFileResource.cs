@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Symptum.Core.Management.Resources;
 
 public abstract class CsvFileResource : FileResource
@@ -16,5 +18,6 @@ public abstract class CsvFileResource : FileResource
 
     protected abstract string OnWriteCSV();
 
+    [JsonIgnore]
     public override ContentFileType FileType { get; } = ContentFileType.Csv;
 }

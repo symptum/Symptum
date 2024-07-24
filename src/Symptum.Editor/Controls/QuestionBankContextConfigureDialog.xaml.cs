@@ -10,7 +10,7 @@ public sealed partial class QuestionBankContextConfigureDialog : ContentDialog
 
     public QuestionBankContextConfigureDialog()
     {
-        this.InitializeComponent();
+        InitializeComponent();
 
         context ??= QuestionBankContextHelper.CurrentContext;
         scCB.ItemsSource = Enum.GetValues(typeof(SubjectList));

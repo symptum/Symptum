@@ -1,3 +1,4 @@
+using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
@@ -7,7 +8,7 @@ namespace Symptum.Editor.Controls;
 
 public sealed partial class AddNewItemDialog : ContentDialog
 {
-    public static readonly List<NewItemType> itemTypes =
+    private static readonly List<NewItemType> itemTypes =
         [
             new ("Subject", typeof(Subject), "Subjects"),
             new("Question Bank", typeof(QuestionBank), "Question Banks"),
@@ -15,10 +16,13 @@ public sealed partial class AddNewItemDialog : ContentDialog
             new("Question Bank Topic", typeof(QuestionBankTopic), "Question Banks"),
             new("Reference Values Package", typeof(ReferenceValuesPackage), "Reference Values"),
             new("Reference Value Family", typeof(ReferenceValueFamily), "Reference Values"),
-            new("Reference Value Group", typeof(ReferenceValueGroup), "Reference Values")
+            new("Reference Value Group", typeof(ReferenceValueGroup), "Reference Values"),
+            new("Nutrition Package", typeof(NutritionPackage), "Nutrition"),
+            new("Nutrition Data Set", typeof(NutritionDataSet), "Nutrition"),
+            new("Food Group", typeof(FoodGroup), "Nutrition")
         ];
 
-    private List<NewItemType> availItemTypes;
+    private List<NewItemType>? availItemTypes;
 
     #region Properties
 
@@ -135,9 +139,9 @@ public sealed partial class AddNewItemDialog : ContentDialog
 
 public class NewItemType
 {
-    public string DisplayName { get; set; }
+    public string? DisplayName { get; set; }
 
-    public Type Type { get; set; }
+    public Type? Type { get; set; }
 
     public string? GroupName { get; set; }
 

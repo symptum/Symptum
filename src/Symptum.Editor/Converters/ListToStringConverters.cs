@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml.Data;
+using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Subjects.Books;
 using static Symptum.Core.TypeConversion.ListToStringConversion;
@@ -62,6 +63,19 @@ public class ReferenceValueEntryListToStringConverter : IValueConverter
     public object? Convert(object value, Type targetType, object parameter, string language)
     {
         return ConvertToString<ReferenceValueEntry>(value, x => x?.GetPreviewText() ?? string.Empty, "\n");
+    }
+
+    public object? ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class FoodMeasureListToStringConverter : IValueConverter
+{
+    public object? Convert(object value, Type targetType, object parameter, string language)
+    {
+        return ConvertToString<FoodMeasure>(value, x => x?.GetPreviewText() ?? string.Empty, "\n");
     }
 
     public object? ConvertBack(object value, Type targetType, object parameter, string language)

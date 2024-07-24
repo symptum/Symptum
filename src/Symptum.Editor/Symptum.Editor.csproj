@@ -49,9 +49,16 @@
   <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'windows'">
     <PackageReference Include="Uno.CommunityToolkit.WinUI.UI.Controls.DataGrid" />
   </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Symptum.Common\Symptum.Common.csproj" />
     <ProjectReference Include="..\Symptum.Core\Symptum.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Symptum.Editor.SourceGenerators\Symptum.Editor.SourceGenerators.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>

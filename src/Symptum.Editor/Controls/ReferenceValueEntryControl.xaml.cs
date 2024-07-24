@@ -1,11 +1,12 @@
 using System.Collections.ObjectModel;
+using Symptum.Core.Data;
 using Symptum.Core.Data.ReferenceValues;
 
 namespace Symptum.Editor.Controls;
 
 public sealed partial class ReferenceValueEntryControl : UserControl
 {
-    private readonly ObservableCollection<ListEditorItemWrapper<ReferenceValueData>> _data = [];
+    private readonly ObservableCollection<ListEditorItemWrapper<Quantity>> _data = [];
 
     #region Properties
 
@@ -34,7 +35,7 @@ public sealed partial class ReferenceValueEntryControl : UserControl
 
     public ReferenceValueEntryControl()
     {
-        this.InitializeComponent();
+        InitializeComponent();
 
         HandleListEditors();
     }
@@ -62,21 +63,21 @@ public sealed partial class ReferenceValueEntryControl : UserControl
     private void HandleListEditors()
     {
         dtLE.ItemsSource = _data;
-        dtLE.AddItemRequested += (s, e) => _data.Add(new ListEditorItemWrapper<ReferenceValueData>(new()));
+        dtLE.AddItemRequested += (s, e) => _data.Add(new ListEditorItemWrapper<Quantity>(new()));
         dtLE.ClearItemsRequested += (s, e) => _data.Clear();
         dtLE.RemoveItemRequested += (s, e) =>
         {
-            if (e is ListEditorItemWrapper<ReferenceValueData> data)
+            if (e is ListEditorItemWrapper<Quantity> data)
                 _data.Remove(data);
         };
         dtLE.DuplicateItemRequested += (s, e) =>
         {
-            //if (e is ListEditorItemWrapper<ReferenceValueData> data)
+            //if (e is ListEditorItemWrapper<Quantity> data)
             //    _data.Add(new() { Value = data.Value });
         };
         dtLE.MoveItemUpRequested += (s, e) =>
         {
-            if (e is ListEditorItemWrapper<ReferenceValueData> data)
+            if (e is ListEditorItemWrapper<Quantity> data)
             {
                 int oldIndex = _data.IndexOf(data);
                 int newIndex = Math.Max(oldIndex - 1, 0);
@@ -85,7 +86,7 @@ public sealed partial class ReferenceValueEntryControl : UserControl
         };
         dtLE.MoveItemDownRequested += (s, e) =>
         {
-            if (e is ListEditorItemWrapper<ReferenceValueData> data)
+            if (e is ListEditorItemWrapper<Quantity> data)
             {
                 int oldIndex = _data.IndexOf(data);
                 int newIndex = Math.Min(oldIndex + 1, _data.Count - 1);

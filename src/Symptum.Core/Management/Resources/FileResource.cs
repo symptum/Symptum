@@ -8,6 +8,7 @@ public abstract class FileResource : NavigableResource, IContent
 
     #region IContent
 
+    [JsonIgnore]
     public abstract ContentFileType FileType { get; }
 
     private string? description;

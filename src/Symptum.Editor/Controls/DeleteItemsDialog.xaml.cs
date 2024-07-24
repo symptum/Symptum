@@ -4,6 +4,6 @@ public sealed partial class DeleteItemsDialog : ContentDialog
 {
     public DeleteItemsDialog()
     {
-        this.InitializeComponent();
+        InitializeComponent();
     }
 }

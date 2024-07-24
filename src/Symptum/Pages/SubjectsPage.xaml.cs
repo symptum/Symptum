@@ -10,7 +10,7 @@ public sealed partial class SubjectsPage : Page
 {
     public SubjectsPage()
     {
-        this.InitializeComponent();
+        InitializeComponent();
     }
 
     private void Button_Click(object sender, RoutedEventArgs e)

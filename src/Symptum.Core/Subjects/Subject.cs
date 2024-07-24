@@ -9,6 +9,11 @@ public class Subject : PackageResource
     public Subject()
     { }
 
+    public Subject(string title)
+    {
+        Title = title;
+    }
+
     public Subject(SubjectList subjectCode)
     {
         SubjectCode = subjectCode;
@@ -68,7 +73,7 @@ public class Subject : PackageResource
 
     protected override void OnRemoveChildResource(IResource? childResource)
     {
-        if (childResource is QuestionBank _qb)
+        if (childResource is QuestionBank)
             QuestionBank = null;
     }
 

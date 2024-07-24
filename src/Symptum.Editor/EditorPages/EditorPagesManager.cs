@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects.QuestionBanks;
@@ -10,7 +11,8 @@ public class EditorPagesManager
     private static readonly Dictionary<Type, Type> _editorTypeMap = new()
     {
         { typeof(QuestionBankTopic), typeof(QuestionTopicEditorPage) },
-        {typeof(ReferenceValueGroup), typeof(ReferenceValueGroupEditorPage) }
+        { typeof(ReferenceValueGroup), typeof(ReferenceValueGroupEditorPage) },
+        { typeof(FoodGroup), typeof(FoodGroupEditorPage) }
     };
 
     public static ObservableCollection<IEditorPage> EditorPages { get; private set; } = [];

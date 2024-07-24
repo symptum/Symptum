@@ -8,6 +8,6 @@ public sealed partial class ManagementsPage : Page
 {
     public ManagementsPage()
     {
-        this.InitializeComponent();
+        InitializeComponent();
     }
 }

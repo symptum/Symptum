@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Web;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Symptum.Core.Helpers;
@@ -12,15 +13,15 @@ public class BookReference : ObservableObject
 
     #region Properties
 
-    private Book _book;
+    private Book? _book;
 
-    public Book Book
+    public Book? Book
     {
         get => _book;
         set => SetProperty(ref _book, value);
     }
 
-    private int _edition;
+    private int _edition = 0;
 
     public int Edition
     {
@@ -28,7 +29,7 @@ public class BookReference : ObservableObject
         set => SetProperty(ref _edition, value);
     }
 
-    private int _volume;
+    private int _volume = 0;
 
     public int Volume
     {
@@ -36,9 +37,9 @@ public class BookReference : ObservableObject
         set => SetProperty(ref _volume, value);
     }
 
-    private string _pageNumbers;
+    private string? _pageNumbers;
 
-    public string PageNumbers
+    public string? PageNumbers
     {
         get => _pageNumbers;
         set => SetProperty(ref _pageNumbers, value);
@@ -50,7 +51,7 @@ public class BookReference : ObservableObject
     {
     }
 
-    public static bool TryParse(string? text, out BookReference? bookReference)
+    public static bool TryParse(string? text, [NotNullWhen(true)] out BookReference? bookReference)
     {
         bool parsed = false;
         bookReference = null;

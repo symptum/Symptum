@@ -1,10 +1,10 @@
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using static Symptum.Core.Helpers.FileHelper;
 using Symptum.Core.Management.Deployment;
 using Symptum.Core.Extensions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Symptum.Core.Management.Resources;
 
@@ -140,10 +140,7 @@ public class ResourceManager
 
     #region Resource File Handling
 
-    public static string? GetResourceFileName(IResource? resource)
-    {
-        return resource?.Title;
-    }
+    public static string? GetResourceFileName(IResource? resource) => resource?.Title;
 
     public static (string folder, string fileName, string extension) GetDetailsFromFilePath(string? filePath)
     {
@@ -151,22 +148,32 @@ public class ResourceManager
         string fileName = string.Empty;
         string extension = string.Empty;
 
-        if (filePath.IsNullOrEmptyOrWhiteSpace()) return (folder, fileName, extension);
-     
-        var l1 = filePath.Split(ExtensionSeparator);
-        if (l1.Length > 1)
+        if (filePath == null) return (folder, fileName, extension);
+
+        int dotIndex, slashIndex;
+        dotIndex = slashIndex = filePath.Length;
+
+        for (int i = filePath.Length - 1; i >= 0; i--)
         {
-            extension = ExtensionSeparator + l1[l1.Length - 1];
+            char ch = filePath[i];
+            if (ch == PathSeparator)
+            {
+                slashIndex = i + 1; // To include '\'
+                break;
+            }
+            else if (ch == ExtensionSeparator)
+            {
+                dotIndex = i;
+                continue;
+            }
         }
 
-        var l2 = filePath.Split(PathSeparator);
-        if (l2.Length > 1)
+        if (dotIndex > 0 && slashIndex > 0)
         {
-            fileName = l2[l2.Length - 1];
-            fileName = fileName.Remove(fileName.Length - extension.Length, extension.Length);
+            folder = filePath[..slashIndex];
+            fileName = filePath[slashIndex..dotIndex];
+            extension = filePath[dotIndex..];
         }
-
-        folder = filePath.Remove(filePath.Length - fileName.Length - extension.Length, fileName.Length + extension.Length);
 
         return (folder, fileName, extension);
     }
@@ -187,15 +194,9 @@ public class ResourceManager
         return path + GetResourceFileName(resource) + extension;
     }
 
-    public static void LoadResourceFile(FileResource? fileResource, string content)
-    {
-        fileResource?.ReadFileContent(content);
-    }
+    public static void LoadResourceFile(FileResource? fileResource, string content) => fileResource?.ReadFileContent(content);
 
-    public static string? WriteResourceFile(FileResource? fileResource)
-    {
-        return fileResource?.WriteFileContent();
-    }
+    public static string? WriteResourceFile(FileResource? fileResource) => fileResource?.WriteFileContent();
 
     public static PackageResource? LoadPackageMetadata(string metadata)
     {
@@ -203,10 +204,7 @@ public class ResourceManager
         return package;
     }
 
-    public static void LoadResourceMetadata(MetadataResource? resource, string metadata)
-    {
-        resource?.LoadMetadata(metadata);
-    }
+    public static void LoadResourceMetadata(MetadataResource? resource, string metadata) => resource?.LoadMetadata(metadata);
 
     private static readonly JsonSerializerOptions options = new()
     {
@@ -214,135 +212,146 @@ public class ResourceManager
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault | JsonIgnoreCondition.WhenWritingNull
     };
 
-    public static string WritePackageMetadata(PackageResource package)
-    {
-        return JsonSerializer.Serialize(package, options);
-    }
+    public static string WritePackageMetadata(PackageResource package) => JsonSerializer.Serialize(package, options);
 
-    public static string WriteResourceMetadata<T>(T resource) where T : MetadataResource
-    {
-        return JsonSerializer.Serialize(resource, resource.GetType(), options);
-    }
+    public static string WriteResourceMetadata<T>(T resource) where T : MetadataResource => JsonSerializer.Serialize(resource, resource.GetType(), options);
 
     #endregion
 
     #region Resource Fetching
 
-    // TODO: Make these async
+    #region From Id
 
-    public static IResource? TryGetResourceFromUri(Uri? uri)
-    {
-        if (uri == null) return null;
-        return TryGetResourceFromUri(uri, _resources);
-    }
+    public static bool TryGetResourceFromId(string? id, [NotNullWhen(true)] out IResource? resource) =>
+        TryGetResourceFromId(id, _resources, out resource);
 
-    internal static IResource? TryGetResourceFromUri(Uri? uri, IReadOnlyList<IResource>? resources)
+    public static bool TryGetResourceFromId(string? id, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource)
     {
-        if (uri == null || resources == null) return null;
-        foreach (IResource resource in resources)
+        if (TryGetAvailableChildResourceFromId(id, resources, out IResource? _resource))
         {
-            if (resource.Uri == uri)
-            {
-                Debug.WriteLine("No. of turns it took to fetch the resource from Uri: " + _c);
-                return resource;
-            }
-            else if (UriContains(uri, resource.Uri))
-            {
-                // Should the children be manually loaded?
-                return TryGetResourceFromUri(uri, resource.ChildrenResources);
-            }
+            resource = _resource;
+            return true;
         }
 
-        return null;
+        resource = null;
+        return false;
     }
 
-    private static int _c = 0;
+    public static bool TryGetAvailableChildResourceFromId(string? id, [NotNullWhen(true)] out IResource? resource) =>
+        TryGetAvailableChildResourceFromId(id, _resources, out resource);
 
-    internal static bool UriContains(Uri? requiredUri, Uri? resourceUri)
+    public static bool TryGetAvailableChildResourceFromId(string? id, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource, int offset = 0)
     {
-        _c++;
-        if (requiredUri != null && resourceUri != null)
+        if (!string.IsNullOrEmpty(id) && resources != null)
         {
-            if (requiredUri.Scheme == requiredUri.Scheme &&
-                requiredUri.Host == resourceUri.Host)
+            foreach (IResource _resource in resources)
             {
-                // Resource's uri would most probably be equal or shorter in segments than the required uri
-                // So we take the resource's uri and compare all the segments with the other
-                // If it matches, we return true
-                // Else, the current resource tree doesn't contain the required uri
-                string[] segmentsA = requiredUri.Segments; // Segments are created every call. TODO: Optimization?
-                string[] segmentsB = resourceUri.Segments;
-                if (segmentsA.Length > 1 && segmentsB.Length > 1)
+                if (string.Equals(id, _resource.Id))
                 {
-                    // We skip 0th index because it is just a "/"
-                    for (int i = 1; i < segmentsB.Length; i++)
-                    {
-                        string a = segmentsA[i].Trim('/');
-                        string b = segmentsB[i].Trim('/');
-                        bool match = string.Equals(a, b, StringComparison.InvariantCultureIgnoreCase);
-                        if (!match) break;
-                        if (i == segmentsB.Length - 1)
-                            return true;
-                    }
+                    resource = _resource;
+                    return true;
+                }
+                else if (IdContains(id, _resource.Id, offset))
+                {
+                    bool result = TryGetAvailableChildResourceFromId(id, _resource.ChildrenResources, out resource, _resource.Id?.Length ?? 0);
+                    resource ??= _resource; // The parent resource which is most likely to have the child.
+                    // Even if we can't find the exact resource we can return this probable parent resource.
+                    return result;
                 }
             }
         }
 
+        resource = null;
         return false;
     }
 
-    public static IResource? TryGetResourceFromId(string? id)
-    {
-        if (string.IsNullOrEmpty(id)) return null;
-        return TryGetResourceFromId(id, _resources);
-    }
+    // Resource's id would most probably be equal or shorter in length than the required id
+    // So we take the resource's id and compare all the characters in it with the other
+    // If it matches, we return true
+    // Else, the current resource tree doesn't contain the required id
+    private static bool IdContains(string? requiredId, string? resourceId, int offset = 0) =>
+        requiredId?.Contains(resourceId, offset, '.') ?? false;
 
-    internal static IResource? TryGetResourceFromId(string? id, IReadOnlyList<IResource>? resources)
+    #endregion
+
+    #region From Uri
+
+    public static bool TryGetResourceFromUri(Uri? uri, [NotNullWhen(true)] out IResource? resource) =>
+        TryGetResourceFromUri(uri, _resources, out resource);
+
+    public static bool TryGetResourceFromUri(Uri? uri, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource)
     {
-        if (string.IsNullOrEmpty(id) || resources == null) return null;
-        foreach (IResource resource in resources)
+        if (TryGetAvailableChildResourceFromUri(uri, resources, out IResource? _resource))
         {
-            if (string.Equals(resource.Id, id, StringComparison.InvariantCulture)) // Case sensitive?
-            {
-                Debug.WriteLine("No. of turns it took to fetch the resource from Id: " + _c2);
-                return resource;
-            }
-            else if (IdContains(id, resource.Id))
-            {
-                return TryGetResourceFromId(id, resource.ChildrenResources);
-            }
+            resource = _resource;
+            return true;
         }
 
-        return null;
+        resource = null;
+        return false;
     }
 
-    private static int _c2 = 0;
+    public static bool TryGetAvailableChildResourceFromUri(Uri? uri, [NotNullWhen(true)] out IResource? resource) =>
+        TryGetAvailableChildResourceFromUri(uri, _resources, out resource);
 
-    internal static bool IdContains(string? requiredId, string? resourceId)
+    public static bool TryGetAvailableChildResourceFromUri(Uri? uri, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource, int offset = 0)
     {
-        _c2++;
-        if (!string.IsNullOrEmpty(requiredId) && !string.IsNullOrWhiteSpace(requiredId) &&
-            !string.IsNullOrEmpty(resourceId) && !string.IsNullOrWhiteSpace(resourceId))
+        if (uri != null && resources != null)
         {
-            // Similar to UriContains
-            string[] segmentsA = requiredId.Split('.'); // TODO: Optimization?
-            string[] segmentsB = resourceId.Split('.');
-            if (segmentsA.Length > 0 && segmentsB.Length > 0)
+            foreach (IResource _resource in resources)
             {
-                for (int i = 0; i < segmentsB.Length; i++)
+                if (uri == _resource.Uri)
                 {
-                    string a = segmentsA[i].Trim();
-                    string b = segmentsB[i].Trim();
-                    bool match = string.Equals(a, b, StringComparison.InvariantCulture); // Case sensitive?
-                    if (!match) break;
-                    if (i == segmentsB.Length - 1)
-                        return true;
+                    resource = _resource;
+                    return true;
+                }
+                else if (UriContains(uri, _resource.Uri, offset))
+                {
+                    bool result = TryGetAvailableChildResourceFromUri(uri, _resource.ChildrenResources, out resource, _resource.Uri?.ToString().Length ?? 0);
+                    resource ??= _resource; // The parent resource which is most likely to have the child.
+                    // Even if we can't find the exact resource we can return this probable parent resource.
+                    return result;
                 }
             }
         }
 
+        resource = null;
         return false;
     }
+
+    // Resource's uri would most probably be equal or shorter in length than the required uri
+    // So we take the resource's uri and compare all the characters in it with the other
+    // If it matches, we return true
+    // Else, the current resource tree doesn't contain the required uri
+    private static bool UriContains(Uri? requiredUri, Uri? resourceUri, int offset = 0) =>
+        requiredUri?.ToString().Contains(resourceUri?.ToString(), offset, '/') ?? false;
+
+    #endregion
+
+    //public static async Task<AsyncResult<IResource>> TryGetResourceFromIdAsync(string? id)
+    //{
+    //    return await Task.Run(() =>
+    //    {
+    //        bool success = TryGetResourceFromId(id, out IResource? _resource);
+    //        return new AsyncResult<IResource>() { Success = success, Result = _resource };
+    //    });
+    //}
 
     #endregion
 }
+
+//public class AsyncResult<T>
+//{
+//    public AsyncResult()
+//    { }
+
+//    public AsyncResult(bool success, T? result)
+//    {
+//        Success = success;
+//        Result = result;
+//    }
+
+//    public bool Success { get; set; }
+
+//    public T? Result { get; set; }
+//}

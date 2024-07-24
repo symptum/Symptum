@@ -14,8 +14,12 @@ public class QuestionId : ObservableObject, IUniqueId, IEquatable<QuestionId>
     {
         { "E", QuestionType.Essay },
         { "S", QuestionType.ShortNote },
-        { "M", QuestionType.MCQ }
     };
+
+    public QuestionId()
+    {
+        UpdateIdString();
+    }
 
     #region Properties
 
@@ -64,11 +68,6 @@ public class QuestionId : ObservableObject, IUniqueId, IEquatable<QuestionId>
     }
 
     #endregion
-
-    public QuestionId()
-    {
-        UpdateIdString();
-    }
 
     static IUniqueId? IUniqueId.Parse(string? idText) => Parse(idText);
 
@@ -126,4 +125,6 @@ public class QuestionId : ObservableObject, IUniqueId, IEquatable<QuestionId>
 
         return Equals(obj as QuestionId);
     }
+
+    public override int GetHashCode() => HashCode.Combine(QuestionType, SubjectCode, CompetencyNumbers);
 }

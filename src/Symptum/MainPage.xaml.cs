@@ -10,7 +10,7 @@ public sealed partial class MainPage : Page
 
     public MainPage()
     {
-        this.InitializeComponent();
+        InitializeComponent();
         navigationManager = NavigationManager.GetNavigationManager();
         navigationManager.NavigationRequested += NavigationManager_NavigationRequested;
 

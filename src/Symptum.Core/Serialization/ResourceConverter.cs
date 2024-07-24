@@ -22,7 +22,7 @@ public class MetadataResourceConverter<T> : JsonConverter<T> where T : MetadataR
             string json = reader.GetString() ?? string.Empty;
             if (json.StartsWith(PathSeparator))
             {
-                string filePath = json;//.Remove(0, 8);
+                string filePath = json;
                 Debug.WriteLine(filePath);
                 if (Activator.CreateInstance(typeof(T)) is T obj)
                 {
@@ -84,7 +84,7 @@ public class ListOfMetadataResourceConverter<TList, TResource> : JsonConverter<T
                     string json = reader.GetString() ?? string.Empty;
                     if (json.StartsWith(PathSeparator))
                     {
-                        string filePath = json;//.Remove(0, 8);
+                        string filePath = json;
                         Debug.WriteLine(filePath);
                         if (Activator.CreateInstance(typeof(TResource)) is TResource obj)
                         {

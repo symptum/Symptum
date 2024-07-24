@@ -20,7 +20,7 @@ public sealed partial class ReferenceValueGroupEditorPage : Page, IEditorPage
     public ReferenceValueGroupEditorPage()
     {
         InitializeComponent();
-        IconSource = DefaultIconSources.QuestionBankTopicIconSource;
+        IconSource = DefaultIconSources.DataGridIconSource;
     }
 
     #region Properties
@@ -291,15 +291,12 @@ public sealed partial class ReferenceValueGroupEditorPage : Page, IEditorPage
     // TODO: Implement Match Whole Word
     private bool ReferenceValueParameterPropertyMatchValue(ReferenceValueParameter parameter, FindFlyoutQuerySubmittedEventArgs e)
     {
-        switch (e.Context)
+        return e.Context switch
         {
-            case nameof(ReferenceValueParameter.Title):
-                {
-                    return parameter.Title.Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase);
-                };
-
-            default: return false;
-        }
+            nameof(ReferenceValueParameter.Title) =>
+                parameter?.Title?.Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase),
+            _ => false
+        } ?? false;
     }
 
     private bool CanMoveUp() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != 0;
