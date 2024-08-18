@@ -1,4 +1,4 @@
-namespace Symptum.Core.Management.Resources;
+namespace Symptum.Core.Data;
 
 public struct AuthorInfo
 {

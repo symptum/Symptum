@@ -1,13 +1,16 @@
-﻿// The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
+using Symptum.Navigation;
 
 namespace Symptum.Pages;
-/// <summary>
-/// An empty page that can be used on its own or navigated to within a Frame.
-/// </summary>
-public sealed partial class HomePage : Page
+
+public sealed partial class HomePage : NavigablePage
 {
     public HomePage()
     {
         InitializeComponent();
+    }
+
+    private void Button_Click(object sender, RoutedEventArgs e)
+    {
+        NavigationManager.Navigate(new Uri("symptum://subjects/an"));
     }
 }

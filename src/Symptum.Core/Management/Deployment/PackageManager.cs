@@ -1,51 +1,117 @@
+using Symptum.Core.Management.Resources;
+using System.Collections.ObjectModel;
+
 namespace Symptum.Core.Management.Deployment;
 
 public class PackageManager
 {
-    private static Dictionary<string, string> idsCache = [];
-    //{
-    //    { "Subjects.Z", "//temp//Subjects.Z" },
-    //    { "Subjects.A", "" },
-    //    { "Subjects.B", "" }
-    //};
+    private static Func<string, Task<IPackageResource?>>? _loadPackageCallback;
 
-    public static void Initialize()
+    public static void Initialize(Func<string, Task<IPackageResource?>> loadPackageCallback)
     {
-        // Read from cache, resolve and load local packages
+        _loadPackageCallback = loadPackageCallback;
     }
 
-    public static async Task<IPackageResource?> LoadPackageAsync(string packageId)
-    {
-        //if (packageId == "Subjects.Z")
-        //{
-        //    return await Task.Run(() => new Subject() { Title = "Z", Id = "Subjects.Z", DependencyIds = ["Subjects.A"] });
-        //}
-        //else if (packageId == "Subjects.A")
-        //{
-        //    return await Task.Run(() => new Subject() { Title = "A", Id = "Subjects.A", DependencyIds = ["Subjects.B"] });
-        //}
-        //else if (packageId == "Subjects.B")
-        //{
-        //    return await Task.Run(() => new Subject() { Title = "B", Id = "Subjects.B", DependencyIds = ["Subjects.Test"] });
-        //}
-        //else if (packageId == "Subjects.P")
-        //{
-        //    return await Task.Run(() => new Subject() { Title = "P", Id = "Subjects.P", DependencyIds = ["Subjects.B"] });
-        //}
-        //else
-        //{
-        //    return await Task.Run(() => new Subject() { Title = "Dummy"});
-        //}
+    #region Dependency Resolution
 
-        // Available locally. Load from file path;
-        if (idsCache.TryGetValue(packageId, out string? path))
+    private static readonly Dictionary<string, List<TaskCompletionSource<IPackageResource?>>> dependencyLinks = [];
+
+    // TODO: Make thread safe
+    public static void ResolveDependencies(IPackageResource? package)
+    {
+        if (package != null && package.DependencyIds != null)
         {
-            return null;
-        }
-        else
-        {
-            return null;
-            // Not available locally, request from server
+            ObservableCollection<IPackageResource>? dependencies = [];
+            package.Dependencies = dependencies;
+            foreach (var dependencyId in package.DependencyIds)
+            {
+                ResolveDependencyAsync(package, dependencyId);
+            }
         }
     }
+
+    private static async void ResolveDependencyAsync(IPackageResource? package, string dependencyId)
+    {
+        IPackageResource? dependency = await GetDependencyAsync(dependencyId);
+        if (dependency != null)
+            package?.Dependencies?.Add(dependency);
+    }
+
+    private static async Task<IPackageResource?> GetDependencyAsync(string id)
+    {
+        TaskCompletionSource<IPackageResource?> taskCompletionSource = new();
+        if (!dependencyLinks.TryGetValue(id, out List<TaskCompletionSource<IPackageResource?>>? tasks))
+        {
+            tasks = [];
+            dependencyLinks.Add(id, tasks);
+        }
+
+        tasks.Add(taskCompletionSource);
+        var package = await taskCompletionSource.Task;
+        return package;
+    }
+
+    // Only need to call this method after loading all the primary local packages.
+    // Then it will be called again automatically after loading the dependencies.
+    public static void StartDependencyResolution()
+    {
+        List<string> finishedIds = [];
+        foreach (var pair in dependencyLinks)
+        {
+            var id = pair.Key;
+            var tasks = pair.Value;
+            if (ResourceManager.Resources.FirstOrDefault(x => x.Id == id) is IPackageResource dependency)
+            {
+                foreach (var task in tasks)
+                {
+                    task.SetResult(dependency);
+                }
+                tasks.Clear();
+                finishedIds.Add(id);
+            }
+            else
+                LoadDependencyAsync(id);
+        }
+        foreach (var id in finishedIds)
+        {
+            dependencyLinks.Remove(id);
+        }
+        finishedIds.Clear();
+    }
+
+    // idk what or how this works, made sense to me
+    private static int loadWaits = 0;
+
+    private static async void LoadDependencyAsync(string id)
+    {
+        if (_loadPackageCallback == null) return;
+
+        loadWaits++;
+
+        // This will call Symptum.Common.Helpers.PackageHelper.LoadPackageAsync(string packageId)
+        // PackageHelper will be responsible for downloading, caching or loading a package from cache
+        var package = await _loadPackageCallback(id);
+        if (package != null)
+        {
+            // Link the newly loaded dependencies
+            if (dependencyLinks.TryGetValue(id, out var tasks))
+            {
+                foreach (var task in tasks)
+                {
+                    task.SetResult(package);
+                }
+                dependencyLinks.Remove(id);
+            }
+            ResolveDependencies(package);
+
+            loadWaits--;
+        }
+        if (loadWaits == 0) // Resolve dependencies of the newly loaded packages after loading all the packages
+        {
+            StartDependencyResolution();
+            _ = id;
+        }
+    }
+
+    #endregion
 }

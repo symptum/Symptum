@@ -1,26 +1,17 @@
 using System.Diagnostics;
-using Microsoft.UI.Xaml.Controls;
+using Symptum.Common.Helpers;
 using Symptum.Core.Data.Nutrition;
+using Symptum.Core.Management.Deployment;
 using Symptum.Core.Management.Resources;
-using Symptum.Core.Math;
 using Symptum.Core.Subjects;
 using Symptum.Core.Subjects.Books;
 using Symptum.Core.Subjects.QuestionBanks;
 using Uno.Resizetizer;
 
-#if __WASM__
-using Symptum.Common.Helpers;
-using static Uno.Storage.Pickers.FileSystemAccessApiInformation;
-#endif
-
 namespace Symptum.Editor;
 
 public partial class App : Application
 {
-    /// <summary>
-    /// Initializes the singleton application object. This is the first line of authored code
-    /// executed, and as such is the logical equivalent of main() or WinMain().
-    /// </summary>
     public App()
     {
         InitializeComponent();
@@ -87,65 +78,65 @@ public partial class App : Application
             if (sub is IResource res)
             {
                 res.InitializeResource(null);
-                res.ActivateResource();
+                ActivateResource(res);
+            }
+        }
+    }
 
-                foreach (var child in res.ChildrenResources)
-                {
-                    child.ActivateResource();
-                    foreach (var child1 in child.ChildrenResources)
-                    {
-                        child1.ActivateResource();
-                    }
-                }
+    void ActivateResource(IResource? resource)
+    {
+        if (resource?.ChildrenResources != null)
+        {
+            foreach (var child in resource.ChildrenResources)
+            {
+                child.InitializeResource(resource);
+                ActivateResource(child);
             }
         }
     }
 
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
-        NutritionPackage nutrition = new("Nutrition")
-        {
-            DataSet = new("Data")
-            {
-                Groups =
-                [
-                    new("Fruits")
-                    {
-                        Foods =
-                        [
-                            new()
-                            {
-                                Id = "fruits-banana",
-                                Title = "Banana",
-                                Energy = new(300, "kcal"),
-                                Protein = new(50, "g"),
-                                Measures =
-                                [
-                                    new("Long Banana", 150),
-                                    new("Small Banana", 70)
-                                ]
-                            }
-                        ]
-                    }
-                ]
-            }
-        };
+        //NutritionPackage nutrition = new("Nutrition")
+        //{
+        //    Id = "Symptum.Nutrition",
+        //    DataSet = new("Data")
+        //    {
+        //        Groups =
+        //        [
+        //            new("Fruits")
+        //            {
+        //                Foods =
+        //                [
+        //                    new()
+        //                    {
+        //                        Id = "fruits-banana",
+        //                        Title = "Banana",
+        //                        Energy = new(300, "kcal"),
+        //                        Protein = new(50, "g"),
+        //                        Measures =
+        //                        [
+        //                            new("Long Banana", 150),
+        //                            new("Small Banana", 70)
+        //                        ]
+        //                    }
+        //                ]
+        //            }
+        //        ]
+        //    },
+        //    DependencyIds =
+        //    [
+        //        "Symptum.Subjects.Anatomy"
+        //    ]
+        //};
 
-        ResourceManager.Resources.Add(nutrition);
-        if (nutrition is IResource res)
-        {
-            res.InitializeResource(null);
-            res.ActivateResource();
-
-            foreach (var child in res.ChildrenResources)
-            {
-                child.ActivateResource();
-                foreach (var child1 in child.ChildrenResources)
-                {
-                    child1.ActivateResource();
-                }
-            }
-        }
+        //ResourceManager.Resources.Add(nutrition);
+        //if (nutrition is IResource res)
+        //{
+        //    res.InitializeResource(null);
+        //    ActivateResource(res);
+        //}
+        //ResourceManager.ResolveDependencies(nutrition);
         //Temp.JsonTest();
         //DateTime now = DateTime.Now;
         //LoadSubjects();
@@ -176,11 +167,12 @@ public partial class App : Application
         //Debug.WriteLine("TryGetAvailableChildResourceFromId(): " + diff.TotalMilliseconds + " ms");
         //if (avail != null) Debug.WriteLine("Found " + avail?.Id);
 
-#if __WASM__
-        Uno.WinRTFeatureConfiguration.Storage.Pickers.WasmConfiguration = Uno.WasmPickerConfiguration.FileSystemAccessApiWithFallback;
-        StorageHelper.SetPickerSupport(IsOpenPickerSupported, IsSavePickerSupported, IsFolderPickerSupported);
-#endif
-        LoadAllBookListsAsync();
+        await PackageHelper.InitializeAsync();
+        StorageHelper.Initialize();
+
+        await LoadAllBookListsAsync();
+
+        PackageManager.StartDependencyResolution();
 
         MainWindow = new();
 
@@ -189,6 +181,8 @@ public partial class App : Application
         MainWindow.SystemBackdrop = new MicaBackdrop();
         MainWindow.Title = "Symptum Editor";
 #endif
+
+        WindowHelper.Initialize(MainWindow);
 
 #if DEBUG
         MainWindow.EnableHotReload();
@@ -199,7 +193,7 @@ public partial class App : Application
         if (MainWindow.Content is not Frame rootFrame)
         {
             // Create a Frame to act as the navigation context and navigate to the first page
-            rootFrame = new Frame();
+            rootFrame = new();
 
             // Place the frame in the current Window
             MainWindow.Content = rootFrame;
@@ -220,11 +214,6 @@ public partial class App : Application
         MainWindow.Activate();
     }
 
-    /// <summary>
-    /// Invoked when Navigation to a certain page fails
-    /// </summary>
-    /// <param name="sender">The Frame which failed navigation</param>
-    /// <param name="e">Details about the navigation failure</param>
     private void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
     {
         throw new InvalidOperationException($"Failed to load {e.SourcePageType.FullName}: {e.Exception}");

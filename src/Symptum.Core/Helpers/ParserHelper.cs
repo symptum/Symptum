@@ -1,12 +1,10 @@
 namespace Symptum.Core.Helpers;
 
-public class ParserHelper
+public static class ParserHelper
 {
-    public static readonly string QuestionIdDelimiter = "_";
+    public const char QuestionIdDelimiter = '_';
 
-    public static readonly string ListDelimiter = ";";
+    public const char ListDelimiter = ';';
 
-    public static readonly string BookReferenceDelimiter = "#";
-
-    //public static readonly string ReferenceValueDataDelimiter = "|";
+    public const char BookReferenceDelimiter = '#';
 }

@@ -1,12 +1,3 @@
-using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
-using Symptum.Core.Management.Resources;
-using Symptum.Core.Subjects.QuestionBanks;
-using Symptum.Core.Subjects;
-using Markdig;
-using Markdig.Syntax;
-using Markdig.Renderers.Normalize;
-using Markdig.Renderers.Roundtrip;
 using Symptum.Core.Math;
 using System.Diagnostics;
 

@@ -1,40 +1,23 @@
 using Symptum.Core.Extensions;
-using static Symptum.Core.Helpers.FileHelper;
+using Symptum.Core.Helpers;
 using Symptum.Core.Management.Resources;
-using Symptum.Core.Subjects.QuestionBanks;
-using Windows.Foundation;
 using Windows.Storage.Pickers;
+using static Symptum.Core.Helpers.FileHelper;
 
 namespace Symptum.Common.Helpers;
 
 public class ResourceHelper
 {
-    private static XamlRoot? _xamlRoot;
-    private static IntPtr _hWnd = IntPtr.Zero;
-
-    private static StorageFolder? workFolder;
+    private static StorageFolder? _workFolder;
 
     public static StorageFolder? WorkFolder
     {
-        get => workFolder;
+        get => _workFolder;
         private set
         {
-            workFolder = value;
-            WorkFolderChanged?.Invoke(null, workFolder);
+            _workFolder = value;
+            WorkFolderChanged?.Invoke(null, _workFolder);
         }
-    }
-
-    private static bool _folderPicked = false;
-
-    public static bool FolderPicked
-    {
-        get => _folderPicked;
-    }
-
-    public static void Initialize(XamlRoot? xamlRoot, IntPtr hWnd)
-    {
-        _xamlRoot = xamlRoot;
-        _hWnd = hWnd;
     }
 
     #region Work Folder Handling
@@ -42,7 +25,7 @@ public class ResourceHelper
     public static async Task<bool> OpenWorkFolderAsync(StorageFolder? folder = null)
     {
         bool result = await SelectWorkFolderAsync(folder);
-        if (result && _folderPicked)
+        if (result && StorageHelper.IsFolderPickerSupported)
         {
             ResourceManager.Resources.Clear();
             await LoadResourcesFromWorkPathAsync();
@@ -55,43 +38,35 @@ public class ResourceHelper
     public static void CloseWorkFolder()
     {
         WorkFolder = null;
-        _folderPicked = false;
         ResourceManager.Resources.Clear();
     }
 
-    private static async Task<bool> VerifyWorkFolderAsync()
+    private static async Task<bool> VerifyWorkFolderAsync(StorageFolder? targetFolder = null)
     {
         bool pathExists = true;
-        if (workFolder == null)
-            pathExists = await SelectWorkFolderAsync();
+        if (targetFolder == null)
+        {
+            if (_workFolder == null)
+                pathExists = await SelectWorkFolderAsync();
+        }
 
         return pathExists;
     }
 
-    private static async Task<bool> SelectWorkFolderAsync(StorageFolder? folder = null)
+    public static async Task<bool> SelectWorkFolderAsync(StorageFolder? folder = null)
     {
-        if (folder == null)
+        if (folder == null && StorageHelper.IsFolderPickerSupported)
         {
-            if (StorageHelper.IsFolderPickerSupported)
-            {
-                FolderPicker folderPicker = new();
-                folderPicker.FileTypeFilter.Add("*");
+            FolderPicker folderPicker = new();
+            folderPicker.FileTypeFilter.Add("*");
 
 #if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-                WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, _hWnd);
+            WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, WindowHelper.WindowHandle);
 #endif
-                folder = await folderPicker.PickSingleFolderAsync();
-                _folderPicked = true;
-            }
-            else
-            {
-                var localFolder = ApplicationData.Current.LocalFolder;
-                folder = await localFolder.CreateFolderAsync("Temp", CreationCollisionOption.OpenIfExists);
-                _folderPicked = false;
-            }
+            folder = await folderPicker.PickSingleFolderAsync();
         }
 
-        if (folder != null && workFolder != folder && workFolder?.Path != folder.Path)
+        if (folder != null && _workFolder != folder && _workFolder?.Path != folder.Path)
         {
             WorkFolder = folder;
             return true;
@@ -102,9 +77,9 @@ public class ResourceHelper
 
     public static async Task<IReadOnlyList<StorageFile>?> GetFilesFromWorkPathAsync()
     {
-        if (workFolder != null)
+        if (_workFolder != null)
         {
-            return await workFolder.GetFilesAsync();
+            return await _workFolder.GetFilesAsync();
         }
 
         return null;
@@ -130,38 +105,64 @@ public class ResourceHelper
         }
     }
 
-    private static async Task LoadResourceFromFileAsync(StorageFile file, IResource? parent = null)
+    public static async Task<IResource?> LoadResourceFromFileAsync(StorageFile file, IResource? parent = null)
     {
-        if (file == null) return;
         if (file.FileType.Equals(CsvFileExtension, StringComparison.InvariantCultureIgnoreCase))
+            return await LoadCsvFileResourceFromFileAsync(file, parent);
+        else if (file != null && file.FileType.Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase))
+            return await LoadPackageResourceFromFileAsync(file);
+
+        return null;
+    }
+
+    public static async Task<CsvFileResource?> LoadCsvFileResourceFromFileAsync(StorageFile? file, IResource? parent)
+    {
+        if (file != null && file.FileType.Equals(CsvFileExtension, StringComparison.InvariantCultureIgnoreCase))
         {
             string csv = await FileIO.ReadTextAsync(file);
-            var topic = new QuestionBankTopic(file.DisplayName);
-            ResourceManager.LoadResourceFile(topic, csv);
-            if (topic != null)
+            if (CsvResourceHelper.TryGetCsvResourceType(csv, out Type? csvType) &&
+                Activator.CreateInstance(csvType) is CsvFileResource csvFileResource)
             {
-                if (parent != null && parent.CanAddChildResourceType(typeof(QuestionBankTopic)))
-                    parent.AddChildResource(topic);
+                csvFileResource.Title = file.DisplayName;
+                ResourceManager.LoadResourceFile(csvFileResource, csv);
+
+                if (parent != null && parent.CanAddChildResourceType(csvType))
+                    parent.AddChildResource(csvFileResource);
                 else
-                    ResourceManager.Resources.Add(topic);
+                    ResourceManager.Resources.Add(csvFileResource);
+
+                return csvFileResource;
             }
         }
-        else if (file.FileType.Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase))
+
+        return null;
+    }
+
+    public static async Task<PackageResource?> LoadPackageResourceFromFileAsync(StorageFile? file)
+    {
+        if (file != null && file.FileType.Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase))
         {
             string json = await FileIO.ReadTextAsync(file);
-            var package = ResourceManager.LoadPackageMetadata(json);
+            var package = ResourceManager.LoadPackageFromMetadata(json);
             if (package != null)
             {
                 ResourceManager.Resources.Add(package);
+                ResourceManager.RegisterResource(package);
                 await LoadResourceAsync(package);
+                return package;
             }
         }
+
+        return null;
     }
 
-    private static async Task LoadResourceAsync(IResource resource, IResource? parent = null)
+    public static async Task LoadResourceAsync(IResource resource, IResource? parent = null)
     {
         if (resource is CsvFileResource csvResource)
+        {
             await LoadCSVFileResourceAsync(csvResource);
+            resource.InitializeResource(parent);
+        }
         else
         {
             if (resource is MetadataResource metadataResource && metadataResource.SplitMetadata)
@@ -170,8 +171,7 @@ public class ResourceHelper
             }
 
             resource.InitializeResource(parent);
-            resource.ActivateResource(); // Temporary
-            await LoadChildrenResourcesAsync(resource);
+            await LoadChildrenResourcesAsync(resource); // Temporary
         }
     }
 
@@ -190,8 +190,8 @@ public class ResourceHelper
     {
         StorageFile? csvFile = null;
 
-        (string folderPath, string fileName, string extension) = ResourceManager.GetDetailsFromFilePath(csvResource.FilePath);
-        StorageFolder? folder = await GetSubFolderAsync(workFolder, folderPath);
+        (string folderPath, string fileName, string extension) = GetDetailsFromFilePath(csvResource.FilePath);
+        StorageFolder? folder = await StorageHelper.GetSubFolderAsync(_workFolder, folderPath);
         if (folder != null)
         {
             try
@@ -212,8 +212,8 @@ public class ResourceHelper
     {
         StorageFile? jsonFile = null;
 
-        (string folderPath, string fileName, string extension) = ResourceManager.GetDetailsFromFilePath(resource.MetadataPath);
-        StorageFolder? folder = await GetSubFolderAsync(workFolder, folderPath);
+        (string folderPath, string fileName, string extension) = GetDetailsFromFilePath(resource.MetadataPath);
+        StorageFolder? folder = await StorageHelper.GetSubFolderAsync(_workFolder, folderPath);
         if (folder != null)
         {
             try
@@ -234,14 +234,14 @@ public class ResourceHelper
 
     #region Saving Resources
 
-    public static async Task<bool> SaveAllResourcesAsync()
+    public static async Task<bool> SaveAllResourcesAsync(StorageFolder? targetFolder = null)
     {
-        if (ResourceManager.Resources.Count > 0 && await VerifyWorkFolderAsync())
+        if (ResourceManager.Resources.Count > 0)
         {
             bool allSaved = true;
             foreach (var resource in ResourceManager.Resources)
             {
-                allSaved &= await SaveResourceAsync(resource);
+                allSaved &= await SaveResourceAsync(resource, targetFolder);
             }
             return allSaved;
         }
@@ -249,93 +249,93 @@ public class ResourceHelper
         return false;
     }
 
-    public static async Task<bool> SaveResourceAsync(IResource resource)
+    public static async Task<bool> SaveResourceAsync(IResource resource, StorageFolder? targetFolder = null)
     {
         if (resource == null) return false;
-        bool pathExists = await VerifyWorkFolderAsync();
-        if (!pathExists) return false;
 
         if (resource is CsvFileResource csvResource)
         {
-            return await SaveCSVFileAsync(csvResource);
+            return await SaveCSVFileAsync(csvResource, targetFolder);
         }
-        else if (resource is PackageResource package)
+        else
         {
-            bool result = true;
-            result &= await SaveChildrenAsync(package);
-            result &= await SaveMetadataAsync(package);
-            return result;
-        }
-        else if (resource is MetadataResource metadataResource && metadataResource.SplitMetadata)
-        {
-            bool result = true;
-            result &= await SaveChildrenAsync(metadataResource);
-            result &= await SaveMetadataAsync(metadataResource);
-            return result;
-        }
+            bool result = await SaveChildrenAsync(resource, targetFolder);
 
-        return await SaveChildrenAsync(resource);
+            if (resource is MetadataResource metadataResource && metadataResource.SplitMetadata)
+            {
+                result &= await SaveMetadataAsync(metadataResource, targetFolder);
+            }
+            else if (resource is PackageResource package)
+            {
+                result &= await SaveMetadataAsync(package, targetFolder);
+            }
+
+            return result;
+        }
     }
 
-    public static async Task<bool> SaveCSVFileAsync(CsvFileResource csvResource)
+    public static async Task<bool> SaveCSVFileAsync(CsvFileResource csvResource, StorageFolder? targetFolder = null)
     {
         if (csvResource == null) return false;
-        bool pathExists = await VerifyWorkFolderAsync();
-        if (!pathExists) return false;
+        //bool pathExists = await VerifyWorkFolderAsync(targetFolder);
+        //if (!pathExists) return false;
 
-        string folder = ResourceManager.GetResourceFolderPath(csvResource.ParentResource);
+        string subFolderPath = ResourceManager.GetResourceFolderPath(csvResource);
         string? fileName = ResourceManager.GetResourceFileName(csvResource);
-        csvResource.FilePath = folder + fileName + CsvFileExtension;
-        StorageFile saveFile = await PickSaveFileAsync(fileName, CsvFileExtension, "CSV File", folder);
+        csvResource.FilePath = subFolderPath + fileName + CsvFileExtension;
+        StorageFile? saveFile = await PickSaveFileAsync(fileName, CsvFileExtension, "CSV File", targetFolder, subFolderPath);
 
         if (saveFile != null)
         {
             string? content = ResourceManager.WriteResourceFile(csvResource);
-            return await WriteToFileAsync(saveFile, content);
+            return await StorageHelper.WriteToFileAsync(saveFile, content);
         }
 
         return false;
     }
 
-    public static async Task<bool> SaveMetadataAsync<T>(T resource) where T : MetadataResource
+    public static async Task<bool> SaveMetadataAsync<T>(T resource, StorageFolder? targetFolder = null) where T : MetadataResource
     {
         if (resource == null) return false;
-        bool pathExists = await VerifyWorkFolderAsync();
-        if (!pathExists) return false;
+        //bool pathExists = await VerifyWorkFolderAsync(targetFolder);
+        //if (!pathExists) return false;
 
-        string path = ResourceManager.GetResourceFolderPath(resource.ParentResource);
-        StorageFile saveFile = await PickSaveFileAsync(ResourceManager.GetResourceFileName(resource), JsonFileExtension, "JSON File", path);
+        string subFolderPath = ResourceManager.GetResourceFolderPath(resource);
+        string? fileName = ResourceManager.GetResourceFileName(resource);
+        resource.MetadataPath = subFolderPath + fileName + JsonFileExtension;
+        StorageFile? saveFile = await PickSaveFileAsync(fileName, JsonFileExtension, "JSON File", targetFolder, subFolderPath);
 
         if (saveFile != null)
         {
-            string content = resource is PackageResource package ?
+            string? content = resource is PackageResource package ?
                 ResourceManager.WritePackageMetadata(package) : ResourceManager.WriteResourceMetadata(resource);
-            return await WriteToFileAsync(saveFile, content);
+            return await StorageHelper.WriteToFileAsync(saveFile, content);
         }
 
         return false;
     }
 
-    private static async Task<bool> SaveChildrenAsync(IResource? resource)
+    private static async Task<bool> SaveChildrenAsync(IResource? resource, StorageFolder? targetFolder = null)
     {
-        if (resource != null && resource.CanHandleChildren && resource?.ChildrenResources != null)
+        if (resource != null && resource.CanHandleChildren && resource.ChildrenResources != null)
         {
             bool allChildrenSaved = true;
             foreach (var child in resource.ChildrenResources)
             {
-                allChildrenSaved &= await SaveResourceAsync(child);
+                allChildrenSaved &= await SaveResourceAsync(child, targetFolder);
             }
             return allChildrenSaved;
         }
         return true;
     }
 
-    private static async Task<StorageFile?> PickSaveFileAsync(string name, string extension, string fileType, string? subFolder = null)
+    private static async Task<StorageFile?> PickSaveFileAsync(string name, string extension, string fileType, StorageFolder? targetFolder = null, string? subFolder = null)
     {
         StorageFile saveFile;
-        if (_folderPicked && workFolder != null)
+        targetFolder ??= _workFolder;
+        if (targetFolder != null && StorageHelper.IsFolderPickerSupported)
         {
-            var folder = await CreateSubFoldersAsync(workFolder, subFolder);
+            var folder = await StorageHelper.CreateSubFoldersAsync(targetFolder, subFolder);
             saveFile = await folder?.CreateFileAsync(name + extension, CreationCollisionOption.ReplaceExisting);
         }
         else
@@ -347,7 +347,7 @@ public class ResourceHelper
             fileSavePicker.FileTypeChoices.Add(fileType, [extension]);
 
 #if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-            WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, _hWnd);
+            WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, WindowHelper.WindowHandle);
 #endif
             saveFile = await fileSavePicker.PickSaveFileAsync();
         }
@@ -356,47 +356,38 @@ public class ResourceHelper
 
     #endregion
 
-    #region Deleting Resources
+    #region Removing Resources
 
-    public static async Task DeleteResourceAsync(IResource? resource)
+    public static async Task RemoveResourceAsync(IResource? resource, bool delete = false)
     {
         if (resource == null) return;
 
-        if (resource is CsvFileResource csvResource)
-        {
+        await RemoveChildrenAsync(resource, delete);
+
+        if (delete && resource is CsvFileResource csvResource)
             await DeleteCSVFileAsync(csvResource);
-        }
-        else if (resource is PackageResource package)
-        {
-            await DeleteChildrenAsync(package);
-            await DeleteMetadataAsync(package);
-        }
-        else if (resource is MetadataResource metadataResource && metadataResource.SplitMetadata)
-        {
-            await DeleteChildrenAsync(metadataResource);
+        else if (delete && resource is MetadataResource metadataResource)
             await DeleteMetadataAsync(metadataResource);
-        }
-        else
-        {
-            await DeleteChildrenAsync(resource);
-        }
 
         IResource? parent = resource.ParentResource;
         if (parent != null)
             parent.RemoveChildResource(resource);
         else
+        {
             ResourceManager.Resources.RemoveItemFromListIfExists(resource);
+        }
+        ResourceManager.UnregisterResource(resource);
     }
 
     public static async Task DeleteCSVFileAsync(CsvFileResource? csvResource)
     {
         if (csvResource == null) return;
-        if (_folderPicked && workFolder != null)
+        if (_workFolder != null && StorageHelper.IsFolderPickerSupported)
         {
             try
             {
-                string path = ResourceManager.GetResourceFolderPath(csvResource.ParentResource);
-                var folder = await GetSubFolderAsync(workFolder, path);
+                string path = ResourceManager.GetResourceFolderPath(csvResource);
+                var folder = await StorageHelper.GetSubFolderAsync(_workFolder, path);
                 IStorageItem? file = await folder?.TryGetItemAsync(ResourceManager.GetResourceFileName(csvResource) + CsvFileExtension);
                 if (file != null) await file.DeleteAsync();
             }
@@ -407,84 +398,36 @@ public class ResourceHelper
     public static async Task DeleteMetadataAsync(MetadataResource? resource)
     {
         if (resource == null) return;
-        if (_folderPicked && workFolder != null)
+        if (_workFolder != null && StorageHelper.IsFolderPickerSupported)
         {
             try
             {
-                string path = ResourceManager.GetResourceFolderPath(resource.ParentResource);
-                string? packageName = ResourceManager.GetResourceFileName(resource);
+                string path = ResourceManager.GetResourceFolderPath(resource);
+                string? resourceName = ResourceManager.GetResourceFileName(resource);
 
-                var folder = await GetSubFolderAsync(workFolder, path);
-                IStorageItem? file = await folder?.TryGetItemAsync(packageName + JsonFileExtension);
-                if (file != null) await file.DeleteAsync();
-                IStorageItem? folder1 = await folder?.TryGetItemAsync(packageName);
+                var folder = await StorageHelper.GetSubFolderAsync(_workFolder, path);
+                if (resource.SplitMetadata || resource is PackageResource)
+                {
+                    IStorageItem? file = await folder?.TryGetItemAsync(resourceName + JsonFileExtension);
+                    if (file != null) await file.DeleteAsync();
+                }
+                IStorageItem? folder1 = await folder?.TryGetItemAsync(resourceName);
                 if (folder1 != null) await folder1.DeleteAsync();
             }
             catch { }
         }
     }
 
-    private static async Task DeleteChildrenAsync(IResource? resource)
+    private static async Task RemoveChildrenAsync(IResource? resource, bool delete = false)
     {
-        if (resource != null && resource.ChildrenResources != null)
+        if (resource != null && resource.CanHandleChildren && resource.ChildrenResources != null)
         {
             var children = resource.ChildrenResources.ToList();
             foreach (var child in children)
             {
-                await DeleteResourceAsync(child);
+                await RemoveResourceAsync(child, delete);
             }
         }
-    }
-
-    #endregion
-
-    #region Storage Methods
-
-    private static async Task<StorageFolder?> SubFolderFuncAsync(StorageFolder? parent, string? path, Func<StorageFolder?, string, IAsyncOperation<StorageFolder>> func)
-    {
-        if (path == null) return parent;
-
-        StorageFolder? folder = parent;
-
-        path = path.Trim(PathSeparator);
-        var folders = path.Split(PathSeparator);
-
-        for (int i = 0; i < folders.Length; i++)
-        {
-            string folderName = folders[i];
-            if (!string.IsNullOrEmpty(folderName) && !string.IsNullOrWhiteSpace(folderName))
-            {
-                try
-                {
-                    folder = await func(folder, folderName);
-                }
-                catch { return null; }
-            }
-        }
-
-        return folder;
-    }
-
-    private static async Task<StorageFolder?> GetSubFolderAsync(StorageFolder? parent, string? path)
-    {
-        StorageFolder? folder = await SubFolderFuncAsync(parent, path,
-            (f, name) => f?.GetFolderAsync(name));
-        return folder;
-    }
-
-    private static async Task<StorageFolder?> CreateSubFoldersAsync(StorageFolder? parent, string? path = null)
-    {
-        StorageFolder? folder = await SubFolderFuncAsync(parent, path,
-            (f, name) => f?.CreateFolderAsync(name, CreationCollisionOption.OpenIfExists));
-        return folder;
-    }
-
-    private static async Task<bool> WriteToFileAsync(StorageFile file, string content)
-    {
-        CachedFileManager.DeferUpdates(file);
-        await FileIO.WriteTextAsync(file, content);
-        await CachedFileManager.CompleteUpdatesAsync(file);
-        return true;
     }
 
     #endregion

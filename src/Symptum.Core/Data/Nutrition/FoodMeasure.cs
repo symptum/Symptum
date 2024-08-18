@@ -37,7 +37,7 @@ public class FoodMeasure : ObservableObject
 
     #endregion
 
-    public double GetMultiplier() => _weight / 100;
+    public double GetMultiplier() => _weight / 100.0;
 
     public static bool TryParse(string? text, [NotNullWhen(true)] out FoodMeasure? measure)
     {

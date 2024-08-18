@@ -1,4 +1,4 @@
-using Symptum.Navigation;
+using Symptum.Common.Helpers;
 using Uno.Resizetizer;
 
 namespace Symptum;
@@ -15,21 +15,32 @@ public partial class App : Application
 
     protected Window? MainWindow { get; private set; }
 
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
+    protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
-        MainWindow = new Window();
+        MainWindow = new();
+
+#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+        MainWindow.ExtendsContentIntoTitleBar = true;
+        MainWindow.SystemBackdrop = new MicaBackdrop();
+        MainWindow.Title = "Symptum";
+#endif
+
+        WindowHelper.Initialize(MainWindow);
+
 #if DEBUG
         MainWindow.EnableHotReload();
 #endif
 
-        NavigationManager.Initialize();
+        await ResourceHelper.SelectWorkFolderAsync(await StorageFolder.GetFolderFromPathAsync("E:\\BUS\\Temp\\T"));
+        await PackageHelper.InitializeAsync();
+        await ResourceHelper.LoadResourcesFromWorkPathAsync();
 
         // Do not repeat app initialization when the Window already has content,
         // just ensure that the window is active
         if (MainWindow.Content is not Frame rootFrame)
         {
             // Create a Frame to act as the navigation context and navigate to the first page
-            rootFrame = new Frame();
+            rootFrame = new();
 
             // Place the frame in the current Window
             MainWindow.Content = rootFrame;

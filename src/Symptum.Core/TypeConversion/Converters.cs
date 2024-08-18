@@ -131,7 +131,7 @@ public class ListToStringConversion
 
     public static string? ConvertToString<T>(object? value, Func<T, string> elementToString)
     {
-        return ConvertToString(value, elementToString, ParserHelper.ListDelimiter);
+        return ConvertToString(value, elementToString, ParserHelper.ListDelimiter.ToString());
     }
 
     public static void ValidateDataForDate(string text, List<DateOnly> list)

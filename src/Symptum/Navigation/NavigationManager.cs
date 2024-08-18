@@ -1,123 +1,105 @@
 using System.Collections.ObjectModel;
+using Symptum.Core.Extensions;
+using Symptum.Core.Management.Navigation;
+using Symptum.Core.Management.Resources;
+using Symptum.Core.Subjects;
 using Symptum.Pages;
-using Symptum.ViewModels;
 
 namespace Symptum.Navigation;
 
-internal class NavigationManager
+public class NavigationManager
 {
-    private static NavigationManager navigationManager;
-    private NavigationInfo currentNavInfo = null;
+    public static readonly NavigationInfo HomeNavInfo = new(HomeUri, "Home", typeof(HomePage), new SymbolIconSource() { Symbol = Symbol.Home });
 
-    public NavigationInfo CurrentNavigationInfo { get => currentNavInfo; }
+    public static readonly Uri HomeUri = ResourceManager.GetAbsoluteUri("home");
 
-    public event EventHandler<NavigationRequestedEventArgs> NavigationRequested;
+    public static INavigable? CurrentNavigable { get; set; }
 
-    private static ObservableCollection<NavigationInfo> navigationInfos = new()
-        {
-            new ("Home", "home", typeof(HomePage)),
-            new ("Managements", "managements", typeof(ManagementsPage)),
-        };
+    public static event EventHandler<INavigable> NavigationRequested;
 
-    public static ObservableCollection<NavigationInfo> NavigationInfos { get; } = navigationInfos;
+    public static ObservableCollection<NavigationInfo> NavigationInfos { get; } = [ HomeNavInfo ];
 
-    private NavigationManager()
+    static NavigationManager()
     {
-        NavigationInfo subjectNavInfo = new("Subjects", "subjects", typeof(SubjectsPage));
+        NavigationInfo subjectNavInfo = new(ResourceManager.GetAbsoluteUri("subjects"), "Subjects", typeof(SubjectsPage), new SymbolIconSource() { Symbol = Symbol.Library });
 
-        foreach (var sub in MainViewModel.Subjects)
+        foreach (var sub in SubjectsManager.Subjects)
         {
-            subjectNavInfo.Children.Add(new NavigationInfo(sub.Name, sub.Path, typeof(SubjectViewPage)));
+            subjectNavInfo.Children.AddItemToListIfNotExists(CreateNavigationInfoForNavigable(sub));
         }
 
-        navigationInfos.Add(subjectNavInfo);
+        NavigationInfos.Add(subjectNavInfo);
     }
 
-    public static void Initialize()
+    public static void Navigate(Uri? uri = null) => Navigate(GetNavigableForUri(uri));
+
+    public static void Navigate(INavigable? navigable)
     {
-        if (navigationManager == null)
-            navigationManager = new();
+        navigable ??= HomeNavInfo;
+        NavigationRequested?.Invoke(null, navigable);
     }
 
-    public static NavigationManager GetNavigationManager()
+    public static INavigable? GetNavigableForUri(Uri? uri)
     {
-        if (navigationManager == null)
-            throw new NullReferenceException($"{nameof(Initialize)} has not been called prior.");
-        return navigationManager;
-    }
+        INavigable? navigable = GetNavigationInfoForUri(uri);
 
-    public void Navigate(string navPath)
-    {
-        currentNavInfo = GetNavigationInfoForPath(navPath);
-        NavigationRequested?.Invoke(this, new NavigationRequestedEventArgs(navPath));
-    }
-
-    public void SetCurrentNavigationInfo(NavigationInfo navigationInfo)
-    {
-        currentNavInfo = navigationInfo;
-    }
-
-
-    public NavigationInfo GetNavigationInfoForPath(string navPath)
-    {
-        return FindNavigationInfo(navInfo => navInfo.Path.Equals(navPath));
-    }
-
-    private NavigationInfo FindNavigationInfo(Func<NavigationInfo, bool> func)
-    {
-        var navInfo = navigationInfos.FirstOrDefault(func);
-
-        if (navInfo == null)
+        if (navigable == null && ResourceManager.TryGetResourceFromUri(uri, out var resource) && resource is INavigable navResource)
         {
-            foreach (var _navInfo in navigationInfos)
+            navigable = navResource;
+        }
+
+        return navigable;
+    }
+
+    public static NavigationInfo? GetNavigationInfoForUri(Uri? uri)
+    {
+        if (uri == null) return null;
+
+        return FindNavigationInfo(navInfo => uri.Equals(navInfo.Uri));
+    }
+
+    private static NavigationInfo? FindNavigationInfo(Func<NavigationInfo, bool> predicate, IList<NavigationInfo>? collection = null)
+    {
+        collection ??= NavigationInfos;
+        NavigationInfo? navInfo = null;
+
+        foreach (var _navInfo in collection)
+        {
+            if (predicate(_navInfo))
             {
-                navInfo = _navInfo.Children.FirstOrDefault(func);
+                navInfo = _navInfo;
             }
+            else
+                navInfo = FindNavigationInfo(predicate, _navInfo.Children);
+            if (navInfo != null) return navInfo;
         }
 
-        return navInfo;
+        return null;
     }
 
-    public Type GetPageTypeForPath(string navPath)
+    public static Type? GetPageTypeForUri(Uri? uri)
     {
-        return GetNavigationInfoForPath(navPath).PageType;
+        INavigable? navigable = GetNavigableForUri(uri);
+
+        return GetPageTypeForNavigable(navigable);
     }
 
-    public NavigationInfo GetNavigationInfoForPageType(Type pageType)
+    public static Type? GetPageTypeForNavigable(INavigable? navigable)
     {
-        return FindNavigationInfo(navInfo => navInfo.PageType == pageType);
+        if (navigable is NavigationInfo navInfo)
+            return navInfo.PageType;
+        else if (navigable is NavigableResource resource)
+            return typeof(SubjectViewPage);
+        else
+            return null;
     }
 
-    public string GetPathForPageType(Type pageType)
+    public static NavigationInfo? CreateNavigationInfoForNavigable(INavigable? navigable)
     {
-        return GetNavigationInfoForPageType(pageType).Path;
+        return navigable switch
+        {
+            Subject => new(navigable.Uri, navigable.Title, typeof(SubjectViewPage), new FontIconSource() { Glyph = "\uE82D" }),
+            _ => null,
+        };
     }
-}
-
-public class NavigationInfo
-{
-    public NavigationInfo(string title, string path, Type pageType)
-    {
-        Title = title;
-        Path = path;
-        PageType = pageType;
-    }
-
-    public string Title { get; private set; }
-
-    public Type PageType { get; private set; }
-
-    public string Path { get; private set; }
-
-    public ObservableCollection<NavigationInfo> Children { get; private set; } = new();
-}
-
-public class NavigationRequestedEventArgs : EventArgs
-{
-    public NavigationRequestedEventArgs(string path)
-    {
-        Path = path;
-    }
-
-    public string Path { get; private set; }
 }

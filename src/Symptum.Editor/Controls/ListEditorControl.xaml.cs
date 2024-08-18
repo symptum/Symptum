@@ -8,7 +8,7 @@ public sealed partial class ListEditorControl : UserControl
         DependencyProperty.Register(
             nameof(Header),
             typeof(string),
-            typeof(ListEditorItemCommandsButton),
+            typeof(ListEditorControl),
             new(string.Empty));
 
     public string Header
@@ -21,7 +21,7 @@ public sealed partial class ListEditorControl : UserControl
     DependencyProperty.Register(
         nameof(ItemsSource),
         typeof(object),
-        typeof(ListEditorItemCommandsButton),
+        typeof(ListEditorControl),
         new(null));
 
     public object ItemsSource
@@ -34,7 +34,7 @@ public sealed partial class ListEditorControl : UserControl
         DependencyProperty.Register(
             nameof(ItemTemplate),
             typeof(DataTemplate),
-            typeof(ListEditorItemCommandsButton),
+            typeof(ListEditorControl),
             new(null));
 
     public DataTemplate ItemTemplate

@@ -43,7 +43,7 @@ public sealed partial class ReferenceValueEntryControl : UserControl
     private void LoadEntry(ReferenceValueEntry? entry)
     {
         titleTB.Text = entry?.Title;
-        _data.LoadFromList(entry?.Data);
+        _data.LoadFromList(entry?.Quantities);
         infTB.Text = entry?.Inference;
         remTB.Text = entry?.Remarks;
         expander.Header = entry?.Title;
@@ -54,7 +54,7 @@ public sealed partial class ReferenceValueEntryControl : UserControl
         if (Entry is ReferenceValueEntry entry)
         {
             expander.Header = entry.Title = titleTB.Text;
-            entry.Data = _data.UnwrapToList();
+            entry.Quantities = _data.UnwrapToList();
             entry.Inference = infTB.Text;
             entry.Remarks = remTB.Text;
         }

@@ -59,13 +59,17 @@ namespace Symptum.Editor.Controls
             string propName = prop.Name;
             string controlName = GetControlName(propName);
             string? header = null;
+            string? description = null;
 
             if (prop.GetAttributes().SingleOrDefault(x => x.AttributeClass.Equals(attributeSymbol)) is AttributeData data)
+            {
                 header = data.NamedArguments.FirstOrDefault(x => x.Key == "Header").Value.Value?.ToString();
+                description = data.NamedArguments.FirstOrDefault(x => x.Key == "Description").Value.Value?.ToString();
+            }
 
             // Creating fields
             source.Append($@"
-        private readonly TextBox {controlName} = new() {{ Header = ""{header}"" }};");
+        private readonly TextBox {controlName} = new() {{ Header = ""{header}"", Description = ""{description}"" }};");
 
             // We are doing the other gens in a single loop;
             addControls.Append($@"

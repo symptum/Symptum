@@ -1,62 +1,56 @@
 using Microsoft.UI.Xaml.Media.Animation;
+using Symptum.Common.Helpers;
+using Symptum.Core.Management.Navigation;
 using Symptum.Navigation;
+using Symptum.Pages;
 using Windows.UI.Core;
 
 namespace Symptum;
 
 public sealed partial class MainPage : Page
 {
-    private NavigationManager navigationManager;
-
     public MainPage()
     {
         InitializeComponent();
-        navigationManager = NavigationManager.GetNavigationManager();
-        navigationManager.NavigationRequested += NavigationManager_NavigationRequested;
 
-        NavView_Navigate("home", new EntranceNavigationTransitionInfo());
+#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
 
-        //SystemNavigationManager.GetForCurrentView().BackRequested += SystemNavigationManager_BackRequested;
-    }
-
-    private void NavigationManager_NavigationRequested(object? sender, NavigationRequestedEventArgs e)
-    {
-        if (!string.IsNullOrEmpty(e.Path))
+        if (WindowHelper.MainWindow is Window mainWindow)
         {
-            NavView_Navigate(e.Path, new EntranceNavigationTransitionInfo());
+            mainWindow.SetTitleBar(AppTitleBar);
+            TitleTextBlock.Text = mainWindow.Title;
         }
-    }
 
+        Background = null;
+#endif
+
+        NavigationManager.NavigationRequested += (s, e) => NavView_Navigate(e, new EntranceNavigationTransitionInfo());
+
+        NavView_Navigate(null, new EntranceNavigationTransitionInfo());
+        NavView.BackRequested += (s, e) => BackRequested();
+#if HAS_UNO
+        SystemNavigationManager.GetForCurrentView().BackRequested += (s, e) => e.Handled = BackRequested();
+#endif
+    }
 
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
         if (args.SelectedItem != null)
         {
-            var navItemTag = args.SelectedItemContainer?.Tag?.ToString();
-            NavView_Navigate(navItemTag, args.RecommendedNavigationTransitionInfo);
+            var navItem = args.SelectedItem as NavigationInfo;
+            NavView_Navigate(navItem, args.RecommendedNavigationTransitionInfo);
         }
     }
 
-    private void NavView_Navigate(string? navItemTag, NavigationTransitionInfo info)
+    private void NavView_Navigate(INavigable? navigable, NavigationTransitionInfo info)
     {
-        NavigationInfo? navInfo = navigationManager.GetNavigationInfoForPath(navItemTag);
-        Type? pageType = navInfo?.PageType;
+        navigable ??= NavigationManager.HomeNavInfo;
+        Type? pageType = NavigationManager.GetPageTypeForNavigable(navigable);
 
         if (pageType != null && ContentFrame.CurrentSourcePageType != pageType)
         {
-            navigationManager.SetCurrentNavigationInfo(navInfo);
-            ContentFrame.Navigate(pageType, null, info);
+            ContentFrame.Navigate(pageType, navigable, info);
         }
-    }
-
-    private void NavView_BackRequested(NavigationView sender, NavigationViewBackRequestedEventArgs args)
-    {
-        BackRequested();
-    }
-
-    private void SystemNavigationManager_BackRequested(object? sender, BackRequestedEventArgs e)
-    {
-        e.Handled = BackRequested();
     }
 
     private bool BackRequested()
@@ -78,28 +72,18 @@ public sealed partial class MainPage : Page
     private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
     {
         NavView.IsBackEnabled = ContentFrame.CanGoBack;
-        Type sourcePageType = ContentFrame.SourcePageType;
-        if (sourcePageType != null)
+        if (e.SourcePageType != null)
         {
-            NavigationInfo navInfo;
-            if (navigationManager.CurrentNavigationInfo is NavigationInfo _navInfo && _navInfo.PageType == sourcePageType)
+            INavigable? navigable = e.Parameter as INavigable;
+            if (navigable is NavigationInfo navInfo && navInfo.PageType == e.SourcePageType)
             {
-                navInfo = _navInfo;
+                NavView.SelectedItem = navInfo;
             }
-            else
-            {
-                navInfo = navigationManager.GetNavigationInfoForPageType(sourcePageType);
-                navigationManager.SetCurrentNavigationInfo(navInfo);
-            }
+            else NavView.SelectedItem = null;
 
-            NavView.SelectedItem = NavView.FooterMenuItems
-                    .OfType<NavigationViewItem>().
-                    FirstOrDefault(n => n.Tag.Equals(navInfo.Path)) ??
-                    NavView.MenuItems
-                    .OfType<NavigationViewItem>()
-                    .FirstOrDefault(n => n.Tag.Equals(navInfo.Path));
-
-            NavView.Header = navInfo.Title;
+            NavigationManager.CurrentNavigable = navigable;
+            if (e.Content is NavigablePage page) page.Navigable = navigable;
+            NavView.Header = navigable?.Title;
         }
     }
 }

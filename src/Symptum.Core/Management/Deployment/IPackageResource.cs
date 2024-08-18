@@ -1,3 +1,4 @@
+using Symptum.Core.Data;
 using Symptum.Core.Management.Resources;
 
 namespace Symptum.Core.Management.Deployment;
@@ -9,6 +10,10 @@ public interface IPackageResource : IResource
     public Version? Version { get; set; }
 
     public IList<AuthorInfo>? Authors { get; set; }
+
+    public IList<IPackageResource>? Dependencies { get; set; }
+
+    public IList<string>? DependencyIds { get; set; }
 
     public IList<string>? Contents { get; set; } // Is this necessary?
 

@@ -61,14 +61,8 @@
       </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
 
-    <win:Grid x:Name="AppTitleBar" Height="32" Grid.ColumnSpan="2"
-              HorizontalAlignment="Stretch" VerticalAlignment="Top">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition x:Name="LeftPaddingColumn" Width="0" />
-        <ColumnDefinition />
-        <ColumnDefinition x:Name="RightPaddingColumn" Width="0" />
-      </Grid.ColumnDefinitions>
-      <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0" Spacing="5">
+    <win:Grid x:Name="AppTitleBar" Height="32" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0" Spacing="5">
         <TextBlock x:Name="TitleTextBlock" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" />
       </StackPanel>
     </win:Grid>
@@ -100,6 +94,16 @@
         </MenuFlyoutItem>
         <MenuFlyoutItem Text="Close Folder" Click="CloseFolder_Click" />
         <MenuFlyoutItem Text="Generate Markdown" Icon="Document" Click="Markdown_Click" />
+        <MenuFlyoutItem Text="Import Package" Click="ImportPackage_Click">
+          <MenuFlyoutItem.Icon>
+            <FontIcon Glyph="&#xE8B5;" />
+          </MenuFlyoutItem.Icon>
+        </MenuFlyoutItem>
+        <MenuFlyoutItem Text="Export Package" Click="ExportPackage_Click">
+          <MenuFlyoutItem.Icon>
+            <FontIcon Glyph="&#xEDE1;" />
+          </MenuFlyoutItem.Icon>
+        </MenuFlyoutItem>
         <win:MenuFlyoutItem Text="Exit" Click="Exit_Click" />
       </MenuBarItem>
       <MenuBarItem Title="Edit">

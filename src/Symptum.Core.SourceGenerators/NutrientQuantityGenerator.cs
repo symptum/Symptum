@@ -9,22 +9,74 @@ namespace Symptum.Core.SourceGenerators;
 [Generator]
 public class NutrientQuantityGenerator : ISourceGenerator
 {
-    private string GetFieldName(string s)
-    {
-        s = s.Trim();
-        s = char.IsLetter(s[0]) ? char.ToLower(s[0]) + s.Substring(1) : s;
-        s = new string(s.Where(ch => char.IsDigit(ch) || char.IsLetter(ch)).ToArray());
-        s = char.IsDigit(s.Trim()[0]) ? "__" + s : s;
-        return s;
-    }
+    private const char CommentCharacter = '#';
+    private const char UnitCharacter = '~';
 
-    private string GetPropertyName(string s)
+    private static (string? fieldName, string? propertyName, string? header, string? unit, string? comment, bool isComment) ParseLine(string line)
     {
-        s = s.Trim();
-        s = char.IsLetter(s[0]) ? char.ToUpper(s[0]) + s.Substring(1) : s;
-        s = new string(s.Where(ch => char.IsDigit(ch) || char.IsLetter(ch)).ToArray());
-        s = char.IsDigit(s.Trim()[0]) ? "_" + s : s;
-        return s;
+        List<char> fieldName = [];
+        List<char> propertyName = [];
+        string? header = null;
+        string? unit = null;
+        string? comment = null;
+
+        int commentIndex = -1;
+        int unitIndex = -1;
+        bool firstChar = true;
+        for (int i = 0; i < line.Length; i++)
+        {
+            char ch = line[i];
+
+            if (ch == CommentCharacter)
+            {
+                commentIndex = i;
+                break;
+            }
+
+            if (unitIndex > 0) continue; // If unit is found, we have to search for the comment and skip the further steps
+
+            if (ch == UnitCharacter && !firstChar)
+                unitIndex = i;
+            else if (char.IsLetter(ch))
+            {
+                fieldName.Add(firstChar ? char.ToLower(ch) : ch);
+                propertyName.Add(firstChar ? char.ToUpper(ch) : ch);
+                firstChar = false;
+            }
+            else if (char.IsDigit(ch))
+            {
+                if (firstChar)
+                {
+                    fieldName.Add('_');
+                    fieldName.Add('_'); // Add "__" to field for distinguishment
+                    propertyName.Add('_');
+                }
+                fieldName.Add(ch);
+                propertyName.Add(ch);
+                firstChar = false;
+            }
+        }
+
+        if (unitIndex > 0) // Get the unit
+        {
+            if (commentIndex > 0)
+                unit = line.Substring(unitIndex + 1, commentIndex - unitIndex - 1).Trim();
+            else
+                unit = line.Substring(unitIndex + 1).Trim();
+        }
+        if (commentIndex > 0)
+        {
+            comment = line.Substring(commentIndex + 1).Trim(); // Get the comment
+        }
+
+        if (unitIndex > 0) // Get the header
+            header = line.Substring(0, unitIndex).Trim();
+        else
+            header = line.Trim();
+
+        return firstChar ?
+            (null, null, null, null, comment, true) :
+            (new([.. fieldName]), new([.. propertyName]), header, unit, comment, false);
     }
 
     public void Execute(GeneratorExecutionContext context)
@@ -45,17 +97,23 @@ namespace Symptum.Core.Data.Nutrition
     {");
         foreach (var line in File.ReadAllLines(nutrientIndexPath))
         {
-            string field = GetFieldName(line);
-            string prop = GetPropertyName(line);
-            source.Append($@"
-        private Quantity? {field};
+            if (string.IsNullOrWhiteSpace(line)) continue;
 
-        [GenerateUI(Header = ""{line}"")]
+            (string? fieldName, string? propertyName, string? header, string? unit, string? comment, bool isComment) = ParseLine(line);
+            if (isComment) continue;
+
+            string description = (!string.IsNullOrWhiteSpace(comment) ? $"{comment} " : string.Empty)
+                + (!string.IsNullOrWhiteSpace(unit) ? $"(in {unit})" : string.Empty);
+
+            source.Append($@"
+        private Quantity? {fieldName};
+
+        [GenerateUI(Header = ""{header}"", Description = ""{description}"")]
         [TypeConverter(typeof(QuantityCsvConverter))]
-        public Quantity? {prop}
+        public Quantity? {propertyName}
         {{
-             get => {field};
-             set => SetProperty(ref {field}, value);
+             get => {fieldName};
+             set => SetProperty(ref {fieldName}, value);
         }}
 ");
         }
@@ -79,6 +137,8 @@ namespace Symptum.Core.Data.Nutrition
         { }
 
         public string Header { get; set; }
+
+        public string Description { get; set; }
     }
 }
 ";

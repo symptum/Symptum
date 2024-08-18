@@ -55,23 +55,23 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
         get => childrenResources;
     }
 
-    private IList<IResource>? dependencies;
+    //private IList<IResource>? dependencies;
 
-    [JsonIgnore]
-    public IList<IResource>? Dependencies
-    {
-        get => dependencies;
-        set => SetProperty(ref dependencies, value);
-    }
+    //[JsonIgnore]
+    //public IList<IResource>? Dependencies
+    //{
+    //    get => dependencies;
+    //    set => SetProperty(ref dependencies, value);
+    //}
 
-    private IList<string>? dependencyIds;
+    //private IList<string>? dependencyIds;
 
-    [JsonPropertyName(nameof(Dependencies))]
-    public IList<string>? DependencyIds
-    {
-        get => dependencyIds;
-        set => SetProperty(ref dependencyIds, value);
-    }
+    //[JsonPropertyName(nameof(Dependencies))]
+    //public IList<string>? DependencyIds
+    //{
+    //    get => dependencyIds;
+    //    set => SetProperty(ref dependencyIds, value);
+    //}
 
     [JsonIgnore]
     public virtual bool CanHandleChildren { get; } = true;
@@ -96,17 +96,6 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
         OnInitializeResource(parent);
 
         hasInitialized = true;
-    }
-
-    void IResource.ActivateResource()
-    {
-        if (childrenResources != null)
-        {
-            foreach (var child in childrenResources)
-            {
-                child.InitializeResource(this);
-            }
-        }
     }
 
     protected abstract void OnInitializeResource(IResource? parent);

@@ -31,8 +31,8 @@ public class FoodGroup : CsvFileResource
 
     protected override string OnWriteCSV()
     {
-        using var writer = new StringWriter();
-        using var csvW = new CsvWriter(writer, CultureInfo.InvariantCulture);
+        using StringWriter writer = new();
+        using CsvWriter csvW = new(writer, CultureInfo.InvariantCulture);
         csvW.WriteHeader<Food>();
         csvW.NextRecord();
         if (Foods != null)
@@ -51,8 +51,8 @@ public class FoodGroup : CsvFileResource
     {
         if (string.IsNullOrEmpty(csv)) return;
 
-        using var reader = new StringReader(csv);
-        using var csvReader = new CsvReader(reader, CultureInfo.InvariantCulture);
+        using StringReader reader = new(csv);
+        using CsvReader csvReader = new(reader, CultureInfo.InvariantCulture);
         Foods = new(csvReader.GetRecords<Food>().ToList());
     }
 }

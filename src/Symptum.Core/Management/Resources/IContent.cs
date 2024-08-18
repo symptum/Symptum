@@ -1,3 +1,5 @@
+using Symptum.Core.Data;
+
 namespace Symptum.Core.Management.Resources;
 
 public interface IContent : IResource

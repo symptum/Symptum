@@ -22,12 +22,12 @@ public class ReferenceValueEntry : ObservableObject
         set => SetProperty(ref _title, value);
     }
 
-    private List<Quantity>? _data;
+    private List<Quantity>? _quantities;
 
-    public List<Quantity>? Data
+    public List<Quantity>? Quantities
     {
-        get => _data;
-        set => SetProperty(ref _data, value);
+        get => _quantities;
+        set => SetProperty(ref _quantities, value);
     }
 
     private string? _inference;
@@ -77,7 +77,7 @@ public class ReferenceValueEntry : ObservableObject
         StringBuilder sb = new();
         sb.Append(_title);
         sb.Append(": ");
-        sb.Append(ListToStringConversion.ConvertToString<Quantity>(_data, x => x.ToString(), ", "));
+        sb.Append(ListToStringConversion.ConvertToString<Quantity>(_quantities, x => x.ToString(), ", "));
         sb.Append(" Inference: ");
         sb.Append(_inference);
         sb.Append(" Remarks: ");

@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Symptum.Core.Data;
 using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Deployment;
@@ -37,6 +38,24 @@ public abstract class PackageResource : MetadataResource, IPackageResource
     {
         get => authors;
         set => SetProperty(ref authors, value);
+    }
+
+    private IList<IPackageResource>? dependencies;
+
+    [JsonIgnore]
+    public IList<IPackageResource>? Dependencies
+    {
+        get => dependencies;
+        set => SetProperty(ref dependencies, value);
+    }
+
+    private IList<string>? dependencyIds;
+
+    [JsonPropertyName(nameof(Dependencies))]
+    public IList<string>? DependencyIds
+    {
+        get => dependencyIds;
+        set => SetProperty(ref dependencyIds, value);
     }
 
     private IList<string>? contents;

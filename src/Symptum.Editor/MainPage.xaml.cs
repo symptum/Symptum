@@ -7,13 +7,13 @@ using Windows.Storage.Pickers;
 using Windows.System;
 using System.Text;
 using Symptum.Core.Subjects.QuestionBanks;
+using Symptum.Core.Management.Deployment;
+using static Symptum.Core.Helpers.FileHelper;
 
 namespace Symptum.Editor;
 
 public sealed partial class MainPage : Page
 {
-    private IntPtr hWnd = IntPtr.Zero;
-    private Window? mainWindow;
     private readonly AddNewItemDialog addNewItemDialog = new();
     private readonly QuestionBankContextConfigureDialog contextConfigureDialog = new();
 
@@ -27,26 +27,25 @@ public sealed partial class MainPage : Page
     {
         InitializeComponent();
 
-        treeView.ItemsSource = ResourceManager.Resources;
-
-        if (App.Current is App app && app.MainWindow is Window window)
-            mainWindow = window;
-
 #if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-        if (mainWindow != null)
+
+        if (WindowHelper.MainWindow is Window mainWindow)
         {
-            hWnd = WinRT.Interop.WindowNative.GetWindowHandle(mainWindow);
             mainWindow.SetTitleBar(AppTitleBar);
+            TitleTextBlock.Text = mainWindow.Title;
         }
+
         Background = null;
-        TitleTextBlock.Text = mainWindow?.Title;
 
         workFolderButton.Click += async (s, e) =>
         {
             if (ResourceHelper.WorkFolder != null)
                 await Launcher.LaunchFolderAsync(ResourceHelper.WorkFolder);
         };
+
 #endif
+
+        treeView.ItemsSource = ResourceManager.Resources;
 
         ResourceHelper.WorkFolderChanged += (s, e) =>
         {
@@ -71,7 +70,6 @@ public sealed partial class MainPage : Page
         };
 
         editorsTabView.TabItemsSource = EditorPagesManager.EditorPages;
-        ResourceHelper.Initialize(XamlRoot, hWnd);
     }
 
     private async void Markdown_Click(object sender, RoutedEventArgs e)
@@ -163,7 +161,7 @@ public sealed partial class MainPage : Page
         fileSavePicker.FileTypeChoices.Add("Markdown File", [".md"]);
 
 #if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-            WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, hWnd);
+        WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, WindowHelper.WindowHandle);
 #endif
         StorageFile saveFile = await fileSavePicker.PickSaveFileAsync();
         if (saveFile != null)
@@ -189,7 +187,7 @@ public sealed partial class MainPage : Page
 
     private async Task AddNewItemAsync(IResource? parent = null)
     {
-        addNewItemDialog.XamlRoot = mainWindow?.Content?.XamlRoot;
+        addNewItemDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
         var result = await addNewItemDialog.CreateAsync(parent);
         if (result == EditorResult.Create)
         {
@@ -218,11 +216,11 @@ public sealed partial class MainPage : Page
             parent = resource;
 
         FileOpenPicker fileOpenPicker = new();
-        fileOpenPicker.FileTypeFilter.Add(".csv");
-        fileOpenPicker.FileTypeFilter.Add(".json");
+        fileOpenPicker.FileTypeFilter.Add(CsvFileExtension);
+        fileOpenPicker.FileTypeFilter.Add(JsonFileExtension);
 
 #if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-        WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, hWnd);
+        WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, WindowHelper.WindowHandle);
 #endif
         var pickedFiles = await fileOpenPicker.PickMultipleFilesAsync();
         if (pickedFiles.Count > 0)
@@ -263,6 +261,27 @@ public sealed partial class MainPage : Page
         ResourceHelper.CloseWorkFolder();
     }
 
+    private async void ImportPackage_Click(object sender, RoutedEventArgs e)
+    {
+        FileOpenPicker fileOpenPicker = new();
+        fileOpenPicker.FileTypeFilter.Add(PackageFileExtension);
+
+#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+        WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, WindowHelper.WindowHandle);
+#endif
+        var pickedFiles = await fileOpenPicker.PickMultipleFilesAsync();
+        foreach (var file in pickedFiles)
+        {
+            await PackageHelper.ImportPackageAsync(file);
+        }
+    }
+
+    private async void ExportPackage_Click(object sender, RoutedEventArgs e)
+    {
+        if (treeView.SelectedItems.Count > 0 && treeView.SelectedItems[0] is IPackageResource package)
+            await PackageHelper.ExportPackageAsync(package);
+    }
+
     private void Exit_Click(object sender, RoutedEventArgs e)
     {
         Application.Current.Exit();
@@ -270,7 +289,7 @@ public sealed partial class MainPage : Page
 
     private async void ConfigureContext_Click(object sender, RoutedEventArgs e)
     {
-        contextConfigureDialog.XamlRoot = mainWindow.Content?.XamlRoot;
+        contextConfigureDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
         await contextConfigureDialog.ShowAsync();
     }
 
@@ -296,7 +315,7 @@ public sealed partial class MainPage : Page
         IList<object> toDelete = treeView.SelectedItems.ToList();
         if (toDelete.Count > 0)
         {
-            deleteResourceDialog.XamlRoot = mainWindow?.Content?.XamlRoot;
+            deleteResourceDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
             var result = await deleteResourceDialog.ShowAsync();
             if (result == ContentDialogResult.Primary)
             {
@@ -304,7 +323,7 @@ public sealed partial class MainPage : Page
                 {
                     if (item is IResource resource)
                     {
-                        await ResourceHelper.DeleteResourceAsync(resource);
+                        await ResourceHelper.RemoveResourceAsync(resource, true);
                     }
                 }
             }
@@ -317,11 +336,11 @@ public sealed partial class MainPage : Page
         var context = (sender as MenuFlyoutItem)?.DataContext;
         if (context is IResource resource)
         {
-            deleteResourceDialog.XamlRoot = mainWindow?.Content?.XamlRoot;
+            deleteResourceDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
             var result = await deleteResourceDialog.ShowAsync();
             if (result == ContentDialogResult.Primary)
             {
-                await ResourceHelper.DeleteResourceAsync(resource);
+                await ResourceHelper.RemoveResourceAsync(resource, true);
             }
         }
     }
