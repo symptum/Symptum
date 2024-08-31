@@ -19,16 +19,16 @@ jobs:
         path: Symptum.Data
     - name: Correct Web Manifest Scope
       run: |
-          cd ./main/src/Symptum.Editor/Symptum.Editor.Wasm/
+          cd ./main/src/Symptum.Editor/Platforms/WebAssembly/
           (Get-Content manifest.webmanifest) -Replace '/', '/editor/' | Set-Content manifest.webmanifest
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 8.0.x
     - name: Restore Dependencies
-      run: dotnet restore ./main/src/Symptum.Editor/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj
+      run: dotnet restore ./main/src/Symptum.Editor/Symptum.Editor.csproj
     - name: Publish
-      run: dotnet publish ./main/src/Symptum.Editor/Symptum.Editor.Wasm/Symptum.Editor.Wasm.csproj "-p:WasmShellWebAppBasePath=/editor/" --no-restore -f net8.0 -c Release -o out
+      run: dotnet publish ./main/src/Symptum.Editor/Symptum.Editor.csproj "-p:WasmShellWebAppBasePath=/editor/" --no-restore -f net8.0-browserwasm -c Debug -o out
     - name: Create Editor Folder
       run: mkdir editor
     - name: Copy Files to Editor Folder
