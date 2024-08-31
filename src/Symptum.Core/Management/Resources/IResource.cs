@@ -2,34 +2,31 @@ namespace Symptum.Core.Management.Resources;
 
 public interface IResource
 {
-    // Will be used mostly for navigation, will be overlapping with Id in most cases but Id will be different in case of cross linking and embedding
-    // Eg: Micro/Pedia/CM.ImmunizationSchedule will be different Ids but Uri will be same : mi/sm/notes/immunology/immunizationschedule
-    Uri Uri { get; set; } // symptum://subjects/an/sm/notes/abdomen/liver; symptum://subjects/an/qbank/1/abdomen#S_AN_12.3.4
+    public string? Title { get; set; }
 
     // Will be used for dependency & resource file resolution and naming of packages
-    string Id { get; set; } // AUTOGEN: {Parent.Id}.{Title} -> Subjects.Anatomy.StudyMaterials.Notes.Abdomen.Liver
+    public string? Id { get; set; } // AUTOGEN: {Parent.Id}.{Title} -> Subjects.Anatomy.StudyMaterials.Notes.Abdomen.Liver
 
-    string Title { get; set; } // Liver
+    // Will be used mostly for navigation, will be overlapping with Id in most cases but Id will be different in case of cross linking and embedding
+    public Uri? Uri { get; set; } // symptum://subjects/an/sm/notes/abdomen/liver; symptum://subjects/an/qbank/1/abdomen#S_AN_12.3.4
 
-    IResource? ParentResource { get; } // Id: Subjects.Anatomy.StudyMaterials.Notes.Abdomen
+    public IResource? ParentResource { get; } // Id: Subjects.Anatomy.StudyMaterials.Notes.Abdomen
 
-    IList<IResource>? ChildrenResources { get; } // null if end resource
+    public IReadOnlyList<IResource>? ChildrenResources { get; } // null if end resource
 
-    IList<IResource>? Dependencies { get; set; }
+    //public IList<IResource>? Dependencies { get; set; }
 
-    IList<string>? DependencyIds { get; set; }
+    //public IList<string>? DependencyIds { get; set; }
 
-    void InitializeResource(IResource? parent);
+    public bool CanHandleChildren { get; }
 
-    bool CanHandleChildResourceType(Type childResourceType);
+    public void InitializeResource(IResource? parent);
 
-    bool CanAddChildResourceType(Type childResourceType);
+    public bool CanHandleChildResourceType(Type childResourceType);
 
-    void AddChildResource(IResource childResource);
+    public bool CanAddChildResourceType(Type childResourceType);
 
-    void RemoveChildResource(IResource childResource);
+    public void AddChildResource(IResource childResource);
 
-    //IResource GetIResourceFromRelativeUri(Uri relativeUri);
-
-    //IResource GetIResourceFromRelativeId(string relativeId);
+    public void RemoveChildResource(IResource childResource);
 }

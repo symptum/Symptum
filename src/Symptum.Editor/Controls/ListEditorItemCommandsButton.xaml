@@ -1,0 +1,37 @@
+﻿<UserControl
+    x:Class="Symptum.Editor.Controls.ListEditorItemCommandsButton"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Symptum.Editor.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*" />
+      <ColumnDefinition Width="Auto" />
+    </Grid.ColumnDefinitions>
+    <ContentPresenter x:Name="contentPresenter" />
+    <Button Grid.Column="1" Margin="10,0,0,0" Content="&#xE712;" FontFamily="{StaticResource SymbolThemeFontFamily}">
+      <Button.Flyout>
+        <MenuFlyout>
+          <MenuFlyoutItem x:Name="deleteItemBtn" Icon="Delete" Text="Delete" />
+          <MenuFlyoutItem x:Name="duplicateItemBtn" Icon="Copy" Text="Duplicate" />
+          <MenuFlyoutSeparator />
+          <MenuFlyoutItem x:Name="moveItemUpBtn" Text="Move Up">
+            <MenuFlyoutItem.Icon>
+              <FontIcon Glyph="&#xE70E;" />
+            </MenuFlyoutItem.Icon>
+          </MenuFlyoutItem>
+          <MenuFlyoutItem x:Name="moveItemDownBtn" Text="Move Down">
+            <MenuFlyoutItem.Icon>
+              <FontIcon Glyph="&#xE70D;" />
+            </MenuFlyoutItem.Icon>
+          </MenuFlyoutItem>
+        </MenuFlyout>
+      </Button.Flyout>
+    </Button>
+  </Grid>
+</UserControl>

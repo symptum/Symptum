@@ -1,0 +1,10 @@
+{
+  "background_color": "#ffffff",
+  "description": "Symptum",
+  "display": "standalone",
+  "name": "Symptum",
+  "short_name": "Symptum",
+  "start_url": "/index.html",
+  "theme_color": "#ffffff",
+  "scope": "/"
+}

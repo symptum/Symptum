@@ -1,10 +1,11 @@
 using System.Collections.ObjectModel;
-using System.Xml.Serialization;
+using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
+using Symptum.Core.Serialization;
 
 namespace Symptum.Core.Subjects.QuestionBanks;
 
-public class QuestionBank : NavigableResource
+public class QuestionBank : MetadataResource
 {
     public QuestionBank()
     { }
@@ -19,16 +20,17 @@ public class QuestionBank : NavigableResource
         set => SetProperty(ref _subjectCode, value);
     }
 
-    private ObservableCollection<QuestionBankPaper>? questionBankPapers;
+    private ObservableCollection<QuestionBankPaper>? papers;
 
-    public ObservableCollection<QuestionBankPaper>? QuestionBankPapers
+    [ListOfMetadataResource]
+    public ObservableCollection<QuestionBankPaper>? Papers
     {
-        get => questionBankPapers;
+        get => papers;
         set
         {
-            UnobserveCollection(questionBankPapers);
-            SetProperty(ref questionBankPapers, value);
-            SetChildrenResources(questionBankPapers);
+            UnobserveCollection(papers);
+            SetProperty(ref papers, value);
+            SetChildrenResources(papers);
         }
     }
 
@@ -36,7 +38,7 @@ public class QuestionBank : NavigableResource
 
     protected override void OnInitializeResource(IResource? parent)
     {
-        SetChildrenResources(questionBankPapers);
+        SetChildrenResources(papers);
     }
 
     public override bool CanHandleChildResourceType(Type childResourceType)
@@ -49,15 +51,14 @@ public class QuestionBank : NavigableResource
         return childResourceType == typeof(QuestionBankPaper);
     }
 
-    protected override void OnAddChildResource(IResource childResource)
+    protected override void OnAddChildResource(IResource? childResource)
     {
-        QuestionBankPapers ??= [];
-        if (childResource is QuestionBankPaper paper)
-            questionBankPapers?.Add(paper);
+        Papers ??= [];
+        Papers?.AddItemToListIfNotExists(childResource);
     }
 
-    protected override void OnRemoveChildResource(IResource childResource)
+    protected override void OnRemoveChildResource(IResource? childResource)
     {
-        throw new NotImplementedException();
+        Papers.RemoveItemFromListIfExists(childResource);
     }
 }

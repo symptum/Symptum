@@ -1,0 +1,95 @@
+﻿<UserControl
+  x:Class="Symptum.Editor.Controls.ResourcePropertiesEditorControl"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="using:Symptum.Editor.Controls"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:qb="using:Symptum.Core.Subjects.QuestionBanks"
+  xmlns:res="using:Symptum.Core.Management.Resources"
+  xmlns:data="using:Symptum.Core.Data"
+  mc:Ignorable="d"
+  d:DesignHeight="300"
+  d:DesignWidth="400">
+  <StackPanel x:Name="propertiesSP" Spacing="16" HorizontalAlignment="Stretch">
+    <TextBlock x:Name="typeTB" />
+    <HyperlinkButton x:Name="parentResourceButton" Visibility="Collapsed" />
+    <TextBox x:Name="titleTB" Header="Title" />
+    <TextBox x:Name="idTB" Header="Id" />
+    <TextBox x:Name="uriTB" Header="Uri" />
+    <Expander x:Name="resourceTreeExpander" Header="Resource Tree" Visibility="Collapsed"
+              HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+      <ItemsRepeater x:Name="childrenResIR">
+        <ItemsRepeater.Layout>
+          <StackLayout Spacing="16" />
+        </ItemsRepeater.Layout>
+        <ItemsRepeater.ItemTemplate>
+          <DataTemplate x:DataType="res:IResource">
+            <HyperlinkButton x:Name="childButton" DataContext="{x:Bind}"
+                             Content="{x:Bind Title}" Click="ChildButton_Click" />
+          </DataTemplate>
+        </ItemsRepeater.ItemTemplate>
+      </ItemsRepeater>
+    </Expander>
+    <Expander x:Name="metadataExpander" Header="Metadata" Visibility="Collapsed"
+              HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+      <StackPanel Spacing="16">
+        <CheckBox x:Name="splitMDCB" Content="Split Metadata" />
+        <TextBlock x:Name="mdPathTB" />
+      </StackPanel>
+    </Expander>
+    <Expander x:Name="packageExpander" Header="Package" Visibility="Collapsed"
+              HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+      <StackPanel Spacing="16">
+        <TextBox x:Name="packageDescriptionTB" Header="Description" />
+        <TextBox x:Name="packageVersionTB" Header="Version" PlaceholderText="Major.Minor[.Build[.Revision]]" />
+        <local:ListEditorControl x:Name="packageAuthorsLE" Header="Authors">
+          <local:ListEditorControl.ItemTemplate>
+            <DataTemplate>
+              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
+                <TextBox PlaceholderText="Name &lt;Email&gt;"
+                         Text="{Binding Value, Mode=TwoWay, Converter={StaticResource AuthorInfoToStringConverter}}" />
+              </local:ListEditorItemCommandsButton>
+            </DataTemplate>
+          </local:ListEditorControl.ItemTemplate>
+        </local:ListEditorControl>
+        <local:ListEditorControl x:Name="packageTagsLE" Header="Tags">
+          <local:ListEditorControl.ItemTemplate>
+            <DataTemplate>
+              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
+                <TextBox Text="{Binding Value, Mode=TwoWay}" />
+              </local:ListEditorItemCommandsButton>
+            </DataTemplate>
+          </local:ListEditorControl.ItemTemplate>
+        </local:ListEditorControl>
+      </StackPanel>
+    </Expander>
+    <Expander x:Name="fileExpander" Header="File" Visibility="Collapsed"
+              HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+      <StackPanel Spacing="16">
+        <TextBlock x:Name="fileTypeTB" />
+        <TextBlock x:Name="filePathTB" />
+        <TextBox x:Name="fileDescriptionTB" Header="Description" />
+        <local:ListEditorControl x:Name="fileAuthorsLE" Header="Authors">
+          <local:ListEditorControl.ItemTemplate>
+            <DataTemplate>
+              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
+                <TextBox PlaceholderText="Name &lt;Email&gt;"
+                     Text="{Binding Value, Mode=TwoWay, Converter={StaticResource AuthorInfoToStringConverter}}" />
+              </local:ListEditorItemCommandsButton>
+            </DataTemplate>
+          </local:ListEditorControl.ItemTemplate>
+        </local:ListEditorControl>
+        <local:ListEditorControl x:Name="fileTagsLE" Header="Tags">
+          <local:ListEditorControl.ItemTemplate>
+            <DataTemplate>
+              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
+                <TextBox Text="{Binding Value, Mode=TwoWay}" />
+              </local:ListEditorItemCommandsButton>
+            </DataTemplate>
+          </local:ListEditorControl.ItemTemplate>
+        </local:ListEditorControl>
+      </StackPanel>
+    </Expander>
+  </StackPanel>
+</UserControl>

@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CsvHelper.Configuration.Attributes;
+using Symptum.Core.Extensions;
 using Symptum.Core.Subjects.Books;
 using Symptum.Core.TypeConversion;
 
@@ -7,6 +8,9 @@ namespace Symptum.Core.Subjects.QuestionBanks;
 
 public class QuestionEntry : ObservableObject, IComparable, IComparable<QuestionEntry>
 {
+    public QuestionEntry()
+    { }
+
     #region Properties
 
     private QuestionId? id;
@@ -18,9 +22,9 @@ public class QuestionEntry : ObservableObject, IComparable, IComparable<Question
         set => SetProperty(ref id, value);
     }
 
-    private string title = string.Empty;
+    private string? title;
 
-    public string Title
+    public string? Title
     {
         get => title;
         set => SetProperty(ref title, value);
@@ -89,39 +93,20 @@ public class QuestionEntry : ObservableObject, IComparable, IComparable<Question
 
     #endregion
 
-    public QuestionEntry()
-    {
-    }
-
     public QuestionEntry Clone()
     {
         return new QuestionEntry()
         {
-            Id = new() { QuestionType = id.QuestionType, SubjectCode = id.SubjectCode, CompetencyNumbers = id.CompetencyNumbers },
-            Title = Title,
-            Descriptions = CloneList(Descriptions),
-            HasPreviouslyBeenAsked = HasPreviouslyBeenAsked,
-            Importance = Importance,
-            YearsAsked = CloneList(YearsAsked),
-            ProbableCases = CloneList(probableCases),
-            BookReferences = CloneList(BookReferences, x => new() { Book = x.Book, Edition = x.Edition, Volume = x.Volume, PageNumbers = x.PageNumbers }),
-            LinkReferences = CloneList(LinkReferences)
+            Id = id != null ? new() { QuestionType = id.QuestionType, SubjectCode = id.SubjectCode, CompetencyNumbers = id.CompetencyNumbers } : new(),
+            Title = title,
+            Descriptions = descriptions.CloneList(),
+            HasPreviouslyBeenAsked = hasPreviouslyBeenAsked,
+            Importance = importance,
+            YearsAsked = yearsAsked.CloneList(),
+            ProbableCases = probableCases.CloneList(),
+            BookReferences = bookReferences.CloneList(x => new() { Book = x.Book, Edition = x.Edition, Volume = x.Volume, PageNumbers = x.PageNumbers }),
+            LinkReferences = linkReferences.CloneList()
         };
-    }
-
-    private List<T> CloneList<T>(List<T>? values, Func<T, T>? function = null)
-    {
-        List<T> results = [];
-        if (values != null)
-        {
-            foreach (T item in values)
-            {
-                T result = function != null ? function(item) : item;
-                results.Add(result);
-            }
-        }
-
-        return results;
     }
 
     public int CompareTo(QuestionEntry? other)
@@ -142,7 +127,7 @@ public class QuestionEntry : ObservableObject, IComparable, IComparable<Question
             return -cmp.Value;
 
         // Then we compare questions with same Importance and QuestionType with Title
-        cmp = Title.CompareTo(other?.Title);
+        cmp = Title?.CompareTo(other?.Title);
         if (cmp != null && cmp != 0)
             return cmp.Value;
 

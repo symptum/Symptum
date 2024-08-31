@@ -1,0 +1,90 @@
+﻿<ContentDialog
+  x:Class="Symptum.Editor.Controls.QuestionEditorDialog"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:local="using:Symptum.Editor.Controls"
+  xmlns:not_android="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:android="http://uno.ui/android"
+  mc:Ignorable="d android"
+  Style="{ThemeResource DefaultContentDialogStyle}"
+  CloseButtonText="Cancel" PrimaryButtonStyle="{ThemeResource AccentButtonStyle}">
+  <ScrollViewer>
+    <StackPanel Spacing="16">
+      <StackPanel Spacing="24" Orientation="Horizontal">
+        <ComboBox x:Name="qtCB" Header="Question Type" />
+        <ComboBox x:Name="scCB" Header="Subject Code" />
+        <!--<TextBox x:Name="cnTB" Header="Competency Numbers" />-->
+      </StackPanel>
+      <TextBox x:Name="titleTB" Header="Title" HorizontalAlignment="Stretch" />
+      <CheckBox x:Name="paCB" Content="Has been asked previously" />
+      <Expander Header="Descriptions" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+        <local:ListEditorControl x:Name="dsLE">
+          <local:ListEditorControl.ItemTemplate>
+            <DataTemplate>
+              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
+                <TextBox Text="{Binding Value, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="Auto"
+                         MaxHeight="172" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+              </local:ListEditorItemCommandsButton>
+            </DataTemplate>
+          </local:ListEditorControl.ItemTemplate>
+        </local:ListEditorControl>
+      </Expander>
+      <Expander Header="Importance" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+        <StackPanel>
+          <CheckBox x:Name="autoGenImpCB" IsChecked="true" Content="Auto-generate importance based on number of times asked" HorizontalAlignment="Center" />
+          <RatingControl x:Name="importanceRC" MaxRating="10" IsClearEnabled="True" />
+        </StackPanel>
+      </Expander>
+      <Expander Header="Years Asked" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+        <local:ListEditorControl x:Name="yaLE">
+          <local:ListEditorControl.ItemTemplate>
+            <DataTemplate>
+              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
+                <not_android:DatePicker DayVisible="False" Date="{Binding Value, Mode=TwoWay, Converter={StaticResource DateOnlyToDateTimeOffsetConverter}}"
+                                        HorizontalAlignment="Stretch" />
+                <android:CalendarDatePicker Date="{Binding Value, Mode=TwoWay, Converter={StaticResource DateOnlyToDateTimeOffsetConverter}}"
+                                            HorizontalAlignment="Stretch" />
+              </local:ListEditorItemCommandsButton>
+            </DataTemplate>
+          </local:ListEditorControl.ItemTemplate>
+        </local:ListEditorControl>
+      </Expander>
+      <Expander Header="Probable Cases" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+        <local:ListEditorControl x:Name="pcLE">
+          <local:ListEditorControl.ItemTemplate>
+            <DataTemplate>
+              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
+                <TextBox Text="{Binding Value, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Height="Auto"
+                         MaxHeight="172" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" />
+              </local:ListEditorItemCommandsButton>
+            </DataTemplate>
+          </local:ListEditorControl.ItemTemplate>
+        </local:ListEditorControl>
+      </Expander>
+      <Expander Header="Book References" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+        <local:ListEditorControl x:Name="brLE">
+          <local:ListEditorControl.ItemTemplate>
+            <DataTemplate>
+              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
+                <local:BookReferencePicker BookReference="{Binding Value, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+              </local:ListEditorItemCommandsButton>
+            </DataTemplate>
+          </local:ListEditorControl.ItemTemplate>
+        </local:ListEditorControl>
+      </Expander>
+      <Expander Header="Link References" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+        <local:ListEditorControl x:Name="lrLE">
+          <local:ListEditorControl.ItemTemplate>
+            <DataTemplate>
+              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
+                <TextBox Text="{Binding Value, Mode=TwoWay, Converter={StaticResource UriToStringConverter}}" HorizontalAlignment="Stretch" />
+              </local:ListEditorItemCommandsButton>
+            </DataTemplate>
+          </local:ListEditorControl.ItemTemplate>
+        </local:ListEditorControl>
+      </Expander>
+    </StackPanel>
+  </ScrollViewer>
+</ContentDialog>

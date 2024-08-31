@@ -1,0 +1,177 @@
+﻿<Page x:Class="Symptum.Editor.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:Symptum.Editor"
+      xmlns:qbank="using:Symptum.Core.Subjects.QuestionBanks"
+      xmlns:secontrols="using:Symptum.Editor.Controls"
+      xmlns:ed="using:Symptum.Editor.EditorPages"
+      xmlns:res="using:Symptum.Core.Management.Resources"
+      xmlns:win="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:toolkit="using:Uno.Toolkit.UI" xmlns:sub="using:Symptum.Core.Subjects"
+      toolkit:SafeArea.Insets="All"
+      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+    <Grid.Resources>
+      <DataTemplate x:Key="DefaultResourceDataTemplate" x:DataType="res:ResourceBase">
+        <TreeViewItem ItemsSource="{x:Bind ChildrenResources}" Content="{Binding Title}">
+          <TreeViewItem.ContextFlyout>
+            <MenuFlyout>
+              <MenuFlyoutItem Icon="Document" Text="Add New Item" Click="AddNewFlyoutItem_Click"
+                              Visibility="{Binding CanHandleChildren, Converter={StaticResource BooleanToVisibilityConverter}}" />
+              <!--<MenuFlyoutItem Icon="Document" Text="Add Existing Item" />-->
+              <MenuFlyoutItem Icon="Delete" Text="Delete" Click="DeleteFlyoutItem_Click" />
+            </MenuFlyout>
+          </TreeViewItem.ContextFlyout>
+        </TreeViewItem>
+      </DataTemplate>
+    </Grid.Resources>
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup>
+        <VisualState x:Name="DefaultState">
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="1007" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="splitView.IsPaneOpen" Value="True" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState x:Name="MinimalState">
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="splitView.DisplayMode" Value="Overlay" />
+            <Setter Target="splitView.PaneBackground" Value="{ThemeResource NavigationViewDefaultPaneBackground}" />
+            <Setter Target="contentGrid.BorderThickness" Value="{ThemeResource NavigationViewMinimalContentGridBorderThickness}" />
+            <Setter Target="contentGrid.CornerRadius" Value="{ThemeResource NavigationViewMinimalContentGridCornerRadius}" />
+            <Setter Target="expandPaneButton.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+    <win:Grid x:Name="AppTitleBar" Height="32" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0" Spacing="5">
+        <TextBlock x:Name="TitleTextBlock" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" />
+      </StackPanel>
+    </win:Grid>
+    <MenuBar Grid.Row="1">
+      <MenuBarItem Title="File">
+        <MenuFlyoutItem Text="New" Icon="Document" Click="New_Click">
+          <MenuFlyoutItem.KeyboardAccelerators>
+            <KeyboardAccelerator Modifiers="Control" Key="N" />
+          </MenuFlyoutItem.KeyboardAccelerators>
+        </MenuFlyoutItem>
+        <MenuFlyoutItem Text="Open File(s)" Icon="OpenFile" Click="OpenFile_Click">
+          <MenuFlyoutItem.KeyboardAccelerators>
+            <KeyboardAccelerator Modifiers="Control" Key="O" />
+          </MenuFlyoutItem.KeyboardAccelerators>
+        </MenuFlyoutItem>
+        <MenuFlyoutItem Text="Open Folder" Click="OpenFolder_Click">
+          <MenuFlyoutItem.Icon>
+            <FontIcon Glyph="&#xE8DA;" />
+          </MenuFlyoutItem.Icon>
+          <MenuFlyoutItem.KeyboardAccelerators>
+            <KeyboardAccelerator Modifiers="Control, Menu" Key="O" />
+          </MenuFlyoutItem.KeyboardAccelerators>
+        </MenuFlyoutItem>
+        <MenuFlyoutItem Text="Save All" Icon="Save" Click="SaveAll_Click">
+          <MenuFlyoutItem.KeyboardAccelerators>
+            <KeyboardAccelerator Modifiers="Control,Menu" Key="S" />
+          </MenuFlyoutItem.KeyboardAccelerators>
+        </MenuFlyoutItem>
+        <MenuFlyoutItem Text="Close Folder" Click="CloseFolder_Click" />
+        <MenuFlyoutItem Text="Generate Markdown" Icon="Document" Click="Markdown_Click" />
+        <MenuFlyoutItem Text="Import Package" Click="ImportPackage_Click">
+          <MenuFlyoutItem.Icon>
+            <FontIcon Glyph="&#xE8B5;" />
+          </MenuFlyoutItem.Icon>
+        </MenuFlyoutItem>
+        <MenuFlyoutItem Text="Export Package" Click="ExportPackage_Click">
+          <MenuFlyoutItem.Icon>
+            <FontIcon Glyph="&#xEDE1;" />
+          </MenuFlyoutItem.Icon>
+        </MenuFlyoutItem>
+        <win:MenuFlyoutItem Text="Exit" Click="Exit_Click" />
+      </MenuBarItem>
+      <MenuBarItem Title="Edit">
+        <MenuFlyoutSubItem Text="Question Bank">
+          <MenuFlyoutItem Text="Configure Context" Click="ConfigureContext_Click">
+            <MenuFlyoutItem.KeyboardAccelerators>
+              <KeyboardAccelerator Modifiers="Control" Key="Q" />
+            </MenuFlyoutItem.KeyboardAccelerators>
+          </MenuFlyoutItem>
+        </MenuFlyoutSubItem>
+      </MenuBarItem>
+    </MenuBar>
+    <SplitView x:Name="splitView" Grid.Row="2" PaneBackground="Transparent"
+               IsPaneOpen="True" OpenPaneLength="300" CompactPaneLength="48" DisplayMode="Inline">
+      <SplitView.Pane>
+        <Grid Width="300">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <CommandBar x:Name="cmdbar" IsOpen="False" DefaultLabelPosition="Collapsed">
+            <AppBarElementContainer VerticalAlignment="Center">
+              <Button x:Name="workFolderButton" Visibility="Collapsed" MaxWidth="100" Margin="5,0">
+                <TextBlock x:Name="workFolderText" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+              </Button>
+            </AppBarElementContainer>
+            <AppBarToggleButton x:Name="multiSelectButton" Label="Multi Select" Click="MultiSelectButton_Click">
+              <AppBarToggleButton.Icon>
+                <FontIcon Glyph="&#xE762;" />
+              </AppBarToggleButton.Icon>
+            </AppBarToggleButton>
+            <AppBarButton x:Name="deleteResourcesButton" IsEnabled="False" Icon="Delete" Label="Delete" Click="DeleteResourcesButton_Click">
+              <AppBarButton.KeyboardAccelerators>
+                <KeyboardAccelerator Modifiers="Shift" Key="Delete" />
+              </AppBarButton.KeyboardAccelerators>
+            </AppBarButton>
+          </CommandBar>
+          <ScrollViewer x:Name="sideStackPanel" Grid.Row="1" HorizontalScrollBarVisibility="Auto">
+            <TreeView x:Name="treeView" SelectionMode="Single"
+                      CanReorderItems="False" CanDragItems="False" CanDrag="False"
+                      ItemTemplate="{StaticResource DefaultResourceDataTemplate}" />
+          </ScrollViewer>
+        </Grid>
+      </SplitView.Pane>
+      <Grid x:Name="contentGrid"
+            BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}"
+            BorderThickness="{ThemeResource NavigationViewContentGridBorderThickness}"
+            Background="{ThemeResource NavigationViewContentBackground}"
+            CornerRadius="{ThemeResource NavigationViewContentGridCornerRadius}">
+        <TabView x:Name="editorsTabView" VerticalAlignment="Stretch" IsAddTabButtonVisible="False"
+                 TabItemsSource="{x:Bind ed:EditorPagesManager.EditorPages}"
+                 TabCloseRequested="EditorsTabView_TabCloseRequested">
+          <TabView.TabStripHeader>
+            <Button x:Name="expandPaneButton" Visibility="Collapsed" VerticalAlignment="Center" Margin="5,0,0,0">
+              <FontIcon Glyph="&#xEA5B;" />
+            </Button>
+          </TabView.TabStripHeader>
+          <TabView.TabItemTemplate>
+            <DataTemplate x:DataType="ed:IEditorPage">
+              <TabViewItem IconSource="{Binding IconSource}" Content="{Binding }">
+                <TabViewItem.Header>
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition />
+                      <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
+                    <InfoBadge Grid.Column="1" Margin="5,0" VerticalAlignment="Center" Style="{ThemeResource AttentionDotInfoBadgeStyle}"
+                               Visibility="{Binding HasUnsavedChanges, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                  </Grid>
+                </TabViewItem.Header>
+              </TabViewItem>
+            </DataTemplate>
+          </TabView.TabItemTemplate>
+        </TabView>
+      </Grid>
+    </SplitView>
+  </Grid>
+</Page>
