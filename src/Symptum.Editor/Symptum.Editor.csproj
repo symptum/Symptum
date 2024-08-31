@@ -41,6 +41,7 @@
       Mvvm;
       ExtensionsCore;
     </UnoFeatures>
+    <WasmShellILLinkerEnabled>false</WasmShellILLinkerEnabled>
   </PropertyGroup>
 
   <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
