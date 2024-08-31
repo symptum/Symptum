@@ -58,13 +58,13 @@ public abstract class PackageResource : MetadataResource, IPackageResource
         set => SetProperty(ref dependencyIds, value);
     }
 
-    private IList<string>? contents;
+    //private IList<string>? contents;
 
-    public IList<string>? Contents
-    {
-        get => contents;
-        set => SetProperty(ref contents, value);
-    }
+    //public IList<string>? Contents
+    //{
+    //    get => contents;
+    //    set => SetProperty(ref contents, value);
+    //}
 
     private IList<string>? tags;
 

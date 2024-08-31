@@ -4,22 +4,23 @@ using System.Collections.Specialized;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Symptum.Core.Extensions;
-using Symptum.Core.Management.Navigation;
 
 namespace Symptum.Core.Management.Resources;
 
-public abstract class NavigableResource : ObservableObject, IResource, INavigable
+// This is the base implementation of IResource, it doesn't implement INavigable.
+// This class will contain all the properties, logic for loading, adding and removing children resources.
+public abstract class ResourceBase : ObservableObject, IResource
 {
     #region Properties
 
     #region IResource
 
-    private Uri? uri;
+    private string? _title;
 
-    public Uri? Uri
+    public string? Title
     {
-        get => uri;
-        set => SetProperty(ref uri, value);
+        get => _title;
+        set => SetProperty(ref _title, value);
     }
 
     private string? id;
@@ -30,12 +31,12 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
         set => SetProperty(ref id, value);
     }
 
-    private string? _title;
+    private Uri? uri;
 
-    public string? Title
+    public Uri? Uri
     {
-        get => _title;
-        set => SetProperty(ref _title, value);
+        get => uri;
+        set => SetProperty(ref uri, value);
     }
 
     private IResource? parentResource;
@@ -133,8 +134,7 @@ public abstract class NavigableResource : ObservableObject, IResource, INavigabl
 
     protected void AddChildResourceInternal(IResource? childResource)
     {
-        if (childResource != null)
-            childrenResources?.AddItemToListIfNotExists(childResource);
+        childrenResources?.AddItemToListIfNotExists(childResource);
     }
 
     protected void RemoveChildrenResourcesInternal(IList? children)

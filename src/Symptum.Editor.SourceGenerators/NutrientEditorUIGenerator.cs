@@ -1,7 +1,7 @@
 using System.Text;
 using Microsoft.CodeAnalysis;
 
-namespace Symptum.Core.SourceGenerators;
+namespace Symptum.Editor.SourceGenerators;
 
 /// <summary>
 /// A source generator for Symptum.Editor.Controls.FoodEditorDialog
@@ -13,7 +13,7 @@ public class NutrientEditorUIGenerator : ISourceGenerator
 
     public void Execute(GeneratorExecutionContext context)
     {
-        attributeSymbol = context.Compilation.GetTypeByMetadataName("Symptum.Core.Data.Nutrition.GenerateUIAttribute");
+        attributeSymbol = context.Compilation.GetTypeByMetadataName("Symptum.Core.CodeAnalysis.GenerateUIAttribute");
         INamedTypeSymbol? classSymbol = context.Compilation.GetTypeByMetadataName("Symptum.Core.Data.Nutrition.Food");
 
         if (classSymbol == null || attributeSymbol == null) return;

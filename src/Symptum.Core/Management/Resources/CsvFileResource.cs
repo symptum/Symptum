@@ -4,20 +4,30 @@ namespace Symptum.Core.Management.Resources;
 
 public abstract class CsvFileResource : FileResource
 {
-    protected override void OnReadFileContent(string content)
+
+    [JsonIgnore]
+    public override ContentFileType FileType { get; } = ContentFileType.Csv;
+
+    protected override void OnReadFileText(string text)
     {
-        OnReadCSV(content);
+        OnReadCSV(text);
     }
 
-    protected override string OnWriteFileContent()
+    protected override void OnReadFileStream(Stream stream)
+    {
+    }
+
+    protected override string OnWriteFileText()
     {
         return OnWriteCSV();
+    }
+
+    protected override Stream? OnWriteFileStream()
+    {
+        return null;
     }
 
     protected abstract void OnReadCSV(string csv);
 
     protected abstract string OnWriteCSV();
-
-    [JsonIgnore]
-    public override ContentFileType FileType { get; } = ContentFileType.Csv;
 }

@@ -9,6 +9,7 @@ public sealed partial class FoodEditorDialog : ContentDialog
 
     public EditorResult EditResult { get; private set; } = EditorResult.None;
 
+    private readonly ObservableCollection<ListEditorItemWrapper<string>> altNames = [];
     private readonly ObservableCollection<ListEditorItemWrapper<FoodMeasure>> measures = [];
 
     public FoodEditorDialog()
@@ -68,6 +69,7 @@ public sealed partial class FoodEditorDialog : ContentDialog
 
         idTB.Text = Food.Id;
         titleTB.Text = Food.Title;
+        altNames.LoadFromList(Food.AlternativeNames);
         measures.LoadFromList(Food.Measures);
         LoadNutrients();
     }
@@ -77,6 +79,7 @@ public sealed partial class FoodEditorDialog : ContentDialog
         Food ??= new();
         Food.Id = idTB.Text;
         Food.Title = titleTB.Text;
+        Food.AlternativeNames = altNames.UnwrapToList();
         Food.Measures = measures.UnwrapToList();
         UpdateNutrients();
     }
@@ -85,12 +88,51 @@ public sealed partial class FoodEditorDialog : ContentDialog
     {
         idTB.Text = string.Empty;
         titleTB.Text = string.Empty;
+        altNames.Clear();
         measures.Clear();
         ClearNutrients();
     }
 
     private void HandleListEditors()
     {
+        #region Alternative Names
+
+        altNamesLE.ItemsSource = altNames;
+        altNamesLE.AddItemRequested += (s, e) => altNames.Add(new ListEditorItemWrapper<string>(string.Empty));
+        altNamesLE.ClearItemsRequested += (s, e) => altNames.Clear();
+        altNamesLE.RemoveItemRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<string> altName)
+                altNames.Remove(altName);
+        };
+        altNamesLE.DuplicateItemRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<string> altName)
+                altNames.Add(new() { Value = altName.Value });
+        };
+        altNamesLE.MoveItemUpRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<string> altName)
+            {
+                int oldIndex = altNames.IndexOf(altName);
+                int newIndex = Math.Max(oldIndex - 1, 0);
+                altNames.Move(oldIndex, newIndex);
+            }
+        };
+        altNamesLE.MoveItemDownRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<string> altName)
+            {
+                int oldIndex = altNames.IndexOf(altName);
+                int newIndex = Math.Min(oldIndex + 1, altNames.Count - 1);
+                altNames.Move(oldIndex, newIndex);
+            }
+        };
+
+        #endregion
+
+        #region Measures
+
         meLE.ItemsSource = measures;
         meLE.AddItemRequested += (s, e) => measures.Add(new ListEditorItemWrapper<FoodMeasure>(new()));
         meLE.ClearItemsRequested += (s, e) => measures.Clear();
@@ -122,5 +164,7 @@ public sealed partial class FoodEditorDialog : ContentDialog
                 measures.Move(oldIndex, newIndex);
             }
         };
+
+        #endregion
     }
 }

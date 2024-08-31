@@ -10,7 +10,7 @@
   <ScrollViewer>
     <ItemsRepeater Margin="10" x:Name="subjectsView" ItemsSource="{x:Bind sub:SubjectsManager.Subjects}">
       <ItemsRepeater.Layout>
-        <UniformGridLayout MinColumnSpacing="10" MinRowSpacing="10" />
+        <UniformGridLayout MinColumnSpacing="16" MinRowSpacing="16" />
       </ItemsRepeater.Layout>
       <ItemsRepeater.ItemTemplate>
         <DataTemplate x:DataType="sub:Subject">

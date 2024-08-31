@@ -17,36 +17,43 @@ public class EditorPagesManager
 
     public static ObservableCollection<IEditorPage> EditorPages { get; private set; } = [];
 
-    public static IEditorPage? GetEditorPageForContentType(Type contentType)
+    public static EventHandler<IEditorPage?> CurrentEditorChanged;
+
+    public static IEditorPage? GetEditorForContentType(Type contentType)
     {
         if (_editorTypeMap.TryGetValue(contentType, out Type? pageType))
         {
-            return (pageType != null) ? (IEditorPage?)Activator.CreateInstance(pageType) : null;
+            return (pageType != null) ? Activator.CreateInstance(pageType) as IEditorPage : null;
         }
+        else if (typeof(IResource).IsAssignableFrom(contentType))
+            return Activator.CreateInstance(typeof(DefaultEditorPage)) as IEditorPage;
         return null;
     }
 
-    public static IEditorPage? CreateOrOpenEditorPage(IResource content)
+    public static void CreateOrOpenEditor(IResource? resource)
     {
-        IEditorPage? page = EditorPages.FirstOrDefault(x => x.EditableContent == content);
-        if (page == null)
+        if (resource == null) return;
+
+        IEditorPage? editor = EditorPages.FirstOrDefault(x => x.EditableContent == resource);
+        if (editor == null)
         {
-            page = GetEditorPageForContentType(content.GetType());
-            if (page != null)
+            editor = GetEditorForContentType(resource.GetType());
+            if (editor != null)
             {
-                page.EditableContent = content;
-                EditorPages.Add(page);
+                editor.EditableContent = resource;
+                EditorPages.Add(editor);
             }
         }
-        return page;
+
+        CurrentEditorChanged?.Invoke(null, editor);
     }
 
-    public static bool TryCloseEditorPage(IEditorPage? page)
+    public static bool TryCloseEditor(IEditorPage? editor)
     {
-        if (page != null && EditorPages.Contains(page))
+        if (editor != null && EditorPages.Contains(editor))
         {
-            EditorPages.Remove(page);
-            page.EditableContent = null;
+            EditorPages.Remove(editor);
+            editor.EditableContent = null;
             return true;
         }
 
@@ -55,17 +62,17 @@ public class EditorPagesManager
 
     public static void MarkAllOpenEditorsAsSaved()
     {
-        foreach (var page in EditorPages)
+        foreach (var editor in EditorPages)
         {
-            page.HasUnsavedChanges = false;
+            editor.HasUnsavedChanges = false;
         }
     }
 
     public static void ResetEditors()
     {
-        foreach (var page in EditorPages)
+        foreach (var editor in EditorPages)
         {
-            page.EditableContent = null;
+            editor.EditableContent = null;
         }
         EditorPages.Clear();
     }

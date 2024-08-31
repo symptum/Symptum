@@ -29,11 +29,11 @@ public static class ListOfListEditorItemWrapperExtensions
         }
     }
 
-    public static List<T> UnwrapToList<T>(this IList<ListEditorItemWrapper<T>> source)
+    public static List<T>? UnwrapToList<T>(this IList<ListEditorItemWrapper<T>> source)
     {
-        List<T> list = [];
-        if (source == null || source.Count == 0) return list;
+        if (source == null || source.Count == 0) return null;
 
+        List<T> list = [];
         foreach (var item in source)
         {
             list.Add(item.Value);

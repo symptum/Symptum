@@ -49,8 +49,7 @@ public class ReferenceValueFamily : MetadataResource
     protected override void OnAddChildResource(IResource? childResource)
     {
         Groups ??= [];
-        if (childResource is ReferenceValueGroup group)
-            Groups.Add(group);
+        Groups.AddItemToListIfNotExists(childResource);
     }
 
     protected override void OnRemoveChildResource(IResource? childResource)

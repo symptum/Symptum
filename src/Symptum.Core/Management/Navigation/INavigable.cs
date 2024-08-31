@@ -4,9 +4,9 @@ namespace Symptum.Core.Management.Navigation;
 
 public interface INavigable
 {
-    Uri? Uri { get; set; }
-
     public string? Title { get; set; }
+    
+    Uri? Uri { get; set; }
 
     //bool IsNavigationHandled { get; set; }
 

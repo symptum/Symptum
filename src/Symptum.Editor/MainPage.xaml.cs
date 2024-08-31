@@ -60,7 +60,7 @@ public sealed partial class MainPage : Page
         {
             if (e.InvokedItem is IResource resource)
             {
-                editorsTabView.SelectedItem = EditorPagesManager.CreateOrOpenEditorPage(resource);
+                EditorPagesManager.CreateOrOpenEditor(resource);
             }
         };
 
@@ -69,7 +69,7 @@ public sealed partial class MainPage : Page
             splitView.IsPaneOpen = true;
         };
 
-        editorsTabView.TabItemsSource = EditorPagesManager.EditorPages;
+        EditorPagesManager.CurrentEditorChanged += (s, e) => editorsTabView.SelectedItem = e;
     }
 
     private async void Markdown_Click(object sender, RoutedEventArgs e)
@@ -141,10 +141,7 @@ public sealed partial class MainPage : Page
 
         //return;
 
-        if (_isBeingSaved)
-        {
-            return;
-        }
+        if (_isBeingSaved) return;
 
         _isBeingSaved = true;
 
@@ -177,7 +174,7 @@ public sealed partial class MainPage : Page
 
     private void EditorsTabView_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
     {
-        EditorPagesManager.TryCloseEditorPage(args.Item as IEditorPage);
+        EditorPagesManager.TryCloseEditor(args.Item as IEditorPage);
     }
 
     private async void New_Click(object sender, RoutedEventArgs e)
@@ -242,10 +239,7 @@ public sealed partial class MainPage : Page
 
     private async void SaveAll_Click(object sender, RoutedEventArgs e)
     {
-        if (_isBeingSaved)
-        {
-            return;
-        }
+        if (_isBeingSaved) return;
 
         _isBeingSaved = true;
 

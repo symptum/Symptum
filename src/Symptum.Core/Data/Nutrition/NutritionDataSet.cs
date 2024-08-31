@@ -49,8 +49,7 @@ public class NutritionDataSet : MetadataResource
     protected override void OnAddChildResource(IResource? childResource)
     {
         Groups ??= [];
-        if (childResource is FoodGroup group)
-            Groups.Add(group);
+        Groups.AddItemToListIfNotExists(childResource);
     }
 
     protected override void OnRemoveChildResource(IResource? childResource)

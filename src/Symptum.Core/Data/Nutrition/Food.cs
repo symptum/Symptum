@@ -27,6 +27,15 @@ public partial class Food : ObservableObject
         set => SetProperty(ref title, value);
     }
 
+    private List<string>? alternativeNames;
+
+    [TypeConverter(typeof(StringListConverter))]
+    public List<string>? AlternativeNames
+    {
+        get => alternativeNames;
+        set => SetProperty(ref alternativeNames, value);
+    }
+
     private List<FoodMeasure>? measures;
 
     // Measures other than "per 100 g" i.e. cup, bowl, spoon, etc.

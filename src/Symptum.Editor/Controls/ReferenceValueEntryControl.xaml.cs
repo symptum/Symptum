@@ -6,7 +6,14 @@ namespace Symptum.Editor.Controls;
 
 public sealed partial class ReferenceValueEntryControl : UserControl
 {
-    private readonly ObservableCollection<ListEditorItemWrapper<Quantity>> _data = [];
+    private readonly ObservableCollection<ListEditorItemWrapper<Quantity>> _quantities = [];
+
+    public ReferenceValueEntryControl()
+    {
+        InitializeComponent();
+
+        HandleListEditors();
+    }
 
     #region Properties
 
@@ -33,17 +40,10 @@ public sealed partial class ReferenceValueEntryControl : UserControl
 
     #endregion
 
-    public ReferenceValueEntryControl()
-    {
-        InitializeComponent();
-
-        HandleListEditors();
-    }
-
     private void LoadEntry(ReferenceValueEntry? entry)
     {
         titleTB.Text = entry?.Title;
-        _data.LoadFromList(entry?.Quantities);
+        _quantities.LoadFromList(entry?.Quantities);
         infTB.Text = entry?.Inference;
         remTB.Text = entry?.Remarks;
         expander.Header = entry?.Title;
@@ -54,7 +54,7 @@ public sealed partial class ReferenceValueEntryControl : UserControl
         if (Entry is ReferenceValueEntry entry)
         {
             expander.Header = entry.Title = titleTB.Text;
-            entry.Quantities = _data.UnwrapToList();
+            entry.Quantities = _quantities.UnwrapToList();
             entry.Inference = infTB.Text;
             entry.Remarks = remTB.Text;
         }
@@ -62,35 +62,35 @@ public sealed partial class ReferenceValueEntryControl : UserControl
 
     private void HandleListEditors()
     {
-        dtLE.ItemsSource = _data;
-        dtLE.AddItemRequested += (s, e) => _data.Add(new ListEditorItemWrapper<Quantity>(new()));
-        dtLE.ClearItemsRequested += (s, e) => _data.Clear();
-        dtLE.RemoveItemRequested += (s, e) =>
+        qtLE.ItemsSource = _quantities;
+        qtLE.AddItemRequested += (s, e) => _quantities.Add(new ListEditorItemWrapper<Quantity>(new()));
+        qtLE.ClearItemsRequested += (s, e) => _quantities.Clear();
+        qtLE.RemoveItemRequested += (s, e) =>
         {
             if (e is ListEditorItemWrapper<Quantity> data)
-                _data.Remove(data);
+                _quantities.Remove(data);
         };
-        dtLE.DuplicateItemRequested += (s, e) =>
+        qtLE.DuplicateItemRequested += (s, e) =>
         {
             //if (e is ListEditorItemWrapper<Quantity> data)
-            //    _data.Add(new() { Value = data.Value });
+            //    _quantities.Add(new() { Value = data.Value });
         };
-        dtLE.MoveItemUpRequested += (s, e) =>
+        qtLE.MoveItemUpRequested += (s, e) =>
         {
             if (e is ListEditorItemWrapper<Quantity> data)
             {
-                int oldIndex = _data.IndexOf(data);
+                int oldIndex = _quantities.IndexOf(data);
                 int newIndex = Math.Max(oldIndex - 1, 0);
-                _data.Move(oldIndex, newIndex);
+                _quantities.Move(oldIndex, newIndex);
             }
         };
-        dtLE.MoveItemDownRequested += (s, e) =>
+        qtLE.MoveItemDownRequested += (s, e) =>
         {
             if (e is ListEditorItemWrapper<Quantity> data)
             {
-                int oldIndex = _data.IndexOf(data);
-                int newIndex = Math.Min(oldIndex + 1, _data.Count - 1);
-                _data.Move(oldIndex, newIndex);
+                int oldIndex = _quantities.IndexOf(data);
+                int newIndex = Math.Min(oldIndex + 1, _quantities.Count - 1);
+                _quantities.Move(oldIndex, newIndex);
             }
         };
     }

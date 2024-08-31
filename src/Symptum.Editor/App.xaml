@@ -1,10 +1,10 @@
 ﻿<Application x:Class="Symptum.Editor.App"
-       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-       xmlns:wasm="http://platform.uno/wasm"
-       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-       mc:Ignorable="wasm">
-
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:wasm="http://platform.uno/wasm"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:converters="using:Symptum.Editor.Converters"
+  mc:Ignorable="wasm">
   <Application.Resources>
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
@@ -13,9 +13,18 @@
         <!-- Load Uno.UI.Toolkit resources -->
         <ToolkitResources xmlns="using:Uno.Toolkit.UI" />
       </ResourceDictionary.MergedDictionaries>
+
+      <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+      <converters:BookReferenceListToStringConverter x:Key="BookReferenceListToStringConverter" />
+      <converters:DateOnlyListToStringConverter x:Key="DateOnlyListToStringConverter" />
+      <converters:StringListToStringConverter x:Key="StringListToStringConverter" />
+      <converters:UriListToStringConverter x:Key="UriListToStringConverter" />
+      <converters:ReferenceValueEntryListToStringConverter x:Key="ReferenceValueEntryListToStringConverter" />
+      <converters:FoodMeasureListToStringConverter x:Key="FoodMeasureListToStringConverter" />
+      <converters:NumericalValueToStringConverter x:Key="NumericalValueToStringConverter"/>
+      <converters:DateOnlyToDateTimeOffsetConverter x:Key="DateOnlyToDateTimeOffsetConverter" />
+      <converters:UriToStringConverter x:Key="UriToStringConverter" />
+      <converters:AuthorInfoToStringConverter x:Key="AuthorInfoToStringConverter" />
     </ResourceDictionary>
   </Application.Resources>
-
-  <!-- Add resources here -->
-
 </Application>

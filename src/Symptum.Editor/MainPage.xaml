@@ -4,7 +4,6 @@
       xmlns:local="using:Symptum.Editor"
       xmlns:qbank="using:Symptum.Core.Subjects.QuestionBanks"
       xmlns:secontrols="using:Symptum.Editor.Controls"
-      xmlns:converters="using:Symptum.Editor.Converters"
       xmlns:ed="using:Symptum.Editor.EditorPages"
       xmlns:res="using:Symptum.Core.Management.Resources"
       xmlns:win="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -18,7 +17,7 @@
       <RowDefinition Height="*" />
     </Grid.RowDefinitions>
     <Grid.Resources>
-      <DataTemplate x:Key="DefaultNavigableResourceDataTemplate" x:DataType="res:NavigableResource">
+      <DataTemplate x:Key="DefaultResourceDataTemplate" x:DataType="res:ResourceBase">
         <TreeViewItem ItemsSource="{x:Bind ChildrenResources}" Content="{Binding Title}">
           <TreeViewItem.ContextFlyout>
             <MenuFlyout>
@@ -30,11 +29,6 @@
           </TreeViewItem.ContextFlyout>
         </TreeViewItem>
       </DataTemplate>
-      <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-      <converters:BookReferenceListToStringConverter x:Key="BookReferenceListToStringConverter" />
-      <converters:DateOnlyListToStringConverter x:Key="DateOnlyListToStringConverter" />
-      <converters:StringListToStringConverter x:Key="StringListToStringConverter" />
-      <converters:UriListToStringConverter x:Key="UriListToStringConverter" />
     </Grid.Resources>
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup>
@@ -60,13 +54,11 @@
         </VisualState>
       </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
-
     <win:Grid x:Name="AppTitleBar" Height="32" HorizontalAlignment="Stretch" VerticalAlignment="Top">
       <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0" Spacing="5">
         <TextBlock x:Name="TitleTextBlock" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" />
       </StackPanel>
     </win:Grid>
-
     <MenuBar Grid.Row="1">
       <MenuBarItem Title="File">
         <MenuFlyoutItem Text="New" Icon="Document" Click="New_Click">
@@ -116,7 +108,6 @@
         </MenuFlyoutSubItem>
       </MenuBarItem>
     </MenuBar>
-
     <SplitView x:Name="splitView" Grid.Row="2" PaneBackground="Transparent"
                IsPaneOpen="True" OpenPaneLength="300" CompactPaneLength="48" DisplayMode="Inline">
       <SplitView.Pane>
@@ -145,17 +136,18 @@
           <ScrollViewer x:Name="sideStackPanel" Grid.Row="1" HorizontalScrollBarVisibility="Auto">
             <TreeView x:Name="treeView" SelectionMode="Single"
                       CanReorderItems="False" CanDragItems="False" CanDrag="False"
-                      ItemTemplate="{StaticResource DefaultNavigableResourceDataTemplate}" />
+                      ItemTemplate="{StaticResource DefaultResourceDataTemplate}" />
           </ScrollViewer>
         </Grid>
       </SplitView.Pane>
-
       <Grid x:Name="contentGrid"
             BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}"
             BorderThickness="{ThemeResource NavigationViewContentGridBorderThickness}"
             Background="{ThemeResource NavigationViewContentBackground}"
             CornerRadius="{ThemeResource NavigationViewContentGridCornerRadius}">
-        <TabView x:Name="editorsTabView" VerticalAlignment="Stretch" IsAddTabButtonVisible="False" TabCloseRequested="EditorsTabView_TabCloseRequested">
+        <TabView x:Name="editorsTabView" VerticalAlignment="Stretch" IsAddTabButtonVisible="False"
+                 TabItemsSource="{x:Bind ed:EditorPagesManager.EditorPages}"
+                 TabCloseRequested="EditorsTabView_TabCloseRequested">
           <TabView.TabStripHeader>
             <Button x:Name="expandPaneButton" Visibility="Collapsed" VerticalAlignment="Center" Margin="5,0,0,0">
               <FontIcon Glyph="&#xEA5B;" />

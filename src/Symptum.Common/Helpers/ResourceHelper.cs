@@ -115,7 +115,7 @@ public class ResourceHelper
         return null;
     }
 
-    public static async Task<CsvFileResource?> LoadCsvFileResourceFromFileAsync(StorageFile? file, IResource? parent)
+    private static async Task<CsvFileResource?> LoadCsvFileResourceFromFileAsync(StorageFile? file, IResource? parent)
     {
         if (file != null && file.FileType.Equals(CsvFileExtension, StringComparison.InvariantCultureIgnoreCase))
         {
@@ -138,7 +138,7 @@ public class ResourceHelper
         return null;
     }
 
-    public static async Task<PackageResource?> LoadPackageResourceFromFileAsync(StorageFile? file)
+    internal static async Task<PackageResource?> LoadPackageResourceFromFileAsync(StorageFile? file)
     {
         if (file != null && file.FileType.Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase))
         {
@@ -186,7 +186,7 @@ public class ResourceHelper
         }
     }
 
-    public static async Task LoadCSVFileResourceAsync(CsvFileResource csvResource)
+    private static async Task LoadCSVFileResourceAsync(CsvFileResource csvResource)
     {
         StorageFile? csvFile = null;
 
@@ -203,12 +203,12 @@ public class ResourceHelper
 
         if (csvFile != null)
         {
-            string content = await FileIO.ReadTextAsync(csvFile);
-            ResourceManager.LoadResourceFile(csvResource, content);
+            string text = await FileIO.ReadTextAsync(csvFile);
+            ResourceManager.LoadResourceFile(csvResource, text);
         }
     }
 
-    public static async Task LoadMetadataResourceAsync(MetadataResource resource)
+    private static async Task LoadMetadataResourceAsync(MetadataResource resource)
     {
         StorageFile? jsonFile = null;
 
@@ -225,8 +225,8 @@ public class ResourceHelper
 
         if (jsonFile != null)
         {
-            string content = await FileIO.ReadTextAsync(jsonFile);
-            ResourceManager.LoadResourceMetadata(resource, content);
+            string text = await FileIO.ReadTextAsync(jsonFile);
+            ResourceManager.LoadResourceMetadata(resource, text);
         }
     }
 
@@ -274,7 +274,7 @@ public class ResourceHelper
         }
     }
 
-    public static async Task<bool> SaveCSVFileAsync(CsvFileResource csvResource, StorageFolder? targetFolder = null)
+    private static async Task<bool> SaveCSVFileAsync(CsvFileResource csvResource, StorageFolder? targetFolder = null)
     {
         if (csvResource == null) return false;
         //bool pathExists = await VerifyWorkFolderAsync(targetFolder);
@@ -287,14 +287,14 @@ public class ResourceHelper
 
         if (saveFile != null)
         {
-            string? content = ResourceManager.WriteResourceFile(csvResource);
-            return await StorageHelper.WriteToFileAsync(saveFile, content);
+            string? text = ResourceManager.WriteResourceFileText(csvResource);
+            return await StorageHelper.WriteToFileAsync(saveFile, text);
         }
 
         return false;
     }
 
-    public static async Task<bool> SaveMetadataAsync<T>(T resource, StorageFolder? targetFolder = null) where T : MetadataResource
+    private static async Task<bool> SaveMetadataAsync<T>(T resource, StorageFolder? targetFolder = null) where T : MetadataResource
     {
         if (resource == null) return false;
         //bool pathExists = await VerifyWorkFolderAsync(targetFolder);
@@ -307,9 +307,9 @@ public class ResourceHelper
 
         if (saveFile != null)
         {
-            string? content = resource is PackageResource package ?
+            string? text = resource is PackageResource package ?
                 ResourceManager.WritePackageMetadata(package) : ResourceManager.WriteResourceMetadata(resource);
-            return await StorageHelper.WriteToFileAsync(saveFile, content);
+            return await StorageHelper.WriteToFileAsync(saveFile, text);
         }
 
         return false;
@@ -379,7 +379,7 @@ public class ResourceHelper
         ResourceManager.UnregisterResource(resource);
     }
 
-    public static async Task DeleteCSVFileAsync(CsvFileResource? csvResource)
+    private static async Task DeleteCSVFileAsync(CsvFileResource? csvResource)
     {
         if (csvResource == null) return;
         if (_workFolder != null && StorageHelper.IsFolderPickerSupported)
@@ -395,7 +395,7 @@ public class ResourceHelper
         }
     }
 
-    public static async Task DeleteMetadataAsync(MetadataResource? resource)
+    private static async Task DeleteMetadataAsync(MetadataResource? resource)
     {
         if (resource == null) return;
         if (_workFolder != null && StorageHelper.IsFolderPickerSupported)

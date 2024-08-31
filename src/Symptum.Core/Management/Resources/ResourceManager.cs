@@ -2,7 +2,6 @@ using System.Collections.ObjectModel;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using static Symptum.Core.Helpers.FileHelper;
-using Symptum.Core.Management.Deployment;
 using Symptum.Core.Extensions;
 using System.Diagnostics.CodeAnalysis;
 using Symptum.Core.Subjects;
@@ -41,9 +40,13 @@ public class ResourceManager
         return path + GetResourceFileName(resource) + extension;
     }
 
-    public static void LoadResourceFile(FileResource? fileResource, string content) => fileResource?.ReadFileContent(content);
+    public static void LoadResourceFile(FileResource? fileResource, string text) => fileResource?.ReadFileText(text);
 
-    public static string? WriteResourceFile(FileResource? fileResource) => fileResource?.WriteFileContent();
+    public static void LoadResourceFile(FileResource? fileResource, Stream stream) => fileResource?.ReadFileStream(stream);
+
+    public static string? WriteResourceFileText(FileResource? fileResource) => fileResource?.WriteFileText();
+
+    public static Stream? WriteResourceFileStream(FileResource? fileResource) => fileResource?.WriteFileStream();
 
     public static PackageResource? LoadPackageFromMetadata(string metadata) => JsonSerializer.Deserialize<PackageResource>(metadata);
 

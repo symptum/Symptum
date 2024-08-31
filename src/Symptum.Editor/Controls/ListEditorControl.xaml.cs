@@ -2,6 +2,17 @@ namespace Symptum.Editor.Controls;
 
 public sealed partial class ListEditorControl : UserControl
 {
+    public ListEditorControl()
+    {
+        InitializeComponent();
+        AddItemCommand = new RelayCommand(OnAddItem);
+        ClearItemsCommand = new RelayCommand(OnClearItems);
+        RemoveItemCommand = new RelayCommand<object>(OnRemoveItem);
+        DuplicateItemCommand = new RelayCommand<object>(OnDuplicateItem);
+        MoveItemUpCommand = new RelayCommand<object>(OnMoveItemUp);
+        MoveItemDownCommand = new RelayCommand<object>(OnMoveItemDown);
+    }
+
     #region Properties
 
     public static readonly DependencyProperty HeaderProperty =
@@ -57,16 +68,17 @@ public sealed partial class ListEditorControl : UserControl
 
     #endregion
 
-    public ListEditorControl()
-    {
-        InitializeComponent();
-        AddItemCommand = new RelayCommand(OnAddItem);
-        ClearItemsCommand = new RelayCommand(OnClearItems);
-        RemoveItemCommand = new RelayCommand<object>(OnRemoveItem);
-        DuplicateItemCommand = new RelayCommand<object>(OnDuplicateItem);
-        MoveItemUpCommand = new RelayCommand<object>(OnMoveItemUp);
-        MoveItemDownCommand = new RelayCommand<object>(OnMoveItemDown);
-    }
+    public event EventHandler AddItemRequested;
+
+    public event EventHandler ClearItemsRequested;
+
+    public event EventHandler<object?> RemoveItemRequested;
+
+    public event EventHandler<object?> DuplicateItemRequested;
+
+    public event EventHandler<object?> MoveItemUpRequested;
+
+    public event EventHandler<object?> MoveItemDownRequested;
 
     private void OnAddItem()
     {
@@ -97,16 +109,4 @@ public sealed partial class ListEditorControl : UserControl
     {
         MoveItemDownRequested?.Invoke(this, wrapper);
     }
-
-    public event EventHandler AddItemRequested;
-
-    public event EventHandler ClearItemsRequested;
-
-    public event EventHandler<object?> RemoveItemRequested;
-
-    public event EventHandler<object?> DuplicateItemRequested;
-
-    public event EventHandler<object?> MoveItemUpRequested;
-
-    public event EventHandler<object?> MoveItemDownRequested;
 }

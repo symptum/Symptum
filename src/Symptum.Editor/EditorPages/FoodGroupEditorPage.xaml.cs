@@ -10,11 +10,19 @@ using Symptum.Core.Data.Nutrition;
 
 namespace Symptum.Editor.EditorPages;
 
-public sealed partial class FoodGroupEditorPage : Page, IEditorPage
+public sealed partial class FoodGroupEditorPage : EditorPageBase
 {
     private FoodGroup? currentGroup;
     private FindFlyout? findFlyout;
     private FoodEditorDialog foodEditorDialog = new();
+    private ResourcePropertiesEditorDialog propertyEditorDialog = new();
+
+    private DeleteItemsDialog deleteEntriesDialog = new()
+    {
+        Title = "Delete Food(s)?",
+        Content = "Do you want to delete the food(s)?\nOnce you delete you won't be able to restore."
+    };
+
     private bool _isFiltered = false;
 
     public FoodGroupEditorPage()
@@ -23,59 +31,7 @@ public sealed partial class FoodGroupEditorPage : Page, IEditorPage
         IconSource = DefaultIconSources.DataGridIconSource;
     }
 
-    #region Properties
-
-    public static readonly DependencyProperty TitleProperty =
-        DependencyProperty.Register(
-            nameof(Title),
-            typeof(string),
-            typeof(FoodGroupEditorPage),
-            new PropertyMetadata(string.Empty));
-
-    public string Title
-    {
-        get => (string)GetValue(TitleProperty);
-        set => SetValue(TitleProperty, value);
-    }
-
-    public IconSource IconSource { get; private set; }
-
-    public static readonly DependencyProperty EditableContentProperty =
-        DependencyProperty.Register(
-            nameof(EditableContent),
-            typeof(IResource),
-            typeof(FoodGroupEditorPage),
-            new PropertyMetadata(null, OnEditableContentChanged));
-
-    private static void OnEditableContentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (d is FoodGroupEditorPage foodGroupEditorPageEditorPage)
-        {
-            foodGroupEditorPageEditorPage.SetEditableContent(e.NewValue as IResource);
-        }
-    }
-
-    public IResource? EditableContent
-    {
-        get => (IResource?)GetValue(EditableContentProperty);
-        set => SetValue(EditableContentProperty, value);
-    }
-
-    public static readonly DependencyProperty HasUnsavedChangesProperty = DependencyProperty.Register(
-        nameof(HasUnsavedChanges),
-        typeof(bool),
-        typeof(FoodGroupEditorPage),
-        new PropertyMetadata(false));
-
-    public bool HasUnsavedChanges
-    {
-        get => (bool)GetValue(HasUnsavedChangesProperty);
-        set => SetValue(HasUnsavedChangesProperty, value);
-    }
-
-    #endregion
-
-    private void SetEditableContent(IResource? resource)
+    protected override void OnSetEditableContent(IResource? resource)
     {
         if (resource is FoodGroup group)
             LoadGroup(group);
@@ -93,7 +49,6 @@ public sealed partial class FoodGroupEditorPage : Page, IEditorPage
         findButton.IsEnabled = false;
         currentGroup = null;
         SetCountsText(true);
-        DataContext = null;
     }
 
     private void LoadGroup(FoodGroup? group)
@@ -109,9 +64,7 @@ public sealed partial class FoodGroupEditorPage : Page, IEditorPage
         findButton.IsEnabled = true;
         SetCountsText();
 
-        DataContext = group;
-
-        var binding = new Binding { Path = new PropertyPath(nameof(Title)) };
+        var binding = new Binding { Path = new PropertyPath(nameof(Title)), Source = currentGroup };
         SetBinding(TitleProperty, binding);
     }
 
@@ -127,16 +80,24 @@ public sealed partial class FoodGroupEditorPage : Page, IEditorPage
 
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
     {
-        if (_isBeingSaved)
-        {
-            return;
-        }
+        if (_isBeingSaved) return;
 
         _isBeingSaved = true;
 
         if (currentGroup != null)
-            HasUnsavedChanges = !await ResourceHelper.SaveCSVFileAsync(currentGroup);
+            HasUnsavedChanges = !await ResourceHelper.SaveResourceAsync(currentGroup);
         _isBeingSaved = false;
+    }
+
+    private async void PropsButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (currentGroup != null)
+        {
+            propertyEditorDialog.XamlRoot = XamlRoot;
+            var result = await propertyEditorDialog.EditAsync(currentGroup);
+            if (result == EditorResult.Update)
+                HasUnsavedChanges = true;
+        }
     }
 
     private async void AddButton_Click(object sender, RoutedEventArgs e)
@@ -145,9 +106,10 @@ public sealed partial class FoodGroupEditorPage : Page, IEditorPage
         {
             foodEditorDialog.XamlRoot = XamlRoot;
             var result = await foodEditorDialog.CreateAsync();
-            if (result == EditorResult.Create && foodEditorDialog.Food != null)
+            if (result == EditorResult.Create && foodEditorDialog.Food is Food food)
             {
-                currentGroup?.Foods?.Add(foodEditorDialog.Food);
+                currentGroup?.Foods?.Add(food);
+                dataGrid.SelectedItem = food;
                 HasUnsavedChanges = true;
                 SetCountsText();
             }
@@ -183,16 +145,14 @@ public sealed partial class FoodGroupEditorPage : Page, IEditorPage
             foodEditorDialog.XamlRoot = XamlRoot;
             var result = await foodEditorDialog.EditAsync(food);
             if (result == EditorResult.Update || result == EditorResult.Save)
-            {
                 HasUnsavedChanges = true;
-            }
         }
     }
 
     private void DuplicateButton_Click(object sender, RoutedEventArgs e)
     {
         if (dataGrid.SelectedItems.Count == 0
-            || currentGroup == null || currentGroup.Foods == null) return;
+            || currentGroup?.Foods == null) return;
         List<Food> toDupe = [];
 
         foreach (var item in dataGrid.SelectedItems)
@@ -207,22 +167,28 @@ public sealed partial class FoodGroupEditorPage : Page, IEditorPage
         SetCountsText();
     }
 
-    private void DeleteButton_Click(object sender, RoutedEventArgs e)
+    private async void DeleteButton_Click(object sender, RoutedEventArgs e)
     {
         if (dataGrid.SelectedItems.Count == 0
-            || currentGroup == null || currentGroup.Foods == null) return;
-        List<Food> toDelete = [];
+            || currentGroup?.Foods == null) return;
 
-        foreach (var item in dataGrid.SelectedItems)
+        deleteEntriesDialog.XamlRoot = XamlRoot;
+        var result = await deleteEntriesDialog.ShowAsync();
+        if (result == ContentDialogResult.Primary)
         {
-            if (item is Food food && currentGroup.Foods.Contains(food))
-                toDelete.Add(food);
+            List<Food> toDelete = [];
+
+            foreach (var item in dataGrid.SelectedItems)
+            {
+                if (item is Food food && currentGroup.Foods.Contains(food))
+                    toDelete.Add(food);
+            }
+            dataGrid.SelectedItems.Clear();
+            toDelete.ForEach(x => currentGroup?.Foods?.Remove(x));
+            toDelete.Clear();
+            HasUnsavedChanges = true;
+            SetCountsText();
         }
-        dataGrid.SelectedItems.Clear();
-        toDelete.ForEach(x => currentGroup?.Foods?.Remove(x));
-        toDelete.Clear();
-        HasUnsavedChanges = true;
-        SetCountsText();
     }
 
     private void FindButton_Click(object sender, RoutedEventArgs e)
@@ -275,8 +241,8 @@ public sealed partial class FoodGroupEditorPage : Page, IEditorPage
         if (currentGroup != null)
         {
             var foods = new ObservableCollection<Food>(from food in currentGroup?.Foods?.ToList()
-                                                               where FoodPropertyMatchValue(food, e)
-                                                               select food);
+                                                       where FoodPropertyMatchValue(food, e)
+                                                       select food);
             dataGrid.ItemsSource = foods;
             findTextBlock.Text = $"Find results for '{e.QueryText}' in {e.Context}. Matching Foods: {foods.Count}";
             OnFilter(true);

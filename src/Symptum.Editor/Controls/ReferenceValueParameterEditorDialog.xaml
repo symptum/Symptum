@@ -7,7 +7,7 @@
   Style="{ThemeResource DefaultContentDialogStyle}"
   CloseButtonText="Cancel" PrimaryButtonStyle="{ThemeResource AccentButtonStyle}">
   <ScrollViewer>
-    <StackPanel Spacing="10">
+    <StackPanel Spacing="16">
       <TextBox x:Name="titleTB" Header="Title" TextWrapping="Wrap"
                MaxHeight="172" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" />
       <local:ListEditorControl x:Name="enLE" Header="Entries">

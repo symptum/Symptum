@@ -7,32 +7,47 @@
   Style="{ThemeResource DefaultContentDialogStyle}"
   CloseButtonText="Cancel" PrimaryButtonStyle="{ThemeResource AccentButtonStyle}">
   <ScrollViewer>
-    <StackPanel Spacing="10">
+    <StackPanel Spacing="16">
       <TextBox x:Name="idTB" Header="Id" HorizontalAlignment="Stretch" />
       <TextBox x:Name="titleTB" Header="Title" HorizontalAlignment="Stretch" />
-      <Expander Header="Measures" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-        <local:ListEditorControl x:Name="meLE">
+      <Expander Header="Alternative Names" IsExpanded="False" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+        <local:ListEditorControl x:Name="altNamesLE">
           <local:ListEditorControl.ItemTemplate>
             <DataTemplate>
               <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
-                <Grid>
-                  <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition />
-                  </Grid.ColumnDefinitions>
-                  <TextBox Text="{Binding Value.Title, Mode=TwoWay}" Header="Title" Margin="0,0,5,0" />
-                  <NumberBox Text="{Binding Value.Weight, Mode=TwoWay}" Header="Weight" Grid.Column="1"
-                             SpinButtonPlacementMode="Inline" HorizontalAlignment="Stretch" Margin="5,0,0,0" />
-                </Grid>
+                <TextBox Text="{Binding Value, Mode=TwoWay}" />
               </local:ListEditorItemCommandsButton>
             </DataTemplate>
           </local:ListEditorControl.ItemTemplate>
         </local:ListEditorControl>
       </Expander>
+      <Expander Header="Measures" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+        <StackPanel Spacing="16">
+          <InfoBar IsOpen="True" IsClosable="False" Severity="Informational"
+                   Message="The measure should quantify how much it weighs in grams." />
+          <local:ListEditorControl x:Name="meLE">
+            <local:ListEditorControl.ItemTemplate>
+              <DataTemplate>
+                <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
+                  <Grid>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition />
+                      <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <TextBox Text="{Binding Value.Title, Mode=TwoWay}" Header="Title" Margin="0,0,5,0" />
+                    <NumberBox Text="{Binding Value.Weight, Mode=TwoWay}" Header="Weight" Grid.Column="1"
+                             SpinButtonPlacementMode="Inline" HorizontalAlignment="Stretch" Margin="5,0,0,0" />
+                  </Grid>
+                </local:ListEditorItemCommandsButton>
+              </DataTemplate>
+            </local:ListEditorControl.ItemTemplate>
+          </local:ListEditorControl>
+        </StackPanel>
+      </Expander>
       <Expander Header="Nutrients" IsExpanded="False" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-        <StackPanel x:Name="nutrientsList" Spacing="10">
-          <!--<TextBox x:Name="energyTB" Header="Energy" />
-          <TextBox x:Name="proteinTB" Header="Protein" />-->
+        <StackPanel x:Name="nutrientsList" Spacing="16">
+          <InfoBar IsOpen="True" IsClosable="False" Severity="Informational"
+                   Message="The values should be in the specified units per 100 g of food." />
         </StackPanel>
       </Expander>
     </StackPanel>

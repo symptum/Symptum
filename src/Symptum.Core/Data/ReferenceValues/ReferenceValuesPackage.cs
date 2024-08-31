@@ -51,8 +51,7 @@ public class ReferenceValuesPackage : PackageResource
     protected override void OnAddChildResource(IResource? childResource)
     {
         Families ??= [];
-        if (childResource is ReferenceValueFamily family)
-            Families?.Add(family);
+        Families?.AddItemToListIfNotExists(childResource);
     }
 
     protected override void OnRemoveChildResource(IResource? childResource)

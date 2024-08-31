@@ -1,14 +1,13 @@
-﻿<Page
-    x:Class="Symptum.Editor.EditorPages.QuestionTopicEditorPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Symptum.Editor.EditorPages"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
-    xmlns:primitives="using:CommunityToolkit.WinUI.UI.Controls.Primitives"
-    xmlns:converters="using:Symptum.Editor.Converters"
-    mc:Ignorable="d">
+﻿<local:EditorPageBase
+  x:Class="Symptum.Editor.EditorPages.QuestionTopicEditorPage"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="using:Symptum.Editor.EditorPages"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+  xmlns:primitives="using:CommunityToolkit.WinUI.UI.Controls.Primitives"
+  mc:Ignorable="d">
   <Grid x:Name="contentGrid">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
@@ -16,10 +15,6 @@
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
     <Grid.Resources>
-      <converters:BookReferenceListToStringConverter x:Key="BookReferenceListToStringConverter" />
-      <converters:DateOnlyListToStringConverter x:Key="DateOnlyListToStringConverter" />
-      <converters:StringListToStringConverter x:Key="StringListToStringConverter" />
-      <converters:UriListToStringConverter x:Key="UriListToStringConverter" />
       <Style x:Key="DataGridRowHeaderStyle" TargetType="primitives:DataGridRowHeader">
         <Setter Property="Template">
           <Setter.Value>
@@ -31,6 +26,7 @@
       </Style>
     </Grid.Resources>
     <CommandBar x:Name="cmdbar" IsOpen="False" DefaultLabelPosition="Collapsed">
+      <AppBarButton x:Name="propsButton" Icon="Repair" Label="Properties" Click="PropsButton_Click" />
       <AppBarButton x:Name="addButton" IsEnabled="False" Icon="Add" Label="Add" Click="AddButton_Click">
         <AppBarButton.KeyboardAccelerators>
           <KeyboardAccelerator Modifiers="Control,Shift" Key="N" />
@@ -82,7 +78,6 @@
         </AppBarButton.Icon>
       </AppBarButton>
       <CommandBar.SecondaryCommands>
-        <!--<AppBarButton x:Name="sortButton" Icon="Sort" Label="Sort" Click="SortButton_Click" />-->
         <AppBarButton x:Name="sortYearsButton" Icon="Sort" Label="Sort Years" Click="SortYearsButton_Click" />
         <AppBarButton x:Name="reorderButton" Label="Reorder" Click="ReorderButton_Click">
           <AppBarButton.KeyboardAccelerators>
@@ -100,29 +95,29 @@
                        SelectionMode="Extended" DoubleTapped="DataGrid_DoubleTapped" SelectionChanged="DataGrid_SelectionChanged"
                        RowHeaderStyle="{StaticResource DataGridRowHeaderStyle}" LoadingRow="DataGrid_LoadingRow">
       <controls:DataGrid.Columns>
-        <controls:DataGridTextColumn Header="Id" Binding="{Binding Id.IdString}" Tag="IdString" />
-        <controls:DataGridTextColumn Header="Question Type" Binding="{Binding Id.QuestionType}" Tag="QuestionType" />
-        <controls:DataGridTextColumn Header="Subject Code" Binding="{Binding Id.SubjectCode}" Tag="SubjectCode" />
-        <controls:DataGridTextColumn Header="Competency Numbers" Binding="{Binding Id.CompetencyNumbers}" Tag="CompetencyNumbers" />
+        <controls:DataGridTextColumn Header="Id" Binding="{Binding Id.IdString}" />
+        <controls:DataGridTextColumn Header="Question Type" Binding="{Binding Id.QuestionType}" />
+        <controls:DataGridTextColumn Header="Subject Code" Binding="{Binding Id.SubjectCode}" />
+        <controls:DataGridTextColumn Header="Competency Numbers" Binding="{Binding Id.CompetencyNumbers}" />
         <controls:DataGridTextColumn Header="Title" Binding="{Binding Title}" Tag="Title" />
-        <controls:DataGridTextColumn Header="Descriptions" Binding="{Binding Descriptions, Converter={StaticResource StringListToStringConverter}}" Tag="Descriptions" />
-        <controls:DataGridCheckBoxColumn Header="Has Previously Been Asked" Binding="{Binding HasPreviouslyBeenAsked}" Tag="HasPreviouslyBeenAsked" />
-        <controls:DataGridTemplateColumn Header="Importance" Tag="Importance">
+        <controls:DataGridTextColumn Header="Descriptions" Binding="{Binding Descriptions, Converter={StaticResource StringListToStringConverter}}" />
+        <controls:DataGridCheckBoxColumn Header="Has Previously Been Asked" Binding="{Binding HasPreviouslyBeenAsked}" />
+        <controls:DataGridTemplateColumn Header="Importance">
           <controls:DataGridTemplateColumn.CellTemplate>
             <DataTemplate>
               <InfoBadge HorizontalAlignment="Center" Value="{Binding Importance}" />
             </DataTemplate>
           </controls:DataGridTemplateColumn.CellTemplate>
         </controls:DataGridTemplateColumn>
-        <controls:DataGridTextColumn Header="Years Asked" Binding="{Binding YearsAsked, Converter={StaticResource DateOnlyListToStringConverter}}" Tag="YearsAsked" />
-        <controls:DataGridTextColumn Header="Probable Cases" Binding="{Binding ProbableCases, Converter={StaticResource StringListToStringConverter}}" Tag="ProbableCases" />
-        <controls:DataGridTextColumn Header="Book References" Binding="{Binding BookReferences, Converter={StaticResource BookReferenceListToStringConverter}}" Tag="BookReferences" />
-        <controls:DataGridTextColumn Header="Link References" Binding="{Binding LinkReferences, Converter={StaticResource UriListToStringConverter}}" Tag="LinkReferences" />
+        <controls:DataGridTextColumn Header="Years Asked" Binding="{Binding YearsAsked, Converter={StaticResource DateOnlyListToStringConverter}}" />
+        <controls:DataGridTextColumn Header="Probable Cases" Binding="{Binding ProbableCases, Converter={StaticResource StringListToStringConverter}}" />
+        <controls:DataGridTextColumn Header="Book References" Binding="{Binding BookReferences, Converter={StaticResource BookReferenceListToStringConverter}}" />
+        <controls:DataGridTextColumn Header="Link References" Binding="{Binding LinkReferences, Converter={StaticResource UriListToStringConverter}}" />
       </controls:DataGrid.Columns>
     </controls:DataGrid>
-    <StackPanel x:Name="statusBar" Grid.Row="2" Orientation="Horizontal" Spacing="10" Margin="10">
+    <StackPanel x:Name="statusBar" Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="10">
       <TextBlock x:Name="countTextBlock" Style="{ThemeResource CaptionTextBlockStyle}" />
       <TextBlock x:Name="findTextBlock" Style="{ThemeResource CaptionTextBlockStyle}" />
     </StackPanel>
   </Grid>
-</Page>
+</local:EditorPageBase>

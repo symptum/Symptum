@@ -30,7 +30,7 @@
               <ColumnDefinition />
               <ColumnDefinition />
             </Grid.ColumnDefinitions>
-            <StackPanel win:Grid.ColumnSpan="2" win:Orientation="Horizontal" Spacing="10"
+            <StackPanel win:Grid.ColumnSpan="2" win:Orientation="Horizontal" Spacing="16"
                         win:Margin="0,0,0,10" not_win:Margin="0,0,5,10">
               <TextBlock Text="Book" VerticalAlignment="Center" />
               <AutoSuggestBox x:Name="bookQueryBox" QueryIcon="Find" PlaceholderText="Search"

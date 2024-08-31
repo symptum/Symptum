@@ -3,19 +3,15 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Symptum.Editor.Controls"
-    xmlns:converters="using:Symptum.Editor.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
-  <UserControl.Resources>
-    <converters:NumericalValueToStringConverter x:Key="NumericalValueToStringConverter"/>
-  </UserControl.Resources>
   <Expander x:Name="expander" Header="{x:Bind Entry.Title}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-    <StackPanel Spacing="10">
+    <StackPanel Spacing="16">
       <TextBox x:Name="titleTB" Header="Title" />
-      <local:ListEditorControl x:Name="dtLE" Header="Data">
+      <local:ListEditorControl x:Name="qtLE" Header="Quantities">
         <local:ListEditorControl.ItemTemplate>
           <DataTemplate>
             <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">

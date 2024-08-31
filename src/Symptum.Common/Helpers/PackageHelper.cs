@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO.Compression;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text.Json;
 using CsvHelper;
 using Symptum.Core.Management.Deployment;
 using Symptum.Core.Management.Resources;
@@ -194,13 +195,38 @@ public class PackageHelper
             {
                 return await ResourceHelper.LoadPackageResourceFromFileAsync(jsonFile);
             }
+            else
+            {
+                await DownloadPackageAsync(packageId);
+            }
         }
 
         return null;
     }
 
+    #region Downloading
+
+    private static readonly string pagesUrl = "https://symptum.github.io/Symptum.Packages/"; // for now we'll use GitHub Pages to host the packages
+    private static readonly string repoUrl = "https://raw.githubusercontent.com/symptum/Symptum.Packages/main/";
+    private static readonly string onlinePackageIndex = "test.json";
+
     public static async Task<bool> DownloadPackageAsync(string packageId)
     {
+        string? json = null;
+        if (NetworkInformation.GetInternetConnectionProfile() is ConnectionProfile connectionProfile
+            && connectionProfile.GetNetworkConnectivityLevel() == NetworkConnectivityLevel.InternetAccess)
+        {
+            using HttpClient client = new();
+            HttpResponseMessage response = await client.GetAsync(pagesUrl + onlinePackageIndex);
+            if (response?.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                json = await response.Content.ReadAsStringAsync();
+                var obj = JsonSerializer.Deserialize<PackageResource>(json);
+            }
+        }
+
         return false;
     }
+
+    #endregion
 }

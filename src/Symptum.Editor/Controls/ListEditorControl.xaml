@@ -18,7 +18,7 @@
     <TextBlock Text="{x:Bind Header}" VerticalAlignment="Center" HorizontalAlignment="Left" />
     <ItemsRepeater x:Name="itemsRepeater" Grid.Row="1" ItemsSource="{x:Bind ItemsSource}" ItemTemplate="{x:Bind ItemTemplate}">
       <ItemsRepeater.Layout>
-        <StackLayout Spacing="10" Orientation="Vertical" />
+        <StackLayout Spacing="16" Orientation="Vertical" />
       </ItemsRepeater.Layout>
     </ItemsRepeater>
   </Grid>

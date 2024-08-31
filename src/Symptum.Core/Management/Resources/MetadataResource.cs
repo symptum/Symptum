@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Symptum.Core.Management.Navigation;
 using Symptum.Core.Serialization;
 
 namespace Symptum.Core.Management.Resources;

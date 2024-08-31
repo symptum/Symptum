@@ -5,22 +5,17 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:local="using:Symptum.Editor.Controls"
-  xmlns:converters="using:Symptum.Editor.Converters"
   xmlns:not_android="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
   xmlns:android="http://uno.ui/android"
   mc:Ignorable="d android"
   Style="{ThemeResource DefaultContentDialogStyle}"
   CloseButtonText="Cancel" PrimaryButtonStyle="{ThemeResource AccentButtonStyle}">
-  <ContentDialog.Resources>
-    <converters:DateOnlyToDateTimeOffsetConverter x:Key="DateOnlyToDateTimeOffsetConverter" />
-    <converters:UriToStringConverter x:Key="UriToStringConverter" />
-  </ContentDialog.Resources>
   <ScrollViewer>
-    <StackPanel Spacing="10">
-      <StackPanel Spacing="10" Orientation="Horizontal">
+    <StackPanel Spacing="16">
+      <StackPanel Spacing="24" Orientation="Horizontal">
         <ComboBox x:Name="qtCB" Header="Question Type" />
         <ComboBox x:Name="scCB" Header="Subject Code" />
-        <TextBox x:Name="cnTB" Header="Competency Numbers" />
+        <!--<TextBox x:Name="cnTB" Header="Competency Numbers" />-->
       </StackPanel>
       <TextBox x:Name="titleTB" Header="Title" HorizontalAlignment="Stretch" />
       <CheckBox x:Name="paCB" Content="Has been asked previously" />

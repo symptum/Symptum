@@ -54,8 +54,7 @@ public class QuestionBank : MetadataResource
     protected override void OnAddChildResource(IResource? childResource)
     {
         Papers ??= [];
-        if (childResource is QuestionBankPaper paper)
-            Papers?.Add(paper);
+        Papers?.AddItemToListIfNotExists(childResource);
     }
 
     protected override void OnRemoveChildResource(IResource? childResource)

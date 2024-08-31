@@ -142,7 +142,7 @@ public sealed partial class QuestionEditorDialog : ContentDialog
 
         qtCB.SelectedItem = QuestionEntry.Id?.QuestionType;
         scCB.SelectedItem = QuestionEntry.Id?.SubjectCode;
-        cnTB.Text = QuestionEntry.Id?.CompetencyNumbers;
+        //cnTB.Text = QuestionEntry.Id?.CompetencyNumbers;
         titleTB.Text = QuestionEntry.Title;
         descriptions.LoadFromList(QuestionEntry.Descriptions);
         paCB.IsChecked = hasPreviouslyBeenAsked = QuestionEntry.HasPreviouslyBeenAsked;
@@ -159,7 +159,7 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         QuestionEntry.Id ??= new();
         QuestionEntry.Id.QuestionType = qtCB.SelectedItem != null ? (QuestionType)qtCB.SelectedItem : QuestionType.Essay;
         QuestionEntry.Id.SubjectCode = scCB.SelectedItem != null ? (SubjectList)scCB.SelectedItem : SubjectList.None;
-        QuestionEntry.Id.CompetencyNumbers = cnTB.Text;
+        //QuestionEntry.Id.CompetencyNumbers = cnTB.Text;
         QuestionEntry.Title = titleTB.Text;
         QuestionEntry.Descriptions = descriptions.UnwrapToList();
         QuestionEntry.HasPreviouslyBeenAsked = hasPreviouslyBeenAsked;
@@ -174,7 +174,7 @@ public sealed partial class QuestionEditorDialog : ContentDialog
     {
         qtCB.SelectedItem = null;
         scCB.SelectedItem = null;
-        cnTB.Text = string.Empty;
+        //cnTB.Text = string.Empty;
         titleTB.Text = string.Empty;
         descriptions.Clear();
         paCB.IsChecked = hasPreviouslyBeenAsked = true;

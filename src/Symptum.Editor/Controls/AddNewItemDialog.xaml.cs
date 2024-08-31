@@ -19,7 +19,11 @@ public sealed partial class AddNewItemDialog : ContentDialog
             new("Reference Value Group", typeof(ReferenceValueGroup), "Reference Values"),
             new("Nutrition Package", typeof(NutritionPackage), "Nutrition"),
             new("Nutrition Data Set", typeof(NutritionDataSet), "Nutrition"),
-            new("Food Group", typeof(FoodGroup), "Nutrition")
+            new("Food Group", typeof(FoodGroup), "Nutrition"),
+            new("Category", typeof(CategoryResource), "Common"),
+            new("Image Category", typeof(ImageCategoryResource), "Common"),
+            new("Markdown Category", typeof(MarkdownCategoryResource), "Common"),
+            new("Image File", typeof(ImageFileResource), "Common"),
         ];
 
     private List<NewItemType>? availItemTypes;

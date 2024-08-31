@@ -8,7 +8,7 @@
     Style="{ThemeResource DefaultContentDialogStyle}"
     PrimaryButtonText="Add" CloseButtonText="Cancel" DefaultButton="Primary">
   <ScrollViewer>
-    <StackPanel Spacing="10">
+    <StackPanel Spacing="16">
       <TextBlock x:Name="parentInfo" TextWrapping="WrapWholeWords" />
       <AutoSuggestBox x:Name="queryBox" Header="Item Type" QueryIcon="Find" PlaceholderText="Search" />
       <ListView x:Name="newItemsLV" SelectionMode="Single" MaxHeight="200">

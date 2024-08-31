@@ -11,11 +11,12 @@ using Symptum.Editor.Controls;
 
 namespace Symptum.Editor.EditorPages;
 
-public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
+public sealed partial class QuestionTopicEditorPage : EditorPageBase
 {
     private QuestionBankTopic? currentTopic;
     private FindFlyout? findFlyout;
     private QuestionEditorDialog questionEditorDialog = new();
+    private ResourcePropertiesEditorDialog propertyEditorDialog = new();
 
     private DeleteItemsDialog deleteEntriesDialog = new()
     {
@@ -31,59 +32,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         IconSource = DefaultIconSources.DataGridIconSource;
     }
 
-    #region Properties
-
-    public static readonly DependencyProperty TitleProperty =
-        DependencyProperty.Register(
-            nameof(Title),
-            typeof(string),
-            typeof(QuestionTopicEditorPage),
-            new PropertyMetadata(string.Empty));
-
-    public string Title
-    {
-        get => (string)GetValue(TitleProperty);
-        set => SetValue(TitleProperty, value);
-    }
-
-    public IconSource IconSource { get; private set; }
-
-    public static readonly DependencyProperty EditableContentProperty =
-        DependencyProperty.Register(
-            nameof(EditableContent),
-            typeof(IResource),
-            typeof(QuestionTopicEditorPage),
-            new PropertyMetadata(null, OnEditableContentChanged));
-
-    private static void OnEditableContentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (d is QuestionTopicEditorPage questionTopicEditorPage)
-        {
-            questionTopicEditorPage.SetEditableContent(e.NewValue as IResource);
-        }
-    }
-
-    public IResource? EditableContent
-    {
-        get => (IResource?)GetValue(EditableContentProperty);
-        set => SetValue(EditableContentProperty, value);
-    }
-
-    public static readonly DependencyProperty HasUnsavedChangesProperty = DependencyProperty.Register(
-        nameof(HasUnsavedChanges),
-        typeof(bool),
-        typeof(QuestionTopicEditorPage),
-        new PropertyMetadata(false));
-
-    public bool HasUnsavedChanges
-    {
-        get => (bool)GetValue(HasUnsavedChangesProperty);
-        set => SetValue(HasUnsavedChangesProperty, value);
-    }
-
-    #endregion
-
-    private void SetEditableContent(IResource? resource)
+    protected override void OnSetEditableContent(IResource? resource)
     {
         if (resource is QuestionBankTopic topic)
             LoadTopic(topic);
@@ -101,7 +50,6 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         findButton.IsEnabled = false;
         currentTopic = null;
         SetCountsText(true);
-        DataContext = null;
     }
 
     private void LoadTopic(QuestionBankTopic? topic)
@@ -117,9 +65,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         findButton.IsEnabled = true;
         SetCountsText();
 
-        DataContext = currentTopic;
-
-        var binding = new Binding { Path = new PropertyPath(nameof(Title)) };
+        var binding = new Binding { Path = new PropertyPath(nameof(Title)), Source = currentTopic };
         SetBinding(TitleProperty, binding);
     }
 
@@ -135,16 +81,24 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
 
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
     {
-        if (_isBeingSaved)
-        {
-            return;
-        }
+        if (_isBeingSaved) return;
 
         _isBeingSaved = true;
 
         if (currentTopic != null)
-            HasUnsavedChanges = !await ResourceHelper.SaveCSVFileAsync(currentTopic);
+            HasUnsavedChanges = !await ResourceHelper.SaveResourceAsync(currentTopic);
         _isBeingSaved = false;
+    }
+
+    private async void PropsButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (currentTopic != null)
+        {
+            propertyEditorDialog.XamlRoot = XamlRoot;
+            var result = await propertyEditorDialog.EditAsync(currentTopic);
+            if (result == EditorResult.Update)
+                HasUnsavedChanges = true;
+        }
     }
 
     private async void AddButton_Click(object sender, RoutedEventArgs e)
@@ -192,9 +146,7 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
             questionEditorDialog.XamlRoot = XamlRoot;
             var result = await questionEditorDialog.EditAsync(entry);
             if (result == EditorResult.Update || result == EditorResult.Save)
-            {
                 HasUnsavedChanges = true;
-            }
         }
     }
 
@@ -326,23 +278,10 @@ public sealed partial class QuestionTopicEditorPage : Page, IEditorPage
         } ?? false;
     }
 
-    private void SortButton_Click(object sender, RoutedEventArgs e)
-    {
-        //SortEntries();
-    }
-
     private void SortYearsButton_Click(object sender, RoutedEventArgs e)
     {
         SortYearsAsked();
     }
-
-    //private void SortEntries()
-    //{
-    //    var x = currentTopic?.QuestionEntries?.Order().ToList();
-    //    StringBuilder mdBuilder = new();
-    //    MarkdownHelper.GenerateMarkdownForQuestionEntries(x, ref mdBuilder);
-    //    System.Diagnostics.Debug.WriteLine(mdBuilder.ToString());
-    //}
 
     private void SortYearsAsked()
     {

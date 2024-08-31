@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Symptum.Core.Data;
+using Symptum.Core.Management.Navigation;
 
 namespace Symptum.Core.Management.Resources;
 
@@ -68,19 +69,33 @@ public abstract class FileResource : NavigableResource, IContent
     {
     }
 
-    internal void ReadFileContent(string content)
+    internal void ReadFileText(string content)
     {
-        OnReadFileContent(content);
+        OnReadFileText(content);
     }
 
-    internal string WriteFileContent()
+    internal void ReadFileStream(Stream stream)
     {
-        return OnWriteFileContent();
+        OnReadFileStream(stream);
     }
 
-    protected abstract void OnReadFileContent(string content);
+    internal string WriteFileText()
+    {
+        return OnWriteFileText();
+    }
 
-    protected abstract string OnWriteFileContent();
+    internal Stream? WriteFileStream()
+    {
+        return null;
+    }
+
+    protected abstract void OnReadFileText(string content);
+
+    protected abstract void OnReadFileStream(Stream stream);
+
+    protected abstract string OnWriteFileText();
+
+    protected abstract Stream? OnWriteFileStream();
 
     #region Ignore
 
