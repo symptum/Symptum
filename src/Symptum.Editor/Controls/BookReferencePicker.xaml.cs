@@ -1,4 +1,5 @@
 using System.Collections;
+using Symptum.Core.Data.Bibliography;
 using Symptum.Core.Subjects.Books;
 
 namespace Symptum.Editor.Controls;
@@ -103,7 +104,6 @@ public sealed partial class BookReferencePicker : UserControl
             bookQueryBox.ItemsSource = BookStore.Books;
 #else
             bookGroupedSource.Source = GetBooksGrouped(BookStore.Books);
-
 #endif
             return;
         }
@@ -113,7 +113,7 @@ public sealed partial class BookReferencePicker : UserControl
         foreach (var book in BookStore.Books)
         {
             var found = splitText.All((key) => book.Title.Contains(key, StringComparison.InvariantCultureIgnoreCase)
-                || book.Authors.Contains(key, StringComparison.InvariantCultureIgnoreCase) || book.Code.Contains(key, StringComparison.InvariantCultureIgnoreCase));
+                || book.Authors.Contains(key, StringComparison.InvariantCultureIgnoreCase) || book.Id.Contains(key, StringComparison.InvariantCultureIgnoreCase));
             if (found)
             {
                 suitableItems.Add(book);
@@ -129,7 +129,7 @@ public sealed partial class BookReferencePicker : UserControl
     private void LoadBookReference()
     {
         if (BookReference == null) return;
-        selectedBook = BookReference.Book;
+        selectedBook = BookStore.Books.FirstOrDefault(x => x.Id == BookReference.Id);
 #if HAS_UNO_WINUI
         bookQueryBox.Text = selectedBook?.ToString();
 #else
@@ -137,17 +137,21 @@ public sealed partial class BookReferencePicker : UserControl
 #endif
         editionSelector.Value = BookReference.Edition;
         volumeSelector.Value = BookReference.Volume;
-        pageNoSelector.Text = BookReference.PageNumbers;
+        pageNoSelector.Text = BookReference.Pages;
     }
 
     private void UpdateBookReference()
     {
         if (BookReference == null) return;
-        BookReference.Book = selectedBook;
-        BookReference.Edition = (int)editionSelector.Value;
-        BookReference.Volume = (int)volumeSelector.Value;
-        BookReference.PageNumbers = pageNoSelector.Text;
-        UpdatePreviewText();
+        BookReference = BookReference with
+        {
+            Id = selectedBook?.Id,
+            Title = selectedBook?.Title,
+            Authors = selectedBook?.Authors,
+            Edition = (int)editionSelector.Value,
+            Volume = (int)volumeSelector.Value,
+            Pages = pageNoSelector.Text
+        };
     }
 
     private void UpdatePreviewText()

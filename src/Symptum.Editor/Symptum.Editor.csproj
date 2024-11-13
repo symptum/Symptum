@@ -1,12 +1,12 @@
 <Project Sdk="Uno.Sdk">
   <PropertyGroup>
     <TargetFrameworks>
-      net8.0-android;
-      net8.0-ios;
-      net8.0-maccatalyst;
-      net8.0-windows10.0.19041;
-      net8.0-desktop;
-      net8.0-browserwasm;
+      net9.0-android;
+      net9.0-ios;
+      net9.0-maccatalyst;
+      net9.0-windows10.0.22621;
+      net9.0-desktop;
+      <!--net9.0-browserwasm;-->
     </TargetFrameworks>
 
     <OutputType>Exe</OutputType>
@@ -17,8 +17,12 @@
     <!-- App Identifier -->
     <ApplicationId>com.symptum.editor.dev</ApplicationId>
     <!-- Versions -->
-    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>0.0.3</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
+
+    <!--<WasmShellEnableIDBFS>true</WasmShellEnableIDBFS>-->
+
     <!--
       If you encounter this error message:
 
@@ -58,6 +62,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Symptum.Editor.SourceGenerators\Symptum.Editor.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Symptum.UI\Symptum.UI.csproj" />
   </ItemGroup>
 
   <ItemGroup>

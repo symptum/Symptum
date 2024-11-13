@@ -81,6 +81,9 @@ public partial class App : Application
             file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Books/Third Year Books.csv"));
             content = await FileIO.ReadTextAsync(file);
             BookStore.LoadBooks(content);
+            file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Books/Final Year Books.csv"));
+            content = await FileIO.ReadTextAsync(file);
+            BookStore.LoadBooks(content);
         }
         catch { }
     }

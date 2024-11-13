@@ -9,6 +9,9 @@ using System.Text;
 using Symptum.Core.Subjects.QuestionBanks;
 using Symptum.Core.Management.Deployment;
 using static Symptum.Core.Helpers.FileHelper;
+using CsvHelper;
+using System.Globalization;
+using Symptum.Core.Extensions;
 
 namespace Symptum.Editor;
 
@@ -70,6 +73,8 @@ public sealed partial class MainPage : Page
         };
 
         EditorPagesManager.CurrentEditorChanged += (s, e) => editorsTabView.SelectedItem = e;
+
+        EditorPagesManager.EditorPages.Add(new MarkdownEditorPage());
     }
 
     private async void Markdown_Click(object sender, RoutedEventArgs e)
@@ -345,6 +350,71 @@ public sealed partial class MainPage : Page
         if (context is IResource parent)
         {
             await AddNewItemAsync(parent);
+        }
+    }
+
+    private async void MenuFlyoutItem_Click(object sender, RoutedEventArgs e)
+    {
+        FileOpenPicker fileOpenPicker = new();
+        fileOpenPicker.FileTypeFilter.Add(CsvFileExtension);
+
+#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+        WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, WindowHelper.WindowHandle);
+#endif
+        var pickedFiles = await fileOpenPicker.PickMultipleFilesAsync();
+        if (pickedFiles.Count > 0)
+        {
+            foreach (StorageFile file in pickedFiles)
+            {
+                if (file != null && file.FileType.Equals(CsvFileExtension, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    QuestionBankTopic topic = new();
+                    string csv = await FileIO.ReadTextAsync(file);
+                    if (string.IsNullOrEmpty(csv)) return;
+
+                    using StringReader reader = new(csv);
+                    using CsvReader csvReader = new(reader, CultureInfo.InvariantCulture);
+                    var entries = csvReader.GetRecords<QuestionEntryO>().ToList();
+
+                    List<QuestionEntry> entriesn = [];
+                    foreach (var entry in entries)
+                    {
+                        QuestionEntry entry1 = new()
+                        {
+                            Id = new() { QuestionType = entry.Id.QuestionType, SubjectCode = entry.Id.SubjectCode, CompetencyNumbers = entry.Id.CompetencyNumbers },
+                            Title = entry.Title,
+                            Descriptions = entry.Descriptions.CloneList(),
+                            HasPreviouslyBeenAsked = entry.HasPreviouslyBeenAsked,
+                            Importance = entry.Importance,
+                            YearsAsked = entry.YearsAsked.CloneList(),
+                            ProbableCases = entry.ProbableCases.CloneList()
+                        };
+
+                        if (entry.BookReferences?.Count > 0)
+                        {
+                            entry1.References = new(entry.BookReferences);
+                        }
+                        entriesn.Add(entry1);
+                    }
+
+                    topic.Entries = new(entriesn);
+
+                    using StringWriter writer = new();
+                    using CsvWriter csvW = new(writer, CultureInfo.InvariantCulture);
+                    csvW.WriteHeader<QuestionEntry>();
+                    csvW.NextRecord();
+                    if (entriesn != null)
+                    {
+                        foreach (var entry in entriesn)
+                        {
+                            csvW.WriteRecord(entry);
+                            csvW.NextRecord();
+                        }
+                    }
+
+                    await FileIO.WriteTextAsync(file, writer.ToString());
+                }
+            }
         }
     }
 }

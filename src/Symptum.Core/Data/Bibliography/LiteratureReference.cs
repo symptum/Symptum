@@ -1,22 +1,22 @@
 namespace Symptum.Core.Data.Bibliography;
 
-public class LiteratureReference : ReferenceBase
+public record LiteratureReference : ReferenceBase
 {
-    public string Authors { get; set; }
+    public string? Authors { get; init; }
 
-    public string Title { get; set; }
+    public string? Title { get; init; }
 
-    public string Description { get; set; }
+    public string? Description { get; init; }
 
-    public int Volume { get; set; }
+    public int Volume { get; init; }
 
-    public string Pages { get; set; }
+    public string? Pages { get; init; }
 
-    public int Year { get; set; }
+    public int Year { get; init; }
     
-    public string Editors { get; set; }
+    public string? Editors { get; init; }
 
-    public string Publisher { get; set; }
+    public string? Publisher { get; init; }
 
-    public Uri Url { get; set; }
+    public Uri? Url { get; init; }
 }

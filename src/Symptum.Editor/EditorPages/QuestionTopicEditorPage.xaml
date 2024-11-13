@@ -111,8 +111,7 @@
         </controls:DataGridTemplateColumn>
         <controls:DataGridTextColumn Header="Years Asked" Binding="{Binding YearsAsked, Converter={StaticResource DateOnlyListToStringConverter}}" />
         <controls:DataGridTextColumn Header="Probable Cases" Binding="{Binding ProbableCases, Converter={StaticResource StringListToStringConverter}}" />
-        <controls:DataGridTextColumn Header="Book References" Binding="{Binding BookReferences, Converter={StaticResource BookReferenceListToStringConverter}}" />
-        <controls:DataGridTextColumn Header="Link References" Binding="{Binding LinkReferences, Converter={StaticResource UriListToStringConverter}}" />
+        <controls:DataGridTextColumn Header="References" Binding="{Binding References, Converter={StaticResource ReferenceListToStringConverter}}" />
       </controls:DataGrid.Columns>
     </controls:DataGrid>
     <StackPanel x:Name="statusBar" Grid.Row="2" Orientation="Horizontal" Spacing="16" Margin="10">

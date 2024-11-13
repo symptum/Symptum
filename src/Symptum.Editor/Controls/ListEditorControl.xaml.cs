@@ -5,7 +5,8 @@ public sealed partial class ListEditorControl : UserControl
     public ListEditorControl()
     {
         InitializeComponent();
-        AddItemCommand = new RelayCommand(OnAddItem);
+        HandleTemplateChange();
+        AddItemCommand = new RelayCommand<Type>(OnAddItem);
         ClearItemsCommand = new RelayCommand(OnClearItems);
         RemoveItemCommand = new RelayCommand<object>(OnRemoveItem);
         DuplicateItemCommand = new RelayCommand<object>(OnDuplicateItem);
@@ -14,6 +15,8 @@ public sealed partial class ListEditorControl : UserControl
     }
 
     #region Properties
+
+    #region Header
 
     public static readonly DependencyProperty HeaderProperty =
         DependencyProperty.Register(
@@ -28,12 +31,17 @@ public sealed partial class ListEditorControl : UserControl
         set => SetValue(HeaderProperty, value);
     }
 
+    #endregion
+
+    #region ItemsSource
+
     public static readonly DependencyProperty ItemsSourceProperty =
-    DependencyProperty.Register(
-        nameof(ItemsSource),
-        typeof(object),
-        typeof(ListEditorControl),
-        new(null));
+        DependencyProperty.Register(
+            nameof(ItemsSource),
+            typeof(object),
+            typeof(ListEditorControl),
+            new(null));
+
 
     public object ItemsSource
     {
@@ -41,18 +49,93 @@ public sealed partial class ListEditorControl : UserControl
         set => SetValue(ItemsSourceProperty, value);
     }
 
+    #endregion
+
+    #region ItemTemplate
+
     public static readonly DependencyProperty ItemTemplateProperty =
         DependencyProperty.Register(
             nameof(ItemTemplate),
             typeof(DataTemplate),
             typeof(ListEditorControl),
-            new(null));
+            new(null, OnItemTemplatePropertyChanged));
+
+    private static void OnItemTemplatePropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs args)
+    {
+        if (dependencyObject is ListEditorControl editorControl)
+            editorControl.HandleTemplateChange();
+    }
 
     public DataTemplate ItemTemplate
     {
         get => (DataTemplate)GetValue(ItemTemplateProperty);
         set => SetValue(ItemTemplateProperty, value);
     }
+
+    #endregion
+
+    #region ItemTemplateSelector
+
+    public static readonly DependencyProperty ItemTemplateSelectorProperty =
+        DependencyProperty.Register(
+            nameof(ItemTemplateSelector),
+            typeof(DataTemplateSelector),
+            typeof(ListEditorControl),
+            new(null, OnItemTemplateSelectorPropertyChanged));
+
+    private static void OnItemTemplateSelectorPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs args)
+    {
+        if (dependencyObject is ListEditorControl editorControl)
+            editorControl.HandleTemplateChange();
+    }
+
+    public DataTemplateSelector ItemTemplateSelector
+    {
+        get => (DataTemplateSelector)GetValue(ItemTemplateSelectorProperty);
+        set => SetValue(ItemTemplateSelectorProperty, value);
+    }
+
+    #endregion
+
+    #region HasMixedItems
+
+    public static readonly DependencyProperty HasMixedItemsProperty =
+        DependencyProperty.Register(
+            nameof(HasMixedItems),
+            typeof(bool),
+            typeof(ListEditorControl),
+            new(false, OnHasMixedItemsPropertyChanged));
+
+    private static void OnHasMixedItemsPropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs args)
+    {
+        if (dependencyObject is ListEditorControl editorControl)
+            editorControl.HandleTemplateChange();
+    }
+
+    public bool HasMixedItems
+    {
+        get => (bool)GetValue(HasMixedItemsProperty);
+        set => SetValue(HasMixedItemsProperty, value);
+    }
+
+    #endregion
+
+    #region ItemTypes
+
+    public static readonly DependencyProperty ItemTypesProperty =
+        DependencyProperty.Register(
+            nameof(ItemTypes),
+            typeof(IEnumerable<NewItemType>),
+            typeof(ListEditorControl),
+            new(null));
+
+    public IEnumerable<NewItemType> ItemTypes
+    {
+        get => (IEnumerable<NewItemType>)GetValue(ItemTypesProperty);
+        set => SetValue(ItemTypesProperty, value);
+    }
+
+    #endregion
 
     public ICommand AddItemCommand { get; }
 
@@ -68,7 +151,7 @@ public sealed partial class ListEditorControl : UserControl
 
     #endregion
 
-    public event EventHandler AddItemRequested;
+    public event EventHandler<Type?> AddItemRequested;
 
     public event EventHandler ClearItemsRequested;
 
@@ -80,9 +163,20 @@ public sealed partial class ListEditorControl : UserControl
 
     public event EventHandler<object?> MoveItemDownRequested;
 
-    private void OnAddItem()
+    private void HandleTemplateChange()
     {
-        AddItemRequested?.Invoke(this, null);
+        itemsRepeater.ItemTemplate = HasMixedItems ? ItemTemplateSelector : ItemTemplate;
+    }
+
+    private void OnAddItem(Type? type)
+    {
+        if (type == null && HasMixedItems)
+        {
+            itemTypePicker.ShowAt(addItemButton);
+            return;
+        }
+
+        AddItemRequested?.Invoke(this, type);
     }
 
     private void OnClearItems()
@@ -108,5 +202,14 @@ public sealed partial class ListEditorControl : UserControl
     private void OnMoveItemDown(object? wrapper)
     {
         MoveItemDownRequested?.Invoke(this, wrapper);
+    }
+
+    private void Button_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button button && button.DataContext is NewItemType type)
+        {
+            itemTypePicker.Hide();
+            OnAddItem(type.Type);
+        }
     }
 }

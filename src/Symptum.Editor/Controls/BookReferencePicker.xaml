@@ -68,7 +68,7 @@
                        Header="Volume" Minimum="0" SpinButtonPlacementMode="Inline" />
             <TextBox x:Name="pageNoSelector" win:Grid.Row="3" win:Grid.ColumnSpan="2"
                      win:Margin="0,0,0,10" not_win:Margin="5,0,0,10" not_win:Grid.Row="2" not_win:Grid.Column="1"
-                     Header="Page Numbers" />
+                     Header="Pages" />
             <Button x:Name="okButton" Grid.Row="4" Grid.Column="0"
                     HorizontalAlignment="Stretch" Click="OkButton_Click" Margin="0,0,5,0">
               <SymbolIcon Symbol="Accept" />

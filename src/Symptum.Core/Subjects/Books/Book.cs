@@ -7,12 +7,12 @@ public class Book : ObservableObject
 {
     #region Properties
 
-    private string _code = string.Empty;
+    private string _id = string.Empty;
 
-    public string Code
+    public string Id
     {
-        get => _code;
-        set => SetProperty(ref _code, value);
+        get => _id;
+        set => SetProperty(ref _id, value);
     }
 
     private string _title = string.Empty;
@@ -48,13 +48,13 @@ public class Book : ObservableObject
 
     public Book(string code, string title, string author)
     {
-        _code = code;
+        _id = code;
         _title = title;
         _authors = author;
     }
 
     public override string ToString()
     {
-        return Title + " by " + Authors + " (" + Code + ")";
+        return Title + " by " + Authors + " (" + Id + ")";
     }
 }

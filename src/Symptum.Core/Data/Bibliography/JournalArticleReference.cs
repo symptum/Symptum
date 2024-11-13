@@ -1,8 +1,8 @@
 namespace Symptum.Core.Data.Bibliography;
 
-internal class JournalArticleReference : LiteratureReference
+public record JournalArticleReference : LiteratureReference
 {
-    public string JournalName { get; set; }
+    public string? JournalName { get; init; }
 
-    public int Issue { get; set; }
+    public int Issue { get; init; }
 }

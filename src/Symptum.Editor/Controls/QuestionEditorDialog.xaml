@@ -10,6 +10,21 @@
   mc:Ignorable="d android"
   Style="{ThemeResource DefaultContentDialogStyle}"
   CloseButtonText="Cancel" PrimaryButtonStyle="{ThemeResource AccentButtonStyle}">
+  <ContentDialog.Resources>
+    <DataTemplate x:Key="BookReferenceTemplate">
+      <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
+        <local:BookReferencePicker BookReference="{Binding Value, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+      </local:ListEditorItemCommandsButton>
+    </DataTemplate>
+    <DataTemplate x:Key="LinkReferenceTemplate">
+      <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
+        <TextBox HorizontalAlignment="Stretch" />
+      </local:ListEditorItemCommandsButton>
+    </DataTemplate>
+    <local:ReferenceBaseTemplateSelector x:Key="ReferenceBaseTemplateSelector"
+      BookReferenceTemplate="{StaticResource BookReferenceTemplate}"
+      LinkReferenceTemplate="{StaticResource LinkReferenceTemplate}" />
+  </ContentDialog.Resources>
   <ScrollViewer>
     <StackPanel Spacing="16">
       <StackPanel Spacing="24" Orientation="Horizontal">
@@ -63,27 +78,8 @@
           </local:ListEditorControl.ItemTemplate>
         </local:ListEditorControl>
       </Expander>
-      <Expander Header="Book References" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-        <local:ListEditorControl x:Name="brLE">
-          <local:ListEditorControl.ItemTemplate>
-            <DataTemplate>
-              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
-                <local:BookReferencePicker BookReference="{Binding Value, Mode=TwoWay}" HorizontalAlignment="Stretch" />
-              </local:ListEditorItemCommandsButton>
-            </DataTemplate>
-          </local:ListEditorControl.ItemTemplate>
-        </local:ListEditorControl>
-      </Expander>
-      <Expander Header="Link References" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-        <local:ListEditorControl x:Name="lrLE">
-          <local:ListEditorControl.ItemTemplate>
-            <DataTemplate>
-              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
-                <TextBox Text="{Binding Value, Mode=TwoWay, Converter={StaticResource UriToStringConverter}}" HorizontalAlignment="Stretch" />
-              </local:ListEditorItemCommandsButton>
-            </DataTemplate>
-          </local:ListEditorControl.ItemTemplate>
-        </local:ListEditorControl>
+      <Expander Header="References" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+        <local:ListEditorControl x:Name="rfLE" HasMixedItems="True" ItemTemplateSelector="{StaticResource ReferenceBaseTemplateSelector}" />
       </Expander>
     </StackPanel>
   </ScrollViewer>

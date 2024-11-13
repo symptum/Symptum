@@ -1,5 +1,5 @@
+using Symptum.Core.Data.Bibliography;
 using Symptum.Core.Subjects;
-using Symptum.Core.Subjects.Books;
 
 namespace Symptum.Editor.Helpers;
 

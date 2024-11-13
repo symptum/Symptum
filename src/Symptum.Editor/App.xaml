@@ -12,13 +12,13 @@
         <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
         <!-- Load Uno.UI.Toolkit resources -->
         <ToolkitResources xmlns="using:Uno.Toolkit.UI" />
+        <ResourceDictionary Source="ms-appx:///Symptum.UI/Themes/Styles.xaml" />
       </ResourceDictionary.MergedDictionaries>
 
       <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-      <converters:BookReferenceListToStringConverter x:Key="BookReferenceListToStringConverter" />
+      <converters:ReferenceListToStringConverter x:Key="ReferenceListToStringConverter" />
       <converters:DateOnlyListToStringConverter x:Key="DateOnlyListToStringConverter" />
       <converters:StringListToStringConverter x:Key="StringListToStringConverter" />
-      <converters:UriListToStringConverter x:Key="UriListToStringConverter" />
       <converters:ReferenceValueEntryListToStringConverter x:Key="ReferenceValueEntryListToStringConverter" />
       <converters:FoodMeasureListToStringConverter x:Key="FoodMeasureListToStringConverter" />
       <converters:NumericalValueToStringConverter x:Key="NumericalValueToStringConverter"/>

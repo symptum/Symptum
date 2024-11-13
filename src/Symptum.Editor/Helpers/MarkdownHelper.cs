@@ -1,5 +1,5 @@
 using System.Text;
-using Symptum.Core.Subjects.Books;
+using Symptum.Core.Data.Bibliography;
 using Symptum.Core.Subjects.QuestionBanks;
 using Symptum.Core.TypeConversion;
 
@@ -59,7 +59,7 @@ public class MarkdownHelper
         if (bookReference == null) return string.Empty;
         string volString = bookReference.Volume > 0 ? $" Volume {bookReference.Volume}," : string.Empty;
 
-        return $"{bookReference.Book.Code}, {GetOrdinal(bookReference.Edition)} Edition,{volString} Pg.No: {bookReference.PageNumbers}";
+        return $"{bookReference.Id}, {GetOrdinal(bookReference.Edition)} Edition,{volString} Pg.No: {bookReference.Pages}";
     }
 
     public static void GenerateMarkdownForQuestionBankTopic(QuestionBankTopic topic, ref StringBuilder mdBuilder)
@@ -123,9 +123,9 @@ public class MarkdownHelper
         if (_includeYearsAsked && entry.YearsAsked != null && entry.YearsAsked.Count > 0)
             mdBuilder.AppendFormat(" ({0})",
                 ListToStringConversion.ConvertToString<DateOnly>(entry.YearsAsked, GetYear));
-        if (_includeBookReferences && entry.BookReferences != null && entry.BookReferences.Count > 0)
+        if (_includeBookReferences && entry.References != null && entry.References.Count > 0)
             mdBuilder.AppendFormat("\t({0})",
-                ListToStringConversion.ConvertToString<BookReference>(entry.BookReferences, GetBookReference));
+                ListToStringConversion.ConvertToString<BookReference>(entry.References, GetBookReference));
         mdBuilder.AppendLine();
         if (entry.Descriptions != null && entry.Descriptions.Count > 0)
         {

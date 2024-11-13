@@ -3,10 +3,10 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
 using Symptum.Core.Data;
+using Symptum.Core.Data.Bibliography;
 using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Helpers;
-using Symptum.Core.Subjects.Books;
 using Symptum.Core.Subjects.QuestionBanks;
 
 namespace Symptum.Core.TypeConversion;
@@ -81,6 +81,11 @@ public class QuantityCsvConverter : DefaultTypeConverter
             return quantity.ToString();
         else return string.Empty;
     }
+}
+
+public class ReferenceListConverter : ListConverter<ReferenceBase>
+{
+    public override void ValidateData(string text, List<ReferenceBase> list) => ListToStringConversion.ValidateDataForReference(text, list);
 }
 
 #endregion
@@ -166,6 +171,14 @@ public class ListToStringConversion
         }
     }
 
+    public static void ValidateDataForReference(string text, List<ReferenceBase> list)
+    {
+        if (ReferenceBase.TryParse(text, out ReferenceBase? reference))
+        {
+            list.Add(reference);
+        }
+    }
+
     public static void ValidateDataForReferenceValueEntry(string text, List<ReferenceValueEntry> list)
     {
         if (ReferenceValueEntry.TryParse(text, out ReferenceValueEntry? entry))
@@ -182,10 +195,7 @@ public class ListToStringConversion
         }
     }
 
-    public static string ElementToStringForDateOnly(DateOnly data)
-    {
-        return data.ToString("yyyy-MM");
-    }
+    public static string ElementToStringForDateOnly(DateOnly data) => data.ToString("yyyy-MM");
 
     public static string ElementToStringDefault<T>(T? data) => data?.ToString() ?? string.Empty;
 }

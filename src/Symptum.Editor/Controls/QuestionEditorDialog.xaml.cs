@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
-using Symptum.Core.Management.Resources;
+using Symptum.Core.Data.Bibliography;
 using Symptum.Core.Subjects;
-using Symptum.Core.Subjects.Books;
 using Symptum.Core.Subjects.QuestionBanks;
 using Symptum.Editor.Helpers;
 
@@ -16,8 +15,7 @@ public sealed partial class QuestionEditorDialog : ContentDialog
     private readonly ObservableCollection<ListEditorItemWrapper<string>> descriptions = [];
     private readonly ObservableCollection<ListEditorItemWrapper<DateOnly>> yearsAsked = [];
     private readonly ObservableCollection<ListEditorItemWrapper<string>> probableCases = [];
-    private readonly ObservableCollection<ListEditorItemWrapper<BookReference>> bookReferences = [];
-    private readonly ObservableCollection<ListEditorItemWrapper<Uri>> linkReferences = [];
+    private readonly ObservableCollection<ListEditorItemWrapper<ReferenceBase>> references = [];
 
     private bool hasPreviouslyBeenAsked = true;
     private bool autoGenImp = true;
@@ -149,8 +147,7 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         importanceRC.Value = QuestionEntry.Importance;
         yearsAsked.LoadFromList(QuestionEntry.YearsAsked);
         probableCases.LoadFromList(QuestionEntry.ProbableCases);
-        bookReferences.LoadFromList(QuestionEntry.BookReferences);
-        linkReferences.LoadFromList(QuestionEntry.LinkReferences);
+        references.LoadFromList(QuestionEntry.References);
     }
 
     private void UpdateQuestionEntry()
@@ -166,8 +163,7 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         QuestionEntry.Importance = (int)importanceRC.Value;
         QuestionEntry.YearsAsked = yearsAsked.UnwrapToList();
         QuestionEntry.ProbableCases = probableCases.UnwrapToList();
-        QuestionEntry.BookReferences = bookReferences.UnwrapToList();
-        QuestionEntry.LinkReferences = linkReferences.UnwrapToList();
+        QuestionEntry.References = references.UnwrapToList();
     }
 
     private void ClearQuestionEntry()
@@ -181,8 +177,7 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         importanceRC.Value = 0;
         yearsAsked.Clear();
         probableCases.Clear();
-        bookReferences.Clear();
-        linkReferences.Clear();
+        references.Clear();
 
         autoGenImpCB.IsChecked = autoGenImp = true;
     }
@@ -314,77 +309,54 @@ public sealed partial class QuestionEditorDialog : ContentDialog
 
         #endregion
 
-        #region Book References
+        #region References
 
-        brLE.ItemsSource = bookReferences;
-        brLE.AddItemRequested += (s, e) =>
+        rfLE.ItemsSource = references;
+        rfLE.ItemTypes =
+        [
+            new ("Book Reference", typeof(BookReference)),
+            new ("Journal Article Reference", typeof(JournalArticleReference)),
+            new ("Link Reference", typeof(LinkReference)),
+        ];
+
+        rfLE.ItemsSource = references;
+        rfLE.AddItemRequested += (s, e) =>
         {
-            BookReference? bookReference = context?.PreferredBook;
-            bookReferences.Add(new ListEditorItemWrapper<BookReference>(new() { Book = bookReference?.Book, Edition = bookReference?.Edition ?? 0, Volume = bookReference?.Volume ?? 0 }));
-        };
-        brLE.ClearItemsRequested += (s, e) => bookReferences.Clear();
-        brLE.RemoveItemRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<BookReference> bookReference)
-                bookReferences.Remove(bookReference);
-        };
-        brLE.DuplicateItemRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<BookReference> x)
-                bookReferences.Add(new() { Value = new() { Book = x.Value.Book, Edition = x.Value.Edition, Volume = x.Value.Volume, PageNumbers = x.Value.PageNumbers } });
-        };
-        brLE.MoveItemUpRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<BookReference> bookReference)
+            if (e == typeof(BookReference))
             {
-                int oldIndex = bookReferences.IndexOf(bookReference);
+                BookReference bookReference = context?.PreferredBook ?? new();
+                references.Add(new() { Value = bookReference });
+            }
+            else if (e == typeof(LinkReference))
+                references.Add(new() { Value = new LinkReference() });
+        };
+        rfLE.ClearItemsRequested += (s, e) => references.Clear();
+        rfLE.RemoveItemRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<ReferenceBase> reference)
+                references.Remove(reference);
+        };
+        rfLE.DuplicateItemRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<ReferenceBase> x)
+                references.Add(new() { Value = x.Value with { } });
+        };
+        rfLE.MoveItemUpRequested += (s, e) =>
+        {
+            if (e is ListEditorItemWrapper<ReferenceBase> reference)
+            {
+                int oldIndex = references.IndexOf(reference);
                 int newIndex = Math.Max(oldIndex - 1, 0);
-                bookReferences.Move(oldIndex, newIndex);
+                references.Move(oldIndex, newIndex);
             }
         };
-        brLE.MoveItemDownRequested += (s, e) =>
+        rfLE.MoveItemDownRequested += (s, e) =>
         {
-            if (e is ListEditorItemWrapper<BookReference> bookReference)
+            if (e is ListEditorItemWrapper<ReferenceBase> reference)
             {
-                int oldIndex = bookReferences.IndexOf(bookReference);
-                int newIndex = Math.Min(oldIndex + 1, bookReferences.Count - 1);
-                bookReferences.Move(oldIndex, newIndex);
-            }
-        };
-
-        #endregion
-
-        #region Link References
-
-        lrLE.ItemsSource = linkReferences;
-        lrLE.AddItemRequested += (s, e) => linkReferences.Add(new ListEditorItemWrapper<Uri>(ResourceManager.DefaultUri));
-        lrLE.ClearItemsRequested += (s, e) => linkReferences.Clear();
-        lrLE.RemoveItemRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<Uri> uri)
-                linkReferences.Remove(uri);
-        };
-        lrLE.DuplicateItemRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<Uri> uri)
-                linkReferences.Add(new() { Value = uri.Value });
-        };
-        lrLE.MoveItemUpRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<Uri> uri)
-            {
-                int oldIndex = linkReferences.IndexOf(uri);
-                int newIndex = Math.Max(oldIndex - 1, 0);
-                linkReferences.Move(oldIndex, newIndex);
-            }
-        };
-        lrLE.MoveItemDownRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<Uri> uri)
-            {
-                int oldIndex = linkReferences.IndexOf(uri);
-                int newIndex = Math.Min(oldIndex + 1, linkReferences.Count - 1);
-                linkReferences.Move(oldIndex, newIndex);
+                int oldIndex = references.IndexOf(reference);
+                int newIndex = Math.Min(oldIndex + 1, references.Count - 1);
+                references.Move(oldIndex, newIndex);
             }
         };
 

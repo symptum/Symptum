@@ -1,12 +1,10 @@
 using Symptum.Core.Subjects;
-using Symptum.Core.Subjects.Books;
 using Symptum.Editor.Helpers;
 
 namespace Symptum.Editor.Controls;
 public sealed partial class QuestionBankContextConfigureDialog : ContentDialog
 {
     private QuestionBankContext? context;
-    private BookReference? bookReference;
 
     public QuestionBankContextConfigureDialog()
     {
@@ -29,8 +27,7 @@ public sealed partial class QuestionBankContextConfigureDialog : ContentDialog
             {
                 datePicker.Date = new(dateOnly.ToDateTime(new TimeOnly(0)));
             }
-            bookReference = context.PreferredBook ?? new();
-            bookRefPicker.BookReference = bookReference;
+            bookRefPicker.BookReference = context.PreferredBook ?? new();
         }
     }
 
@@ -40,7 +37,7 @@ public sealed partial class QuestionBankContextConfigureDialog : ContentDialog
         {
             context.SubjectCode = scCB.SelectedItem != null ? (SubjectList)scCB.SelectedItem : SubjectList.None;
             context.LastInputDate = DateOnly.FromDateTime(datePicker.SelectedDate?.Date ?? DateTime.Now);
-            context.PreferredBook = bookReference;
+            context.PreferredBook = bookRefPicker.BookReference;
         }
     }
 
@@ -48,6 +45,6 @@ public sealed partial class QuestionBankContextConfigureDialog : ContentDialog
     {
         scCB.SelectedItem = null;
         datePicker.SelectedDate = null;
-        bookRefPicker.BookReference = bookReference = null;
+        bookRefPicker.BookReference = null;
     }
 }

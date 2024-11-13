@@ -1,7 +1,7 @@
 using Microsoft.UI.Xaml.Data;
+using Symptum.Core.Data.Bibliography;
 using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Data.ReferenceValues;
-using Symptum.Core.Subjects.Books;
 using static Symptum.Core.TypeConversion.ListToStringConversion;
 
 namespace Symptum.Editor.Converters;
@@ -19,19 +19,6 @@ public class DateOnlyListToStringConverter : IValueConverter
     }
 }
 
-public class UriListToStringConverter : IValueConverter
-{
-    public object? Convert(object value, Type targetType, object parameter, string language)
-    {
-        return ConvertToString<Uri>(value, ElementToStringDefault);
-    }
-
-    public object? ConvertBack(object value, Type targetType, object parameter, string language)
-    {
-        return ConvertFromString<Uri>(value.ToString(), ValidateDataForUri);
-    }
-}
-
 public class StringListToStringConverter : IValueConverter
 {
     public object? Convert(object value, Type targetType, object parameter, string language)
@@ -45,11 +32,11 @@ public class StringListToStringConverter : IValueConverter
     }
 }
 
-public class BookReferenceListToStringConverter : IValueConverter
+public class ReferenceListToStringConverter : IValueConverter
 {
     public object? Convert(object value, Type targetType, object parameter, string language)
     {
-        return ConvertToString<BookReference>(value, x => x?.GetPreviewText() ?? string.Empty);
+        return ConvertToString<ReferenceBase>(value, x => x?.GetPreviewText() ?? string.Empty, "\n");
     }
 
     public object? ConvertBack(object value, Type targetType, object parameter, string language)
