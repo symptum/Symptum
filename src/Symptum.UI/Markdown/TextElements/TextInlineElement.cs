@@ -1,12 +1,8 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
 using Microsoft.UI.Xaml.Documents;
 
 namespace Symptum.UI.Markdown.TextElements;
 
-internal class MyInlineText : IAddChild
+public class TextInlineElement : IAddChild
 {
     private SInline inline;
 
@@ -15,7 +11,7 @@ internal class MyInlineText : IAddChild
         get => inline;
     }
 
-    public MyInlineText(string text)
+    public TextInlineElement(string text)
     {
         inline = new()
         {

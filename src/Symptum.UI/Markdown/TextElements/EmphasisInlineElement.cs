@@ -1,14 +1,10 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
 using Markdig.Syntax.Inlines;
 using Microsoft.UI.Xaml.Documents;
 using Windows.UI.Text;
 
 namespace Symptum.UI.Markdown.TextElements;
 
-internal class MyEmphasisInline : IAddChild
+public class EmphasisInlineElement : IAddChild
 {
     private Span _span;
     private SInline inline;
@@ -23,7 +19,7 @@ internal class MyEmphasisInline : IAddChild
         get => inline;
     }
 
-    public MyEmphasisInline(EmphasisInline emphasisInline)
+    public EmphasisInlineElement(EmphasisInline emphasisInline)
     {
         _span = new Span();
         _markdownObject = emphasisInline;
@@ -35,17 +31,20 @@ internal class MyEmphasisInline : IAddChild
 
     public void AddChild(IAddChild child)
     {
-
-        if (child is MyInlineText inlineText && inlineText.TextElement is SInline inline)
-        {
-            _span.Inlines.Add(inline.Inline);
-        }
-        else if (child is MyEmphasisInline emphasisInline)
+        if (child is EmphasisInlineElement emphasisInline)
         {
             if (emphasisInline._isBold) { SetBold(); }
             if (emphasisInline._isItalic) { SetItalic(); }
             if (emphasisInline._isStrikeThrough) { SetStrikeThrough(); }
             _span.Inlines.Add(emphasisInline._span);
+        }
+        else if (child is IAddChild textElement && textElement.TextElement is SInline _inline)
+        {
+            _span.Inlines.Add(_inline.Inline);
+        }
+        else
+        {
+
         }
     }
 

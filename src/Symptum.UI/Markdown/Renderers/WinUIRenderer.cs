@@ -1,7 +1,3 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
 using Markdig.Renderers;
 using Markdig.Syntax;
 using Markdig.Helpers;
@@ -16,20 +12,21 @@ public class WinUIRenderer : RendererBase
 {
     private readonly Stack<IAddChild> _stack = new();
     private char[] _buffer;
-    private MarkdownConfig _config = MarkdownConfig.Default;
-    public MyFlowDocument FlowDocument { get; private set; }
-    public MarkdownConfig Config
+    private MarkdownConfiguration _config = MarkdownConfiguration.Default;
+
+    public FlowDocumentElement FlowDocument { get; private set; }
+
+    public MarkdownConfiguration Configuration
     {
         get => _config;
         set => _config = value;
     }
 
-    public WinUIRenderer(MyFlowDocument document, MarkdownConfig config)
+    public WinUIRenderer(FlowDocumentElement document, MarkdownConfiguration config)
     {
         _buffer = new char[1024];
-        Config = config;
+        Configuration = config;
         FlowDocument = document;
-        // set style
         _stack.Push(FlowDocument);
         LoadOverridenRenderers();
     }
@@ -42,13 +39,14 @@ public class WinUIRenderer : RendererBase
     public override object Render(MarkdownObject markdownObject)
     {
         Write(markdownObject);
-        return FlowDocument ?? new(Config);
+        return FlowDocument ?? new(Configuration);
     }
 
     public void ReloadDocument()
     {
         _stack.Clear();
         FlowDocument.StackPanel.Children.Clear();
+        Configuration.DocumentOutline.Clear();
         _stack.Push(FlowDocument);
         LoadOverridenRenderers();
     }
@@ -74,7 +72,7 @@ public class WinUIRenderer : RendererBase
             for (int i = 0; i < lines.Count; i++)
             {
                 if (i != 0)
-                    WriteInline(new MyLineBreak());
+                    WriteInline(new LineBreakElement());
 
                 WriteText(ref slices[i].Slice);
             }
@@ -112,7 +110,7 @@ public class WinUIRenderer : RendererBase
 
     public void WriteText(string? text)
     {
-        WriteInline(new MyInlineText(text ?? ""));
+        WriteInline(new TextInlineElement(text ?? ""));
     }
 
     public void WriteText(string? text, int offset, int length)

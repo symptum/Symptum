@@ -1,18 +1,14 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
 using Markdig.Syntax;
 using RomanNumerals;
 using System.Globalization;
 
 namespace Symptum.UI.Markdown.TextElements;
 
-internal class MyList : IAddChild
+public class ListElement : IAddChild
 {
     private SContainer _container;
     private StackPanel _stackPanel;
-    private MarkdownConfig _config;
+    private MarkdownConfiguration _config;
     private BulletType _bulletType;
     private bool _isOrdered;
     private int _startIndex = 1;
@@ -24,7 +20,7 @@ internal class MyList : IAddChild
         get => _container;
     }
 
-    public MyList(ListBlock listBlock, MarkdownConfig config, bool isTopLevel = true)
+    public ListElement(ListBlock listBlock, MarkdownConfiguration config, bool isTopLevel = true)
     {
         _container = new SContainer();
         _config = config;
@@ -32,7 +28,7 @@ internal class MyList : IAddChild
         if (listBlock.IsOrdered)
         {
             _isOrdered = true;
-            _bulletType = MyList.ToBulletType(listBlock.BulletType);
+            _bulletType = ToBulletType(listBlock.BulletType);
 
             if (listBlock.OrderedStart != null && listBlock.DefaultOrderedStart != listBlock.OrderedStart)
             {
@@ -80,11 +76,12 @@ internal class MyList : IAddChild
         TextBlock textBlock = new()
         {
             Text = bullet,
+            Style = _config.Themes.BodyTextBlockStyle
         };
         textBlock.SetValue(Grid.ColumnProperty, 0);
         textBlock.VerticalAlignment = VerticalAlignment.Top;
         grid.Children.Add(textBlock);
-        MyFlowDocument flowDoc = new(_config, false);
+        FlowDocumentElement flowDoc = new(_config, false);
         flowDoc.AddChild(child);
 
         flowDoc.StackPanel.SetValue(Grid.ColumnProperty, 1);

@@ -1,19 +1,19 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
 using Markdig.Extensions.TaskLists;
 using Microsoft.UI;
 
 namespace Symptum.UI.Markdown.TextElements;
 
-internal class MyTaskListCheckBox : IAddChild
+public class TaskListCheckBoxElement : IAddChild
 {
     private TaskList _taskList;
+    private SContainer _container = new();
 
-    public STextElement TextElement { get; private set; }
+    public STextElement TextElement
+    {
+        get => _container;
+    }
 
-    public MyTaskListCheckBox(TaskList taskList)
+    public TaskListCheckBoxElement(TaskList taskList)
     {
         _taskList = taskList;
         Grid grid = new()
@@ -22,7 +22,8 @@ internal class MyTaskListCheckBox : IAddChild
             Height = 16,
             Margin = new Thickness(2, 2, 2, 0),
             BorderThickness = new Thickness(1),
-            BorderBrush = new SolidColorBrush(Colors.Gray)
+            BorderBrush = new SolidColorBrush(Colors.Gray),
+            VerticalAlignment = VerticalAlignment.Bottom
         };
         FontIcon icon = new()
         {
@@ -31,10 +32,10 @@ internal class MyTaskListCheckBox : IAddChild
             VerticalAlignment = VerticalAlignment.Center,
             Glyph = "\uE73E"
         };
-        grid.Children.Add(taskList.Checked ? icon : new TextBlock());
+        if (taskList.Checked) grid.Children.Add(icon);
         grid.Padding = new Thickness(0);
         grid.CornerRadius = new CornerRadius(2);
-        TextElement = new SContainer() { UIElement = grid, PutUIInfront = true };
+        _container.UIElement = grid;
     }
 
     public void AddChild(IAddChild child)

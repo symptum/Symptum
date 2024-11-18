@@ -1,27 +1,24 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
 using Markdig.Syntax.Inlines;
 
 namespace Symptum.UI.Markdown.TextElements;
 
-internal class MyHyperlinkButton : IAddChild
+public class HyperlinkButtonElement : IAddChild
 {
     private HyperlinkButton? _hyperLinkButton;
-    private SContainer _container;
-    private MyFlowDocument? _flowDoc;
+    private SContainer _container = new();
+    private FlowDocumentElement? _flowDoc;
     private string? _baseUrl;
     private LinkInline? _linkInline;
+    private MarkdownConfiguration _config;
 
     public STextElement TextElement
     {
         get => _container;
     }
 
-    public MyHyperlinkButton(LinkInline linkInline, string? baseUrl)
+    public HyperlinkButtonElement(LinkInline linkInline, string? baseUrl, MarkdownConfiguration config)
     {
-        _container = new();
+        _config = config;
         _baseUrl = baseUrl;
         string? url = linkInline.GetDynamicUrl != null ? linkInline.GetDynamicUrl() ?? linkInline.Url : linkInline.Url;
         _linkInline = linkInline;
@@ -38,7 +35,7 @@ internal class MyHyperlinkButton : IAddChild
         };
         if (_linkInline != null)
         {
-            _flowDoc = new MyFlowDocument(MarkdownConfig.Default, false);
+            _flowDoc = new FlowDocumentElement(_config, false);
         }
         _container.UIElement = _hyperLinkButton;
         _hyperLinkButton.Content = _flowDoc?.StackPanel;

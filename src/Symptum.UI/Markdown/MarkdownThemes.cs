@@ -1,11 +1,3 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
-using Microsoft.UI;
-using Microsoft.UI.Text;
-using Windows.UI.Text;
-
 namespace Symptum.UI.Markdown;
 
 public sealed partial class MarkdownThemes : DependencyObject
@@ -20,86 +12,66 @@ public sealed partial class MarkdownThemes : DependencyObject
 
     public CornerRadius CornerRadius { get; set; } = new(4);
 
+    public Style? BodyTextBlockStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultBodyTextBlockStyle") ?
+        Application.Current.Resources["DefaultBodyTextBlockStyle"] as Style : null;
+
+
     #endregion
 
-    #region Header Theme
+    #region Heading
 
-    public double H1FontSize { get; set; } = 28;
+    public Style? H1TextBlockStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultH1TextBlockStyle") ?
+        Application.Current.Resources["DefaultH1TextBlockStyle"] as Style : null;
 
-    public double H2FontSize { get; set; } = 24;
+    public Style? H2TextBlockStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultH2TextBlockStyle") ?
+        Application.Current.Resources["DefaultH2TextBlockStyle"] as Style : null;
 
-    public double H3FontSize { get; set; } = 22;
+    public Style? H3TextBlockStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultH3TextBlockStyle") ?
+        Application.Current.Resources["DefaultH3TextBlockStyle"] as Style : null;
 
-    public double H4FontSize { get; set; } = 20;
+    public Style? H4TextBlockStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultH4TextBlockStyle") ?
+        Application.Current.Resources["DefaultH4TextBlockStyle"] as Style : null;
 
-    public double H5FontSize { get; set; } = 18;
+    public Style? H5TextBlockStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultH5TextBlockStyle") ?
+        Application.Current.Resources["DefaultH5TextBlockStyle"] as Style : null;
 
-    public double H6FontSize { get; set; } = 16;
-
-    public Brush? H1Foreground { get; set; }
-
-    public Brush? H2Foreground { get; set; }
-
-    public Brush? H3Foreground { get; set; }
-
-    public Brush? H4Foreground { get; set; }
-
-    public Brush? H5Foreground { get; set; }
-
-    public Brush? H6Foreground { get; set; }
-
-    public FontWeight H1FontWeight { get; set; } = FontWeights.Bold;
-
-    public FontWeight H2FontWeight { get; set; } = FontWeights.Normal;
-
-    public FontWeight H3FontWeight { get; set; } = FontWeights.Bold;
-
-    public FontWeight H4FontWeight { get; set; } = FontWeights.Normal;
-
-    public FontWeight H5FontWeight { get; set; } = FontWeights.Bold;
-
-    public FontWeight H6FontWeight { get; set; } = FontWeights.Normal;
+    public Style? H6TextBlockStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultH6TextBlockStyle") ?
+        Application.Current.Resources["DefaultH6TextBlockStyle"] as Style : null;
 
     #endregion
 
     #region Code
 
-    public Thickness CodeBlockPadding { get; set; } = new(8);
+    public Style? CodeTextBlockStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultCodeTextBlockStyle") ?
+        Application.Current.Resources["DefaultCodeTextBlockStyle"] as Style : null;
 
-    public Thickness InternalMargin { get; set; } = new(4);
+    public Style? CodeInlineBorderStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultCodeInlineBorderStyle") ?
+        Application.Current.Resources["DefaultCodeInlineBorderStyle"] as Style : null;
 
-    public Brush InlineCodeBackground { get; set; } = (Brush)Application.Current.Resources["ExpanderHeaderBackground"];
-
-    public Brush InlineCodeBorderBrush { get; set; } = new SolidColorBrush(Colors.Gray);
-
-    public Thickness InlineCodeBorderThickness { get; set; } = new(1);
-
-    public CornerRadius InlineCodeCornerRadius { get; set; } = new(2);
-
-    public Thickness InlineCodePadding { get; set; } = new(4, 0, 4, 0);
-
-    public double InlineCodeFontSize { get; set; } = 14;
-
-    public FontWeight InlineCodeFontWeight { get; set; } = FontWeights.Normal;
+    public Style? CodeBlockBorderStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultCodeBlockBorderStyle") ?
+        Application.Current.Resources["DefaultCodeBlockBorderStyle"] as Style : null;
 
     #endregion
 
     #region Quote
 
-    public Style? DefaultQuoteBlockStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultQuoteBlockStyle") ?
-        Application.Current.Resources["DefaultQuoteBlockStyle"] as Style : null;
+    public Style? DefaultQuoteControlStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultQuoteControlStyle") ?
+        Application.Current.Resources["DefaultQuoteControlStyle"] as Style : null;
 
-    public Style? NoteQuoteBlockStyle { get; set; } = Application.Current.Resources.ContainsKey("NoteQuoteBlockStyle") ?
-        Application.Current.Resources["NoteQuoteBlockStyle"] as Style : null;
+    public Style? NoteQuoteControlStyle { get; set; } = Application.Current.Resources.ContainsKey("NoteQuoteControlStyle") ?
+        Application.Current.Resources["NoteQuoteControlStyle"] as Style : null;
 
-    public Style? TipQuoteBlockStyle { get; set; } = Application.Current.Resources.ContainsKey("TipQuoteBlockStyle") ?
-        Application.Current.Resources["TipQuoteBlockStyle"] as Style : null;
+    public Style? TipQuoteControlStyle { get; set; } = Application.Current.Resources.ContainsKey("TipQuoteControlStyle") ?
+        Application.Current.Resources["TipQuoteControlStyle"] as Style : null;
 
-    public Style? WarningQuoteBlockStyle { get; set; } = Application.Current.Resources.ContainsKey("WarningQuoteBlockStyle") ?
-        Application.Current.Resources["WarningQuoteBlockStyle"] as Style : null;
+    public Style? ImportantQuoteControlStyle { get; set; } = Application.Current.Resources.ContainsKey("ImportantQuoteControlStyle") ?
+        Application.Current.Resources["ImportantQuoteControlStyle"] as Style : null;
 
-    public Style? CautionQuoteBlockStyle { get; set; } = Application.Current.Resources.ContainsKey("CautionQuoteBlockStyle") ?
-        Application.Current.Resources["CautionQuoteBlockStyle"] as Style : null;
+    public Style? WarningQuoteControlStyle { get; set; } = Application.Current.Resources.ContainsKey("WarningQuoteControlStyle") ?
+        Application.Current.Resources["WarningQuoteControlStyle"] as Style : null;
+
+    public Style? CautionQuoteControlStyle { get; set; } = Application.Current.Resources.ContainsKey("CautionQuoteControlStyle") ?
+        Application.Current.Resources["CautionQuoteControlStyle"] as Style : null;
 
     #endregion
 
@@ -111,8 +83,28 @@ public sealed partial class MarkdownThemes : DependencyObject
 
     #endregion
 
-    public MarkdownThemes()
-    {
-        H1Foreground = H6Foreground = Symptum.UI.Markdown.Extensions.GetAccentColorBrush();
-    }
+    #region Table
+
+    public Style? TableCellGridStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultTableCellGridStyle") ?
+        Application.Current.Resources["DefaultTableCellGridStyle"] as Style : null;
+
+    public Style? AltTableCellGridStyle { get; set; } = Application.Current.Resources.ContainsKey("AltTableCellGridStyle") ?
+        Application.Current.Resources["AltTableCellGridStyle"] as Style : null;
+
+    public Style? TableHeaderCellGridStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultTableHeaderCellGridStyle") ?
+        Application.Current.Resources["DefaultTableHeaderCellGridStyle"] as Style : null;
+
+    public Style? TableHeaderTextBlockStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultTableHeaderTextBlockStyle") ?
+        Application.Current.Resources["DefaultTableHeaderTextBlockStyle"] as Style : null;
+
+    #endregion
+
+    #region Thematic Break
+
+    public Style? ThematicBreakBorderStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultThematicBreakBorderStyle") ?
+        Application.Current.Resources["DefaultThematicBreakBorderStyle"] as Style : null;
+
+    #endregion
+
+    public MarkdownThemes() { }
 }
