@@ -44,6 +44,7 @@
       Toolkit;
       Mvvm;
       ExtensionsCore;
+      Svg;
     </UnoFeatures>
     <WasmShellILLinkerEnabled>false</WasmShellILLinkerEnabled>
   </PropertyGroup>
@@ -58,6 +59,10 @@
   <ItemGroup>
     <ProjectReference Include="..\Symptum.Common\Symptum.Common.csproj" />
     <ProjectReference Include="..\Symptum.Core\Symptum.Core.csproj" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="CommunityToolkit.Labs.WinUI.Ribbon" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.HeaderedControls" />
+    <PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" />
   </ItemGroup>
 
   <ItemGroup>

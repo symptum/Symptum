@@ -1,5 +1,3 @@
-using Windows.UI.Text;
-
 namespace Symptum.UI.Markdown.TextElements;
 
 public class FlowDocumentElement : IAddChild

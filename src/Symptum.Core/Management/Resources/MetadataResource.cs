@@ -1,10 +1,17 @@
 using System.Text.Json.Serialization;
 using Symptum.Core.Management.Navigation;
 using Symptum.Core.Serialization;
+using Symptum.Core.Subjects.QuestionBanks;
 
 namespace Symptum.Core.Management.Resources;
 
-public abstract class MetadataResource : NavigableResource
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "$type",
+    UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor)]
+[JsonDerivedType(typeof(QuestionBank), "questionBank")]
+[JsonDerivedType(typeof(CategoryResource), "category")]
+[JsonDerivedType(typeof(ImageCategoryResource), "imageCategory")]
+[JsonDerivedType(typeof(MarkdownCategoryResource), "markdownCategory")]
+public abstract class MetadataResource : NavigableResource, IMetadataResource
 {
     #region Properties
 
@@ -15,7 +22,7 @@ public abstract class MetadataResource : NavigableResource
     public string? MetadataPath { get; set; }
 
     [JsonIgnore]
-    public bool IsMetadataLoaded { get; internal set; } = true;
+    public bool IsMetadataLoaded { get; set; } = true;
 
     #endregion
 
@@ -25,4 +32,16 @@ public abstract class MetadataResource : NavigableResource
         JsonSerializerEx.PopulateObject(this, metadata);
         IsMetadataLoaded = true;
     }
+}
+
+public interface IMetadataResource : IResource
+{
+    [JsonIgnore]
+    public bool SplitMetadata { get; set; }
+
+    [JsonIgnore]
+    public string? MetadataPath { get; set; }
+
+    [JsonIgnore]
+    public bool IsMetadataLoaded { get; set; }
 }

@@ -26,7 +26,8 @@ public class TableElement : IAddChild
 
         _grid = new()
         {
-            HorizontalAlignment = HorizontalAlignment.Center
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Margin = new(16, 8, 8, 8)
         };
 
         for (int i = 0; i < _columnCount; i++)

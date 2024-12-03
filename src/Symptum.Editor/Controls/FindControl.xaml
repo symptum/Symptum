@@ -1,0 +1,56 @@
+﻿<UserControl
+  x:Class="Symptum.Editor.Controls.FindControl"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="using:Symptum.Editor.Controls"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+  mc:Ignorable="d" AllowFocusOnInteraction="True">
+  <Grid Padding="8">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition />
+      <ColumnDefinition Width="Auto" />
+      <ColumnDefinition Width="Auto" />
+      <ColumnDefinition Width="Auto" />
+      <ColumnDefinition Width="Auto" />
+    </Grid.ColumnDefinitions>
+    <AutoSuggestBox x:Name="queryBox" Text="{x:Bind QueryText, Mode=TwoWay}" AllowFocusOnInteraction="True" QueryIcon="Find" Margin="4" PlaceholderText="Find" />
+    <Button x:Name="fPrevButton" Visibility="{x:Bind FindPreviousEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
+            Grid.Column="1" Margin="4" VerticalAlignment="Bottom"
+            HorizontalAlignment="Stretch" ToolTipService.ToolTip="Find Previous">
+      <FontIcon Glyph="&#xE72B;" />
+    </Button>
+    <Button x:Name="fNextButton" Visibility="{x:Bind FindNextEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
+            Grid.Column="2" Margin="4" VerticalAlignment="Bottom"
+            HorizontalAlignment="Stretch" ToolTipService.ToolTip="Find Next">
+      <FontIcon Glyph="&#xE72A;" />
+    </Button>
+    <Button x:Name="fAllButton" Visibility="{x:Bind FindAllEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
+            Grid.Column="3" Margin="4" VerticalAlignment="Bottom"
+            HorizontalAlignment="Stretch" ToolTipService.ToolTip="Find All">
+      <SymbolIcon Symbol="Find" />
+    </Button>
+    <Button x:Name="fClearButton" Grid.Column="4" Margin="4" VerticalAlignment="Bottom"
+            HorizontalAlignment="Stretch" ToolTipService.ToolTip="Clear">
+      <SymbolIcon Symbol="Cancel" />
+    </Button>
+    <ComboBox x:Name="fContextComboBox" ItemsSource="{x:Bind FindContexts}" SelectedItem="{x:Bind SelectedContext, Mode=TwoWay}"
+                Grid.Row="1" Grid.ColumnSpan="2" Margin="4" HorizontalAlignment="Stretch" />
+    <ToggleButton x:Name="mCaseButton" IsChecked="{x:Bind MatchCase, Mode=TwoWay}" Content="Aa"
+                  Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2" Margin="4" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+                  ToolTipService.ToolTip="Match case (Alt + C)" AccessKey="C" />
+    <ToggleButton x:Name="mWordButton" IsChecked="{x:Bind MatchWholeWord, Mode=TwoWay}"
+                  Grid.Row="1" Grid.Column="4" Margin="4" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+                  ToolTipService.ToolTip="Match whole words (Alt + W)" AccessKey="W">
+      <TextBlock>
+        <Underline>ab</Underline>
+      </TextBlock>
+    </ToggleButton>
+    <InfoBar x:Name="errorInfoBar" Grid.Row="2" Grid.ColumnSpan="5" Margin="4" Severity="Error" />
+  </Grid>
+</UserControl>

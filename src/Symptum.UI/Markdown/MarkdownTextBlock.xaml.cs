@@ -1,4 +1,5 @@
 using Markdig;
+using Symptum.Markdown.Reference;
 using Symptum.UI.Markdown.Renderers;
 using Symptum.UI.Markdown.TextElements;
 
@@ -63,6 +64,8 @@ public partial class MarkdownTextBlock : Control
 
     #endregion
 
+    public DocumentOutline DocumentOutline { get; }
+
     #endregion
 
     public MarkdownTextBlock()
@@ -78,7 +81,9 @@ public partial class MarkdownTextBlock : Control
             .UsePipeTables()
             .UseGridTables()
             .UseAutoIdentifiers(Markdig.Extensions.AutoIdentifiers.AutoIdentifierOptions.GitHub)
+            .Use<ReferenceInlineExtension>()
             .Build();
+        DocumentOutline = new();
     }
 
     protected override void OnApplyTemplate()
@@ -117,7 +122,7 @@ public partial class MarkdownTextBlock : Control
         {
             if (_renderer == null)
             {
-                _renderer = new WinUIRenderer(_document, Configuration);
+                _renderer = new WinUIRenderer(_document, Configuration, DocumentOutline);
             }
             _pipeline.Setup(_renderer);
             ApplyText(Text, false);

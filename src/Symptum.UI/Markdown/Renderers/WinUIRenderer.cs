@@ -16,17 +16,23 @@ public class WinUIRenderer : RendererBase
 
     public FlowDocumentElement FlowDocument { get; private set; }
 
+    public DocumentOutline DocumentOutline { get; private set; }
+
     public MarkdownConfiguration Configuration
     {
         get => _config;
         set => _config = value;
     }
 
-    public WinUIRenderer(FlowDocumentElement document, MarkdownConfiguration config)
+    public ILinkHandler? LinkHandler { get; set; }
+
+    public WinUIRenderer(FlowDocumentElement document, MarkdownConfiguration config, DocumentOutline documentOutline)
     {
         _buffer = new char[1024];
         Configuration = config;
         FlowDocument = document;
+        DocumentOutline = documentOutline;
+        LinkHandler = new DefaultLinkHandler(documentOutline);
         _stack.Push(FlowDocument);
         LoadOverridenRenderers();
     }
@@ -46,7 +52,7 @@ public class WinUIRenderer : RendererBase
     {
         _stack.Clear();
         FlowDocument.StackPanel.Children.Clear();
-        Configuration.DocumentOutline.Clear();
+        DocumentOutline.Clear();
         _stack.Push(FlowDocument);
         LoadOverridenRenderers();
     }
@@ -166,5 +172,7 @@ public class WinUIRenderer : RendererBase
         // Extension renderers
         ObjectRenderers.Add(new TableRenderer());
         ObjectRenderers.Add(new TaskListRenderer());
+
+        ObjectRenderers.Add(new ReferenceInlineRenderer());
     }
 }

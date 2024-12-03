@@ -80,8 +80,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="md:QuoteControl">
-          <Grid Margin="{TemplateBinding Margin}"
-                Padding="{TemplateBinding Padding}"
+          <Grid Padding="{TemplateBinding Padding}"
                 HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
                 VerticalAlignment="{TemplateBinding VerticalAlignment}"
                 Background="{TemplateBinding Background}"
@@ -107,7 +106,7 @@
     <Setter Property="BorderBrush" Value="{ThemeResource NoteQuoteBorderBrush}" />
     <Setter Property="AlertForeground" Value="{ThemeResource NoteQuoteForeground}" />
   </Style>
-  
+
   <Style x:Key="TipQuoteControlStyle" TargetType="md:QuoteControl" BasedOn="{StaticResource DefaultAlertQuoteControlStyle}">
     <Setter Property="Background" Value="{ThemeResource TipQuoteBackground}" />
     <Setter Property="BorderBrush" Value="{ThemeResource TipQuoteBorderBrush}" />

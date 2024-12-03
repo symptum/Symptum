@@ -10,7 +10,7 @@ public class HeadingRenderer : WinUIObjectRenderer<HeadingBlock>
         ArgumentNullException.ThrowIfNull(renderer);
         ArgumentNullException.ThrowIfNull(obj);
 
-        HeadingElement paragraph = new(obj, renderer.Configuration);
+        HeadingElement paragraph = new(obj, renderer.Configuration, renderer.DocumentOutline);
         renderer.Push(paragraph);
         renderer.WriteLeafInline(obj);
         renderer.Pop();

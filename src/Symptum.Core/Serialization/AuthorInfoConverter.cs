@@ -18,8 +18,5 @@ internal class AuthorInfoConverter : JsonConverter<AuthorInfo>
         return default;
     }
 
-    public override void Write(Utf8JsonWriter writer, AuthorInfo value, JsonSerializerOptions options)
-    {
-        writer.WriteStringValue(value.ToString());
-    }
+    public override void Write(Utf8JsonWriter writer, AuthorInfo value, JsonSerializerOptions options) => writer.WriteStringValue(value.ToString());
 }

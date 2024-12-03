@@ -1,10 +1,10 @@
 using System.Collections.ObjectModel;
 using Symptum.Core.Management.Resources;
-using Symptum.Core.Extensions;
+using System.Text.Json.Serialization;
 
 namespace Symptum.Core.Data.Nutrition;
 
-public class NutritionDataSet : MetadataResource
+public class NutritionDataSet : CategoryResource<FoodGroup>
 {
     public NutritionDataSet()
     { }
@@ -16,44 +16,12 @@ public class NutritionDataSet : MetadataResource
 
     #region Properties
 
-    private ObservableCollection<FoodGroup>? groups;
-
-    public ObservableCollection<FoodGroup>? Groups
+    [JsonPropertyName("Groups")]
+    public override ObservableCollection<FoodGroup>? Items
     {
-        get => groups;
-        set
-        {
-            UnobserveCollection(groups);
-            SetProperty(ref groups, value);
-            SetChildrenResources(groups);
-        }
+        get => base.Items;
+        set => base.Items = value;
     }
 
     #endregion
-
-    protected override void OnInitializeResource(IResource? parent)
-    {
-        SetChildrenResources(groups);
-    }
-
-    public override bool CanHandleChildResourceType(Type childResourceType)
-    {
-        return childResourceType == typeof(FoodGroup);
-    }
-
-    public override bool CanAddChildResourceType(Type childResourceType)
-    {
-        return childResourceType == typeof(FoodGroup);
-    }
-
-    protected override void OnAddChildResource(IResource? childResource)
-    {
-        Groups ??= [];
-        Groups.AddItemToListIfNotExists(childResource);
-    }
-
-    protected override void OnRemoveChildResource(IResource? childResource)
-    {
-        Groups.RemoveItemFromListIfExists(childResource);
-    }
 }

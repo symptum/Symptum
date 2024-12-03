@@ -14,7 +14,7 @@ public class HeadingElement : IAddChild
         get => _paragraph;
     }
 
-    public HeadingElement(HeadingBlock headingBlock, MarkdownConfiguration config)
+    public HeadingElement(HeadingBlock headingBlock, MarkdownConfiguration config, DocumentOutline outline)
     {
         _headingBlock = headingBlock;
         _paragraph = new();
@@ -47,7 +47,7 @@ public class HeadingElement : IAddChild
             Title = headingBlock.Inline?.FirstChild?.ToString()
         };
 
-        config.DocumentOutline.PushNode(node);
+        outline.PushNode(node);
     }
 
     public void OnNavigate()

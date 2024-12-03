@@ -10,6 +10,8 @@ public static class FileHelper
 
     public const string CsvFileExtension = ".csv";
 
+    public const string MarkdownFileExtension = ".md";
+
     public const string PackageFileExtension = ".zip";
 
     public static (string folder, string fileName, string extension) GetDetailsFromFilePath(string? filePath)

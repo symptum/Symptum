@@ -13,6 +13,7 @@
         <!-- Load Uno.UI.Toolkit resources -->
         <ToolkitResources xmlns="using:Uno.Toolkit.UI" />
         <ResourceDictionary Source="ms-appx:///Symptum.UI/Themes/Styles.xaml" />
+        <ResourceDictionary Source="ms-appx:///CommunityToolkit.WinUI.Controls.Ribbon/RibbonStyle.xaml" />
       </ResourceDictionary.MergedDictionaries>
 
       <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />

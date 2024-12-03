@@ -26,11 +26,11 @@ public class LinkInlineRenderer : WinUIObjectRenderer<LinkInline>
         {
             if (link.FirstChild is LinkInline linkInlineChild && linkInlineChild.IsImage)
             {
-                renderer.Push(new HyperlinkButtonElement(link, renderer.Configuration.BaseUrl, renderer.Configuration));
+                renderer.Push(new HyperlinkButtonElement(link, renderer.Configuration.BaseUrl, renderer.Configuration, renderer.LinkHandler));
             }
             else
             {
-                HyperlinkElement hyperlink = new(link, renderer.Configuration.BaseUrl, renderer.Configuration);
+                HyperlinkElement hyperlink = new(link, renderer.Configuration.BaseUrl, renderer.LinkHandler);
 
                 renderer.Push(hyperlink);
             }

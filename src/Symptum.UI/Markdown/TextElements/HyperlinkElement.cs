@@ -17,25 +17,28 @@ public class HyperlinkElement : IAddChild
         get => inline;
     }
 
-    public HyperlinkElement(LinkInline linkInline, string? baseUrl, MarkdownConfiguration config)
+    public HyperlinkElement(LinkInline linkInline, string? baseUrl, ILinkHandler? linkHandler)
     {
         _baseUrl = baseUrl;
-        string? url = linkInline.GetDynamicUrl != null ? linkInline.GetDynamicUrl() ?? linkInline.Url : linkInline.Url;
-        _url = url;
+        _url = linkInline.GetDynamicUrl != null ? linkInline.GetDynamicUrl() ?? linkInline.Url : linkInline.Url;
         _linkInline = linkInline;
-        _linkHandler = config.LinkHandler;
+        _linkHandler = linkHandler;
+
         _hyperlink = new Hyperlink();
-        _hyperlink.Click += Hyperlink_Click;
-        ToolTipService.SetToolTip(_hyperlink, linkInline.Title);
+        _hyperlink.Click += (s, e) =>
+        {
+            _linkHandler?.HandleNavigation(_url, _baseUrl);
+        };
+
+        if (!string.IsNullOrWhiteSpace(linkInline.Title))
+            ToolTipService.SetToolTip(_hyperlink, linkInline.Title);
+        else
+            ToolTipService.SetToolTip(_hyperlink, _url);
+
         inline = new()
         {
             Inline = _hyperlink
         };
-    }
-
-    private void Hyperlink_Click(Hyperlink sender, HyperlinkClickEventArgs args)
-    {
-        _linkHandler?.HandleNavigation(_url, _baseUrl);
     }
 
     public void AddChild(IAddChild child)

@@ -160,7 +160,7 @@ public sealed partial class MainPage : Page
         {
             SuggestedFileName = string.Empty
         };
-        fileSavePicker.FileTypeChoices.Add("Markdown File", [".md"]);
+        fileSavePicker.FileTypeChoices.Add("Markdown File", [MarkdownFileExtension]);
 
 #if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
         WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, WindowHelper.WindowHandle);
@@ -219,6 +219,7 @@ public sealed partial class MainPage : Page
 
         FileOpenPicker fileOpenPicker = new();
         fileOpenPicker.FileTypeFilter.Add(CsvFileExtension);
+        fileOpenPicker.FileTypeFilter.Add(MarkdownFileExtension);
         fileOpenPicker.FileTypeFilter.Add(JsonFileExtension);
 
 #if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO

@@ -8,24 +8,13 @@ public abstract class CsvFileResource : FileResource
     [JsonIgnore]
     public override ContentFileType FileType { get; } = ContentFileType.Csv;
 
-    protected override void OnReadFileText(string text)
-    {
-        OnReadCSV(text);
-    }
+    protected override void OnReadFileText(string text) => OnReadCSV(text);
 
-    protected override void OnReadFileStream(Stream stream)
-    {
-    }
+    protected override void OnReadFileStream(Stream stream) { }
 
-    protected override string OnWriteFileText()
-    {
-        return OnWriteCSV();
-    }
+    protected override string OnWriteFileText() => OnWriteCSV();
 
-    protected override Stream? OnWriteFileStream()
-    {
-        return null;
-    }
+    protected override Stream? OnWriteFileStream() => null;
 
     protected abstract void OnReadCSV(string csv);
 

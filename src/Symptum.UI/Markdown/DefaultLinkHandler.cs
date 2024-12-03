@@ -1,4 +1,3 @@
-
 using Windows.System;
 
 namespace Symptum.UI.Markdown;
@@ -16,9 +15,10 @@ public sealed class DefaultLinkHandler : ILinkHandler
     {
         if (string.IsNullOrWhiteSpace(url)) return;
 
-        if (url.StartsWith('#') && _documentOutline.IdNavigateCollection.TryGetValue(url.Remove(0, 1), out Action? navigate))
+        if (url.StartsWith('#'))
         {
-            navigate!();
+            if (_documentOutline.IdNavigateCollection.TryGetValue(url.Remove(0, 1), out Action? navigate))
+                navigate!();
         }
         else
         {

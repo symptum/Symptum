@@ -1,64 +1,28 @@
 using System.Collections.ObjectModel;
-using Symptum.Core.Extensions;
+using System.Text.Json.Serialization;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Serialization;
 
 namespace Symptum.Core.Subjects.QuestionBanks;
 
-public class QuestionBank : MetadataResource
+public partial class QuestionBank : CategoryResource<QuestionBankPaper>, ISubjectCategoryResource
 {
     public QuestionBank()
     { }
 
     #region Properties
 
-    private SubjectList _subjectCode;
+    [ObservableProperty]
+    public partial SubjectList SubjectCode { get; set; }
 
-    public SubjectList SubjectCode
-    {
-        get => _subjectCode;
-        set => SetProperty(ref _subjectCode, value);
-    }
-
-    private ObservableCollection<QuestionBankPaper>? papers;
-
+    [JsonPropertyName("Papers")]
     [ListOfMetadataResource]
-    public ObservableCollection<QuestionBankPaper>? Papers
+    public override ObservableCollection<QuestionBankPaper>? Items
     {
-        get => papers;
-        set
-        {
-            UnobserveCollection(papers);
-            SetProperty(ref papers, value);
-            SetChildrenResources(papers);
-        }
+        get => base.Items;
+        set => base.Items = value;
     }
 
     #endregion
-
-    protected override void OnInitializeResource(IResource? parent)
-    {
-        SetChildrenResources(papers);
-    }
-
-    public override bool CanHandleChildResourceType(Type childResourceType)
-    {
-        return childResourceType == typeof(QuestionBankPaper);
-    }
-
-    public override bool CanAddChildResourceType(Type childResourceType)
-    {
-        return childResourceType == typeof(QuestionBankPaper);
-    }
-
-    protected override void OnAddChildResource(IResource? childResource)
-    {
-        Papers ??= [];
-        Papers?.AddItemToListIfNotExists(childResource);
-    }
-
-    protected override void OnRemoveChildResource(IResource? childResource)
-    {
-        Papers.RemoveItemFromListIfExists(childResource);
-    }
 }

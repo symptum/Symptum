@@ -1,6 +1,4 @@
 using System.Collections.ObjectModel;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects.QuestionBanks;
@@ -8,13 +6,13 @@ using Symptum.Core.TypeConversion;
 using Symptum.Common.Helpers;
 using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
+using Symptum.Core.Extensions;
 
 namespace Symptum.Editor.EditorPages;
 
 public sealed partial class QuestionTopicEditorPage : EditorPageBase
 {
     private QuestionBankTopic? currentTopic;
-    private FindFlyout? findFlyout;
     private QuestionEditorDialog questionEditorDialog = new();
     private ResourcePropertiesEditorDialog propertyEditorDialog = new();
 
@@ -30,6 +28,7 @@ public sealed partial class QuestionTopicEditorPage : EditorPageBase
     {
         InitializeComponent();
         IconSource = DefaultIconSources.DataGridIconSource;
+        SetupFindControl();
     }
 
     protected override void OnSetEditableContent(IResource? resource)
@@ -64,9 +63,6 @@ public sealed partial class QuestionTopicEditorPage : EditorPageBase
         addButton.IsEnabled = true;
         findButton.IsEnabled = true;
         SetCountsText();
-
-        var binding = new Binding { Path = new PropertyPath(nameof(Title)), Source = currentTopic };
-        SetBinding(TitleProperty, binding);
     }
 
     private void SetCountsText(bool clear = false)
@@ -128,15 +124,9 @@ public sealed partial class QuestionTopicEditorPage : EditorPageBase
         SetCountsText();
     }
 
-    private async void EditButton_Click(object sender, RoutedEventArgs e)
-    {
-        await EnterEditQuestionAsync();
-    }
+    private async void EditButton_Click(object sender, RoutedEventArgs e) => await EnterEditQuestionAsync();
 
-    private async void DataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-    {
-        await EnterEditQuestionAsync();
-    }
+    private async void DataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e) => await EnterEditQuestionAsync();
 
     private async Task EnterEditQuestionAsync()
     {
@@ -192,43 +182,28 @@ public sealed partial class QuestionTopicEditorPage : EditorPageBase
         }
     }
 
-    private void FindButton_Click(object sender, RoutedEventArgs e)
+    #region Find
+
+    private void SetupFindControl()
     {
-        if (findFlyout == null)
-        {
-            List<string> columns =
-            [
-                nameof(QuestionEntry.Title),
-                nameof(QuestionEntry.Descriptions),
-                nameof(QuestionEntry.YearsAsked),
-                nameof(QuestionEntry.ProbableCases)
-            ];
+        List<string> columns =
+        [
+            nameof(QuestionEntry.Title),
+            nameof(QuestionEntry.Descriptions),
+            nameof(QuestionEntry.YearsAsked),
+            nameof(QuestionEntry.ProbableCases)
+        ];
 
-            findFlyout = new()
-            {
-                FindContexts = columns,
-                SelectedContext = columns[0],
-            };
-
-            findFlyout.QuerySubmitted += FindFlyout_QuerySubmitted;
-            findFlyout.QueryCleared += FindFlyout_QueryCleared;
-        }
-
-        findFlyout.XamlRoot = XamlRoot;
-
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-        FlyoutShowOptions flyoutShowOptions = new()
-        {
-            Position = new(ActualWidth, 150),
-            Placement = FlyoutPlacementMode.Bottom
-        };
-        findFlyout.ShowAt(showOptions: flyoutShowOptions);
-#else
-        findFlyout.ShowAt(findButton, new() { Placement = FlyoutPlacementMode.Bottom });
-#endif
+        findControl.FindContexts = columns;
+        findControl.SelectedContext = columns[0];
     }
 
-    private void FindFlyout_QueryCleared(object? sender, EventArgs e)
+    private void FindButton_Click(object sender, RoutedEventArgs e)
+    {
+        findControl.Visibility = Visibility.Visible;
+    }
+
+    private void FindControl_QueryCleared(object? sender, EventArgs e)
     {
         var selectedItem = dataGrid.SelectedItem;
         if (currentTopic != null)
@@ -236,9 +211,10 @@ public sealed partial class QuestionTopicEditorPage : EditorPageBase
         dataGrid.SelectedItem = selectedItem;
         findTextBlock.Text = string.Empty;
         OnFilter(false);
+        findControl.Visibility = Visibility.Collapsed;
     }
 
-    private void FindFlyout_QuerySubmitted(object? sender, FindFlyoutQuerySubmittedEventArgs e)
+    private void FindControl_QuerySubmitted(object? sender, FindControlQuerySubmittedEventArgs e)
     {
         if (e.FindDirection != FindDirection.All)
             return;
@@ -253,35 +229,28 @@ public sealed partial class QuestionTopicEditorPage : EditorPageBase
         }
     }
 
-    private void OnFilter(bool filtered)
-    {
-        _isFiltered = filtered;
-    }
+    private void OnFilter(bool filtered) => _isFiltered = filtered;
 
     // TODO: Implement Match Whole Word
-    private bool QuestionEntryPropertyMatchValue(QuestionEntry question, FindFlyoutQuerySubmittedEventArgs e)
+    private bool QuestionEntryPropertyMatchValue(QuestionEntry question, FindControlQuerySubmittedEventArgs e) => e.Context switch
     {
-        return e.Context switch
-        {
-            nameof(QuestionEntry.Title) =>
-                question?.Title?.Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase),
-            nameof(QuestionEntry.Descriptions) =>
-                ListToStringConversion.ConvertToString<string>(question?.Descriptions, x => x)?
-                    .Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase),
-            nameof(QuestionEntry.YearsAsked) =>
-                ListToStringConversion.ConvertToString<DateOnly>(question?.YearsAsked, ListToStringConversion.ElementToStringForDateOnly)?
-                    .Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase),
-            nameof(QuestionEntry.ProbableCases) =>
-                ListToStringConversion.ConvertToString<string>(question?.ProbableCases, x => x)?
-                    .Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase),
-            _ => false,
-        } ?? false;
-    }
+        nameof(QuestionEntry.Title) =>
+            question?.Title?.Contains(e.QueryText, e.MatchCase, e.MatchWholeWord),
+        nameof(QuestionEntry.Descriptions) =>
+            ListToStringConversion.ConvertToString<string>(question?.Descriptions, x => x)?
+                .Contains(e.QueryText, e.MatchCase, e.MatchWholeWord),
+        nameof(QuestionEntry.YearsAsked) =>
+            ListToStringConversion.ConvertToString<DateOnly>(question?.YearsAsked, ListToStringConversion.ElementToStringForDateOnly)?
+                .Contains(e.QueryText, e.MatchCase, e.MatchWholeWord),
+        nameof(QuestionEntry.ProbableCases) =>
+            ListToStringConversion.ConvertToString<string>(question?.ProbableCases, x => x)?
+                .Contains(e.QueryText, e.MatchCase, e.MatchWholeWord),
+        _ => false,
+    } ?? false;
 
-    private void SortYearsButton_Click(object sender, RoutedEventArgs e)
-    {
-        SortYearsAsked();
-    }
+    #endregion
+
+    private void SortYearsButton_Click(object sender, RoutedEventArgs e) => SortYearsAsked();
 
     private void SortYearsAsked()
     {
@@ -332,30 +301,15 @@ public sealed partial class QuestionTopicEditorPage : EditorPageBase
         }
     }
 
-    private void MoveUpButton_Click(object sender, RoutedEventArgs e)
-    {
-        MoveEntryUp(false);
-    }
+    private void MoveUpButton_Click(object sender, RoutedEventArgs e) => MoveEntryUp(false);
 
-    private void MoveToTopButton_Click(object sender, RoutedEventArgs e)
-    {
-        MoveEntryUp(true);
-    }
+    private void MoveToTopButton_Click(object sender, RoutedEventArgs e) => MoveEntryUp(true);
 
-    private void MoveDownButton_Click(object sender, RoutedEventArgs e)
-    {
-        MoveEntryDown(false);
-    }
+    private void MoveDownButton_Click(object sender, RoutedEventArgs e) => MoveEntryDown(false);
 
-    private void MoveToBottomButton_Click(object sender, RoutedEventArgs e)
-    {
-        MoveEntryDown(true);
-    }
+    private void MoveToBottomButton_Click(object sender, RoutedEventArgs e) => MoveEntryDown(true);
 
-    private void DataGrid_LoadingRow(object sender, CommunityToolkit.WinUI.UI.Controls.DataGridRowEventArgs e)
-    {
-        e.Row.Header = e.Row.GetIndex() + 1;
-    }
+    private void DataGrid_LoadingRow(object sender, CommunityToolkit.WinUI.UI.Controls.DataGridRowEventArgs e) => e.Row.Header = e.Row.GetIndex() + 1;
 
     private void ReorderButton_Click(object sender, RoutedEventArgs e)
     {
@@ -366,7 +320,7 @@ public sealed partial class QuestionTopicEditorPage : EditorPageBase
             var entries = currentTopic?.Entries;
             if (entries != null)
             {
-                // Finds the first entry which has a year greater than or equal to the selected one
+                // Find the first entry which has a year greater than or equal to the selected one
                 QuestionEntry? neighbor = null;
                 foreach (var entry in entries)
                 {
@@ -378,7 +332,7 @@ public sealed partial class QuestionTopicEditorPage : EditorPageBase
                 }
 
                 int oldIndex = entries.IndexOf(currentEntry);
-                int newIndex = neighbor != null ? Math.Min(entries.IndexOf(neighbor) + 1, entries.Count - 1) : 0; // Puts it next to it
+                int newIndex = neighbor != null ? Math.Min(entries.IndexOf(neighbor) + 1, entries.Count - 1) : 0; // Put it next to it
                 // If we move from up to down, the index will be +1 due to the current entry being included in the neighbor's index
                 int dI = oldIndex < newIndex ? -1 : 0;
                 MoveEntry(oldIndex, newIndex + dI);

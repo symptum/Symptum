@@ -117,7 +117,7 @@ public static class Extensions
     {
         if (string.IsNullOrEmpty(url))
         {
-            throw new ArgumentException("URL must not be null or empty", nameof(url));
+            return string.Empty;
         }
 
         // Create a regex pattern to match the URL with width and height
@@ -198,7 +198,7 @@ public static class Extensions
         string? url = link.Url;
         if (string.IsNullOrEmpty(url))
         {
-            throw new ArgumentException("Link must have a valid URL", nameof(link));
+            return default;
         }
 
         // Try to parse the width and height from the URL
@@ -226,7 +226,7 @@ public static class Extensions
         //}
 
         // Return default values if no width and height are found
-        return new(0, 0);
+        return default;
     }
 
     public static SolidColorBrush GetAccentColorBrush()

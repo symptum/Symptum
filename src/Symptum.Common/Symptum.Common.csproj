@@ -33,10 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Symptum.Core\Symptum.Core.csproj" />
   </ItemGroup>
 

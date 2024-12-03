@@ -1,10 +1,10 @@
 using System.Collections.ObjectModel;
-using Symptum.Core.Extensions;
+using System.Text.Json.Serialization;
 using Symptum.Core.Management.Resources;
 
 namespace Symptum.Core.Subjects.QuestionBanks;
 
-public class QuestionBankPaper : MetadataResource
+public class QuestionBankPaper : CategoryResource<QuestionBankTopic>
 {
     public QuestionBankPaper()
     { }
@@ -16,44 +16,12 @@ public class QuestionBankPaper : MetadataResource
 
     #region Properties
 
-    private ObservableCollection<QuestionBankTopic>? topics;
-
-    public ObservableCollection<QuestionBankTopic>? Topics
+    [JsonPropertyName("Topics")]
+    public override ObservableCollection<QuestionBankTopic>? Items
     {
-        get => topics;
-        set
-        {
-            UnobserveCollection(topics);
-            SetProperty(ref topics, value);
-            SetChildrenResources(topics);
-        }
+        get => base.Items;
+        set => base.Items = value;
     }
 
     #endregion
-
-    protected override void OnInitializeResource(IResource? parent)
-    {
-        SetChildrenResources(topics);
-    }
-
-    public override bool CanHandleChildResourceType(Type childResourceType)
-    {
-        return childResourceType == typeof(QuestionBankTopic);
-    }
-
-    public override bool CanAddChildResourceType(Type childResourceType)
-    {
-        return childResourceType == typeof(QuestionBankTopic);
-    }
-
-    protected override void OnAddChildResource(IResource? childResource)
-    {
-        Topics ??= [];
-        Topics.AddItemToListIfNotExists(childResource);
-    }
-
-    protected override void OnRemoveChildResource(IResource? childResource)
-    {
-        Topics.RemoveItemFromListIfExists(childResource);
-    }
 }

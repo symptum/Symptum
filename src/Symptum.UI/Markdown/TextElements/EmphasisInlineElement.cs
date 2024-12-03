@@ -51,7 +51,6 @@ public class EmphasisInlineElement : IAddChild
     public void SetBold()
     {
         _span.FontWeight = Microsoft.UI.Text.FontWeights.Bold;
-
         _isBold = true;
     }
 
@@ -64,7 +63,6 @@ public class EmphasisInlineElement : IAddChild
     public void SetStrikeThrough()
     {
         _span.TextDecorations = TextDecorations.Strikethrough;
-
         _isStrikeThrough = true;
     }
 

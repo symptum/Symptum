@@ -4,11 +4,7 @@ public record MarkdownConfiguration
 {
     public string? BaseUrl { get; set; }
 
-    public DocumentOutline DocumentOutline { get; private set; }
-
     public IImageProvider? ImageProvider { get; set; }
-
-    public ILinkHandler? LinkHandler { get; set; }
 
     public ISVGRenderer? SVGRenderer { get; set; }
 
@@ -18,8 +14,6 @@ public record MarkdownConfiguration
 
     public MarkdownConfiguration()
     {
-        DocumentOutline = new();
-        LinkHandler = new DefaultLinkHandler(DocumentOutline);
         SVGRenderer = new DefaultSVGRenderer();
         Themes = MarkdownThemes.Default;
     }

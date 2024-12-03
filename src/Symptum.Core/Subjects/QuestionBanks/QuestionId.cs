@@ -96,10 +96,7 @@ public class QuestionId : ObservableObject, IUniqueId, IEquatable<QuestionId>
         return questionId;
     }
 
-    private void UpdateIdString()
-    {
-        IdString = ToString();
-    }
+    private void UpdateIdString() => IdString = ToString();
 
     public override string ToString()
     {

@@ -7,10 +7,10 @@
       xmlns:ed="using:Symptum.Editor.EditorPages"
       xmlns:res="using:Symptum.Core.Management.Resources"
       xmlns:win="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-      xmlns:toolkit="using:Uno.Toolkit.UI" xmlns:sub="using:Symptum.Core.Subjects"
-      toolkit:SafeArea.Insets="All"
+      xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+      xmlns:utu="using:Uno.Toolkit.UI" xmlns:sub="using:Symptum.Core.Subjects"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-  <Grid>
+  <Grid utu:SafeArea.Insets="All">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
@@ -135,9 +135,13 @@
             </AppBarButton>
           </CommandBar>
           <ScrollViewer x:Name="sideStackPanel" Grid.Row="1" HorizontalScrollBarVisibility="Auto">
-            <TreeView x:Name="treeView" SelectionMode="Single"
-                      CanReorderItems="False" CanDragItems="False" CanDrag="False"
-                      ItemTemplate="{StaticResource DefaultResourceDataTemplate}" />
+            <controls:HeaderedTreeView x:Name="treeView" SelectionMode="Single"
+              CanReorderItems="False" CanDragItems="False" CanDrag="False"
+              ItemTemplate="{StaticResource DefaultResourceDataTemplate}">
+              <controls:HeaderedTreeView.Header>
+                <TextBlock Margin="12,4" FontWeight="SemiBold" Text="Resources" />
+              </controls:HeaderedTreeView.Header>
+            </controls:HeaderedTreeView>
           </ScrollViewer>
         </Grid>
       </SplitView.Pane>
@@ -163,7 +167,7 @@
                       <ColumnDefinition />
                       <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
+                    <TextBlock Text="{Binding EditableContent.Title}" TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
                     <InfoBadge Grid.Column="1" Margin="5,0" VerticalAlignment="Center" Style="{ThemeResource AttentionDotInfoBadgeStyle}"
                                Visibility="{Binding HasUnsavedChanges, Converter={StaticResource BooleanToVisibilityConverter}}" />
                   </Grid>

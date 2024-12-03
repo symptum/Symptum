@@ -10,7 +10,12 @@ public sealed partial class AddNewItemDialog : ContentDialog
 {
     private static readonly List<NewItemType> itemTypes =
         [
-            new ("Subject", typeof(Subject), "Subjects"),
+            new("Subject", typeof(Subject), "Subjects"),
+            new("Category", typeof(CategoryResource), "Common"),
+            new("Image Category", typeof(ImageCategoryResource), "Common"),
+            new("Markdown Category", typeof(MarkdownCategoryResource), "Common"),
+            new("Image File", typeof(ImageFileResource), "Common"),
+            new("Markdown File", typeof(MarkdownFileResource), "Common"),
             new("Question Bank", typeof(QuestionBank), "Question Banks"),
             new("Question Bank Paper", typeof(QuestionBankPaper), "Question Banks"),
             new("Question Bank Topic", typeof(QuestionBankTopic), "Question Banks"),
@@ -20,10 +25,6 @@ public sealed partial class AddNewItemDialog : ContentDialog
             new("Nutrition Package", typeof(NutritionPackage), "Nutrition"),
             new("Nutrition Data Set", typeof(NutritionDataSet), "Nutrition"),
             new("Food Group", typeof(FoodGroup), "Nutrition"),
-            new("Category", typeof(CategoryResource), "Common"),
-            new("Image Category", typeof(ImageCategoryResource), "Common"),
-            new("Markdown Category", typeof(MarkdownCategoryResource), "Common"),
-            new("Image File", typeof(ImageFileResource), "Common"),
         ];
 
     private List<NewItemType>? availItemTypes;
@@ -47,10 +48,38 @@ public sealed partial class AddNewItemDialog : ContentDialog
         Opened += AddNewItemDialog_Opened;
         PrimaryButtonClick += AddNewItemDialog_PrimaryButtonClick;
         CloseButtonClick += AddNewItemDialog_CloseButtonClick;
+        queryBox.TextChanged += QueryBox_TextChanged;
+        queryBox.QuerySubmitted += QueryBox_QuerySubmitted;
+    }
+
+    private void QueryBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+    {
+        SearchItems(args.QueryText);
+    }
+
+    private void QueryBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            SearchItems(sender.Text);
+    }
+
+    private void SearchItems(string? queryText)
+    {
+        if (string.IsNullOrWhiteSpace(queryText))
+        {
+            newItemsLV.ItemsSource = availItemTypes;
+            return;
+        }
+
+        List<NewItemType> suitableItems = availItemTypes?.FindAll(x =>
+            x.DisplayName?.Contains(queryText, StringComparison.InvariantCultureIgnoreCase) ?? false) ?? [];
+
+        newItemsLV.ItemsSource = suitableItems;
     }
 
     private void AddNewItemDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
     {
+        queryBox.Text = string.Empty;
         errorInfoBar.IsOpen = false;
         errorInfoBar.Message = string.Empty;
     }

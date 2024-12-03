@@ -58,7 +58,7 @@ public class DocumentNode
 
     public override string ToString()
     {
-        return $"{Title} {{#{Id}}} ({Level})";
+        return $"{Title} {{#{Id}}} (H{(int)Level})";
     }
 }
 

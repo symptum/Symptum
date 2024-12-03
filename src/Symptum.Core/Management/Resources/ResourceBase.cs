@@ -8,7 +8,7 @@ using Symptum.Core.Extensions;
 namespace Symptum.Core.Management.Resources;
 
 // This is the base implementation of IResource, it doesn't implement INavigable.
-// This class will contain all the properties, logic for loading, adding and removing children resources.
+// This class contains all the properties, logic for loading, adding and removing children resources.
 public abstract class ResourceBase : ObservableObject, IResource
 {
     #region Properties
@@ -112,10 +112,7 @@ public abstract class ResourceBase : ObservableObject, IResource
             childResource?.InitializeResource(this); // Temporary
     }
 
-    public void RemoveChildResource(IResource? childResource)
-    {
-        OnRemoveChildResource(childResource);
-    }
+    public void RemoveChildResource(IResource? childResource) => OnRemoveChildResource(childResource);
 
     protected abstract void OnAddChildResource(IResource? childResource);
 
@@ -132,10 +129,7 @@ public abstract class ResourceBase : ObservableObject, IResource
         }
     }
 
-    protected void AddChildResourceInternal(IResource? childResource)
-    {
-        childrenResources?.AddItemToListIfNotExists(childResource);
-    }
+    protected void AddChildResourceInternal(IResource? childResource) => childrenResources?.AddItemToListIfNotExists(childResource);
 
     protected void RemoveChildrenResourcesInternal(IList? children)
     {
@@ -148,10 +142,7 @@ public abstract class ResourceBase : ObservableObject, IResource
         }
     }
 
-    protected void RemoveChildResourceInternal(IResource? childResource)
-    {
-        childrenResources?.RemoveItemFromListIfExists(childResource);
-    }
+    protected void RemoveChildResourceInternal(IResource? childResource) => childrenResources?.RemoveItemFromListIfExists(childResource);
 
     protected void SetChildrenResources<T>(ObservableCollection<T>? collection) where T : IResource
     {

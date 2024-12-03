@@ -1,19 +1,17 @@
 using System.Collections.ObjectModel;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
 using Symptum.Common.Helpers;
 using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
+using Symptum.Core.Extensions;
 
 namespace Symptum.Editor.EditorPages;
 
 public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
 {
     private ReferenceValueGroup? currentGroup;
-    private FindFlyout? findFlyout;
     private ReferenceValueParameterEditorDialog parameterEditorDialog = new();
     private ResourcePropertiesEditorDialog propertyEditorDialog = new();
 
@@ -29,6 +27,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     {
         InitializeComponent();
         IconSource = DefaultIconSources.DataGridIconSource;
+        SetupFindControl();
     }
 
     protected override void OnSetEditableContent(IResource? resource)
@@ -63,9 +62,6 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         addButton.IsEnabled = true;
         findButton.IsEnabled = true;
         SetCountsText();
-
-        var binding = new Binding { Path = new PropertyPath(nameof(Title)), Source = group };
-        SetBinding(TitleProperty, binding);
     }
 
     private void SetCountsText(bool clear = false)
@@ -127,15 +123,9 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         SetCountsText();
     }
 
-    private async void EditButton_Click(object sender, RoutedEventArgs e)
-    {
-        await EnterEditParameterAsync();
-    }
+    private async void EditButton_Click(object sender, RoutedEventArgs e) => await EnterEditParameterAsync();
 
-    private async void DataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-    {
-        await EnterEditParameterAsync();
-    }
+    private async void DataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e) => await EnterEditParameterAsync();
 
     private async Task EnterEditParameterAsync()
     {
@@ -191,40 +181,25 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         }
     }
 
-    private void FindButton_Click(object sender, RoutedEventArgs e)
+    #region Find
+
+    private void SetupFindControl()
     {
-        if (findFlyout == null)
-        {
-            List<string> columns =
-            [
-                nameof(ReferenceValueParameter.Title),
-            ];
+        List<string> columns =
+        [
+            nameof(ReferenceValueParameter.Title),
+        ];
 
-            findFlyout = new()
-            {
-                FindContexts = columns,
-                SelectedContext = columns[0],
-            };
-
-            findFlyout.QuerySubmitted += FindFlyout_QuerySubmitted;
-            findFlyout.QueryCleared += FindFlyout_QueryCleared;
-        }
-
-        findFlyout.XamlRoot = XamlRoot;
-
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-        FlyoutShowOptions flyoutShowOptions = new()
-        {
-            Position = new(ActualWidth, 150),
-            Placement = FlyoutPlacementMode.Bottom
-        };
-        findFlyout.ShowAt(showOptions: flyoutShowOptions);
-#else
-        findFlyout.ShowAt(findButton, new() { Placement = FlyoutPlacementMode.Bottom });
-#endif
+        findControl.FindContexts = columns;
+        findControl.SelectedContext = columns[0];
     }
 
-    private void FindFlyout_QueryCleared(object? sender, EventArgs e)
+    private void FindButton_Click(object sender, RoutedEventArgs e)
+    {
+        findControl.Visibility = Visibility.Visible;
+    }
+
+    private void FindControl_QueryCleared(object? sender, EventArgs e)
     {
         var selectedItem = dataGrid.SelectedItem;
         if (currentGroup != null)
@@ -232,9 +207,10 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         dataGrid.SelectedItem = selectedItem;
         findTextBlock.Text = string.Empty;
         OnFilter(false);
+        findControl.Visibility = Visibility.Collapsed;
     }
 
-    private void FindFlyout_QuerySubmitted(object? sender, FindFlyoutQuerySubmittedEventArgs e)
+    private void FindControl_QuerySubmitted(object? sender, FindControlQuerySubmittedEventArgs e)
     {
         if (e.FindDirection != FindDirection.All)
             return;
@@ -249,21 +225,17 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         }
     }
 
-    private void OnFilter(bool filtered)
-    {
-        _isFiltered = filtered;
-    }
+    private void OnFilter(bool filtered) => _isFiltered = filtered;
 
     // TODO: Implement Match Whole Word
-    private bool ReferenceValueParameterPropertyMatchValue(ReferenceValueParameter parameter, FindFlyoutQuerySubmittedEventArgs e)
+    private bool ReferenceValueParameterPropertyMatchValue(ReferenceValueParameter parameter, FindControlQuerySubmittedEventArgs e) => e.Context switch
     {
-        return e.Context switch
-        {
-            nameof(ReferenceValueParameter.Title) =>
-                parameter?.Title?.Contains(e.QueryText, e.MatchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase),
-            _ => false
-        } ?? false;
-    }
+        nameof(ReferenceValueParameter.Title) =>
+            parameter?.Title?.Contains(e.QueryText, e.MatchCase, e.MatchWholeWord),
+        _ => false
+    } ?? false;
+
+    #endregion
 
     private bool CanMoveUp() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != 0;
 
@@ -302,28 +274,13 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         }
     }
 
-    private void MoveUpButton_Click(object sender, RoutedEventArgs e)
-    {
-        MoveParameterUp(false);
-    }
+    private void MoveUpButton_Click(object sender, RoutedEventArgs e) => MoveParameterUp(false);
 
-    private void MoveToTopButton_Click(object sender, RoutedEventArgs e)
-    {
-        MoveParameterUp(true);
-    }
+    private void MoveToTopButton_Click(object sender, RoutedEventArgs e) => MoveParameterUp(true);
 
-    private void MoveDownButton_Click(object sender, RoutedEventArgs e)
-    {
-        MoveParameterDown(false);
-    }
+    private void MoveDownButton_Click(object sender, RoutedEventArgs e) => MoveParameterDown(false);
 
-    private void MoveToBottomButton_Click(object sender, RoutedEventArgs e)
-    {
-        MoveParameterDown(true);
-    }
+    private void MoveToBottomButton_Click(object sender, RoutedEventArgs e) => MoveParameterDown(true);
 
-    private void DataGrid_LoadingRow(object sender, CommunityToolkit.WinUI.UI.Controls.DataGridRowEventArgs e)
-    {
-        e.Row.Header = e.Row.GetIndex() + 1;
-    }
+    private void DataGrid_LoadingRow(object sender, CommunityToolkit.WinUI.UI.Controls.DataGridRowEventArgs e) => e.Row.Header = e.Row.GetIndex() + 1;
 }

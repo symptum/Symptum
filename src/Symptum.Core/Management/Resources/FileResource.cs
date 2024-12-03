@@ -65,29 +65,15 @@ public abstract class FileResource : NavigableResource, IContent
 
     #endregion
 
-    protected override void OnInitializeResource(IResource? parent)
-    {
-    }
+    protected override void OnInitializeResource(IResource? parent) { }
 
-    internal void ReadFileText(string content)
-    {
-        OnReadFileText(content);
-    }
+    internal void ReadFileText(string content) => OnReadFileText(content);
 
-    internal void ReadFileStream(Stream stream)
-    {
-        OnReadFileStream(stream);
-    }
+    internal void ReadFileStream(Stream stream) => OnReadFileStream(stream);
 
-    internal string WriteFileText()
-    {
-        return OnWriteFileText();
-    }
+    internal string WriteFileText() => OnWriteFileText();
 
-    internal Stream? WriteFileStream()
-    {
-        return null;
-    }
+    internal Stream? WriteFileStream() => OnWriteFileStream();
 
     protected abstract void OnReadFileText(string content);
 
@@ -105,25 +91,13 @@ public abstract class FileResource : NavigableResource, IContent
     [JsonIgnore]
     public override bool CanHandleChildren => false;
 
-    public override bool CanHandleChildResourceType(Type childResourceType)
-    {
-        return false;
-    }
+    public override bool CanHandleChildResourceType(Type childResourceType) => false;
 
-    public override bool CanAddChildResourceType(Type childResourceType)
-    {
-        return false;
-    }
+    public override bool CanAddChildResourceType(Type childResourceType) => false;
 
-    protected override void OnAddChildResource(IResource? childResource)
-    {
-        throw new NotImplementedException();
-    }
+    protected override void OnAddChildResource(IResource? childResource) => throw new NotImplementedException();
 
-    protected override void OnRemoveChildResource(IResource? childResource)
-    {
-        throw new NotImplementedException();
-    }
+    protected override void OnRemoveChildResource(IResource? childResource) => throw new NotImplementedException();
 
     #endregion
 }

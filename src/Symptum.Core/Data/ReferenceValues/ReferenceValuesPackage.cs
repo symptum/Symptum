@@ -1,11 +1,11 @@
 using System.Collections.ObjectModel;
-using Symptum.Core.Extensions;
+using System.Text.Json.Serialization;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Serialization;
 
 namespace Symptum.Core.Data.ReferenceValues;
 
-public class ReferenceValuesPackage : PackageResource
+public class ReferenceValuesPackage : PackageResource<ReferenceValueFamily>
 {
     public ReferenceValuesPackage()
     { }
@@ -17,45 +17,13 @@ public class ReferenceValuesPackage : PackageResource
 
     #region Properties
 
-    private ObservableCollection<ReferenceValueFamily>? families;
-
+    [JsonPropertyName("Families")]
     [ListOfMetadataResource]
-    public ObservableCollection<ReferenceValueFamily>? Families
+    public override ObservableCollection<ReferenceValueFamily>? Contents
     {
-        get => families;
-        set
-        {
-            UnobserveCollection(families);
-            SetProperty(ref families, value);
-            SetChildrenResources(families);
-        }
+        get => base.Contents;
+        set => base.Contents = value;
     }
 
     #endregion
-
-    protected override void OnInitializeResource(IResource? parent)
-    {
-        SetChildrenResources(families);
-    }
-
-    public override bool CanHandleChildResourceType(Type childResourceType)
-    {
-        return childResourceType == typeof(ReferenceValueFamily);
-    }
-
-    public override bool CanAddChildResourceType(Type childResourceType)
-    {
-        return childResourceType == typeof(ReferenceValueFamily);
-    }
-
-    protected override void OnAddChildResource(IResource? childResource)
-    {
-        Families ??= [];
-        Families?.AddItemToListIfNotExists(childResource);
-    }
-
-    protected override void OnRemoveChildResource(IResource? childResource)
-    {
-        Families.RemoveItemFromListIfExists(childResource);
-    }
 }
