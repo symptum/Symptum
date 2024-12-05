@@ -21,12 +21,6 @@
     <PathIconSource x:Key="CodeBlockIconSource" Data="M4.5 2C3.11929 2 2 3.11929 2 4.5V11.5C2 12.8807 3.11929 14 4.5 14H11.5C12.8807 14 14 12.8807 14 11.5V4.5C14 3.11929 12.8807 2 11.5 2H4.5ZM3 4.5C3 3.67157 3.67157 3 4.5 3H11.5C12.3284 3 13 3.67157 13 4.5V11.5C13 12.3284 12.3284 13 11.5 13H4.5C3.67157 13 3 12.3284 3 11.5V4.5ZM9.85355 5.64645C9.65829 5.45118 9.34171 5.45118 9.14645 5.64645C8.95118 5.84171 8.95118 6.15829 9.14645 6.35355L10.7929 8L9.14645 9.64645C8.95118 9.84171 8.95118 10.1583 9.14645 10.3536C9.34171 10.5488 9.65829 10.5488 9.85355 10.3536L11.8536 8.35355C12.0488 8.15829 12.0488 7.84171 11.8536 7.64645L9.85355 5.64645ZM6.85355 6.35364C7.04881 6.15838 7.04882 5.8418 6.85356 5.64654C6.6583 5.45127 6.34172 5.45126 6.14645 5.64652L4.14645 7.64644C4.05268 7.74021 4 7.86738 4 7.99999C4 8.1326 4.05268 8.25978 4.14645 8.35355L6.14645 10.3536C6.34171 10.5488 6.65829 10.5488 6.85355 10.3536C7.04882 10.1583 7.04882 9.84171 6.85355 9.64645L5.20711 8.00001L6.85355 6.35364Z" />
     <PathIconSource x:Key="CodeInlineIconSource" Data="M9.80307 3.04322C10.0554 3.15537 10.1691 3.45085 10.0569 3.70319L6.05691 12.7032C5.94475 12.9555 5.64927 13.0692 5.39693 12.957C5.14459 12.8449 5.03094 12.5494 5.14309 12.2971L9.14309 3.29706C9.25525 3.04471 9.55073 2.93107 9.80307 3.04322ZM4.33218 5.37642C4.53857 5.55988 4.55716 5.87592 4.3737 6.08231L2.66898 8.00012L4.3737 9.91794C4.55716 10.1243 4.53857 10.4404 4.33218 10.6238C4.12579 10.8073 3.80975 10.7887 3.6263 10.5823L1.6263 8.33231C1.4579 8.14286 1.4579 7.85739 1.6263 7.66794L3.6263 5.41794C3.80975 5.21155 4.12579 5.19296 4.33218 5.37642ZM11.6678 5.37642C11.8742 5.19296 12.1902 5.21155 12.3737 5.41794L14.3737 7.66794C14.5421 7.85739 14.5421 8.14286 14.3737 8.33231L12.3737 10.5823C12.1902 10.7887 11.8742 10.8073 11.6678 10.6238C11.4614 10.4404 11.4428 10.1243 11.6263 9.91794L13.331 8.00012L11.6263 6.08231C11.4428 5.87592 11.4614 5.55988 11.6678 5.37642Z" />
     <PathIconSource x:Key="ThematicBreakIconSource" Data="M16 2.5V6.0001C16 6.82807 15.3214 7.5001 14.5 7.5001H5.4881C4.6667 7.5001 4 6.82807 4 6.0001V2.5C4 2.22386 4.22208 2 4.49603 2C4.76998 2 4.99206 2.22386 4.99206 2.5L4.99206 6.0001C4.99206 6.2752 5.21413 6.5001 5.4881 6.5001H14.5C14.774 6.5001 15 6.2752 15 6.0001V2.5C15 2.22386 15.226 2 15.5 2C15.774 2 16 2.22386 16 2.5ZM3 9.5001C2.72386 9.5001 2.5 9.72396 2.5 10.0001C2.5 10.2762 2.72386 10.5001 3 10.5001H4.2C4.47614 10.5001 4.7 10.2762 4.7 10.0001C4.7 9.72396 4.47614 9.5001 4.2 9.5001H3ZM6.2 9.5001C5.92386 9.5001 5.7 9.72396 5.7 10.0001C5.7 10.2762 5.92386 10.5001 6.2 10.5001H7.4C7.67614 10.5001 7.9 10.2762 7.9 10.0001C7.9 9.72396 7.67614 9.5001 7.4 9.5001H6.2ZM8.9 10.0001C8.9 9.72396 9.12386 9.5001 9.4 9.5001H10.6C10.8761 9.5001 11.1 9.72396 11.1 10.0001C11.1 10.2762 10.8761 10.5001 10.6 10.5001H9.4C9.12386 10.5001 8.9 10.2762 8.9 10.0001ZM12.6 9.5001C12.3239 9.5001 12.1 9.72396 12.1 10.0001C12.1 10.2762 12.3239 10.5001 12.6 10.5001H13.8C14.0761 10.5001 14.3 10.2762 14.3 10.0001C14.3 9.72396 14.0761 9.5001 13.8 9.5001H12.6ZM15.3 10.0001C15.3 9.72396 15.5239 9.5001 15.8 9.5001H17C17.2761 9.5001 17.5 9.72396 17.5 10.0001C17.5 10.2762 17.2761 10.5001 17 10.5001H15.8C15.5239 10.5001 15.3 10.2762 15.3 10.0001ZM16 14.0001V17.5002C16 17.7763 15.774 18.0002 15.5 18.0002C15.226 18.0002 15 17.7763 15 17.5002V14.0001C15 13.725 14.774 13.5001 14.5 13.5001H5.4881C5.21413 13.5001 4.99206 13.725 4.99206 14.0001L4.99206 17.5002C4.99206 17.7763 4.76998 18.0002 4.49603 18.0002C4.22208 18.0002 4 17.7763 4 17.5002V14.0001C4 13.1721 4.6667 12.5001 5.4881 12.5001H14.5C15.3214 12.5001 16 13.1721 16 14.0001Z" />
-    <Style BasedOn="{StaticResource DefaultAppBarButtonStyle}"
-           TargetType="AppBarButton">
-      <Setter Property="LabelPosition" Value="Collapsed" />
-      <Setter Property="Width" Value="48" />
-      <Setter Property="Height" Value="48" />
-    </Style>
   </local:EditorPageBase.Resources>
   <Grid>
     <Grid.RowDefinitions>
@@ -35,7 +29,13 @@
       <RowDefinition />
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
-    <controls:Ribbon HorizontalAlignment="Stretch">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition />
+      <ColumnDefinition />
+      <ColumnDefinition Width="Auto" />
+      <ColumnDefinition Width="Auto" />
+    </Grid.ColumnDefinitions>
+    <controls:Ribbon HorizontalAlignment="Stretch" Grid.ColumnSpan="4">
       <controls:RibbonCollapsibleGroup CollapsedAccessKey="RR" Priority="2" Label="Resource"
                                        Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
         <controls:RibbonCollapsibleGroup.IconSource>
@@ -57,62 +57,90 @@
         <controls:RibbonCollapsibleGroup.IconSource>
           <FontIconSource Glyph="&#xE70F;" />
         </controls:RibbonCollapsibleGroup.IconSource>
-        <controls:WrapPanel Width="160" Orientation="Horizontal" HorizontalSpacing="8" VerticalSpacing="8">
-          <AppBarButton x:Name="undoButton" Icon="Undo" AccessKey="ZU" Label="Undo">
+        <Grid ColumnSpacing="8" RowSpacing="8">
+          <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+          </Grid.ColumnDefinitions>
+          <AppBarButton x:Name="undoButton" Icon="Undo" AccessKey="ZU"
+                        Label="Undo" IsEnabled="False" Click="UndoButton_Click">
             <AppBarButton.KeyboardAccelerators>
               <KeyboardAccelerator Modifiers="Control" Key="Z" />
             </AppBarButton.KeyboardAccelerators>
           </AppBarButton>
-          <AppBarButton x:Name="redoButton" Icon="Redo" AccessKey="ZR" Label="Redo">
+          <AppBarButton x:Name="redoButton" Icon="Redo" AccessKey="ZR" Grid.Column="1"
+                        Label="Redo" IsEnabled="False" Click="RedoButton_Click">
             <AppBarButton.KeyboardAccelerators>
               <KeyboardAccelerator Modifiers="Control" Key="Y" />
             </AppBarButton.KeyboardAccelerators>
           </AppBarButton>
-          <AppBarButton x:Name="findButton" Icon="Find" AccessKey="F" Label="Find" Click="FindButton_Click">
+          <AppBarButton x:Name="findButton" Icon="Find" AccessKey="F" Grid.Column="2"
+                        Label="Find" Click="FindButton_Click">
             <AppBarButton.KeyboardAccelerators>
               <KeyboardAccelerator Modifiers="Control" Key="F" />
             </AppBarButton.KeyboardAccelerators>
           </AppBarButton>
-          <AppBarButton x:Name="cutButton" Icon="Cut" AccessKey="X" ToolTipService.ToolTip="Cut" Label="Cut" />
-          <AppBarButton x:Name="copyButton" Icon="Copy" AccessKey="C" ToolTipService.ToolTip="Copy" Label="Copy" />
-          <AppBarButton x:Name="pasteButton" Icon="Paste" AccessKey="V" ToolTipService.ToolTip="Paste" Label="Paste" />
-        </controls:WrapPanel>
+          <AppBarButton x:Name="cutButton" Icon="Cut" AccessKey="X" Grid.Row="1"
+                        ToolTipService.ToolTip="Cut" Label="Cut" />
+          <AppBarButton x:Name="copyButton" Icon="Copy" AccessKey="C" Grid.Row="1" Grid.Column="1"
+                        ToolTipService.ToolTip="Copy" Label="Copy" />
+          <AppBarButton x:Name="pasteButton" Icon="Paste" AccessKey="V" Grid.Row="1" Grid.Column="2"
+                        ToolTipService.ToolTip="Paste" Label="Paste" />
+        </Grid>
       </controls:RibbonCollapsibleGroup>
       <controls:RibbonCollapsibleGroup CollapsedAccessKey="ZF" Priority="0" Label="Text"
                                        Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
         <controls:RibbonCollapsibleGroup.IconSource>
           <FontIconSource Glyph="&#xE97F;" />
         </controls:RibbonCollapsibleGroup.IconSource>
-        <controls:WrapPanel Width="272" Orientation="Horizontal" HorizontalSpacing="8" VerticalSpacing="8">
-          <AppBarButton x:Name="boldButton" Icon="Bold" AccessKey="1" Label="Bold" Click="BoldButton_Click">
+        <Grid ColumnSpacing="8" RowSpacing="8">
+          <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+          </Grid.ColumnDefinitions>
+          <AppBarButton x:Name="boldButton" Icon="Bold" AccessKey="1"
+                        Label="Bold" Click="BoldButton_Click">
             <AppBarButton.KeyboardAccelerators>
               <KeyboardAccelerator Modifiers="Control" Key="B" />
             </AppBarButton.KeyboardAccelerators>
           </AppBarButton>
-          <AppBarButton x:Name="italicButton" Icon="Italic" AccessKey="2" Label="Italic" Click="ItalicButton_Click">
+          <AppBarButton x:Name="italicButton" Icon="Italic" AccessKey="2" Grid.Column="1"
+                        Label="Italic" Click="ItalicButton_Click">
             <AppBarButton.KeyboardAccelerators>
               <KeyboardAccelerator Modifiers="Control" Key="I" />
             </AppBarButton.KeyboardAccelerators>
           </AppBarButton>
-          <AppBarButton x:Name="strikeButton" AccessKey="3" ToolTipService.ToolTip="Strikethrough"
-                        Label="Strikethrough" Click="StrikeButton_Click">
+          <AppBarButton x:Name="strikeButton" AccessKey="3" Grid.Column="2"
+                        ToolTipService.ToolTip="Strikethrough" Label="Strikethrough" Click="StrikeButton_Click">
             <AppBarButton.Icon>
               <FontIcon Glyph="&#xEDE0;" />
             </AppBarButton.Icon>
           </AppBarButton>
-          <AppBarButton x:Name="subscriptButton" AccessKey="4" ToolTipService.ToolTip="Subscript"
-                        Label="Subscript" Click="SubscriptButton_Click">
+          <AppBarButton x:Name="subscriptButton" AccessKey="4" Grid.Column="3"
+                        ToolTipService.ToolTip="Subscript" Label="Subscript" Click="SubscriptButton_Click">
             <AppBarButton.Icon>
               <IconSourceElement Height="16" IconSource="{StaticResource SubscriptIconSource}" />
             </AppBarButton.Icon>
           </AppBarButton>
-          <AppBarButton x:Name="superscriptButton" AccessKey="5" ToolTipService.ToolTip="Superscript"
-                        Label="Superscript" Click="SuperscriptButton_Click">
+          <AppBarButton x:Name="superscriptButton" AccessKey="5" Grid.Column="4"
+                        ToolTipService.ToolTip="Superscript" Label="Superscript" Click="SuperscriptButton_Click">
             <AppBarButton.Icon>
               <IconSourceElement Height="16" IconSource="{StaticResource SuperscriptIconSource}" />
             </AppBarButton.Icon>
           </AppBarButton>
-        </controls:WrapPanel>
+        </Grid>
       </controls:RibbonCollapsibleGroup>
       <controls:RibbonCollapsibleGroup CollapsedAccessKey="ZH" Priority="3" Label="Heading"
                                        IconSource="{StaticResource HeaderIconSource}"
@@ -138,92 +166,110 @@
         <controls:RibbonCollapsibleGroup.IconSource>
           <FontIconSource Glyph="&#xE7BC;" />
         </controls:RibbonCollapsibleGroup.IconSource>
-        <controls:WrapPanel Width="160" Orientation="Horizontal" HorizontalSpacing="8" VerticalSpacing="8">
+        <Grid ColumnSpacing="8" RowSpacing="8">
+          <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+          </Grid.ColumnDefinitions>
           <AppBarButton x:Name="indentIncreaseButton" AccessKey="AI" ToolTipService.ToolTip="Increase Indent"
                         Label="Increase Indent" Click="IndentIncreaseButton_Click">
             <AppBarButton.Icon>
               <IconSourceElement Height="14" IconSource="{StaticResource IndentIncreaseIconSource}" />
             </AppBarButton.Icon>
           </AppBarButton>
-          <AppBarButton x:Name="indentDecreaseButton" AccessKey="AO" Grid.Column="1" ToolTipService.ToolTip="Decrease Indent"
-                        Label="Decrease Indent" Click="IndentDecreaseButton_Click">
+          <AppBarButton x:Name="indentDecreaseButton" AccessKey="AO" Grid.Column="1"
+                        ToolTipService.ToolTip="Decrease Indent" Label="Decrease Indent" Click="IndentDecreaseButton_Click">
             <AppBarButton.Icon>
               <IconSourceElement Height="14" IconSource="{StaticResource IndentDecreaseIconSource}" />
             </AppBarButton.Icon>
           </AppBarButton>
-          <AppBarButton x:Name="quoteButton" AccessKey="Q" Grid.Column="2" ToolTipService.ToolTip="Quote"
-                        Label="Quote" Click="QuoteButton_Click">
+          <AppBarButton x:Name="quoteButton" AccessKey="Q" Grid.Column="2"
+                        ToolTipService.ToolTip="Quote" Label="Quote" Click="QuoteButton_Click">
             <AppBarButton.Icon>
               <IconSourceElement Height="14" IconSource="{StaticResource QuoteIconSource}" />
             </AppBarButton.Icon>
           </AppBarButton>
-          <AppBarButton x:Name="ulButton" AccessKey="U" Icon="Bullets" Grid.Row="1" ToolTipService.ToolTip="Unordered List"
-                        Label="Unordered List" Click="ULButton_Click" />
-          <AppBarButton x:Name="olButton" AccessKey="O" Grid.Row="1" Grid.Column="1" ToolTipService.ToolTip="Ordered List"
-                        Label="Ordered List" Click="OLButton_Click">
+          <AppBarButton x:Name="ulButton" AccessKey="U" Icon="Bullets" Grid.Row="1"
+                        ToolTipService.ToolTip="Unordered List" Label="Unordered List" Click="ULButton_Click" />
+          <AppBarButton x:Name="olButton" AccessKey="O" Grid.Row="1" Grid.Column="1"
+                        ToolTipService.ToolTip="Ordered List" Label="Ordered List" Click="OLButton_Click">
             <AppBarButton.Icon>
               <IconSourceElement Height="16" IconSource="{StaticResource OrderedListIconSource}" />
             </AppBarButton.Icon>
           </AppBarButton>
-          <AppBarButton x:Name="tlButton" AccessKey="TL" Grid.Row="1" Grid.Column="2" ToolTipService.ToolTip="Task List"
-                        Label="Task List" Click="TLButton_Click">
+          <AppBarButton x:Name="tlButton" AccessKey="TL" Grid.Row="1" Grid.Column="2"
+                        ToolTipService.ToolTip="Task List" Label="Task List" Click="TLButton_Click">
             <AppBarButton.Icon>
               <FontIcon Glyph="&#xE9D5;" />
             </AppBarButton.Icon>
           </AppBarButton>
-        </controls:WrapPanel>
+        </Grid>
       </controls:RibbonCollapsibleGroup>
       <controls:RibbonCollapsibleGroup CollapsedAccessKey="ZI" Priority="5" Label="Insert"
                                        Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
         <controls:RibbonCollapsibleGroup.IconSource>
           <SymbolIconSource Symbol="Add" />
         </controls:RibbonCollapsibleGroup.IconSource>
-        <controls:WrapPanel Width="160" Orientation="Horizontal" HorizontalSpacing="8" VerticalSpacing="8">
-          <AppBarButton x:Name="tableButton" AccessKey="TT" ToolTipService.ToolTip="Table" Label="Table">
+        <Grid ColumnSpacing="8" RowSpacing="8">
+          <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+          </Grid.ColumnDefinitions>
+          <AppBarButton x:Name="tableButton" AccessKey="TT"
+                        ToolTipService.ToolTip="Table" Label="Table" Click="TableButton_Click">
             <AppBarButton.Icon>
               <IconSourceElement Height="16" IconSource="{StaticResource TableIconSource}" />
             </AppBarButton.Icon>
           </AppBarButton>
-          <AppBarButton x:Name="linkButton" Icon="Link" AccessKey="L" ToolTipService.ToolTip="Link" Label="Link" />
-          <AppBarButton x:Name="imageButton" Icon="Pictures" AccessKey="I" ToolTipService.ToolTip="Image" Label="Image" />
-          <AppBarButton x:Name="codeBlockButton" AccessKey="CB" ToolTipService.ToolTip="Code Block"
-                        Label="Code Block" Click="CodeBlockButton_Click">
+          <AppBarButton x:Name="linkButton" Icon="Link" AccessKey="L" Grid.Column="1"
+                        ToolTipService.ToolTip="Link" Label="Link" />
+          <AppBarButton x:Name="imageButton" Icon="Pictures" AccessKey="I" Grid.Column="2"
+                        ToolTipService.ToolTip="Image" Label="Image" />
+          <AppBarButton x:Name="codeBlockButton" AccessKey="CB" Grid.Row="1"
+                        ToolTipService.ToolTip="Code Block" Label="Code Block" Click="CodeBlockButton_Click">
             <AppBarButton.Icon>
               <IconSourceElement Height="16" IconSource="{StaticResource CodeBlockIconSource}" />
             </AppBarButton.Icon>
           </AppBarButton>
-          <AppBarButton x:Name="codeInlineButton" AccessKey="CI" ToolTipService.ToolTip="Code Inline"
-                        Label="Code Inline" Click="CodeInlineButton_Click">
+          <AppBarButton x:Name="codeInlineButton" AccessKey="CI" Grid.Row="1" Grid.Column="1"
+                        ToolTipService.ToolTip="Code Inline" Label="Code Inline" Click="CodeInlineButton_Click">
             <AppBarButton.Icon>
               <IconSourceElement Height="16" IconSource="{StaticResource CodeInlineIconSource}" />
             </AppBarButton.Icon>
           </AppBarButton>
-          <AppBarButton x:Name="thBreakButton" AccessKey="TB" ToolTipService.ToolTip="Thematic Break"
-                        Label="Thematic Break" Click="ThBreakButton_Click">
+          <AppBarButton x:Name="thBreakButton" AccessKey="TB" Grid.Row="1" Grid.Column="2"
+                        ToolTipService.ToolTip="Thematic Break" Label="Thematic Break" Click="ThBreakButton_Click">
             <AppBarButton.Icon>
               <IconSourceElement IconSource="{StaticResource ThematicBreakIconSource}" />
             </AppBarButton.Icon>
           </AppBarButton>
-        </controls:WrapPanel>
+        </Grid>
       </controls:RibbonCollapsibleGroup>
     </controls:Ribbon>
-    <secontrols:FindControl x:Name="findControl" Grid.Row="1" Visibility="Collapsed"
+
+    <secontrols:FindControl x:Name="findControl" Grid.Row="1" Grid.ColumnSpan="4" Visibility="Collapsed"
                             QueryCleared="FindControl_QueryCleared" QuerySubmitted="FindControl_QuerySubmitted"
                             FindNextEnabled="True" FindPreviousEnabled="True" FindAllEnabled="False" />
     <TextBox x:Name="mdText" AcceptsReturn="True" TextWrapping="Wrap"
-             Height="Auto" HorizontalAlignment="Stretch" Grid.Row="2"
+             Height="Auto" HorizontalAlignment="Stretch" Grid.Row="2" Grid.ColumnSpan="4"
              SelectionHighlightColorWhenNotFocused="{ThemeResource AccentFillColorSelectedTextBackgroundBrush}"
              ScrollViewer.VerticalScrollBarVisibility="Auto" CornerRadius="0" BorderThickness="0"
              FontFamily="{StaticResource DefaultCodeFontFamily}" />
-    <StackPanel x:Name="statusBar" Grid.Row="3" Orientation="Horizontal" Spacing="16" Margin="8">
-      <TextBlock x:Name="caretTB" Style="{ThemeResource CaptionTextBlockStyle}" />
-      <TextBlock x:Name="countTB" Style="{ThemeResource CaptionTextBlockStyle}" />
-    </StackPanel>
-    <!--<controls:ContentSizer Grid.Row="2" Grid.Column="1" FlowDirection="RightToLeft" TargetControl="{x:Bind mdTB}" />-->
-    <!--<controls:HeaderedTreeView x:Name="docOutlineTV"
-      Grid.Row="1" Grid.Column="2" Width="200"
-      ItemsSource="{x:Bind mdTB.DocumentOutline.Nodes}"
-      ItemInvoked="TreeView_ItemInvoked">
+
+    <md:MarkdownTextBlock x:Name="mdTB" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="1" MinWidth="300" Visibility="Collapsed" />
+    <controls:ContentSizer x:Name="sizer" Grid.Row="2" Grid.Column="2" FlowDirection="RightToLeft" Visibility="Collapsed" TargetControl="{x:Bind docOutlineTV}" />
+    <controls:HeaderedTreeView x:Name="docOutlineTV" Grid.Row="2" Grid.Column="3" Width="75" Visibility="Collapsed"
+                               ItemsSource="{x:Bind mdTB.DocumentOutline.Nodes}" ItemInvoked="TreeView_ItemInvoked">
       <controls:HeaderedTreeView.Header>
         <TextBlock Margin="12,4" FontWeight="SemiBold" Text="Document Outline" />
       </controls:HeaderedTreeView.Header>
@@ -232,7 +278,32 @@
           <TreeViewItem Content="{x:Bind }" ToolTipService.ToolTip="{x:Bind }" ItemsSource="{x:Bind Children}" IsExpanded="True" />
         </DataTemplate>
       </controls:HeaderedTreeView.ItemTemplate>
-    </controls:HeaderedTreeView>-->
-    <!--<md:MarkdownTextBlock x:Name="mdTB" Grid.Row="2" Grid.Column="3" Text="{x:Bind mdText.Text, Mode=OneWay}" />-->
+    </controls:HeaderedTreeView>
+    
+    <Grid Grid.Row="3" Grid.ColumnSpan="4" Margin="12,0,4,0" ColumnSpacing="8">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <TextBlock x:Name="caretTB" Style="{ThemeResource StatusBarTextBlockStyle}" />
+      <AppBarSeparator Grid.Column="1"/>
+      <TextBlock x:Name="countTB" Grid.Column="2" Style="{ThemeResource StatusBarTextBlockStyle}" />
+      <AppBarSeparator Grid.Column="3"/>
+      <ToggleButton x:Name="previewButton" Grid.Column="4" CornerRadius="0,0,4,4" Margin="0,0,0,4" IsChecked="False"
+                    Checked="PreviewButton_Checked" Unchecked="PreviewButton_Unchecked" ToolTipService.ToolTip="Preview Markdown">
+        <FontIcon Glyph="&#xE8FF;" FontSize="14" />
+        <ToggleButton.KeyboardAccelerators>
+          <KeyboardAccelerator Modifiers="Control" Key="P" />
+        </ToggleButton.KeyboardAccelerators>
+      </ToggleButton>
+      <ToggleButton x:Name="outlineButton" Grid.Column="5" CornerRadius="0,0,4,4" Margin="0,0,0,4" IsChecked="False" IsEnabled="False"
+                    Checked="OutlineButton_Checked" Unchecked="OutlineButton_Unchecked" ToolTipService.ToolTip="Document Outline">
+        <FontIcon Glyph="&#xE8A4;" FontSize="14" />
+      </ToggleButton>
+    </Grid>
   </Grid>
 </local:EditorPageBase>

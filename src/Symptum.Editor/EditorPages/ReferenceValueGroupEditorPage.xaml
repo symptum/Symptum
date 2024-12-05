@@ -96,8 +96,8 @@
       </controls:DataGrid.Columns>
     </controls:DataGrid>
     <StackPanel x:Name="statusBar" Grid.Row="3" Orientation="Horizontal" Spacing="16" Margin="8">
-      <TextBlock x:Name="countTextBlock" Style="{ThemeResource CaptionTextBlockStyle}" />
-      <TextBlock x:Name="findTextBlock" Style="{ThemeResource CaptionTextBlockStyle}" />
+      <TextBlock x:Name="countTextBlock" Style="{ThemeResource StatusBarTextBlockStyle}" />
+      <TextBlock x:Name="findTextBlock" Style="{ThemeResource StatusBarTextBlockStyle}" />
     </StackPanel>
   </Grid>
 </local:EditorPageBase>

@@ -17,6 +17,8 @@ namespace Symptum.Editor;
 
 public sealed partial class MainPage : Page
 {
+    private bool _collapsed = false;
+    private bool _showResourcesPane = true;
     private readonly AddNewItemDialog addNewItemDialog = new();
     private readonly QuestionBankContextConfigureDialog contextConfigureDialog = new();
 
@@ -67,7 +69,7 @@ public sealed partial class MainPage : Page
             }
         };
 
-        expandPaneButton.Click += (s, e) =>
+        expandResourcesPaneButton.Click += (s, e) =>
         {
             splitView.IsPaneOpen = true;
         };
@@ -75,6 +77,23 @@ public sealed partial class MainPage : Page
         EditorPagesManager.CurrentEditorChanged += (s, e) => editorsTabView.SelectedItem = e;
 
         EditorPagesManager.EditorPages.Add(new MarkdownEditorPage());
+
+        SizeChanged += MainPage_SizeChanged;
+    }
+
+    private void MainPage_SizeChanged(object sender, SizeChangedEventArgs args)
+    {
+        bool collapsed = args.NewSize.Width switch
+        {
+            >= 1007 => false,
+            _ => true
+        };
+
+        if (collapsed != _collapsed)
+        {
+            _collapsed = collapsed;
+            VisualStateManager.GoToState(this, collapsed || !_showResourcesPane ? "MinimalState" : "DefaultState", true);
+        }
     }
 
     private async void Markdown_Click(object sender, RoutedEventArgs e)
@@ -302,6 +321,14 @@ public sealed partial class MainPage : Page
             _ => TreeViewSelectionMode.None
         };
         UpdateDeleteButtonEnabled();
+    }
+
+    private void ShowResourcesPaneButton_Click(object sender, RoutedEventArgs e)
+    {
+        _showResourcesPane = !_showResourcesPane;
+        ToolTipService.SetToolTip(showResourcesPaneButton, _showResourcesPane ? "Unpin" : "Pin");
+        resourcesPaneButtonSymbolIcon.Symbol = _showResourcesPane ? Symbol.UnPin : Symbol.Pin;
+        VisualStateManager.GoToState(this, _showResourcesPane && !_collapsed ? "DefaultState" : "MinimalState", true);
     }
 
     private void UpdateDeleteButtonEnabled()

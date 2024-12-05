@@ -28,9 +28,6 @@ public sealed partial class QuestionEditorDialog : ContentDialog
 
         context ??= QuestionBankContextHelper.CurrentContext;
 
-        qtCB.ItemsSource = Enum.GetValues(typeof(QuestionType));
-        scCB.ItemsSource = Enum.GetValues(typeof(SubjectList));
-
         HandleListEditors();
 
         paCB.Checked += (s, e) =>

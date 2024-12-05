@@ -1,10 +1,12 @@
 using System.Text;
+using Microsoft.UI.Xaml.Data;
 using Symptum.Common.Helpers;
 using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
 using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
 using Symptum.UI.Markdown;
+using Windows.System;
 
 namespace Symptum.Editor.EditorPages;
 
@@ -12,25 +14,45 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 {
     private MarkdownFileResource? _markdownResource;
     private ResourcePropertiesEditorDialog propertyEditorDialog = new();
+    private MarkdownEditorInsertTableDialog insertTableDialog = new();
     private const string m_CurrentDocument = "Current Document";
     private const string m_Selection = "Selection";
+    private const string m_Indentation = "    "; // NOTE: Should this support switching between Tabs ("\t") vs 4 Spaces ("    ")?
+    private readonly char newLine = Environment.NewLine[0];
 
     public MarkdownEditorPage()
     {
         InitializeComponent();
-        mdText.Text = string.Join("\r\n", quotesMD, tabledMd); // Temp
         IconSource = DefaultIconSources.DocumentIconSource;
-        mdText.TextChanged += (s, e) =>
-        {
-            _mdDirtyForSearch = true;
-            HasUnsavedChanges = true;
-            UpdateStatusBar(onlyCount: true);
-        };
+        mdText.TextChanged += MdText_TextChanged;
         mdText.SelectionChanged += (s, e) => UpdateStatusBar(onlyCaret: true, onlyCount: true);
-        mdText.KeyDown += MdText_KeyDown;
-        mdText.KeyUp += MdText_KeyUp;
 
+#if !HAS_UNO
+        mdText.PreviewKeyDown += MdText_KeyDown;
+        PreviewKeyDown += Page_PreviewKeyDown;
+        PreviewKeyUp += Page_PreviewKeyUp;
+#else
+        mdText.KeyDown += MdText_KeyDown;
+        KeyDown += Page_KeyDown;
+        KeyUp += Page_KeyUp;
+#endif
+        mdText.Paste += MdText_Paste;
+        UpdateStatusBar(true, true);
         SetupFindControl();
+    }
+
+    private void MdText_Paste(object sender, TextControlPasteEventArgs e)
+    {
+        _textChangedReason = TextChangedReason.Paste;
+        StoreCurrentTextState();
+    }
+
+    private void MdText_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        ProcessPaste();
+        _mdDirtyForSearch = true;
+        HasUnsavedChanges = true;
+        UpdateStatusBar(onlyCount: true);
     }
 
     private void UpdateStatusBar(bool onlyCaret = false, bool onlyCount = false)
@@ -48,28 +70,103 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         }
     }
 
-    #region Ctrl + I hack
-
-    private void MdText_KeyUp(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
-    {
-        if (e.Key == Windows.System.VirtualKey.Control) ctrlPressed = false;
-        else if (e.Key == Windows.System.VirtualKey.Shift) shiftPressed = false;
-    }
+    #region Key Input Handling
 
     private bool ctrlPressed = false;
     private bool shiftPressed = false;
 
+    private static bool ValidChar(VirtualKey key, VirtualKeyModifiers modifiers) => (key, modifiers) switch
+    {
+        (VirtualKey.Back or VirtualKey.Delete or VirtualKey.Enter, _) or
+        (VirtualKey.Space, _) or
+        ( >= VirtualKey.Number0 and <= VirtualKey.Number9, VirtualKeyModifiers.None or VirtualKeyModifiers.Shift) or
+        ( >= VirtualKey.A and <= VirtualKey.Z, VirtualKeyModifiers.None or VirtualKeyModifiers.Shift) => true,
+        _ => false,
+    };
+
+    private bool IsKeyIgnorable(VirtualKey key) => key is VirtualKey.Shift or VirtualKey.Control or VirtualKey.Tab or
+        VirtualKey.Menu or VirtualKey.LeftMenu or VirtualKey.RightMenu or VirtualKey.LeftWindows or VirtualKey.RightWindows or
+        VirtualKey.LeftShift or VirtualKey.RightShift or VirtualKey.LeftControl or VirtualKey.RightControl or
+        VirtualKey.CapitalLock or VirtualKey.NumberKeyLock or VirtualKey.Escape or VirtualKey.Insert;
+
+    private bool DoesKeyBreakTyping(VirtualKey key) => key is VirtualKey.Back or VirtualKey.Delete or VirtualKey.Enter;
+
     private void MdText_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
     {
-        if (e.Key == Windows.System.VirtualKey.Control) ctrlPressed = true;
-        else if (e.Key == Windows.System.VirtualKey.Shift) shiftPressed = true;
+        if (IsKeyIgnorable(e.Key)) return;
 
-        if (e.Key == Windows.System.VirtualKey.I && ctrlPressed && !shiftPressed)
+        VirtualKeyModifiers modifiers = (ctrlPressed ? VirtualKeyModifiers.Control : VirtualKeyModifiers.None) |
+            (shiftPressed ? VirtualKeyModifiers.Shift : VirtualKeyModifiers.None);
+
+        bool broken = DoesKeyBreakTyping(e.Key);
+        bool invalid = !ValidChar(e.Key, modifiers);
+        if (broken || invalid)
+        {
+            SetTextChanged();
+            if (invalid) return;
+        }
+
+        SetTextChanging(
+#if HAS_UNO
+                true
+#endif
+                );
+    }
+
+#if !HAS_UNO
+
+    private void Page_PreviewKeyUp(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+    {
+        if (e.Key == VirtualKey.Control) ctrlPressed = false;
+        else if (e.Key == VirtualKey.Shift) shiftPressed = false;
+    }
+
+    private void Page_PreviewKeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+    {
+        if (e.Key == VirtualKey.Control) ctrlPressed = true;
+        else if (e.Key == VirtualKey.Shift) shiftPressed = true;
+        else if (e.Key == VirtualKey.I && ctrlPressed && !shiftPressed)
         {
             e.Handled = true;
-            ToggleWrap('*');
+            ToggleItalic();
+        }
+        else if (e.Key == VirtualKey.Z && ctrlPressed)
+        {
+            Undo();
+            e.Handled = true;
+        }
+        else if (e.Key == VirtualKey.Y && ctrlPressed)
+        {
+            Redo();
+            e.Handled = true;
+        }
+        else if (e.Key == VirtualKey.Tab && ctrlPressed && !shiftPressed)
+        {
+            e.Handled = true;
+            IncreaseIndent();
+        }
+        else if (e.Key == VirtualKey.Tab && ctrlPressed && shiftPressed)
+        {
+            e.Handled = true;
+            DecreaseIndent();
         }
     }
+
+#else
+
+    private void Page_KeyUp(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+    {
+        if (e.Key == VirtualKey.Control) ctrlPressed = false;
+        else if (e.Key == VirtualKey.Shift) shiftPressed = false;
+    }
+
+    private void Page_KeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
+    {
+        if (e.Key == VirtualKey.Control) ctrlPressed = true;
+        else if (e.Key == VirtualKey.Shift) shiftPressed = true;
+    }
+
+#endif
 
     #endregion
 
@@ -184,6 +281,42 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
             if (result == EditorResult.Update)
                 HasUnsavedChanges = true;
         }
+    }
+
+    private void PreviewButton_Checked(object sender, RoutedEventArgs e)
+    {
+        mdText.SetValue(Grid.ColumnSpanProperty, 1);
+        mdTB.Visibility = Visibility.Visible;
+        mdTB.SetBinding(MarkdownTextBlock.TextProperty,
+            new Binding() { Path = new(nameof(TextBox.Text)), Source = mdText, Mode = BindingMode.OneWay });
+
+        outlineButton.IsEnabled = true;
+        if (viewDocOutline)
+            docOutlineTV.Visibility = sizer.Visibility = Visibility.Visible;
+    }
+
+    private void PreviewButton_Unchecked(object sender, RoutedEventArgs e)
+    {
+        mdText.SetValue(Grid.ColumnSpanProperty, 4);
+        mdTB.Visibility = Visibility.Collapsed;
+        mdTB.ClearValue(MarkdownTextBlock.TextProperty);
+
+        outlineButton.IsEnabled = false;
+        docOutlineTV.Visibility = sizer.Visibility = Visibility.Collapsed;
+    }
+
+    private bool viewDocOutline = false;
+
+    private void OutlineButton_Checked(object sender, RoutedEventArgs e)
+    {
+        viewDocOutline = true;
+        docOutlineTV.Visibility = sizer.Visibility = Visibility.Visible;
+    }
+
+    private void OutlineButton_Unchecked(object sender, RoutedEventArgs e)
+    {
+        viewDocOutline = false;
+        docOutlineTV.Visibility = sizer.Visibility = Visibility.Collapsed;
     }
 
     #region Find
@@ -349,8 +482,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         if (currentPos < span.Length)
             result.Append(span[currentPos..]);
 
-        mdText.Text = result.ToString();
-        mdText.Select(start, len + addedLen);
+        CommitTextFormatting(result.ToString(), start, len + addedLen);
     }
 
     private void InsertInFrontOfLines(string decor) => ToggleLineStarts(decor, true);
@@ -382,10 +514,11 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         StringBuilder result = new();
         if (onlyInsert || !after.StartsWith(decorSpan))
         {
+            result.Append(before);
             if (shouldInsert)
             {
                 // Inserting the decor in front of the line.
-                result.Append(before).Append(decorSpan);
+                result.Append(decorSpan);
                 start += decor.Length;
             }
             result.Append(after);
@@ -397,8 +530,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
             start -= decor.Length;
         }
 
-        mdText.Text = result.ToString();
-        mdText.Select(start, 0);
+        CommitTextFormatting(result.ToString(), start, 0);
     }
 
     private void InsertInFrontOfLine(string decor) => ToggleLineStart(decor, true);
@@ -448,8 +580,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
             start -= decorLen;
         }
 
-        mdText.Text = result.ToString();
-        mdText.Select(start, len);
+        CommitTextFormatting(result.ToString(), start, len);
     }
 
     private void WrapWith(char decor, int count = 1) => WrapWith(new(decor, count));
@@ -462,9 +593,15 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     #endregion
 
+    private void ToggleItalic() => ToggleWrap('*');
+
+    private void IncreaseIndent() => InsertInFrontOfLines(m_Indentation);
+
+    private void DecreaseIndent() => RemoveFromFrontOfLines(m_Indentation);
+
     private void BoldButton_Click(object sender, RoutedEventArgs e) => ToggleWrap('*', 2);
 
-    private void ItalicButton_Click(object sender, RoutedEventArgs e) => ToggleWrap('*');
+    private void ItalicButton_Click(object sender, RoutedEventArgs e) => ToggleItalic();
 
     private void StrikeButton_Click(object sender, RoutedEventArgs e) => ToggleWrap('~', 2);
 
@@ -472,9 +609,9 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     private void SuperscriptButton_Click(object sender, RoutedEventArgs e) => ToggleWrap('^');
 
-    private void IndentIncreaseButton_Click(object sender, RoutedEventArgs e) => InsertInFrontOfLines("    ");
+    private void IndentIncreaseButton_Click(object sender, RoutedEventArgs e) => IncreaseIndent();
 
-    private void IndentDecreaseButton_Click(object sender, RoutedEventArgs e) => RemoveFromFrontOfLines("    ");
+    private void IndentDecreaseButton_Click(object sender, RoutedEventArgs e) => DecreaseIndent();
 
     private void QuoteButton_Click(object sender, RoutedEventArgs e) => InsertInFrontOfLines("> ");
 
@@ -484,11 +621,171 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     private void TLButton_Click(object sender, RoutedEventArgs e) => ToggleLineStarts("- [x] ");
 
-    private void CodeBlockButton_Click(object sender, RoutedEventArgs e) => ToggleWrap("```\r");
+    private void CodeBlockButton_Click(object sender, RoutedEventArgs e) => ToggleWrap(newLine + "```" + newLine);
 
     private void CodeInlineButton_Click(object sender, RoutedEventArgs e) => ToggleWrap('`');
 
-    private void ThBreakButton_Click(object sender, RoutedEventArgs e) => InsertInFrontOfLine("---\r");
+    private void ThBreakButton_Click(object sender, RoutedEventArgs e) => InsertInFrontOfLine(newLine + "---" + newLine);
+
+    private async void TableButton_Click(object sender, RoutedEventArgs e)
+    {
+
+        insertTableDialog.XamlRoot = XamlRoot;
+        var result = await insertTableDialog.CreateAsync();
+        if (result == EditorResult.Create)
+        {
+            HasUnsavedChanges = true;
+            mdText.Text = insertTableDialog.Markdown;
+        }
+    }
+
+    #endregion
+
+    #region Undo & Redo
+
+    private void UndoButton_Click(object sender, RoutedEventArgs e) => Undo();
+
+    private void RedoButton_Click(object sender, RoutedEventArgs e) => Redo();
+
+    private Stack<TextHistory> undoStack = [];
+    private Stack<TextHistory> redoStack = [];
+
+    private string _prevText = string.Empty;
+    private int _prevSelectionStart;
+    private int _prevSelectionLength;
+    private TextChangedReason _textChangedReason;
+
+    private void ProcessPaste()
+    {
+        if (_textChangedReason == TextChangedReason.Paste)
+            CommitHistory();
+    }
+
+    private void CommitTextFormatting(string text, int start, int length)
+    {
+        _prevSelectionStart = mdText.SelectionStart;
+        _prevSelectionLength = mdText.SelectionLength;
+
+        SetTextChanged();
+
+        _textChangedReason = TextChangedReason.FormattingApplied;
+        StoreCurrentTextState();
+        mdText.Text = text;
+        mdText.Select(start, length);
+        CommitHistory();
+    }
+
+    private void SetTextChanging(bool isUno = false)
+    {
+        if (_textChangedReason == TextChangedReason.TextTyping) return;
+
+        _textChangedReason = TextChangedReason.TextTyping;
+
+        if (!isUno)
+            StoreCurrentTextState();
+
+        undoButton.IsEnabled = true;
+        redoStack.Clear();
+        redoButton.IsEnabled = false;
+    }
+
+    private void SetTextChanged(TextChangedReason reason = TextChangedReason.TextTyped)
+    {
+        if (_textChangedReason != TextChangedReason.TextTyping) return;
+
+        _textChangedReason = reason;
+
+        CommitHistory();
+    }
+
+    private void StoreCurrentTextState()
+    {
+        _prevText = mdText.Text;
+        _prevSelectionStart = mdText.SelectionStart;
+        _prevSelectionLength = mdText.SelectionLength;
+    }
+
+    private void CommitHistory()
+    {
+        redoStack.Clear();
+        undoStack.Push(new(_prevText, _prevSelectionStart, _prevSelectionLength, mdText.Text, mdText.SelectionStart, mdText.SelectionLength));
+        StoreCurrentTextState();
+
+        UpdateCanUndoRedo();
+    }
+
+    private void UpdateCanUndoRedo()
+    {
+        undoButton.IsEnabled = undoStack.Count > 0;
+        redoButton.IsEnabled = redoStack.Count > 0;
+    }
+
+    private void Undo()
+    {
+        SetTextChanged();
+
+        if (undoStack.Count == 0) return;
+
+        var currentHistory = undoStack.Pop();
+
+        _textChangedReason = TextChangedReason.HistoryApplied;
+
+#if !HAS_UNO
+        mdText.Text = currentHistory.OldText;
+        mdText.Select(currentHistory.OldSelectionStart, currentHistory.OldSelectionLength);
+#else
+        try
+        {
+            mdText.Text = currentHistory.OldText;
+            mdText.Select(currentHistory.OldSelectionStart, currentHistory.OldSelectionLength);
+        }
+        catch { }
+#endif
+
+        redoStack.Push(currentHistory);
+
+        if (undoStack.Count == 0)
+            StoreCurrentTextState();
+
+        UpdateCanUndoRedo();
+    }
+
+    private void Redo()
+    {
+        if (redoStack.Count == 0) return;
+
+        var currentHistory = redoStack.Pop();
+
+        _textChangedReason = TextChangedReason.HistoryApplied;
+
+#if !HAS_UNO
+        mdText.Text = currentHistory.NewText;
+        mdText.Select(currentHistory.NewSelectionStart, currentHistory.NewSelectionLength);
+#else
+        try
+        {
+            mdText.Text = currentHistory.NewText;
+            mdText.Select(currentHistory.NewSelectionStart, currentHistory.NewSelectionLength);
+        }
+        catch { }
+#endif
+
+        undoStack.Push(currentHistory);
+
+        UpdateCanUndoRedo();
+    }
+
+    private enum TextChangedReason
+    {
+        None,
+        TextTyping,
+        TextTyped,
+        HistoryApplied,
+        FormattingApplied,
+        Paste
+    }
+
+    private record struct TextHistory(string OldText, int OldSelectionStart, int OldSelectionLength, string NewText, int NewSelectionStart, int NewSelectionLength);
 
     #endregion
 }
