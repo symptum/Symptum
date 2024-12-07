@@ -14,10 +14,7 @@ public class EmphasisInlineElement : IAddChild
     private bool _isItalic;
     private bool _isStrikeThrough;
 
-    public STextElement TextElement
-    {
-        get => inline;
-    }
+    public STextElement TextElement => inline;
 
     public EmphasisInlineElement(EmphasisInline emphasisInline)
     {

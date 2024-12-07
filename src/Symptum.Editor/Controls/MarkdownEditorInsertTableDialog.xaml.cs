@@ -1,7 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Markdig.Extensions.Tables;
 
 namespace Symptum.Editor.Controls;
 
@@ -16,8 +15,15 @@ public sealed partial class MarkdownEditorInsertTableDialog : ContentDialog
     public MarkdownEditorInsertTableDialog()
     {
         InitializeComponent();
+        Opened += MarkdownEditorInsertTableDialog_Opened;
         PrimaryButtonClick += MarkdownEditorInsertTableDialog_PrimaryButtonClick;
         SecondaryButtonClick += MarkdownEditorInsertTableDialog_SecondaryButtonClick;
+    }
+
+    private void MarkdownEditorInsertTableDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
+    {
+        ModifyColumns(1);
+        ModifyRows(1);
     }
 
     private void MarkdownEditorInsertTableDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -43,9 +49,6 @@ public sealed partial class MarkdownEditorInsertTableDialog : ContentDialog
         columnsNB.Value = 1;
         rowsNB.Value = 1;
         _reset = false;
-
-        ModifyColumns(1);
-        ModifyRows(1);
     }
 
     public async Task<EditorResult> CreateAsync()
@@ -70,10 +73,10 @@ public sealed partial class MarkdownEditorInsertTableDialog : ContentDialog
     {
         int rows = (int)rowsNB.Value;
         int columns = (int)columnsNB.Value;
-        StringBuilder stringBuilder = new();
+        StringBuilder result = new();
         for (int r = 0; r < rows + 2; r++)
         {
-            stringBuilder.Append('|');
+            result.Append('|');
             for (int c = 0; c < columns; c++)
             {
                 var column = Columns[c];
@@ -81,34 +84,34 @@ public sealed partial class MarkdownEditorInsertTableDialog : ContentDialog
                 bool isDivider = r == 1;
                 if (isHeader)
                 {
-                    stringBuilder.Append(' ');
+                    result.Append(' ');
                     string? columnHeader = column.Header;
-                    stringBuilder.Append(columnHeader);
-                    stringBuilder.Append(' ');
+                    result.Append(columnHeader);
+                    result.Append(' ');
                 }
                 else if (isDivider)
                 {
                     string divider = column.Alignment switch
                     {
-                        TableColumnAlign.Center => " :-: ",
-                        TableColumnAlign.Right => " --: ",
+                        1 => " :-: ",
+                        2 => " --: ",
                         _ => " --- ",
                     };
-                    stringBuilder.Append(divider);
+                    result.Append(divider);
                 }
                 else
                 {
-                    stringBuilder.Append(' ');
+                    result.Append(' ');
                     string? cellContent = Columns[c].Cells[r - 2].Content;
-                    stringBuilder.Append(cellContent);
-                    stringBuilder.Append(' ');
+                    result.Append(cellContent);
+                    result.Append(' ');
                 }
-                stringBuilder.Append('|');
+                result.Append('|');
             }
-            stringBuilder.AppendLine();
+            if (r < rows + 1) result.AppendLine();
         }
 
-        Markdown = stringBuilder.ToString();
+        Markdown = result.ToString();
     }
 
     private void ModifyColumns(int newCount)
@@ -180,7 +183,7 @@ public partial class MarkdownEditorTableColumn : ObservableObject
     [ObservableProperty]
     public partial string Header { get; set; }
 
-    public TableColumnAlign Alignment { get; set; }
+    public int Alignment { get; set; } = 0;
 
     public ObservableCollection<MarkdownEditorTableCell> Cells { get; private set; } = [];
 }

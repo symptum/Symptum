@@ -1,3 +1,4 @@
+using HtmlAgilityPack;
 using Markdig.Renderers.Html;
 using Markdig.Syntax;
 
@@ -5,22 +6,40 @@ namespace Symptum.UI.Markdown.TextElements;
 
 public class HeadingElement : IAddChild
 {
-    private SParagraph _paragraph;
+    private SParagraph _paragraph = new();
     private HeadingBlock? _headingBlock;
-    private MarkdownConfiguration _config;
+    private HtmlNode? _htmlNode;
+    private MarkdownConfiguration? _config;
 
-    public STextElement TextElement
-    {
-        get => _paragraph;
-    }
+    public STextElement TextElement => _paragraph;
 
     public HeadingElement(HeadingBlock headingBlock, MarkdownConfiguration config, DocumentOutline outline)
     {
         _headingBlock = headingBlock;
-        _paragraph = new();
-        _config = config;
+        LoadHeadingElement(config, outline, headingBlock.Level,
+            headingBlock.GetAttributes().Id, headingBlock.Inline?.FirstChild?.ToString());
+    }
 
-        int level = headingBlock.Level;
+    public HeadingElement(HtmlNode htmlNode, MarkdownConfiguration config, DocumentOutline outline)
+    {
+        _htmlNode = htmlNode;
+        var align = _htmlNode.GetAttribute("align", "left");
+        _paragraph.TextAlignment = align switch
+        {
+            "left" => TextAlignment.Left,
+            "right" => TextAlignment.Right,
+            "center" => TextAlignment.Center,
+            "justify" => TextAlignment.Justify,
+            _ => TextAlignment.Left,
+        };
+
+        if (int.TryParse(htmlNode.Name.AsSpan(1), out int level))
+            LoadHeadingElement(config, outline, level, htmlNode.Id, htmlNode.InnerText);
+    }
+
+    private void LoadHeadingElement(MarkdownConfiguration config, DocumentOutline outline, int level, string? id, string? title)
+    {
+        _config = config;
         _paragraph.TextBlockStyle = level switch
         {
             1 => _config.Themes.H1TextBlockStyle,
@@ -33,7 +52,7 @@ public class HeadingElement : IAddChild
 
         DocumentNode node = new()
         {
-            Id = headingBlock.GetAttributes().Id,
+            Id = id,
             Level = level switch
             {
                 1 => DocumentLevel.Heading1,
@@ -44,7 +63,7 @@ public class HeadingElement : IAddChild
                 _ => DocumentLevel.Heading6,
             },
             Navigate = OnNavigate,
-            Title = headingBlock.Inline?.FirstChild?.ToString()
+            Title = title
         };
 
         outline.PushNode(node);

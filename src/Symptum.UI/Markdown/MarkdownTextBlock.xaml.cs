@@ -1,4 +1,5 @@
 using Markdig;
+using Markdig.Syntax;
 using Symptum.Markdown.Reference;
 using Symptum.UI.Markdown.Renderers;
 using Symptum.UI.Markdown.TextElements;
@@ -58,8 +59,24 @@ public partial class MarkdownTextBlock : Control
     {
         if (d is MarkdownTextBlock self && e.NewValue is string text)
         {
-            self.ApplyText(text, true);
+            self.ApplyText(true);
         }
+    }
+
+    #endregion
+
+    #region MarkdownDocument
+
+    public static readonly DependencyProperty MarkdownDocumentProperty = DependencyProperty.Register(
+        nameof(MarkdownDocument),
+        typeof(MarkdownDocument),
+        typeof(MarkdownTextBlock),
+        new PropertyMetadata(null));
+
+    public MarkdownDocument? MarkdownDocument
+    {
+        get => (MarkdownDocument)GetValue(MarkdownDocumentProperty);
+        private set => SetValue(MarkdownDocumentProperty, value);
     }
 
     #endregion
@@ -103,17 +120,30 @@ public partial class MarkdownTextBlock : Control
         }
     }
 
-    private void ApplyText(string text, bool rerender)
+    private void ApplyText(bool rerender)
     {
-        Markdig.Syntax.MarkdownDocument markdown = Markdig.Markdown.Parse(text ?? string.Empty, _pipeline);
         if (_renderer != null)
         {
             if (rerender)
             {
                 _renderer.ReloadDocument();
             }
-            _renderer.Render(markdown);
+
+            MarkdownDocument? markdown = null;
+            try
+            {
+                if (!string.IsNullOrEmpty(Text))
+                    markdown = Markdig.Markdown.Parse(Text, _pipeline);
+            }
+            catch { }
+
+            if (markdown != null)
+            {
+                MarkdownDocument = markdown;
+                _renderer.Render(markdown);
+            }
         }
+        else _document.StackPanel.Children.Clear();
     }
 
     private void Build()
@@ -125,7 +155,7 @@ public partial class MarkdownTextBlock : Control
                 _renderer = new WinUIRenderer(_document, Configuration, DocumentOutline);
             }
             _pipeline.Setup(_renderer);
-            ApplyText(Text, false);
+            ApplyText(false);
         }
     }
 }

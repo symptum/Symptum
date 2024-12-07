@@ -96,7 +96,8 @@ public class SParagraph : SBlock
         TextBlock _textBlock = new()
         {
             Style = TextBlockStyle,
-            TextWrapping = TextWrapping.Wrap
+            TextWrapping = TextWrapping.Wrap,
+            TextAlignment = TextAlignment
         };
 
         foreach (Inline _inline in inlines)

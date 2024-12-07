@@ -1,4 +1,3 @@
-
 using Markdig.Syntax.Inlines;
 
 namespace Symptum.UI.Markdown.Renderers.ObjectRenderers.Inlines;
@@ -12,6 +11,5 @@ public class HtmlEntityInlineRenderer : WinUIObjectRenderer<HtmlEntityInline>
 
         Markdig.Helpers.StringSlice transcoded = obj.Transcoded;
         renderer.WriteText(ref transcoded);
-        // todo: wtf is this?
     }
 }

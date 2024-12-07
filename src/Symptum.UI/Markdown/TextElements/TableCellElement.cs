@@ -12,30 +12,17 @@ public class TableCellElement : IAddChild
     private Grid _grid;
     private SContainer _container = new();
 
-    public STextElement TextElement
-    {
-        get => _container;
-    }
+    public STextElement TextElement => _container;
 
-    public int ColumnSpan
-    {
-        get => _tableCell.ColumnSpan;
-    }
+    public int ColumnSpan => _tableCell.ColumnSpan;
 
-    public int RowSpan
-    {
-        get => _tableCell.RowSpan;
-    }
+    public int RowSpan => _tableCell.RowSpan;
 
-    public int ColumnIndex
-    {
-        get => _columnIndex;
-    }
+    public int ColumnIndex => _columnIndex;
 
-    public int RowIndex
-    {
-        get => _rowIndex;
-    }
+    public int RowIndex => _rowIndex;
+
+    public bool IsHeader => _isHeader;
 
     public TableCellElement(TableCell tableCell, MarkdownConfiguration config, TextAlignment textAlignment, bool isHeader, int columnIndex, int rowIndex)
     {

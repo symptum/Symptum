@@ -8,10 +8,7 @@ public class ParagraphElement : IAddChild
     private SParagraph _paragraph;
     private MarkdownConfiguration _config;
 
-    public STextElement TextElement
-    {
-        get => _paragraph;
-    }
+    public STextElement TextElement => _paragraph;
 
     public ParagraphElement(ParagraphBlock paragraphBlock, MarkdownConfiguration config)
     {

@@ -106,5 +106,12 @@ public sealed partial class MarkdownThemes : DependencyObject
 
     #endregion
 
+    #region Address Block
+
+    public Style? AddressBlockTextBlockStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultAddressBlockTextBlockStyle") ?
+        Application.Current.Resources["DefaultAddressBlockTextBlockStyle"] as Style : null;
+
+    #endregion
+
     public MarkdownThemes() { }
 }

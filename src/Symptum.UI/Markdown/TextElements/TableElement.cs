@@ -11,10 +11,7 @@ public class TableElement : IAddChild
     private int _rowCount;
     private MarkdownConfiguration _config;
 
-    public STextElement TextElement
-    {
-        get => _container;
-    }
+    public STextElement TextElement => _container;
 
     public TableElement(Table table, MarkdownConfiguration config)
     {
@@ -53,7 +50,7 @@ public class TableElement : IAddChild
 
             cell.BorderThickness = GetBorderThickness(cellChild.RowIndex, cellChild.ColumnIndex);
             cell.CornerRadius = GetCornerRadius(cellChild.RowIndex, cellChild.ColumnIndex, cellChild.RowSpan, cellChild.ColumnSpan);
-            if (cellChild.RowIndex % 2 == 0 && cellChild.RowIndex != 0)
+            if (!cellChild.IsHeader && cellChild.RowIndex % 2 == 0)
             {
                 cell.Style = _config.Themes.AltTableCellGridStyle;
             }

@@ -9,10 +9,7 @@ public class ReferenceInlineElement : IAddChild
     private ReferenceInline _referenceInline;
     private SInline _inline;
 
-    public STextElement TextElement
-    {
-        get => _inline;
-    }
+    public STextElement TextElement => _inline;
 
     public ReferenceInlineElement(ReferenceInline referenceInline)
     {

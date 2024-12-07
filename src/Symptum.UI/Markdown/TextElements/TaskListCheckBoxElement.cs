@@ -7,10 +7,7 @@ public class TaskListCheckBoxElement : IAddChild
     private TaskList _taskList;
     private SContainer _container = new();
 
-    public STextElement TextElement
-    {
-        get => _container;
-    }
+    public STextElement TextElement => _container;
 
     public TaskListCheckBoxElement(TaskList taskList)
     {

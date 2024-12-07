@@ -1,3 +1,4 @@
+using HtmlAgilityPack;
 using Markdig.Syntax.Inlines;
 
 namespace Symptum.UI.Markdown.TextElements;
@@ -9,21 +10,30 @@ public class HyperlinkButtonElement : IAddChild
     private FlowDocumentElement? _flowDoc;
     private string? _baseUrl;
     private LinkInline? _linkInline;
+    private HtmlNode? _htmlNode;
     private MarkdownConfiguration _config;
     private ILinkHandler? _linkHandler;
     private string? _url;
 
-    public STextElement TextElement
-    {
-        get => _container;
-    }
+    public STextElement TextElement => _container;
 
-    public HyperlinkButtonElement(LinkInline linkInline, string? baseUrl, MarkdownConfiguration config, ILinkHandler? linkHandler)
+    public HyperlinkButtonElement(LinkInline linkInline, string? baseUrl, MarkdownConfiguration config, ILinkHandler? linkHandler) :
+        this(linkInline.GetDynamicUrl != null ? linkInline.GetDynamicUrl() ?? linkInline.Url : linkInline.Url,
+            baseUrl, config, linkHandler, linkInline.Title, linkInline)
+    { }
+
+    public HyperlinkButtonElement(HtmlNode htmlNode, string? baseUrl, MarkdownConfiguration config, ILinkHandler? linkHandler) :
+        this(htmlNode.GetAttribute("href", "#"), baseUrl, config, linkHandler, htmlNode.InnerText, htmlNode: htmlNode)
+    { }
+
+    private HyperlinkButtonElement(string? url, string? baseUrl, MarkdownConfiguration config, ILinkHandler? linkHandler,
+        string? title, LinkInline? linkInline = null, HtmlNode? htmlNode = null)
     {
+        _linkInline = linkInline;
+        _htmlNode = htmlNode;
         _baseUrl = baseUrl;
         _config = config;
-        _url = linkInline.GetDynamicUrl != null ? linkInline.GetDynamicUrl() ?? linkInline.Url : linkInline.Url;
-        _linkInline = linkInline;
+        _url = url;
         _linkHandler = linkHandler;
 
         _hyperLinkButton = new HyperlinkButton
@@ -35,15 +45,13 @@ public class HyperlinkButtonElement : IAddChild
         {
             _linkHandler?.HandleNavigation(_url, _baseUrl);
         };
-        if (!string.IsNullOrWhiteSpace(linkInline.Title))
-            ToolTipService.SetToolTip(_hyperLinkButton, linkInline.Title);
+
+        if (!string.IsNullOrWhiteSpace(title))
+            ToolTipService.SetToolTip(_hyperLinkButton, title);
         else
             ToolTipService.SetToolTip(_hyperLinkButton, _url);
 
-        if (_linkInline != null)
-        {
-            _flowDoc = new FlowDocumentElement(_config, false);
-        }
+        _flowDoc = new FlowDocumentElement(_config, false);
         _hyperLinkButton.Content = _flowDoc?.StackPanel;
         _container.UIElement = _hyperLinkButton;
     }

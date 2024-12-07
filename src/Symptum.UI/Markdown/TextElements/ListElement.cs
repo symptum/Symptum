@@ -15,10 +15,7 @@ public class ListElement : IAddChild
     private int _index = 1;
     private const string _dot = "• ";
 
-    public STextElement TextElement
-    {
-        get => _container;
-    }
+    public STextElement TextElement => _container;
 
     public ListElement(ListBlock listBlock, MarkdownConfiguration config, bool isTopLevel = true)
     {

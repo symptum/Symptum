@@ -6,10 +6,7 @@ public class TextInlineElement : IAddChild
 {
     private SInline inline;
 
-    public STextElement TextElement
-    {
-        get => inline;
-    }
+    public STextElement TextElement => inline;
 
     public TextInlineElement(string text)
     {

@@ -8,10 +8,7 @@ public class CodeInlineElement : IAddChild
     private SContainer _container = new();
     private MarkdownConfiguration _config;
 
-    public STextElement TextElement
-    {
-        get => _container;
-    }
+    public STextElement TextElement => _container;
 
     public CodeInlineElement(CodeInline codeInline, MarkdownConfiguration config)
     {

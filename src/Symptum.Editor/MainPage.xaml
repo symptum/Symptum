@@ -105,10 +105,11 @@
       </MenuBarItem>
     </MenuBar>
     <SplitView x:Name="splitView" Grid.Row="2" PaneBackground="Transparent"
-               IsPaneOpen="True" OpenPaneLength="302" CompactPaneLength="48" DisplayMode="Inline">
+               IsPaneOpen="True" OpenPaneLength="301" CompactPaneLength="48" DisplayMode="Inline">
       <SplitView.Pane>
-        <Grid x:Name="paneGrid" BorderThickness="0,2,2,2" CornerRadius="0,8,8,0" Width="300" RowSpacing="8">
+        <Grid x:Name="paneGrid" BorderThickness="0,1,1,1" CornerRadius="0,8,8,0" Width="300" RowSpacing="12">
           <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
           </Grid.RowDefinitions>
@@ -136,14 +137,11 @@
               </AppBarButton.Icon>
             </AppBarButton>
           </CommandBar>
-          <ScrollViewer x:Name="sideStackPanel" Grid.Row="1" HorizontalScrollBarVisibility="Auto">
-            <controls:HeaderedTreeView x:Name="treeView" SelectionMode="Single"
+          <TextBlock Margin="12,0" Grid.Row="1" FontWeight="SemiBold" Text="Resources" />
+          <ScrollViewer x:Name="sideStackPanel" Grid.Row="2" HorizontalScrollBarVisibility="Auto">
+            <TreeView x:Name="treeView" SelectionMode="Single"
               CanReorderItems="False" CanDragItems="False" CanDrag="False"
-              ItemTemplate="{StaticResource DefaultResourceDataTemplate}">
-              <controls:HeaderedTreeView.Header>
-                <TextBlock Margin="12,4" FontWeight="SemiBold" Text="Resources" />
-              </controls:HeaderedTreeView.Header>
-            </controls:HeaderedTreeView>
+              ItemTemplate="{StaticResource DefaultResourceDataTemplate}" />
           </ScrollViewer>
         </Grid>
       </SplitView.Pane>

@@ -95,4 +95,9 @@
     <Setter Property="Width" Value="500" />
   </Style>
 
+  <!--Address Block-->
+  <Style x:Key="DefaultAddressBlockTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource DefaultBodyTextBlockStyle}">
+    <Setter Property="FontStyle" Value="Italic" />
+  </Style>
+
 </ResourceDictionary>

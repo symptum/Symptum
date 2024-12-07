@@ -15,6 +15,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     private MarkdownFileResource? _markdownResource;
     private ResourcePropertiesEditorDialog propertyEditorDialog = new();
     private MarkdownEditorInsertTableDialog insertTableDialog = new();
+    private MarkdownEditorInsertLinkDialog insertLinkDialog = new();
     private const string m_CurrentDocument = "Current Document";
     private const string m_Selection = "Selection";
     private const string m_Indentation = "    "; // NOTE: Should this support switching between Tabs ("\t") vs 4 Spaces ("    ")?
@@ -31,25 +32,20 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         mdText.PreviewKeyDown += MdText_KeyDown;
         PreviewKeyDown += Page_PreviewKeyDown;
         PreviewKeyUp += Page_PreviewKeyUp;
+        mdText.CuttingToClipboard += (s, e) => OnClipboardEvent();
 #else
         mdText.KeyDown += MdText_KeyDown;
         KeyDown += Page_KeyDown;
         KeyUp += Page_KeyUp;
 #endif
-        mdText.Paste += MdText_Paste;
+        mdText.Paste += (s, e) => OnClipboardEvent();
         UpdateStatusBar(true, true);
         SetupFindControl();
     }
 
-    private void MdText_Paste(object sender, TextControlPasteEventArgs e)
-    {
-        _textChangedReason = TextChangedReason.Paste;
-        StoreCurrentTextState();
-    }
-
     private void MdText_TextChanged(object sender, TextChangedEventArgs e)
     {
-        ProcessPaste();
+        ProcessClipboardEvent();
         _mdDirtyForSearch = true;
         HasUnsavedChanges = true;
         UpdateStatusBar(onlyCount: true);
@@ -103,7 +99,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         if (broken || invalid)
         {
             SetTextChanged();
-            if (invalid) return;
+            if (invalid || mdText.Text.Length == 0) return;
         }
 
         SetTextChanging(
@@ -179,74 +175,6 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         }
     }
 
-    #region Temp
-
-    private string quotesMD = @"# Quotes
-
-> Text that is a quote
-
-## Alerts
-
-> [!NOTE]
-> Useful information that users should know, even when skimming content.
-
-> [!TIP]
-> Helpful advice for doing things better or more easily.
-
-> [!IMPORTANT]
-> Key information users need to know to achieve their goal.
-
-> [!WARNING]
-> Urgent info that needs immediate user attention to avoid problems.
-
-> [!CAUTION]
-> Advises about risks or negative outcomes of certain actions.
-";
-    private string tabledMd = @"# Tables
-
-| abc | def | ghi |
-|:---:|-----|----:|
-|  1  | 2   | 3   |
-
-+---------+---------+
-| Header  | Header  |
-| Column1 | Column2 |
-+=========+=========+
-| 1. ab   | > This is a quote
-| 2. cde  | > For the second column 
-| 3. f    |
-+---------+---------+
-| Second row spanning
-| on two columns
-+---------+---------+
-| Back    |         |
-| to      |         |
-| one     |         |
-| column  |         | 
-
-+---------+---------+
-| This is | a table |
-+=========+=========+
-
-+---+---+---+
-| AAAAA | B |
-+ AAAAA +---+
-| AAAAA | C |
-+---+---+---+
-| D | E | F |
-+---+---+---+
-
-+---+---+---+
-| AAAAA | B |
-+---+---+ B +
-| D | E | B |
-+ D +---+---+
-| D | CCCCC |
-+---+---+---+
-";
-
-    #endregion
-
     private void TreeView_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs args)
     {
         if (args.InvokedItem is DocumentNode node && node.Navigate is Action navigate)
@@ -283,41 +211,17 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         }
     }
 
-    private void PreviewButton_Checked(object sender, RoutedEventArgs e)
+    private void CutButton_Click(object sender, RoutedEventArgs e)
     {
-        mdText.SetValue(Grid.ColumnSpanProperty, 1);
-        mdTB.Visibility = Visibility.Visible;
-        mdTB.SetBinding(MarkdownTextBlock.TextProperty,
-            new Binding() { Path = new(nameof(TextBox.Text)), Source = mdText, Mode = BindingMode.OneWay });
-
-        outlineButton.IsEnabled = true;
-        if (viewDocOutline)
-            docOutlineTV.Visibility = sizer.Visibility = Visibility.Visible;
+#if HAS_UNO
+        OnClipboardEvent();
+#endif
+        mdText.CutSelectionToClipboard();
     }
 
-    private void PreviewButton_Unchecked(object sender, RoutedEventArgs e)
-    {
-        mdText.SetValue(Grid.ColumnSpanProperty, 4);
-        mdTB.Visibility = Visibility.Collapsed;
-        mdTB.ClearValue(MarkdownTextBlock.TextProperty);
+    private void CopyButton_Click(object sender, RoutedEventArgs e) => mdText.CopySelectionToClipboard();
 
-        outlineButton.IsEnabled = false;
-        docOutlineTV.Visibility = sizer.Visibility = Visibility.Collapsed;
-    }
-
-    private bool viewDocOutline = false;
-
-    private void OutlineButton_Checked(object sender, RoutedEventArgs e)
-    {
-        viewDocOutline = true;
-        docOutlineTV.Visibility = sizer.Visibility = Visibility.Visible;
-    }
-
-    private void OutlineButton_Unchecked(object sender, RoutedEventArgs e)
-    {
-        viewDocOutline = false;
-        docOutlineTV.Visibility = sizer.Visibility = Visibility.Collapsed;
-    }
+    private void PasteButton_Click(object sender, RoutedEventArgs e) => mdText.PasteFromClipboard();
 
     #region Find
 
@@ -333,10 +237,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         findControl.SelectedContext = columns[0];
     }
 
-    private void FindButton_Click(object sender, RoutedEventArgs e)
-    {
-        findControl.Visibility = Visibility.Visible;
-    }
+    private void FindButton_Click(object sender, RoutedEventArgs e) => findControl.Visibility = Visibility.Visible;
 
     private void FindControl_QueryCleared(object? sender, EventArgs e)
     {
@@ -414,9 +315,102 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     #endregion
 
+    #region Editor Visual States
+
+    private void GoToEditorVisualState()
+    {
+        VisualStateManager.GoToState(this, preview ? "PreviewState" : "NoPreviewState", true);
+        VisualStateManager.GoToState(this, preview && viewDocOutline ? "DocOutlineState" : "NoDocOutlineState", true);
+        VisualStateManager.GoToState(this, preview && expandPreview ? "ExpandedState" : "NotExpandedState", true);
+    }
+
+    private bool preview = false;
+
+    private void PreviewButton_Checked(object sender, RoutedEventArgs e)
+    {
+        mdTB.SetBinding(MarkdownTextBlock.TextProperty,
+            new Binding() { Path = new(nameof(TextBox.Text)), Source = mdText, Mode = BindingMode.OneWay });
+
+        preview = true;
+        GoToEditorVisualState();
+    }
+
+    private void PreviewButton_Unchecked(object sender, RoutedEventArgs e)
+    {
+        mdTB.ClearValue(MarkdownTextBlock.TextProperty);
+        preview = false;
+        GoToEditorVisualState();
+    }
+
+    private bool viewDocOutline = false;
+
+    private void DocOutlineButton_Checked(object sender, RoutedEventArgs e)
+    {
+        viewDocOutline = true;
+        GoToEditorVisualState();
+    }
+
+    private void DocOutlineButton_Unchecked(object sender, RoutedEventArgs e)
+    {
+        viewDocOutline = false;
+        GoToEditorVisualState();
+    }
+
+    private bool expandPreview = false;
+
+    private void ExpandPreviewButton_Checked(object sender, RoutedEventArgs e)
+    {
+        expandPreview = true;
+        GoToEditorVisualState();
+    }
+
+    private void ExpandPreviewButton_Unchecked(object sender, RoutedEventArgs e)
+    {
+        expandPreview = false;
+        GoToEditorVisualState();
+    }
+
+    #endregion
+
     #region Formatting
 
     #region Insertion
+
+    private void InsertBlock(string block)
+    {
+        if (string.IsNullOrEmpty(block)) return; // Whitespaces are allowed.
+
+        string text = mdText.Text;
+        int start = mdText.SelectionStart;
+        int selLen = mdText.SelectionLength;
+        var span = text.AsSpan();
+        StringBuilder result = new();
+
+        if (selLen == 0)
+        {
+            int newStart = start;
+            for (int i = start; i < span.Length; i++) // Make sure to insert the block in next line.
+            {
+                if (span[i] == '\n' || span[i] == '\r' || span[i] == '\0')
+                {
+                    newStart = i;
+                    break;
+                }
+                if (i == span.Length - 1) // If there are no line endings, just insert it at the end.
+                    newStart = span.Length;
+            }
+            result.Append(span[..newStart]).AppendLine().AppendLine()
+                .Append(block).Append(span[newStart..]).AppendLine().AppendLine();
+        }
+        else
+        {
+            result.Append(span[..start]).AppendLine().AppendLine()
+                .Append(block).Append(span[(start + selLen)..]).AppendLine().AppendLine();
+            selLen = block.Length + 4;
+        }
+
+        CommitTextFormatting(result.ToString(), start, selLen);
+    }
 
     private void ToggleLineStarts(string decor, bool onlyInsert = false, bool shouldInsert = true)
     {
@@ -441,6 +435,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         StringBuilder result = new();
         int currentPos = 0;
         int addedLen = 0;
+        int startOffset = 0;
 
         while (currentPos < end)
         {
@@ -448,11 +443,11 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
             int lineEnd = span[currentPos..].IndexOfAny('\r', '\n');
             lineEnd = lineEnd >= 0 ? currentPos + lineEnd : span.Length;
             var currentLine = span[lineStart..lineEnd];
-            if (currentPos < start)
+            if (currentPos < start && lineEnd < start)
             {
                 result.Append(currentLine).AppendLine();
             }
-            else // Within selection
+            else // Within selection or the line of selection
             {
                 if (onlyInsert || !currentLine.StartsWith(decorSpan))
                 {
@@ -461,6 +456,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
                         // Inserting the decor in front of the line.
                         result.Append(decorSpan);
                         addedLen += decorLen;
+                        if (currentPos < start) startOffset = decorLen;
                     }
                     result.Append(currentLine).AppendLine();
                 }
@@ -468,7 +464,10 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
                 {
                     // Removing the decor from the line start.
                     result.Append(currentLine[decorLen..]).AppendLine();
-                    addedLen -= decorLen;
+                    if (currentPos < start)
+                        startOffset = -decorLen;
+                    else
+                        addedLen -= decorLen;
                 }
             }
 
@@ -482,7 +481,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         if (currentPos < span.Length)
             result.Append(span[currentPos..]);
 
-        CommitTextFormatting(result.ToString(), start, len + addedLen);
+        CommitTextFormatting(result.ToString(), start + startOffset, len + addedLen);
     }
 
     private void InsertInFrontOfLines(string decor) => ToggleLineStarts(decor, true);
@@ -536,6 +535,55 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     private void InsertInFrontOfLine(string decor) => ToggleLineStart(decor, true);
 
     private void RemoveFromFrontOfLine(string decor) => ToggleLineStart(decor, false, false);
+
+    private void SetHeadingLevel(int level)
+    {
+        int start = mdText.SelectionStart;
+        ReadOnlySpan<char> span = mdText.Text.AsSpan();
+
+        if (start < 0 || span.Length < start || level < 1) return;
+
+        int lineStart = -1;
+        for (int i = start - 1; i > 0; i--)
+        {
+            if (span[i] == '\n' || span[i] == '\r' || span[i] == '\0')
+            {
+                lineStart = i + 1;
+                break;
+            }
+        }
+        if (lineStart < 0) lineStart = 0;
+
+        var before = span[..lineStart];
+        var after = span[lineStart..];
+        char decor = '#';
+        StringBuilder result = new();
+        if (after.Length > 0 && after[0] == decor)
+        {
+            // Count the old heading level.
+            int decorLen = 0;
+            for (int i = 0; i < after.Length; i++)
+            {
+                if (after[i] == decor)
+                    decorLen++;
+            }
+
+            if (decorLen == level)
+                // Remove the heading if set the same level again (i.e. toggle).
+                result.Append(before).Append(after[decorLen..].TrimStart());
+            else
+                // Replace it with the new heading level.
+                result.Append(before).Append(new string(decor, level)).Append(after[decorLen..]);
+        }
+        else
+        {
+            // Insert the new heading level.
+            result.Append(before).Append(new string(decor, level))
+                .Append(' ').Append(after);
+        }
+
+        CommitTextFormatting(result.ToString(), start, 0);
+    }
 
     #endregion
 
@@ -625,7 +673,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     private void CodeInlineButton_Click(object sender, RoutedEventArgs e) => ToggleWrap('`');
 
-    private void ThBreakButton_Click(object sender, RoutedEventArgs e) => InsertInFrontOfLine(newLine + "---" + newLine);
+    private void ThBreakButton_Click(object sender, RoutedEventArgs e) => InsertBlock("---");
 
     private async void TableButton_Click(object sender, RoutedEventArgs e)
     {
@@ -635,7 +683,41 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         if (result == EditorResult.Create)
         {
             HasUnsavedChanges = true;
-            mdText.Text = insertTableDialog.Markdown;
+            InsertBlock(insertTableDialog.Markdown);
+        }
+    }
+
+    private async void LinkButton_Click(object sender, RoutedEventArgs e)
+    {
+
+        insertLinkDialog.XamlRoot = XamlRoot;
+        var result = await insertLinkDialog.CreateAsync();
+        if (result == EditorResult.Create)
+        {
+            HasUnsavedChanges = true;
+            InsertBlock(insertLinkDialog.Markdown);
+        }
+    }
+
+    private void GridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.AddedItems.Count > 0)
+        {
+            if (e.AddedItems[0] is string h)
+            {
+                int level = h switch
+                {
+                    "H1" => 1,
+                    "H2" => 2,
+                    "H3" => 3,
+                    "H4" => 4,
+                    "H5" => 5,
+                    "H6" => 6,
+                    _ => 1
+                };
+                SetHeadingLevel(level);
+                if (sender is GridView gv) gv.SelectedItem = null;
+            }
         }
     }
 
@@ -655,9 +737,15 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     private int _prevSelectionLength;
     private TextChangedReason _textChangedReason;
 
-    private void ProcessPaste()
+    private void OnClipboardEvent()
     {
-        if (_textChangedReason == TextChangedReason.Paste)
+        _textChangedReason = TextChangedReason.Clipboard;
+        StoreCurrentTextState();
+    }
+
+    private void ProcessClipboardEvent()
+    {
+        if (_textChangedReason == TextChangedReason.Clipboard)
             CommitHistory();
     }
 
@@ -782,7 +870,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         TextTyped,
         HistoryApplied,
         FormattingApplied,
-        Paste
+        Clipboard
     }
 
     private record struct TextHistory(string OldText, int OldSelectionStart, int OldSelectionLength, string NewText, int NewSelectionStart, int NewSelectionLength);

@@ -11,10 +11,11 @@
     <PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0-preview3" />
     <PackageVersion Include="CommunityToolkit.WinUI.Controls.HeaderedControls" Version="8.2.241112-preview1" />
     <PackageVersion Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.241112-preview1" />
+    <PackageVersion Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.241112-preview1" />
     <PackageVersion Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.2.241112-preview1" />
     <PackageVersion Include="CsvHelper" Version="33.0.1" />
     <PackageVersion Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
-    <PackageVersion Include="HtmlAgilityPack" Version="1.11.70" />
+    <PackageVersion Include="HtmlAgilityPack" Version="1.11.71" />
     <PackageVersion Include="Markdig" Version="0.38.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0-3.final" />

@@ -8,6 +8,8 @@ using Windows.Foundation;
 using System.Text;
 using ColorCode;
 using Markdig.Syntax;
+using HtmlAgilityPack;
+using Symptum.UI.Markdown.TextElements.Html;
 
 namespace Symptum.UI.Markdown;
 
@@ -158,9 +160,22 @@ public static class Extensions
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
     }
 
+    internal static HtmlElementType TagToType(this string tag)
+    {
+        return tag.ToLower() switch
+        {
+            "address" or "article" or "aside" or "details" or "blockquote" or
+            "canvas" or "dd" or "div" or "dl" or "dt" or "fieldset" or "figcaption" or
+            "figure" or "footer" or "form" or "h1" or "h2" or "h3" or "h4" or "h5" or "h6"
+            or "header" or "hr" or "li" or "main" or "nav" or "noscript" or "ol" or "p" or
+            "pre" or "section" or "table" or "tfoot" or "ul" => HtmlElementType.Block,
+            _ => HtmlElementType.Inline,
+        };
+    }
+
     public static bool IsHeading(this string tag)
     {
-        List<string> headings = new() { "h1", "h2", "h3", "h4", "h5", "h6" };
+        List<string> headings = ["h1", "h2", "h3", "h4", "h5", "h6"];
         return headings.Contains(tag.ToLower());
     }
 
@@ -241,5 +256,12 @@ public static class Extensions
         SolidColorBrush accentBrush = new(accentColor);
 
         return accentBrush;
+    }
+
+    public static string GetAttribute(this HtmlNode node, string attributeName, string defaultValue)
+    {
+        ArgumentNullException.ThrowIfNull(attributeName);
+
+        return node.Attributes?[attributeName]?.Value ?? defaultValue;
     }
 }

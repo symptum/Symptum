@@ -163,11 +163,15 @@ public class WinUIRenderer : RendererBase
         ObjectRenderers.Add(new CodeInlineRenderer());
         ObjectRenderers.Add(new DelimiterInlineRenderer());
         ObjectRenderers.Add(new EmphasisInlineRenderer());
-        ObjectRenderers.Add(new HtmlEntityInlineRenderer());
         ObjectRenderers.Add(new LineBreakInlineRenderer());
         ObjectRenderers.Add(new LinkInlineRenderer());
         ObjectRenderers.Add(new LiteralInlineRenderer());
         ObjectRenderers.Add(new ContainerInlineRenderer());
+
+        // Html renderers
+        ObjectRenderers.Add(new HtmlBlockRenderer());
+        ObjectRenderers.Add(new HtmlEntityInlineRenderer());
+        ObjectRenderers.Add(new HtmlInlineRenderer());
 
         // Extension renderers
         ObjectRenderers.Add(new TableRenderer());

@@ -43,6 +43,7 @@
   <ItemGroup>
     <PackageReference Include="ColorCode.Core" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" />
+    <PackageReference Include="HtmlAgilityPack" />
     <PackageReference Include="Roman-Numerals" />
   </ItemGroup>
 

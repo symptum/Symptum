@@ -11,10 +11,7 @@ public class CodeBlockElement : IAddChild
     private SContainer _container = new();
     private MarkdownConfiguration _config;
 
-    public STextElement TextElement
-    {
-        get => _container;
-    }
+    public STextElement TextElement => _container;
 
     public CodeBlockElement(CodeBlock codeBlock, MarkdownConfiguration config)
     {

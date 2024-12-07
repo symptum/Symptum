@@ -8,10 +8,7 @@ public class BlockContainerElement : IAddChild
     private SContainer _container = new();
     private FlowDocumentElement _flowDocument;
 
-    public STextElement TextElement
-    {
-        get => _container;
-    }
+    public STextElement TextElement => _container;
 
     public BlockContainerElement(ContainerBlock containerBlock, MarkdownConfiguration config)
     {

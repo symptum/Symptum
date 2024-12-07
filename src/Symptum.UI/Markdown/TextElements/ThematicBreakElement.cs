@@ -7,10 +7,7 @@ public class ThematicBreakElement : IAddChild
     private ThematicBreakBlock _thematicBreakBlock;
     private SContainer _container = new();
 
-    public STextElement TextElement
-    {
-        get => _container;
-    }
+    public STextElement TextElement => _container;
 
     public ThematicBreakElement(ThematicBreakBlock thematicBreakBlock, MarkdownConfiguration config)
     {

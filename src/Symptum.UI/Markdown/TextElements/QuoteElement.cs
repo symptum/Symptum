@@ -9,10 +9,7 @@ public class QuoteElement : IAddChild
     private FlowDocumentElement _flowDocument;
     private QuoteBlock _quoteBlock;
 
-    public STextElement TextElement
-    {
-        get => _container;
-    }
+    public STextElement TextElement => _container;
 
     public QuoteElement(QuoteBlock quoteBlock, MarkdownConfiguration config, StringSlice? kind = null)
     {

@@ -4,8 +4,7 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:local="using:Symptum.Editor.Controls"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:ui="using:CommunityToolkit.WinUI"
-  xmlns:tables="using:Markdig.Extensions.Tables"
+  xmlns:controls="using:CommunityToolkit.WinUI.Controls"
   Style="{ThemeResource DefaultContentDialogStyle}"
   Title="Insert Table" PrimaryButtonStyle="{ThemeResource AccentButtonStyle}"
   PrimaryButtonText="Insert" SecondaryButtonText="Cancel">
@@ -25,24 +24,26 @@
     <ScrollViewer Grid.Row="1" Grid.ColumnSpan="2" HorizontalScrollBarVisibility="Auto">
       <ItemsRepeater ItemsSource="{x:Bind Columns}">
         <ItemsRepeater.Layout>
-          <StackLayout Orientation="Horizontal" Spacing="12" />
+          <StackLayout Orientation="Horizontal" />
         </ItemsRepeater.Layout>
         <ItemsRepeater.ItemTemplate>
           <DataTemplate x:DataType="local:MarkdownEditorTableColumn">
-            <StackPanel Spacing="12" Width="100" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                        Padding="8" CornerRadius="4">
-              <TextBox Header="{x:Bind ColumnId}" Text="{x:Bind Header, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" MaxHeight="160"
-                       ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" />
-              <ComboBox Header="Alignment" ItemsSource="{ui:EnumValues Type=tables:TableColumnAlign}"
-                        SelectedItem="{x:Bind Alignment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <StackPanel MinWidth="100" MaxWidth="150">
+              <controls:Segmented Margin="12" SelectedIndex="{x:Bind Alignment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                <controls:SegmentedItem ToolTipService.ToolTip="Align Left" Icon="AlignLeft" />
+                <controls:SegmentedItem ToolTipService.ToolTip="Align Center" Icon="AlignCenter" />
+                <controls:SegmentedItem ToolTipService.ToolTip="Align Right" Icon="AlignRight" />
+              </controls:Segmented>
+              <TextBox Text="{x:Bind Header, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                       PlaceholderText="{x:Bind ColumnId}" CornerRadius="0" BorderThickness="0" />
               <ItemsRepeater ItemsSource="{x:Bind Cells}">
                 <ItemsRepeater.Layout>
-                  <StackLayout Orientation="Vertical" Spacing="12" />
+                  <StackLayout Orientation="Vertical" />
                 </ItemsRepeater.Layout>
                 <ItemsRepeater.ItemTemplate>
                   <DataTemplate x:DataType="local:MarkdownEditorTableCell">
-                    <TextBox Header="{x:Bind CellId}" Text="{x:Bind Content, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" MaxHeight="160"
-                       ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" />
+                    <TextBox Text="{x:Bind Content, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             PlaceholderText="{x:Bind CellId}" CornerRadius="0" BorderThickness="0" />
                   </DataTemplate>
                 </ItemsRepeater.ItemTemplate>
               </ItemsRepeater>

@@ -3,6 +3,8 @@ using Windows.Storage.Streams;
 using Microsoft.UI.Xaml.Media.Imaging;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
+using HtmlAgilityPack;
+using System.Globalization;
 
 namespace Symptum.UI.Markdown.TextElements;
 
@@ -10,6 +12,7 @@ public class ImageElement : IAddChild
 {
     private SContainer _container = new();
     private LinkInline? _linkInline;
+    private HtmlNode? _htmlNode;
     private Image _image = new();
     private Uri _uri;
     private IImageProvider? _imageProvider;
@@ -18,10 +21,7 @@ public class ImageElement : IAddChild
     private double _precedentHeight;
     private bool _loaded;
 
-    public STextElement TextElement
-    {
-        get => _container;
-    }
+    public STextElement TextElement => _container;
 
     public ImageElement(LinkInline linkInline, Uri uri, MarkdownConfiguration config)
     {
@@ -38,6 +38,35 @@ public class ImageElement : IAddChild
         if (size.Height != 0)
         {
             _precedentHeight = size.Height;
+        }
+    }
+
+    public ImageElement(HtmlNode htmlNode, MarkdownConfiguration config)
+    {
+        if (Uri.TryCreate(htmlNode.GetAttribute("src", "#"), UriKind.RelativeOrAbsolute, out Uri? uri))
+            _uri = uri;
+
+        _htmlNode = htmlNode;
+        _imageProvider = config.ImageProvider;
+        _svgRenderer = config.SVGRenderer ?? new DefaultSVGRenderer();
+        Init();
+        int.TryParse(htmlNode.GetAttribute("width", "0"),
+            NumberStyles.Integer,
+            CultureInfo.InvariantCulture,
+            out var width);
+
+        int.TryParse(htmlNode.GetAttribute("height", "0"),
+            NumberStyles.Integer,
+            CultureInfo.InvariantCulture,
+            out var height);
+
+        if (width > 0)
+        {
+            _precedentWidth = width;
+        }
+        if (height > 0)
+        {
+            _precedentHeight = height;
         }
     }
 
