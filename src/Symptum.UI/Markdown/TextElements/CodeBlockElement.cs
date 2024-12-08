@@ -57,7 +57,7 @@ public class CodeBlockElement : IAddChild
                 }
             }
 
-            formatter.FormatInlines(stringBuilder.ToString().TrimEnd(Environment.NewLine.AsSpan()), fencedCodeBlock.ToLanguage(), textBlock.Inlines);
+            formatter.FormatInlines(stringBuilder.ToString(), fencedCodeBlock.ToLanguage(), textBlock.Inlines);
         }
         else
         {
@@ -68,7 +68,7 @@ public class CodeBlockElement : IAddChild
 
                 if (i < codeBlock.Lines.Lines.Length - 1) stringBuilder.AppendLine();
             }
-            textBlock.Text = stringBuilder.ToString().TrimEnd(Environment.NewLine.AsSpan());
+            textBlock.Text = stringBuilder.ToString();
         }
         border.Child = new ScrollViewer() { Content = textBlock, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto };
         _container.UIElement = border;
