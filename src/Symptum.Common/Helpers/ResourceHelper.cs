@@ -107,9 +107,13 @@ public class ResourceHelper
 
     public static async Task<IResource?> LoadResourceFromFileAsync(StorageFile file, IResource? parent = null)
     {
+        if (file == null) return null;
+
         if (file.FileType.Equals(CsvFileExtension, StringComparison.InvariantCultureIgnoreCase))
             return await LoadCsvFileResourceFromFileAsync(file, parent);
-        else if (file != null && file.FileType.Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase))
+        else if (file.FileType.Equals(MarkdownFileExtension, StringComparison.InvariantCultureIgnoreCase))
+            return await LoadMarkdownFileResourceFromFileAsync(file, parent);
+        else if (file.FileType.Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase))
             return await LoadPackageResourceFromFileAsync(file);
 
         return null;
@@ -133,6 +137,29 @@ public class ResourceHelper
 
                 return csvFileResource;
             }
+        }
+
+        return null;
+    }
+
+    private static async Task<MarkdownFileResource?> LoadMarkdownFileResourceFromFileAsync(StorageFile? file, IResource? parent)
+    {
+        if (file != null && file.FileType.Equals(MarkdownFileExtension, StringComparison.InvariantCultureIgnoreCase))
+        {
+            string md = await FileIO.ReadTextAsync(file);
+
+            MarkdownFileResource markdownFileResource = new()
+            {
+                Title = file.DisplayName
+            };
+            ResourceManager.LoadResourceFile(markdownFileResource, md);
+
+            if (parent != null && parent.CanAddChildResourceType(typeof(MarkdownFileResource)))
+                parent.AddChildResource(markdownFileResource);
+            else
+                ResourceManager.Resources.Add(markdownFileResource);
+
+            return markdownFileResource;
         }
 
         return null;
@@ -163,6 +190,11 @@ public class ResourceHelper
             await LoadCSVFileResourceAsync(csvResource);
             resource.InitializeResource(parent);
         }
+        else if (resource is MarkdownFileResource markdownResource)
+        {
+            await LoadMarkdownFileResourceAsync(markdownResource);
+            resource.InitializeResource(parent);
+        }
         else
         {
             if (resource is MetadataResource metadataResource && metadataResource.SplitMetadata)
@@ -186,44 +218,43 @@ public class ResourceHelper
         }
     }
 
-    private static async Task LoadCSVFileResourceAsync(CsvFileResource csvResource)
+    private static async Task<StorageFile?> GetResourceFileAsync(string? path)
     {
-        StorageFile? csvFile = null;
-
-        (string folderPath, string fileName, string extension) = GetDetailsFromFilePath(csvResource.FilePath);
+        (string folderPath, string fileName, string extension) = GetDetailsFromFilePath(path);
         StorageFolder? folder = await StorageHelper.GetSubFolderAsync(_workFolder, folderPath);
         if (folder != null)
         {
             try
             {
-                csvFile = await folder.GetFileAsync(fileName + extension);
+                return await folder.GetFileAsync(fileName + extension);
             }
             catch { }
         }
 
-        if (csvFile != null)
+        return null;
+    }
+
+    private static async Task LoadCSVFileResourceAsync(CsvFileResource csvResource)
+    {
+        if (await GetResourceFileAsync(csvResource.FilePath) is StorageFile csvFile)
         {
             string text = await FileIO.ReadTextAsync(csvFile);
             ResourceManager.LoadResourceFile(csvResource, text);
         }
     }
 
+    private static async Task LoadMarkdownFileResourceAsync(MarkdownFileResource markdownResource)
+    {
+        if (await GetResourceFileAsync(markdownResource.FilePath) is StorageFile mdFile)
+        {
+            string text = await FileIO.ReadTextAsync(mdFile);
+            ResourceManager.LoadResourceFile(markdownResource, text);
+        }
+    }
+
     private static async Task LoadMetadataResourceAsync(MetadataResource resource)
     {
-        StorageFile? jsonFile = null;
-
-        (string folderPath, string fileName, string extension) = GetDetailsFromFilePath(resource.MetadataPath);
-        StorageFolder? folder = await StorageHelper.GetSubFolderAsync(_workFolder, folderPath);
-        if (folder != null)
-        {
-            try
-            {
-                jsonFile = await folder.GetFileAsync(fileName + extension);
-            }
-            catch { }
-        }
-
-        if (jsonFile != null)
+        if (await GetResourceFileAsync(resource.MetadataPath) is StorageFile jsonFile)
         {
             string text = await FileIO.ReadTextAsync(jsonFile);
             ResourceManager.LoadResourceMetadata(resource, text);
@@ -257,6 +288,10 @@ public class ResourceHelper
         {
             return await SaveCSVFileAsync(csvResource, targetFolder);
         }
+        else if (resource is MarkdownFileResource markdownResource)
+        {
+            return await SaveMarkdownFileAsync(markdownResource, targetFolder);
+        }
         else
         {
             bool result = await SaveChildrenAsync(resource, targetFolder);
@@ -288,6 +323,26 @@ public class ResourceHelper
         if (saveFile != null)
         {
             string? text = ResourceManager.WriteResourceFileText(csvResource);
+            return await StorageHelper.WriteToFileAsync(saveFile, text);
+        }
+
+        return false;
+    }
+
+    private static async Task<bool> SaveMarkdownFileAsync(MarkdownFileResource markdownResource, StorageFolder? targetFolder = null)
+    {
+        if (markdownResource == null) return false;
+        //bool pathExists = await VerifyWorkFolderAsync(targetFolder);
+        //if (!pathExists) return false;
+
+        string subFolderPath = ResourceManager.GetResourceFolderPath(markdownResource);
+        string? fileName = ResourceManager.GetResourceFileName(markdownResource);
+        markdownResource.FilePath = subFolderPath + fileName + MarkdownFileExtension;
+        StorageFile? saveFile = await PickSaveFileAsync(fileName, MarkdownFileExtension, "Markdown File", targetFolder, subFolderPath);
+
+        if (saveFile != null)
+        {
+            string? text = ResourceManager.WriteResourceFileText(markdownResource);
             return await StorageHelper.WriteToFileAsync(saveFile, text);
         }
 
@@ -366,6 +421,8 @@ public class ResourceHelper
 
         if (delete && resource is CsvFileResource csvResource)
             await DeleteCSVFileAsync(csvResource);
+        else if (delete && resource is MarkdownFileResource markdownResource)
+            await DeleteMarkdownFileAsync(markdownResource);
         else if (delete && resource is MetadataResource metadataResource)
             await DeleteMetadataAsync(metadataResource);
 
@@ -389,6 +446,22 @@ public class ResourceHelper
                 string path = ResourceManager.GetResourceFolderPath(csvResource);
                 var folder = await StorageHelper.GetSubFolderAsync(_workFolder, path);
                 IStorageItem? file = await folder?.TryGetItemAsync(ResourceManager.GetResourceFileName(csvResource) + CsvFileExtension);
+                if (file != null) await file.DeleteAsync();
+            }
+            catch { }
+        }
+    }
+
+    private static async Task DeleteMarkdownFileAsync(MarkdownFileResource? markdownResource)
+    {
+        if (markdownResource == null) return;
+        if (_workFolder != null && StorageHelper.IsFolderPickerSupported)
+        {
+            try
+            {
+                string path = ResourceManager.GetResourceFolderPath(markdownResource);
+                var folder = await StorageHelper.GetSubFolderAsync(_workFolder, path);
+                IStorageItem? file = await folder?.TryGetItemAsync(ResourceManager.GetResourceFileName(markdownResource) + MarkdownFileExtension);
                 if (file != null) await file.DeleteAsync();
             }
             catch { }

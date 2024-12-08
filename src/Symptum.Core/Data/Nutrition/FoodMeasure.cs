@@ -52,15 +52,9 @@ public class FoodMeasure : ObservableObject
         return parsed;
     }
 
-    public override string ToString()
-    {
-        return JsonSerializer.Serialize(this, options);
-    }
+    public override string ToString() => JsonSerializer.Serialize(this, options);
 
-    public string GetPreviewText()
-    {
-        return $"{_title}: {_weight}";
-    }
+    public string GetPreviewText() => $"{_title}: {_weight}";
 
     private static JsonSerializerOptions options = new()
     {

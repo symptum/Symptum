@@ -1,6 +1,4 @@
-using Microsoft.UI.Text;
 using Microsoft.UI.Xaml.Documents;
-using Windows.UI.Text;
 
 namespace Symptum.UI.Markdown.TextElements;
 
@@ -14,20 +12,16 @@ public class SInline : STextElement
 
 public class SBlock : STextElement
 {
-    public virtual UIElement? GetUIElement() => null;
+    public virtual UIElement? UIElement { get; set; }
 }
 
 public class SParagraph : SBlock
 {
     public List<Inline> Inlines { get; private set; } = [];
 
-    public double FontSize { get; internal set; }
+    public Style? TextBlockStyle { get; set; }
 
-    public Brush? Foreground { get; internal set; } = null;
-
-    public FontWeight FontWeight { get; internal set; } = FontWeights.Normal;
-
-    public TextAlignment TextAlignment { get; internal set; } = TextAlignment.Left;
+    public TextAlignment TextAlignment { get; set; } = TextAlignment.Left;
 
     #region Include UI
 
@@ -40,11 +34,13 @@ public class SParagraph : SBlock
 
     #endregion
 
-    public override UIElement? GetUIElement()
+    // This method should be called after all the inlines have been added to the Paragraph and finalized.
+    // It decides whether the resultant UI should be a TextBlock or a StackPanel based on the inclusion of inline UI.
+    public void CreateUIElement()
     {
         if (!ContainsUI || UIIndices.Count == 0)
         {
-            return CreateTextBlock(Inlines);
+            UIElement = CreateTextBlock(Inlines);
         }
         else // Ugly hack to include UIElements in Paragraph
         {
@@ -73,7 +69,25 @@ public class SParagraph : SBlock
                 }
             }
 
-            return wrapPanel;
+            UIElement = wrapPanel;
+        }
+    }
+
+    public void AddInline(STextElement element)
+    {
+        if (element is SInline inlineChild)
+        {
+            Inlines.Add(inlineChild.Inline);
+        }
+        else if (element is SBlock blockChild)
+        {
+            if (blockChild is SParagraph _para)
+                _para.CreateUIElement();
+            if (blockChild.UIElement is not UIElement uiElement) return;
+
+            UIIndices.Add(Inlines.Count);
+            ContainsUI = true;
+            UIElements.Add(uiElement);
         }
     }
 
@@ -81,16 +95,10 @@ public class SParagraph : SBlock
     {
         TextBlock _textBlock = new()
         {
-            FontWeight = FontWeight,
-            HorizontalAlignment = HorizontalAlignment.Stretch,
-            TextAlignment = TextAlignment,
-            TextWrapping = TextWrapping.Wrap
+            Style = TextBlockStyle,
+            TextWrapping = TextWrapping.Wrap,
+            TextAlignment = TextAlignment
         };
-
-        if (FontSize > 0)
-            _textBlock.FontSize = FontSize;
-        if (Foreground != null)
-            _textBlock.Foreground = Foreground;
 
         foreach (Inline _inline in inlines)
             _textBlock.Inlines.Add(_inline);
@@ -101,9 +109,4 @@ public class SParagraph : SBlock
 
 public class SContainer : SBlock
 {
-    public UIElement? UIElement { get; set; }
-
-    public bool PutUIInfront { get; internal set; } = false;
-
-    public override UIElement? GetUIElement() => UIElement;
 }

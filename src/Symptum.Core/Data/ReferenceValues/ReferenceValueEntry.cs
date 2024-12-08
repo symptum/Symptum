@@ -61,10 +61,7 @@ public class ReferenceValueEntry : ObservableObject
         return parsed;
     }
 
-    public override string ToString()
-    {
-        return JsonSerializer.Serialize(this, options);
-    }
+    public override string ToString() => JsonSerializer.Serialize(this, options);
 
     private static JsonSerializerOptions options = new()
     {

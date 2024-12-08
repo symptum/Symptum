@@ -9,6 +9,7 @@
     PrimaryButtonText="Add" CloseButtonText="Cancel" DefaultButton="Primary">
   <ScrollViewer>
     <StackPanel Spacing="16">
+      <TextBox Name="titleTextBox" Header="Title" />
       <TextBlock x:Name="parentInfo" TextWrapping="WrapWholeWords" />
       <AutoSuggestBox x:Name="queryBox" Header="Item Type" QueryIcon="Find" PlaceholderText="Search" />
       <ListView x:Name="newItemsLV" SelectionMode="Single" MaxHeight="200">
@@ -29,7 +30,6 @@
           </DataTemplate>
         </ListView.ItemTemplate>
       </ListView>
-      <TextBox Name="titleTextBox" Header="Title" />
       <InfoBar x:Name="errorInfoBar" Severity="Error" IsOpen="False" IsClosable="False" />
     </StackPanel>
   </ScrollViewer>

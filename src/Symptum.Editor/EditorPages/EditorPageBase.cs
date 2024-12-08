@@ -6,19 +6,6 @@ public partial class EditorPageBase : Page, IEditorPage
 {
     #region Properties
 
-    public static readonly DependencyProperty TitleProperty =
-        DependencyProperty.Register(
-            nameof(Title),
-            typeof(string),
-            typeof(EditorPageBase),
-            new PropertyMetadata(string.Empty));
-
-    public string? Title
-    {
-        get => (string)GetValue(TitleProperty);
-        set => SetValue(TitleProperty, value);
-    }
-
     public IconSource? IconSource { get; protected set; }
 
     public static readonly DependencyProperty EditableContentProperty =

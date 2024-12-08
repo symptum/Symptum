@@ -13,6 +13,7 @@
         <!-- Load Uno.UI.Toolkit resources -->
         <ToolkitResources xmlns="using:Uno.Toolkit.UI" />
         <ResourceDictionary Source="ms-appx:///Symptum.UI/Themes/Styles.xaml" />
+        <ResourceDictionary Source="ms-appx:///CommunityToolkit.WinUI.Controls.Ribbon/RibbonStyle.xaml" />
       </ResourceDictionary.MergedDictionaries>
 
       <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
@@ -25,6 +26,23 @@
       <converters:DateOnlyToDateTimeOffsetConverter x:Key="DateOnlyToDateTimeOffsetConverter" />
       <converters:UriToStringConverter x:Key="UriToStringConverter" />
       <converters:AuthorInfoToStringConverter x:Key="AuthorInfoToStringConverter" />
+      <Style BasedOn="{StaticResource DefaultAppBarButtonStyle}"
+           TargetType="AppBarButton">
+        <Setter Property="LabelPosition" Value="Collapsed" />
+        <Setter Property="Width" Value="48" />
+        <Setter Property="Height" Value="48" />
+      </Style>
+      <Style BasedOn="{StaticResource DefaultAppBarToggleButtonStyle}"
+           TargetType="AppBarToggleButton">
+        <Setter Property="LabelPosition" Value="Collapsed" />
+        <Setter Property="Width" Value="48" />
+        <Setter Property="Height" Value="48" />
+      </Style>
+      <Style x:Key="StatusBarTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
+        <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+      </Style>
     </ResourceDictionary>
   </Application.Resources>
 </Application>

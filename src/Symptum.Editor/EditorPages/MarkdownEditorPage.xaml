@@ -3,18 +3,352 @@
   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:local="using:Symptum.Editor.EditorPages"
+  xmlns:secontrols="using:Symptum.Editor.Controls"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:md="using:Symptum.UI.Markdown"
+  xmlns:controls="using:CommunityToolkit.WinUI.Controls"
   mc:Ignorable="d">
+  <local:EditorPageBase.Resources>
+    <PathIconSource x:Key="SubscriptIconSource" Data="M2.16782 3.1263C2.37421 2.94284 2.69025 2.96143 2.87371 3.16782L6.50001 7.24741L10.1263 3.16782C10.3098 2.96143 10.6258 2.94284 10.8322 3.1263C11.0386 3.30976 11.0572 3.6258 10.8737 3.83219L7.16898 8.00001L10.0173 11.2044C10.0059 11.3013 10 11.4 10 11.5C10 11.9736 10.2195 12.396 10.5623 12.6709C10.4939 12.7733 10.4318 12.878 10.3759 12.9844C10.2826 12.9606 10.1951 12.9096 10.1263 12.8322L6.50001 8.7526L2.87371 12.8322C2.69025 13.0386 2.37421 13.0572 2.16782 12.8737C1.96143 12.6903 1.94284 12.3742 2.1263 12.1678L5.83103 8.00001L2.1263 3.83219C1.94284 3.6258 1.96143 3.30976 2.16782 3.1263ZM12 11.5C12 11.2239 12.2239 11 12.5 11C12.7761 11 13 11.2239 13 11.5C13 11.7586 12.9185 11.8914 12.8109 11.9988C12.7092 12.1003 12.604 12.1668 12.4601 12.2578C12.3903 12.302 12.3113 12.3519 12.2192 12.4144C11.3577 12.999 11 13.7695 11 14.5C11 14.7761 11.2239 15 11.5 15H13.5C13.7761 15 14 14.7761 14 14.5C14 14.2239 13.7761 14 13.5 14H12.1057C12.2154 13.7483 12.4224 13.485 12.7808 13.2419C12.8155 13.2183 12.8595 13.1905 12.9096 13.1588C13.0838 13.0487 13.3312 12.8924 13.5173 12.7066C13.8003 12.4242 14 12.0414 14 11.5C14 10.6716 13.3284 10 12.5 10C11.6716 10 11 10.6716 11 11.5C11 11.7761 11.2239 12 11.5 12C11.7761 12 12 11.7761 12 11.5Z" />
+    <PathIconSource x:Key="SuperscriptIconSource" Data="M12 2.5C12 2.22386 12.2239 2 12.5 2C12.7761 2 13 2.22386 13 2.5C13 2.75857 12.9185 2.89141 12.8109 2.99883C12.7092 3.10029 12.604 3.16683 12.4601 3.25782C12.3903 3.30198 12.3113 3.35191 12.2192 3.41439C11.3577 3.99904 11 4.76948 11 5.5C11 5.77614 11.2239 6 11.5 6H13.5C13.7761 6 14 5.77614 14 5.5C14 5.22386 13.7761 5 13.5 5H12.1057C12.2154 4.74827 12.4224 4.48502 12.7808 4.24186C12.8155 4.21827 12.8595 4.19045 12.9096 4.15881C13.0838 4.04873 13.3312 3.89237 13.5173 3.70664C13.8003 3.42421 14 3.04143 14 2.5C14 1.67157 13.3284 1 12.5 1C11.6716 1 11 1.67157 11 2.5C11 2.77614 11.2239 3 11.5 3C11.7761 3 12 2.77614 12 2.5ZM10 4.50001C10 3.99306 10.1182 3.48999 10.3572 3.02076C10.2709 3.04638 10.1905 3.09561 10.1263 3.16782L6.50001 7.24741L2.87371 3.16782C2.69025 2.96143 2.37421 2.94284 2.16782 3.1263C1.96143 3.30976 1.94284 3.6258 2.1263 3.83219L5.83103 8.00001L2.1263 12.1678C1.94284 12.3742 1.96143 12.6903 2.16782 12.8737C2.37421 13.0572 2.69025 13.0386 2.87371 12.8322L6.50001 8.7526L10.1263 12.8322C10.3098 13.0386 10.6258 13.0572 10.8322 12.8737C11.0386 12.6903 11.0572 12.3742 10.8737 12.1678L7.16898 8.00001L10.027 4.78471C10.0093 4.69253 10 4.59735 10 4.50001Z" />
+    <PathIconSource x:Key="HeaderIconSource" Data="M16.5535 4.00293C16.6124 4.0092 16.6682 4.02569 16.7192 4.05059C16.7855 4.08284 16.8426 4.12887 16.8876 4.18425C16.9609 4.27427 17.0024 4.38901 17 4.50949V15.5001C17 15.7762 16.7761 16.0001 16.5 16.0001C16.2239 16.0001 16 15.7762 16 15.5001V6.73182C15.4171 7.56568 14.6397 8.34125 13.7773 8.91613C13.5476 9.06931 13.2371 9.00722 13.084 8.77746C12.9308 8.54769 12.9929 8.23726 13.2226 8.08408C14.638 7.14052 15.7402 5.61737 16.0097 4.4018C16.0177 4.36168 16.0305 4.32328 16.0474 4.28725C16.0807 4.2164 16.1296 4.15577 16.1888 4.10871C16.2447 4.06424 16.3103 4.03147 16.3819 4.01413C16.4369 4.00073 16.4948 3.99654 16.5535 4.00293ZM2.5 4.00011C2.77614 4.00011 3 4.22396 3 4.50011V9.00011H9V4.50011C9 4.22396 9.22386 4.00011 9.5 4.00011C9.77614 4.00011 10 4.22396 10 4.50011V15.5001C10 15.7762 9.77614 16.0001 9.5 16.0001C9.22386 16.0001 9 15.7762 9 15.5001V10.0001H3V15.5001C3 15.7762 2.77614 16.0001 2.5 16.0001C2.22386 16.0001 2 15.7762 2 15.5001V4.50011C2 4.22396 2.22386 4.00011 2.5 4.00011Z" />
+    <PathIconSource x:Key="OrderedListIconSource" Data="M3.68423 1.01091C3.87729 1.05479 4.01368 1.2207 4.01368 1.41166V4.70581C4.01368 4.93322 3.82219 5.11757 3.58596 5.11757C3.34974 5.11757 3.15825 4.93322 3.15825 4.70581V2.57963C2.97169 2.73831 2.75056 2.89181 2.49409 3.01526C2.28281 3.11697 2.02589 3.03452 1.92025 2.83112C1.81461 2.62771 1.90025 2.38037 2.11153 2.27867C2.46535 2.10836 2.74051 1.84713 2.93118 1.61767C3.02531 1.50441 3.09555 1.40286 3.1415 1.33097C3.1627 1.2978 3.18339 1.26423 3.20219 1.22973C3.29453 1.06158 3.48853 0.966435 3.68423 1.01091ZM2.15471 7.05586C1.98767 6.89507 1.98765 6.63435 2.15467 6.47354L2.15572 6.47253L2.15693 6.47137L2.15988 6.46859L2.16776 6.46129C2.17391 6.45568 2.18184 6.44859 2.19152 6.44025C2.21087 6.42357 2.23731 6.40176 2.27057 6.3766C2.33688 6.32642 2.43152 6.26193 2.55214 6.19802C2.79299 6.07042 3.1454 5.94109 3.58393 5.94111L3.59112 5.94117C3.91125 5.94637 4.25871 6.0263 4.53792 6.22535C4.83289 6.43563 5.02344 6.76107 5.02344 7.17649C5.02344 7.62757 4.81618 7.94311 4.53538 8.16839C4.32073 8.34059 4.04529 8.47067 3.82121 8.5765C3.78525 8.59348 3.7506 8.60985 3.7177 8.62568C3.45144 8.75385 3.24954 8.86678 3.10777 9.01691C3.05092 9.07712 2.99998 9.14746 2.96119 9.23535H4.59572C4.83194 9.23535 5.02344 9.4197 5.02344 9.64712C5.02344 9.87453 4.83146 10.0589 4.59524 10.0589H2.45713C2.22091 10.0589 2.02941 9.87453 2.02941 9.64712C2.02941 9.13717 2.19981 8.75415 2.4748 8.46294C2.73402 8.18843 3.06676 8.01827 3.33515 7.88909C3.37811 7.86841 3.41971 7.84859 3.45892 7.8299C3.69012 7.71973 3.85827 7.6396 3.98775 7.53573C4.10794 7.4393 4.168 7.34307 4.168 7.17649C4.168 7.02774 4.11074 6.94556 4.02884 6.88718C3.93179 6.81799 3.77468 6.76838 3.58027 6.76465C3.3214 6.76534 3.1117 6.84157 2.9646 6.91951C2.89091 6.95855 2.83494 6.99702 2.7992 7.02406C2.78144 7.0375 2.76901 7.04787 2.76223 7.05372L2.7566 7.05867C2.58935 7.21663 2.32076 7.2157 2.15471 7.05586ZM3.09366 12.9412C3.09366 12.7137 3.28516 12.5294 3.52138 12.5294C3.81461 12.5294 3.97666 12.4498 4.05829 12.3786C4.13892 12.3083 4.17203 12.221 4.1686 12.1331C4.1624 11.9737 4.00959 11.7059 3.52138 11.7059C3.16851 11.7059 2.98575 11.7896 2.9032 11.8426C2.85995 11.8703 2.8367 11.8944 2.82745 11.9051L2.82395 11.9093C2.82756 11.9032 2.83103 11.8969 2.83435 11.8906L2.83348 11.8922L2.83236 11.8943L2.83029 11.8981L2.82682 11.9042C2.82481 11.9077 2.82222 11.9116 2.82222 11.9116L2.82395 11.9093C2.71246 12.0985 2.46527 12.1726 2.2608 12.0742C2.04952 11.9725 1.96388 11.7251 2.06952 11.5217L2.07013 11.5205L2.07077 11.5193L2.07213 11.5168L2.07516 11.5112L2.08257 11.4982C2.08813 11.4888 2.09495 11.4778 2.10316 11.4655C2.11958 11.4409 2.14161 11.411 2.17029 11.3779C2.22786 11.3114 2.31154 11.2325 2.42869 11.1574C2.66693 11.0045 3.01882 10.8823 3.52138 10.8823C4.40187 10.8823 4.99757 11.438 5.02344 12.1022C5.03523 12.4048 4.92247 12.7081 4.68433 12.9412C4.92247 13.1743 5.03523 13.4775 5.02344 13.7801C4.99757 14.4443 4.40187 15 3.52138 15C3.01882 15 2.66693 14.8779 2.42869 14.725C2.31154 14.6498 2.22786 14.5709 2.17029 14.5044C2.14161 14.4713 2.11958 14.4414 2.10316 14.4168C2.09495 14.4045 2.08813 14.3935 2.08257 14.3841L2.07516 14.3711L2.07213 14.3655L2.07077 14.363L2.07013 14.3618L2.06952 14.3606C1.96388 14.1572 2.04952 13.9099 2.2608 13.8082C2.46527 13.7098 2.71246 13.7838 2.82395 13.973L2.82745 13.9772C2.8367 13.9879 2.85995 14.012 2.9032 14.0397C2.98575 14.0927 3.16851 14.1765 3.52138 14.1765C4.00959 14.1765 4.1624 13.9086 4.1686 13.7493C4.17203 13.6613 4.13892 13.574 4.05829 13.5037C3.97666 13.4325 3.81461 13.3529 3.52138 13.3529C3.28516 13.3529 3.09366 13.1686 3.09366 12.9412ZM7.5 3C7.22386 3 7 3.22386 7 3.5C7 3.77614 7.22386 4 7.5 4H13.5C13.7761 4 14 3.77614 14 3.5C14 3.22386 13.7761 3 13.5 3H7.5ZM7.5 7C7.22386 7 7 7.22386 7 7.5C7 7.77614 7.22386 8 7.5 8H13.5C13.7761 8 14 7.77614 14 7.5C14 7.22386 13.7761 7 13.5 7H7.5ZM7.5 11C7.22386 11 7 11.2239 7 11.5C7 11.7761 7.22386 12 7.5 12H13.5C13.7761 12 14 11.7761 14 11.5C14 11.2239 13.7761 11 13.5 11H7.5Z" />
+    <PathIconSource x:Key="QuoteIconSource" Data="M9.64645 11.1464C11.0333 9.75964 11.6545 8.38558 11.8852 6.79392C11.6184 6.92585 11.3178 7 11 7C9.89543 7 9 6.10457 9 5C9 3.89543 9.89543 3 11 3C12.1046 3 13 3.89543 13 5C13 7.59161 12.4728 9.7343 10.3536 11.8536C10.1583 12.0488 9.84171 12.0488 9.64645 11.8536C9.45118 11.6583 9.45118 11.3417 9.64645 11.1464ZM3.64645 11.1464C5.03326 9.75964 5.65454 8.38558 5.88523 6.79392C5.61837 6.92586 5.31784 7 5 7C3.89543 7 3 6.10457 3 5C3 3.89543 3.89543 3 5 3C6.10457 3 7 3.89543 7 5C7 7.59161 6.4728 9.7343 4.35355 11.8536C4.15829 12.0488 3.84171 12.0488 3.64645 11.8536C3.45118 11.6583 3.45118 11.3417 3.64645 11.1464Z" />
+    <PathIconSource x:Key="IndentIncreaseIconSource" Data="M11.5 3C11.7761 3 12 3.22386 12 3.5C12 3.77614 11.7761 4 11.5 4H5.5C5.2239 4 5 3.77614 5 3.5C5 3.22386 5.2239 3 5.5 3H11.5ZM14.5 7C14.7761 7 15 7.22386 15 7.5C15 7.77614 14.7761 8 14.5 8H5.5C5.2239 8 5 7.77614 5 7.5C5 7.22386 5.2239 7 5.5 7H14.5ZM9.5 11C9.77614 11 10 11.2239 10 11.5C10 11.7761 9.77614 12 9.5 12H5.5C5.2239 12 5 11.7761 5 11.5C5 11.2239 5.2239 11 5.5 11H9.5ZM1.8536 5.64645C1.6583 5.45118 1.3417 5.45118 1.1464 5.64645C0.9512 5.84171 0.9512 6.15829 1.1464 6.35355L2.2929 7.5L1.1464 8.64645C0.9512 8.84171 0.9512 9.15829 1.1464 9.35355C1.3417 9.54882 1.6583 9.54882 1.8536 9.35355L3.3536 7.85355C3.5488 7.65829 3.5488 7.34171 3.3536 7.14645L1.8536 5.64645Z" />
+    <PathIconSource x:Key="IndentDecreaseIconSource" Data="M11.5 3C11.7761 3 12 3.22386 12 3.5C12 3.77614 11.7761 4 11.5 4H5.5C5.2239 4 5 3.77614 5 3.5C5 3.22386 5.2239 3 5.5 3H11.5ZM14.5 7C14.7761 7 15 7.22386 15 7.5C15 7.77614 14.7761 8 14.5 8H5.5C5.2239 8 5 7.77614 5 7.5C5 7.22386 5.2239 7 5.5 7H14.5ZM9.5 11C9.77614 11 10 11.2239 10 11.5C10 11.7761 9.77614 12 9.5 12H5.5C5.2239 12 5 11.7761 5 11.5C5 11.2239 5.2239 11 5.5 11H9.5ZM2.6464 5.64645C2.8417 5.45118 3.1583 5.45118 3.3536 5.64645C3.5488 5.84171 3.5488 6.15829 3.3536 6.35355L2.2071 7.5L3.3536 8.64645C3.5488 8.84171 3.5488 9.15829 3.3536 9.35355C3.1583 9.54882 2.8417 9.54882 2.6464 9.35355L1.1464 7.85355C0.9512 7.65829 0.9512 7.34171 1.1464 7.14645L2.6464 5.64645Z" />
+    <PathIconSource x:Key="TableIconSource" Data="M2 4.5V11.5C2 12.8807 3.11929 14 4.5 14H11.5C12.8807 14 14 12.8807 14 11.5V4.5C14 3.11929 12.8807 2 11.5 2H4.5C3.11929 2 2 3.11929 2 4.5ZM3 8.5H7.5V13H4.5C3.67157 13 3 12.3284 3 11.5V8.5ZM7.5 7.5H3V4.5C3 3.67157 3.67157 3 4.5 3H7.5V7.5ZM8.5 8.5H13V11.5C13 12.3284 12.3284 13 11.5 13H8.5V8.5ZM13 7.5H8.5V3H11.5C12.3284 3 13 3.67157 13 4.5V7.5Z" />
+    <PathIconSource x:Key="CodeBlockIconSource" Data="M4.5 2C3.11929 2 2 3.11929 2 4.5V11.5C2 12.8807 3.11929 14 4.5 14H11.5C12.8807 14 14 12.8807 14 11.5V4.5C14 3.11929 12.8807 2 11.5 2H4.5ZM3 4.5C3 3.67157 3.67157 3 4.5 3H11.5C12.3284 3 13 3.67157 13 4.5V11.5C13 12.3284 12.3284 13 11.5 13H4.5C3.67157 13 3 12.3284 3 11.5V4.5ZM9.85355 5.64645C9.65829 5.45118 9.34171 5.45118 9.14645 5.64645C8.95118 5.84171 8.95118 6.15829 9.14645 6.35355L10.7929 8L9.14645 9.64645C8.95118 9.84171 8.95118 10.1583 9.14645 10.3536C9.34171 10.5488 9.65829 10.5488 9.85355 10.3536L11.8536 8.35355C12.0488 8.15829 12.0488 7.84171 11.8536 7.64645L9.85355 5.64645ZM6.85355 6.35364C7.04881 6.15838 7.04882 5.8418 6.85356 5.64654C6.6583 5.45127 6.34172 5.45126 6.14645 5.64652L4.14645 7.64644C4.05268 7.74021 4 7.86738 4 7.99999C4 8.1326 4.05268 8.25978 4.14645 8.35355L6.14645 10.3536C6.34171 10.5488 6.65829 10.5488 6.85355 10.3536C7.04882 10.1583 7.04882 9.84171 6.85355 9.64645L5.20711 8.00001L6.85355 6.35364Z" />
+    <PathIconSource x:Key="CodeInlineIconSource" Data="M9.80307 3.04322C10.0554 3.15537 10.1691 3.45085 10.0569 3.70319L6.05691 12.7032C5.94475 12.9555 5.64927 13.0692 5.39693 12.957C5.14459 12.8449 5.03094 12.5494 5.14309 12.2971L9.14309 3.29706C9.25525 3.04471 9.55073 2.93107 9.80307 3.04322ZM4.33218 5.37642C4.53857 5.55988 4.55716 5.87592 4.3737 6.08231L2.66898 8.00012L4.3737 9.91794C4.55716 10.1243 4.53857 10.4404 4.33218 10.6238C4.12579 10.8073 3.80975 10.7887 3.6263 10.5823L1.6263 8.33231C1.4579 8.14286 1.4579 7.85739 1.6263 7.66794L3.6263 5.41794C3.80975 5.21155 4.12579 5.19296 4.33218 5.37642ZM11.6678 5.37642C11.8742 5.19296 12.1902 5.21155 12.3737 5.41794L14.3737 7.66794C14.5421 7.85739 14.5421 8.14286 14.3737 8.33231L12.3737 10.5823C12.1902 10.7887 11.8742 10.8073 11.6678 10.6238C11.4614 10.4404 11.4428 10.1243 11.6263 9.91794L13.331 8.00012L11.6263 6.08231C11.4428 5.87592 11.4614 5.55988 11.6678 5.37642Z" />
+    <PathIconSource x:Key="ThematicBreakIconSource" Data="M16 2.5V6.0001C16 6.82807 15.3214 7.5001 14.5 7.5001H5.4881C4.6667 7.5001 4 6.82807 4 6.0001V2.5C4 2.22386 4.22208 2 4.49603 2C4.76998 2 4.99206 2.22386 4.99206 2.5L4.99206 6.0001C4.99206 6.2752 5.21413 6.5001 5.4881 6.5001H14.5C14.774 6.5001 15 6.2752 15 6.0001V2.5C15 2.22386 15.226 2 15.5 2C15.774 2 16 2.22386 16 2.5ZM3 9.5001C2.72386 9.5001 2.5 9.72396 2.5 10.0001C2.5 10.2762 2.72386 10.5001 3 10.5001H4.2C4.47614 10.5001 4.7 10.2762 4.7 10.0001C4.7 9.72396 4.47614 9.5001 4.2 9.5001H3ZM6.2 9.5001C5.92386 9.5001 5.7 9.72396 5.7 10.0001C5.7 10.2762 5.92386 10.5001 6.2 10.5001H7.4C7.67614 10.5001 7.9 10.2762 7.9 10.0001C7.9 9.72396 7.67614 9.5001 7.4 9.5001H6.2ZM8.9 10.0001C8.9 9.72396 9.12386 9.5001 9.4 9.5001H10.6C10.8761 9.5001 11.1 9.72396 11.1 10.0001C11.1 10.2762 10.8761 10.5001 10.6 10.5001H9.4C9.12386 10.5001 8.9 10.2762 8.9 10.0001ZM12.6 9.5001C12.3239 9.5001 12.1 9.72396 12.1 10.0001C12.1 10.2762 12.3239 10.5001 12.6 10.5001H13.8C14.0761 10.5001 14.3 10.2762 14.3 10.0001C14.3 9.72396 14.0761 9.5001 13.8 9.5001H12.6ZM15.3 10.0001C15.3 9.72396 15.5239 9.5001 15.8 9.5001H17C17.2761 9.5001 17.5 9.72396 17.5 10.0001C17.5 10.2762 17.2761 10.5001 17 10.5001H15.8C15.5239 10.5001 15.3 10.2762 15.3 10.0001ZM16 14.0001V17.5002C16 17.7763 15.774 18.0002 15.5 18.0002C15.226 18.0002 15 17.7763 15 17.5002V14.0001C15 13.725 14.774 13.5001 14.5 13.5001H5.4881C5.21413 13.5001 4.99206 13.725 4.99206 14.0001L4.99206 17.5002C4.99206 17.7763 4.76998 18.0002 4.49603 18.0002C4.22208 18.0002 4 17.7763 4 17.5002V14.0001C4 13.1721 4.6667 12.5001 5.4881 12.5001H14.5C15.3214 12.5001 16 13.1721 16 14.0001Z" />
+    <PathIconSource x:Key="ExpandIconSource" Data="M2 2.5C2 2.22386 2.22386 2 2.5 2H5.5C5.77614 2 6 2.22386 6 2.5C6 2.77614 5.77614 3 5.5 3H3.70711L6.35358 5.64643C6.54884 5.84169 6.54884 6.15828 6.35358 6.35354C6.15831 6.5488 5.84173 6.5488 5.64647 6.35354L3 3.7071V5.5C3 5.77614 2.77614 6 2.5 6C2.22386 6 2 5.77614 2 5.5V2.5ZM13.5 2C13.7761 2 14 2.22386 14 2.5V5.5C14 5.77614 13.7761 6 13.5 6C13.2239 6 13 5.77614 13 5.5V3.70711L10.3536 6.35358C10.1583 6.54884 9.84172 6.54884 9.64646 6.35358C9.4512 6.15831 9.4512 5.84173 9.64646 5.64647L12.2929 3L10.5 3C10.2239 3 10 2.77614 10 2.5C10 2.22386 10.2239 2 10.5 2H13.5ZM13.5 14C13.7761 14 14 13.7761 14 13.5V10.5C14 10.2239 13.7761 10 13.5 10C13.2239 10 13 10.2239 13 10.5V12.2929L10.3535 9.64646C10.1583 9.4512 9.84169 9.4512 9.64642 9.64646C9.45116 9.84172 9.45116 10.1583 9.64642 10.3536L12.2929 13H10.5C10.2239 13 10 13.2239 10 13.5C10 13.7761 10.2239 14 10.5 14H13.5ZM2.5 14C2.22386 14 2 13.7761 2 13.5V10.5C2 10.2239 2.22386 10 2.5 10C2.77614 10 3 10.2239 3 10.5L3 12.2929L5.64643 9.64642C5.8417 9.45116 6.15828 9.45116 6.35354 9.64642C6.5488 9.84169 6.5488 10.1583 6.35354 10.3535L3.7071 13H5.5C5.77614 13 6 13.2239 6 13.5C6 13.7761 5.77614 14 5.5 14H2.5Z" />
+  </local:EditorPageBase.Resources>
   <Grid>
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup x:Name="PreviewStateGroup">
+        <VisualState x:Name="NoPreviewState" />
+        <VisualState x:Name="PreviewState">
+          <VisualState.Setters>
+            <Setter Target="mdTB.Visibility" Value="Visible" />
+            <Setter Target="mdText.(Grid.ColumnSpan)" Value="1" />
+            <Setter Target="docOutlineButton.IsEnabled" Value="True" />
+            <Setter Target="expandPreviewButton.IsEnabled" Value="True" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <VisualStateGroup x:Name="ExpandedStateGroup">
+        <VisualState x:Name="NotExpandedState" />
+        <VisualState x:Name="ExpandedState">
+          <VisualState.Setters>
+            <Setter Target="ribbon.Visibility" Value="Collapsed" />
+            <Setter Target="mdText.Visibility" Value="Collapsed" />
+            <Setter Target="mdTB.(Grid.Column)" Value="0" />
+            <Setter Target="mdTB.(Grid.ColumnSpan)" Value="2" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <VisualStateGroup x:Name="DocOutlineStateGroup">
+        <VisualState x:Name="NoDocOutlineState" />
+        <VisualState x:Name="DocOutlineState">
+          <VisualState.Setters>
+            <Setter Target="docOutlineGrid.Visibility" Value="Visible" />
+            <Setter Target="sizer.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="Auto" />
+      <RowDefinition />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
       <ColumnDefinition />
       <ColumnDefinition />
+      <ColumnDefinition Width="Auto" />
+      <ColumnDefinition Width="Auto" />
     </Grid.ColumnDefinitions>
+    <controls:Ribbon x:Name="ribbon" HorizontalAlignment="Stretch" Grid.ColumnSpan="4">
+      <controls:RibbonCollapsibleGroup CollapsedAccessKey="RR" Priority="2" Label="Resource"
+                                       Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
+        <controls:RibbonCollapsibleGroup.IconSource>
+          <FontIconSource Glyph="&#xE7B8;" />
+        </controls:RibbonCollapsibleGroup.IconSource>
+        <StackPanel Orientation="Vertical" Spacing="8">
+          <AppBarButton x:Name="propsButton" Icon="Repair" AccessKey="P"
+                        ToolTipService.ToolTip="Properties"
+                        Label="Properties" Click="PropsButton_Click" />
+          <AppBarButton x:Name="saveButton" Icon="Save" AccessKey="S" Label="Save" Click="SaveButton_Click">
+            <AppBarButton.KeyboardAccelerators>
+              <KeyboardAccelerator Modifiers="Control" Key="S" />
+            </AppBarButton.KeyboardAccelerators>
+          </AppBarButton>
+        </StackPanel>
+      </controls:RibbonCollapsibleGroup>
+      <controls:RibbonCollapsibleGroup CollapsedAccessKey="E" Priority="1" Label="Edit"
+                                 Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
+        <controls:RibbonCollapsibleGroup.IconSource>
+          <FontIconSource Glyph="&#xE70F;" />
+        </controls:RibbonCollapsibleGroup.IconSource>
+        <Grid ColumnSpacing="8" RowSpacing="8">
+          <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+          </Grid.ColumnDefinitions>
+          <AppBarButton x:Name="undoButton" Icon="Undo" AccessKey="ZU"
+                        Label="Undo" IsEnabled="False" Click="UndoButton_Click">
+            <AppBarButton.KeyboardAccelerators>
+              <KeyboardAccelerator Modifiers="Control" Key="Z" />
+            </AppBarButton.KeyboardAccelerators>
+          </AppBarButton>
+          <AppBarButton x:Name="redoButton" Icon="Redo" AccessKey="ZR" Grid.Column="1"
+                        Label="Redo" IsEnabled="False" Click="RedoButton_Click">
+            <AppBarButton.KeyboardAccelerators>
+              <KeyboardAccelerator Modifiers="Control" Key="Y" />
+            </AppBarButton.KeyboardAccelerators>
+          </AppBarButton>
+          <AppBarButton x:Name="findButton" Icon="Find" AccessKey="F" Grid.Column="2"
+                        Label="Find" Click="FindButton_Click">
+            <AppBarButton.KeyboardAccelerators>
+              <KeyboardAccelerator Modifiers="Control" Key="F" />
+            </AppBarButton.KeyboardAccelerators>
+          </AppBarButton>
+          <AppBarButton x:Name="cutButton" Icon="Cut" AccessKey="X" Grid.Row="1"
+                        ToolTipService.ToolTip="Cut" Label="Cut" Click="CutButton_Click" />
+          <AppBarButton x:Name="copyButton" Icon="Copy" AccessKey="C" Grid.Row="1" Grid.Column="1"
+                        ToolTipService.ToolTip="Copy" Label="Copy" Click="CopyButton_Click" />
+          <AppBarButton x:Name="pasteButton" Icon="Paste" AccessKey="V" Grid.Row="1" Grid.Column="2"
+                        ToolTipService.ToolTip="Paste" Label="Paste" Click="PasteButton_Click" />
+        </Grid>
+      </controls:RibbonCollapsibleGroup>
+      <controls:RibbonCollapsibleGroup CollapsedAccessKey="ZF" Priority="0" Label="Text"
+                                       Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
+        <controls:RibbonCollapsibleGroup.IconSource>
+          <FontIconSource Glyph="&#xE97F;" />
+        </controls:RibbonCollapsibleGroup.IconSource>
+        <Grid ColumnSpacing="8" RowSpacing="8">
+          <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+          </Grid.ColumnDefinitions>
+          <AppBarButton x:Name="boldButton" Icon="Bold" AccessKey="1"
+                        Label="Bold" Click="BoldButton_Click">
+            <AppBarButton.KeyboardAccelerators>
+              <KeyboardAccelerator Modifiers="Control" Key="B" />
+            </AppBarButton.KeyboardAccelerators>
+          </AppBarButton>
+          <AppBarButton x:Name="italicButton" Icon="Italic" AccessKey="2" Grid.Column="1"
+                        Label="Italic" Click="ItalicButton_Click">
+            <AppBarButton.KeyboardAccelerators>
+              <KeyboardAccelerator Modifiers="Control" Key="I" />
+            </AppBarButton.KeyboardAccelerators>
+          </AppBarButton>
+          <AppBarButton x:Name="strikeButton" AccessKey="3" Grid.Column="2"
+                        ToolTipService.ToolTip="Strikethrough" Label="Strikethrough" Click="StrikeButton_Click">
+            <AppBarButton.Icon>
+              <FontIcon Glyph="&#xEDE0;" />
+            </AppBarButton.Icon>
+          </AppBarButton>
+          <AppBarButton x:Name="subscriptButton" AccessKey="4" Grid.Column="3"
+                        ToolTipService.ToolTip="Subscript" Label="Subscript" Click="SubscriptButton_Click">
+            <AppBarButton.Icon>
+              <IconSourceElement Height="16" IconSource="{StaticResource SubscriptIconSource}" />
+            </AppBarButton.Icon>
+          </AppBarButton>
+          <AppBarButton x:Name="superscriptButton" AccessKey="5" Grid.Column="4"
+                        ToolTipService.ToolTip="Superscript" Label="Superscript" Click="SuperscriptButton_Click">
+            <AppBarButton.Icon>
+              <IconSourceElement Height="16" IconSource="{StaticResource SuperscriptIconSource}" />
+            </AppBarButton.Icon>
+          </AppBarButton>
+        </Grid>
+      </controls:RibbonCollapsibleGroup>
+      <controls:RibbonCollapsibleGroup CollapsedAccessKey="ZH" Priority="3" Label="Heading"
+                                       IconSource="{StaticResource HeaderIconSource}"
+                                       Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
+        <GridView Width="144" SelectionChanged="GridView_SelectionChanged">
+          <GridView.ItemTemplate>
+            <DataTemplate>
+              <TextBlock HorizontalTextAlignment="Center" Text="{Binding}" />
+            </DataTemplate>
+          </GridView.ItemTemplate>
+          <GridView.Items>
+            <x:String>H1</x:String>
+            <x:String>H2</x:String>
+            <x:String>H3</x:String>
+            <x:String>H4</x:String>
+            <x:String>H5</x:String>
+            <x:String>H6</x:String>
+          </GridView.Items>
+        </GridView>
+      </controls:RibbonCollapsibleGroup>
+      <controls:RibbonCollapsibleGroup CollapsedAccessKey="ZP" Priority="4" Label="Paragraph"
+                                       Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
+        <controls:RibbonCollapsibleGroup.IconSource>
+          <FontIconSource Glyph="&#xE7BC;" />
+        </controls:RibbonCollapsibleGroup.IconSource>
+        <Grid ColumnSpacing="8" RowSpacing="8">
+          <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+          </Grid.ColumnDefinitions>
+          <AppBarButton x:Name="indentIncreaseButton" AccessKey="AI" ToolTipService.ToolTip="Increase Indent"
+                        Label="Increase Indent" Click="IndentIncreaseButton_Click">
+            <AppBarButton.Icon>
+              <IconSourceElement Height="14" IconSource="{StaticResource IndentIncreaseIconSource}" />
+            </AppBarButton.Icon>
+          </AppBarButton>
+          <AppBarButton x:Name="indentDecreaseButton" AccessKey="AO" Grid.Column="1"
+                        ToolTipService.ToolTip="Decrease Indent" Label="Decrease Indent" Click="IndentDecreaseButton_Click">
+            <AppBarButton.Icon>
+              <IconSourceElement Height="14" IconSource="{StaticResource IndentDecreaseIconSource}" />
+            </AppBarButton.Icon>
+          </AppBarButton>
+          <AppBarButton x:Name="quoteButton" AccessKey="Q" Grid.Column="2"
+                        ToolTipService.ToolTip="Quote" Label="Quote" Click="QuoteButton_Click">
+            <AppBarButton.Icon>
+              <IconSourceElement Height="14" IconSource="{StaticResource QuoteIconSource}" />
+            </AppBarButton.Icon>
+          </AppBarButton>
+          <AppBarButton x:Name="ulButton" AccessKey="U" Icon="Bullets" Grid.Row="1"
+                        ToolTipService.ToolTip="Unordered List" Label="Unordered List" Click="ULButton_Click" />
+          <AppBarButton x:Name="olButton" AccessKey="O" Grid.Row="1" Grid.Column="1"
+                        ToolTipService.ToolTip="Ordered List" Label="Ordered List" Click="OLButton_Click">
+            <AppBarButton.Icon>
+              <IconSourceElement Height="16" IconSource="{StaticResource OrderedListIconSource}" />
+            </AppBarButton.Icon>
+          </AppBarButton>
+          <AppBarButton x:Name="tlButton" AccessKey="TL" Grid.Row="1" Grid.Column="2"
+                        ToolTipService.ToolTip="Task List" Label="Task List" Click="TLButton_Click">
+            <AppBarButton.Icon>
+              <FontIcon Glyph="&#xE9D5;" />
+            </AppBarButton.Icon>
+          </AppBarButton>
+        </Grid>
+      </controls:RibbonCollapsibleGroup>
+      <controls:RibbonCollapsibleGroup CollapsedAccessKey="ZI" Priority="5" Label="Insert"
+                                       Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
+        <controls:RibbonCollapsibleGroup.IconSource>
+          <SymbolIconSource Symbol="Add" />
+        </controls:RibbonCollapsibleGroup.IconSource>
+        <Grid ColumnSpacing="8" RowSpacing="8">
+          <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+          </Grid.ColumnDefinitions>
+          <AppBarButton x:Name="tableButton" AccessKey="TT"
+                        ToolTipService.ToolTip="Table" Label="Table" Click="TableButton_Click">
+            <AppBarButton.Icon>
+              <IconSourceElement Height="16" IconSource="{StaticResource TableIconSource}" />
+            </AppBarButton.Icon>
+          </AppBarButton>
+          <AppBarButton x:Name="linkButton" Icon="Link" AccessKey="L" Grid.Column="1"
+                        ToolTipService.ToolTip="Link" Label="Link" Click="LinkButton_Click" />
+          <AppBarButton x:Name="imageButton" Icon="Pictures" AccessKey="I" Grid.Column="2"
+                        ToolTipService.ToolTip="Image" Label="Image" />
+          <AppBarButton x:Name="codeBlockButton" AccessKey="CB" Grid.Row="1"
+                        ToolTipService.ToolTip="Code Block" Label="Code Block" Click="CodeBlockButton_Click">
+            <AppBarButton.Icon>
+              <IconSourceElement Height="16" IconSource="{StaticResource CodeBlockIconSource}" />
+            </AppBarButton.Icon>
+          </AppBarButton>
+          <AppBarButton x:Name="codeInlineButton" AccessKey="CI" Grid.Row="1" Grid.Column="1"
+                        ToolTipService.ToolTip="Code Inline" Label="Code Inline" Click="CodeInlineButton_Click">
+            <AppBarButton.Icon>
+              <IconSourceElement Height="16" IconSource="{StaticResource CodeInlineIconSource}" />
+            </AppBarButton.Icon>
+          </AppBarButton>
+          <AppBarButton x:Name="thBreakButton" AccessKey="TB" Grid.Row="1" Grid.Column="2"
+                        ToolTipService.ToolTip="Thematic Break" Label="Thematic Break" Click="ThBreakButton_Click">
+            <AppBarButton.Icon>
+              <IconSourceElement IconSource="{StaticResource ThematicBreakIconSource}" />
+            </AppBarButton.Icon>
+          </AppBarButton>
+        </Grid>
+      </controls:RibbonCollapsibleGroup>
+    </controls:Ribbon>
 
-    <TextBox x:Name="mdText" Text="{x:Bind mrkd}" AcceptsReturn="True" TextWrapping="Wrap" Height="Auto"
-             HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" />
-    <md:MarkdownTextBlock Grid.Column="1" Text="{x:Bind mdText.Text, Mode=OneWay}" />
+    <secontrols:FindControl x:Name="findControl" Grid.Row="1" Grid.ColumnSpan="4" Visibility="Collapsed"
+                            QueryCleared="FindControl_QueryCleared" QuerySubmitted="FindControl_QuerySubmitted"
+                            FindNextEnabled="True" FindPreviousEnabled="True" FindAllEnabled="False" />
+    <TextBox x:Name="mdText" AcceptsReturn="True" TextWrapping="NoWrap" CornerRadius="0" BorderThickness="0"
+             Height="Auto" HorizontalAlignment="Stretch" Grid.Row="2" Grid.ColumnSpan="2"
+             SelectionHighlightColorWhenNotFocused="{ThemeResource AccentFillColorSelectedTextBackgroundBrush}"
+             ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto"
+             FontFamily="{StaticResource DefaultCodeFontFamily}" />
+
+    <md:MarkdownTextBlock x:Name="mdTB" Grid.Row="2" Grid.Column="1" Visibility="Collapsed" />
+    <controls:ContentSizer x:Name="sizer" Grid.Row="2" Grid.Column="2" FlowDirection="RightToLeft" Visibility="Collapsed" TargetControl="{x:Bind docOutlineGrid}" />
+    <Grid x:Name="docOutlineGrid" Width="150" Grid.Row="2" Grid.Column="3" RowSpacing="12" Margin="0,0,4,0" Visibility="Collapsed"
+          BorderBrush="{ThemeResource AccentFillColorDefaultBrush}" BorderThickness="1" CornerRadius="8,8,0,8">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition />
+      </Grid.RowDefinitions>
+      <TextBlock Margin="12,4" FontWeight="SemiBold" Text="Document Outline" />
+      <ScrollViewer HorizontalScrollBarVisibility="Auto" Grid.Row="1">
+        <TreeView x:Name="docOutlineTV"
+                  ItemsSource="{x:Bind mdTB.DocumentOutline.Nodes}" ItemInvoked="TreeView_ItemInvoked">
+          <TreeView.ItemTemplate>
+            <DataTemplate x:DataType="md:DocumentNode">
+              <TreeViewItem Content="{x:Bind }" ToolTipService.ToolTip="{x:Bind }" ItemsSource="{x:Bind Children}" IsExpanded="True" />
+            </DataTemplate>
+          </TreeView.ItemTemplate>
+        </TreeView>
+      </ScrollViewer>
+    </Grid>
+    <Grid Grid.Row="3" Grid.ColumnSpan="4" Margin="12,0,4,0" ColumnSpacing="8">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" />
+        <ColumnDefinition Width="Auto" />
+      </Grid.ColumnDefinitions>
+      <TextBlock x:Name="caretTB" Style="{ThemeResource StatusBarTextBlockStyle}" />
+      <AppBarSeparator Grid.Column="1"/>
+      <TextBlock x:Name="countTB" Grid.Column="2" Style="{ThemeResource StatusBarTextBlockStyle}" />
+      <AppBarSeparator Grid.Column="3"/>
+      <ToggleButton x:Name="previewButton" Grid.Column="4" CornerRadius="0,0,4,4" Margin="0,0,0,4" IsChecked="False"
+                    Checked="PreviewButton_Checked" Unchecked="PreviewButton_Unchecked" ToolTipService.ToolTip="Preview Markdown">
+        <FontIcon Glyph="&#xE8FF;" FontSize="14" />
+        <ToggleButton.KeyboardAccelerators>
+          <KeyboardAccelerator Modifiers="Control" Key="P" />
+        </ToggleButton.KeyboardAccelerators>
+      </ToggleButton>
+      <ToggleButton x:Name="expandPreviewButton" Grid.Column="5" CornerRadius="0,0,4,4" Margin="0,0,0,4" IsChecked="False" IsEnabled="False"
+                    Checked="ExpandPreviewButton_Checked" Unchecked="ExpandPreviewButton_Unchecked" ToolTipService.ToolTip="Fullscreen Mode">
+        <IconSourceElement Height="14" IconSource="{StaticResource ExpandIconSource}" />
+      </ToggleButton>
+      <ToggleButton x:Name="docOutlineButton" Grid.Column="6" CornerRadius="0,0,4,4" Margin="0,0,0,4" IsChecked="False" IsEnabled="False"
+                    Checked="DocOutlineButton_Checked" Unchecked="DocOutlineButton_Unchecked" ToolTipService.ToolTip="Document Outline">
+        <FontIcon Glyph="&#xE8A4;" FontSize="14" />
+      </ToggleButton>
+    </Grid>
   </Grid>
 </local:EditorPageBase>

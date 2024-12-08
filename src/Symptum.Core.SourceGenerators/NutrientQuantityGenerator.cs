@@ -82,7 +82,7 @@ public class NutrientQuantityGenerator : ISourceGenerator
     public void Execute(GeneratorExecutionContext context)
     {
         string? nutrientIndexPath = context.AdditionalFiles
-            .FirstOrDefault(x => Path.GetFileName(x.Path).Equals("NutrientIndex.txt", StringComparison.OrdinalIgnoreCase))?.Path;
+            .FirstOrDefault(x => Path.GetFileName(x.Path).Equals("NutrientIndex.txt", StringComparison.InvariantCultureIgnoreCase))?.Path;
 
         if (nutrientIndexPath == null) return;
 

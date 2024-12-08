@@ -1,8 +1,6 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
 using Markdig;
+using Markdig.Syntax;
+using Symptum.Markdown.Reference;
 using Symptum.UI.Markdown.Renderers;
 using Symptum.UI.Markdown.TextElements;
 
@@ -14,27 +12,42 @@ public partial class MarkdownTextBlock : Control
     private const string MarkdownContainerName = "MarkdownContainer";
     private Grid? _container;
     private MarkdownPipeline _pipeline;
-    private MyFlowDocument _document;
+    private FlowDocumentElement _document;
     private WinUIRenderer? _renderer;
 
-    private static readonly DependencyProperty ConfigProperty = DependencyProperty.Register(
-        nameof(Config),
-        typeof(MarkdownConfig),
-        typeof(MarkdownTextBlock),
-        new PropertyMetadata(MarkdownConfig.Default, OnConfigChanged)
-    );
+    #region Properties
 
-    private static readonly DependencyProperty TextProperty = DependencyProperty.Register(
+    #region Configuration
+
+    private static readonly DependencyProperty ConfigurationProperty = DependencyProperty.Register(
+        nameof(Configuration),
+        typeof(MarkdownConfiguration),
+        typeof(MarkdownTextBlock),
+        new PropertyMetadata(MarkdownConfiguration.Default, OnConfigChanged));
+
+    public MarkdownConfiguration Configuration
+    {
+        get => (MarkdownConfiguration)GetValue(ConfigurationProperty);
+        set => SetValue(ConfigurationProperty, value);
+    }
+
+    private static void OnConfigChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is MarkdownTextBlock self && e.NewValue != null)
+        {
+            self.ApplyConfig(self.Configuration);
+        }
+    }
+
+    #endregion
+
+    #region Text
+
+    public static readonly DependencyProperty TextProperty = DependencyProperty.Register(
         nameof(Text),
         typeof(string),
         typeof(MarkdownTextBlock),
-        new PropertyMetadata(null, OnTextChanged));
-
-    public MarkdownConfig Config
-    {
-        get => (MarkdownConfig)GetValue(ConfigProperty);
-        set => SetValue(ConfigProperty, value);
-    }
+        new PropertyMetadata(string.Empty, OnTextChanged));
 
     public string Text
     {
@@ -42,33 +55,52 @@ public partial class MarkdownTextBlock : Control
         set => SetValue(TextProperty, value);
     }
 
-    private static void OnConfigChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is MarkdownTextBlock self && e.NewValue != null)
+        if (d is MarkdownTextBlock self && e.NewValue is string text)
         {
-            self.ApplyConfig(self.Config);
+            self.ApplyText(true);
         }
     }
 
-    private static void OnTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    #endregion
+
+    #region MarkdownDocument
+
+    public static readonly DependencyProperty MarkdownDocumentProperty = DependencyProperty.Register(
+        nameof(MarkdownDocument),
+        typeof(MarkdownDocument),
+        typeof(MarkdownTextBlock),
+        new PropertyMetadata(null));
+
+    public MarkdownDocument? MarkdownDocument
     {
-        if (d is MarkdownTextBlock self && e.NewValue != null)
-        {
-            self.ApplyText(self.Text, true);
-        }
+        get => (MarkdownDocument)GetValue(MarkdownDocumentProperty);
+        private set => SetValue(MarkdownDocumentProperty, value);
     }
+
+    #endregion
+
+    public DocumentOutline DocumentOutline { get; }
+
+    #endregion
 
     public MarkdownTextBlock()
     {
         DefaultStyleKey = typeof(MarkdownTextBlock);
-        _document = new MyFlowDocument(Config);
+        _document = new FlowDocumentElement(Configuration);
         _pipeline = new MarkdownPipelineBuilder()
             .UseAlertBlocks()
             .UseEmphasisExtras()
             .UseAutoLinks()
+            .UseListExtras()
             .UseTaskLists()
             .UsePipeTables()
+            .UseGridTables()
+            .UseAutoIdentifiers(Markdig.Extensions.AutoIdentifiers.AutoIdentifierOptions.GitHub)
+            .Use<ReferenceInlineExtension>()
             .Build();
+        DocumentOutline = new();
     }
 
     protected override void OnApplyTemplate()
@@ -80,37 +112,50 @@ public partial class MarkdownTextBlock : Control
         Build();
     }
 
-    private void ApplyConfig(MarkdownConfig config)
+    private void ApplyConfig(MarkdownConfiguration config)
     {
         if (_renderer != null)
         {
-            _renderer.Config = config;
+            _renderer.Configuration = config;
         }
     }
 
-    private void ApplyText(string text, bool rerender)
+    private void ApplyText(bool rerender)
     {
-        Markdig.Syntax.MarkdownDocument markdown = Markdig.Markdown.Parse(text ?? string.Empty, _pipeline);
         if (_renderer != null)
         {
             if (rerender)
             {
                 _renderer.ReloadDocument();
             }
-            _renderer.Render(markdown);
+
+            MarkdownDocument? markdown = null;
+            try
+            {
+                if (!string.IsNullOrEmpty(Text))
+                    markdown = Markdig.Markdown.Parse(Text, _pipeline);
+            }
+            catch { }
+
+            if (markdown != null)
+            {
+                MarkdownDocument = markdown;
+                _renderer.Render(markdown);
+            }
         }
+        else _document.StackPanel.Children.Clear();
     }
 
     private void Build()
     {
-        if (Config != null)
+        if (Configuration != null)
         {
             if (_renderer == null)
             {
-                _renderer = new WinUIRenderer(_document, Config);
+                _renderer = new WinUIRenderer(_document, Configuration, DocumentOutline);
             }
             _pipeline.Setup(_renderer);
-            ApplyText(Text, false);
+            ApplyText(false);
         }
     }
 }

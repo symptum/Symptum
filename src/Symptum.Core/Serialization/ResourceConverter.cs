@@ -1,5 +1,5 @@
 using System.Collections;
-using System.Diagnostics;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Symptum.Core.Management.Resources;
@@ -8,29 +8,25 @@ using static Symptum.Core.Helpers.FileHelper;
 namespace Symptum.Core.Serialization;
 
 /// <summary>
-/// Converts derivates of <see cref="MetadataResource"/> to or from JSON.
-/// This converter will check the <see cref="MetadataResource.SplitMetadata"/> property.
+/// Converts derivates of <see cref="IMetadataResource"/> to or from JSON.
+/// This converter will check the <see cref="IMetadataResource.SplitMetadata"/> property.
 /// If it's set to <see langword="true"/>, then the converter will use a path to another JSON file where it will be stored.
 /// </summary>
-/// <typeparam name="T">Derivate of <see cref="MetadataResource"/></typeparam>
-public class MetadataResourceConverter<T> : JsonConverter<T> where T : MetadataResource
+/// <typeparam name="T">Derivate of <see cref="IMetadataResource"/></typeparam>
+public class MetadataResourceConverter<T> : JsonConverter<T> where T : IMetadataResource
 {
     public override T? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.String)
         {
-            string json = reader.GetString() ?? string.Empty;
-            if (json.StartsWith(PathSeparator))
+            string? json = reader.GetString();
+            (Type? derivedType, string? filePath) = MetadataSerializationHelper.ParseSplitJson<T>(json);
+            if (derivedType != null && Activator.CreateInstance(derivedType) is T obj)
             {
-                string filePath = json;
-                Debug.WriteLine(filePath);
-                if (Activator.CreateInstance(typeof(T)) is T obj)
-                {
-                    obj.SplitMetadata = true;
-                    obj.MetadataPath = filePath;
-                    obj.IsMetadataLoaded = false;
-                    return obj;
-                }
+                obj.SplitMetadata = true;
+                obj.MetadataPath = filePath;
+                obj.IsMetadataLoaded = false;
+                return obj;
             }
         }
 
@@ -44,7 +40,8 @@ public class MetadataResourceConverter<T> : JsonConverter<T> where T : MetadataR
         if (value.SplitMetadata)
         {
             string filePath = ResourceManager.GetResourceFilePath(value, JsonFileExtension);
-            writer.WriteStringValue(filePath);
+            string json = MetadataSerializationHelper.GetStronglyTypedJsonFilePath(value, filePath);
+            writer.WriteStringValue(json);
             value.MetadataPath = filePath;
         }
         else
@@ -55,13 +52,13 @@ public class MetadataResourceConverter<T> : JsonConverter<T> where T : MetadataR
 }
 
 /// <summary>
-/// Converts a list of derivates of <see cref="MetadataResource"/> to or from JSON.
-/// This converter will check the <see cref="MetadataResource.SplitMetadata"/> property of each item in a list.
+/// Converts a list of derivates of <see cref="IMetadataResource"/> to or from JSON.
+/// This converter will check the <see cref="IMetadataResource.SplitMetadata"/> property of each item in a list.
 /// If it's set to <see langword="true"/>, then the converter will use a path to another JSON file where it will be stored.
 /// </summary>
 /// <typeparam name="TList"><typeparamref name="TList"/> is <see cref="IList{TResource}"/></typeparam>
-/// <typeparam name="TResource"><typeparamref name="TResource"/> is <see cref="MetadataResource"/></typeparam>
-public class ListOfMetadataResourceConverter<TList, TResource> : JsonConverter<TList> where TList : IList<TResource> where TResource : MetadataResource
+/// <typeparam name="TResource"><typeparamref name="TResource"/> is <see cref="IMetadataResource"/></typeparam>
+public class ListOfMetadataResourceConverter<TList, TResource> : JsonConverter<TList> where TList : IList<TResource> where TResource : IMetadataResource
 {
     public override TList? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
@@ -81,18 +78,14 @@ public class ListOfMetadataResourceConverter<TList, TResource> : JsonConverter<T
 
                 if (reader.TokenType == JsonTokenType.String)
                 {
-                    string json = reader.GetString() ?? string.Empty;
-                    if (json.StartsWith(PathSeparator))
+                    string? json = reader.GetString();
+                    (Type? derivedType, string? filePath) = MetadataSerializationHelper.ParseSplitJson<TResource>(json);
+                    if (derivedType != null && !derivedType.IsAbstract && Activator.CreateInstance(derivedType) is TResource obj)
                     {
-                        string filePath = json;
-                        Debug.WriteLine(filePath);
-                        if (Activator.CreateInstance(typeof(TResource)) is TResource obj)
-                        {
-                            obj.SplitMetadata = true;
-                            obj.MetadataPath = filePath;
-                            obj.IsMetadataLoaded = false;
-                            list.Add(obj);
-                        }
+                        obj.SplitMetadata = true;
+                        obj.MetadataPath = filePath;
+                        obj.IsMetadataLoaded = false;
+                        list.Add(obj);
                     }
                 }
                 else if (JsonSerializer.Deserialize<TResource>(ref reader, options) is TResource obj)
@@ -117,7 +110,8 @@ public class ListOfMetadataResourceConverter<TList, TResource> : JsonConverter<T
             if (item.SplitMetadata)
             {
                 string filePath = ResourceManager.GetResourceFilePath(item, JsonFileExtension);
-                writer.WriteStringValue(filePath);
+                string json = MetadataSerializationHelper.GetStronglyTypedJsonFilePath(item, filePath);
+                writer.WriteStringValue(json);
                 item.MetadataPath = filePath;
             }
             else
@@ -131,15 +125,15 @@ public class ListOfMetadataResourceConverter<TList, TResource> : JsonConverter<T
 }
 
 /// <summary>
-/// Specifies the property is a derivate of <see cref="MetadataResource"/>.
-/// Must be placed on all properties of derivates of <see cref="MetadataResource"/> to support splitting Metadata.
+/// Specifies the property is a derivate of <see cref="IMetadataResource"/>.
+/// Must be placed on all properties of derivates of <see cref="IMetadataResource"/> to support splitting Metadata.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
 public class MetadataResourceAttribute : JsonConverterAttribute
 {
     public override JsonConverter? CreateConverter(Type typeToConvert)
     {
-        if (!typeof(MetadataResource).IsAssignableFrom(typeToConvert))
+        if (!typeof(IMetadataResource).IsAssignableFrom(typeToConvert))
             throw new NotSupportedException();
 
         return Activator.CreateInstance(typeof(MetadataResourceConverter<>).MakeGenericType([typeToConvert])) as JsonConverter;
@@ -163,9 +157,65 @@ public class ListOfMetadataResourceAttribute : JsonConverterAttribute
 
         Type elementType = typeToConvert.GetGenericArguments()[0];
 
-        if (!typeof(MetadataResource).IsAssignableFrom(elementType))
+        if (!typeof(IMetadataResource).IsAssignableFrom(elementType))
             throw new NotSupportedException();
 
         return Activator.CreateInstance(typeof(ListOfMetadataResourceConverter<,>).MakeGenericType([typeToConvert, elementType])) as JsonConverter;
+    }
+}
+
+internal static class MetadataSerializationHelper
+{
+    public const char TypeDiscriminatorChar = '$';
+
+    private static Dictionary<Type, string?> derivedTypeDiscriminators = [];
+
+    public static Dictionary<Type, string?> DerivedTypeDiscriminators { get => derivedTypeDiscriminators; }
+
+    static MetadataSerializationHelper()
+    {
+        var attrs = typeof(MetadataResource).GetCustomAttributes<JsonDerivedTypeAttribute>();
+        foreach (var attr in attrs)
+        {
+            derivedTypeDiscriminators.Add(attr.DerivedType, attr.TypeDiscriminator as string);
+        }
+    }
+
+    public static string GetStronglyTypedJsonFilePath<TResource>(TResource item, string filePath) where TResource : IMetadataResource
+    {
+        if (typeof(TResource) == typeof(MetadataResource)
+            || typeof(TResource) == typeof(IMetadataResource)) // Not strongly typed
+        {
+            if (DerivedTypeDiscriminators.TryGetValue(item.GetType(), out string? discriminator))
+            {
+                return TypeDiscriminatorChar + discriminator + filePath;
+            }
+        }
+
+        return filePath;
+    }
+
+    public static (Type? derivedType, string? filePath) ParseSplitJson<TResource>(string? json) where TResource : IMetadataResource
+    {
+        if (!string.IsNullOrWhiteSpace(json))
+        {
+            if (json.StartsWith(TypeDiscriminatorChar))
+            {
+                int i = json.IndexOf(PathSeparator);
+                if (i > 0)
+                {
+                    string typeDiscriminator = json[1..i];
+                    string filePath = json[i..];
+
+                    return (DerivedTypeDiscriminators.FirstOrDefault(x => x.Value == typeDiscriminator).Key, filePath);
+                }
+            }
+            else if (json.StartsWith(PathSeparator)) // Only filePath is present.
+            {
+                return (typeof(TResource), json);
+            }
+        }
+
+        return (null, null);
     }
 }

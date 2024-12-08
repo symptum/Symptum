@@ -161,24 +161,18 @@ public struct NumericalValue : IEquatable<NumericalValue>
         return string.Empty;
     }
 
-    public override bool Equals(object? obj)
+    public override bool Equals(object? obj) => obj switch
     {
-        return obj switch
-        {
-            NumericalValue value => Equals(value),
-            double number => Contains(number),
-            _ => false
-        };
-    }
+        NumericalValue value => Equals(value),
+        double number => Contains(number),
+        _ => false
+    };
 
     public override int GetHashCode() => HashCode.Combine(Value, IsInterval, Minimum, IncludesMinimum, Maximum, IncludesMaximum, IsErrorInterval, Error);
 
-    public bool Equals(NumericalValue other)
-    {
-        return IsInterval == other.IsInterval && IncludesMinimum == other.IncludesMinimum && IncludesMaximum == other.IncludesMaximum &&
+    public bool Equals(NumericalValue other) => IsInterval == other.IsInterval && IncludesMinimum == other.IncludesMinimum && IncludesMaximum == other.IncludesMaximum &&
             Value.Equals(other.Value) && Minimum.Equals(other.Minimum) && Maximum.Equals(other.Maximum) &&
             IsErrorInterval == other.IsErrorInterval && Error.Equals(other.Error);
-    }
 
     public bool Contains(double value)
     {

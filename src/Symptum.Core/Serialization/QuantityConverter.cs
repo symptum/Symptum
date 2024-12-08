@@ -18,8 +18,5 @@ internal class QuantityJsonConverter : JsonConverter<Quantity>
         return null;
     }
 
-    public override void Write(Utf8JsonWriter writer, Quantity value, JsonSerializerOptions options)
-    {
-        writer.WriteStringValue(value?.ToString());
-    }
+    public override void Write(Utf8JsonWriter writer, Quantity value, JsonSerializerOptions options) => writer.WriteStringValue(value?.ToString());
 }

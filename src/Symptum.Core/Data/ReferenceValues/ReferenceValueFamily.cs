@@ -1,10 +1,10 @@
 using System.Collections.ObjectModel;
-using Symptum.Core.Extensions;
+using System.Text.Json.Serialization;
 using Symptum.Core.Management.Resources;
 
 namespace Symptum.Core.Data.ReferenceValues;
 
-public class ReferenceValueFamily : MetadataResource
+public class ReferenceValueFamily : CategoryResource<ReferenceValueGroup>
 {
     public ReferenceValueFamily()
     { }
@@ -16,44 +16,12 @@ public class ReferenceValueFamily : MetadataResource
 
     #region Properties
 
-    private ObservableCollection<ReferenceValueGroup>? groups;
-
-    public ObservableCollection<ReferenceValueGroup>? Groups
+    [JsonPropertyName("Groups")]
+    public override ObservableCollection<ReferenceValueGroup>? Items
     {
-        get => groups;
-        set
-        {
-            UnobserveCollection(groups);
-            SetProperty(ref groups, value);
-            SetChildrenResources(groups);
-        }
+        get => base.Items;
+        set => base.Items = value;
     }
 
     #endregion
-
-    protected override void OnInitializeResource(IResource? parent)
-    {
-        SetChildrenResources(groups);
-    }
-
-    public override bool CanHandleChildResourceType(Type childResourceType)
-    {
-        return childResourceType == typeof(ReferenceValueGroup);
-    }
-
-    public override bool CanAddChildResourceType(Type childResourceType)
-    {
-        return childResourceType == typeof(ReferenceValueGroup);
-    }
-
-    protected override void OnAddChildResource(IResource? childResource)
-    {
-        Groups ??= [];
-        Groups.AddItemToListIfNotExists(childResource);
-    }
-
-    protected override void OnRemoveChildResource(IResource? childResource)
-    {
-        Groups.RemoveItemFromListIfExists(childResource);
-    }
 }

@@ -3,42 +3,22 @@ using CsvHelper.Configuration.Attributes;
 
 namespace Symptum.Core.Subjects.Books;
 
-public class Book : ObservableObject
+public partial class Book : ObservableObject
 {
     #region Properties
 
-    private string _id = string.Empty;
+    [ObservableProperty]
+    public partial string? Id { get; set; }
 
-    public string Id
-    {
-        get => _id;
-        set => SetProperty(ref _id, value);
-    }
+    [ObservableProperty]
+    public partial string? Title { get; set; }
 
-    private string _title = string.Empty;
-
-    public string Title
-    {
-        get => _title;
-        set => SetProperty(ref _title, value);
-    }
-
-    private string _authors = string.Empty;
-
-    public string Authors
-    {
-        get => _authors;
-        set => SetProperty(ref _authors, value);
-    }
-
-    private SubjectList _subjectList;
+    [ObservableProperty]
+    public partial string? Authors { get; set; }
 
     [Ignore]
-    public SubjectList Subject
-    {
-        get => _subjectList;
-        set => SetProperty(ref _subjectList, value);
-    }
+    [ObservableProperty]
+    public partial SubjectList Subject { get; set; }
 
     #endregion
 
@@ -48,13 +28,10 @@ public class Book : ObservableObject
 
     public Book(string code, string title, string author)
     {
-        _id = code;
-        _title = title;
-        _authors = author;
+        Id = code;
+        Title = title;
+        Authors = author;
     }
 
-    public override string ToString()
-    {
-        return Title + " by " + Authors + " (" + Id + ")";
-    }
+    public override string ToString() => Title + " by " + Authors + " (" + Id + ")";
 }

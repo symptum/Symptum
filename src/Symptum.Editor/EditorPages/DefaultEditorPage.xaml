@@ -15,7 +15,7 @@
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
     <ScrollViewer>
-      <localcontrols:ResourcePropertiesEditorControl x:Name="propertiesEditor" Margin="36" Grid.ColumnSpan="2" />
+      <localcontrols:ResourcePropertiesEditorControl x:Name="propertiesEditor" Resource="{x:Bind EditableContent}" Margin="36" Grid.ColumnSpan="2" />
     </ScrollViewer>
     <Grid Grid.Row="1" Padding="{ThemeResource ContentDialogPadding}" Background="{ThemeResource SolidBackgroundFillColorBaseBrush}">
       <Grid.ColumnDefinitions>
@@ -23,10 +23,10 @@
         <ColumnDefinition Width="{ThemeResource ContentDialogButtonSpacing}" />
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
-      <Button x:Name="saveButton" Content="Save" HorizontalAlignment="Stretch"
-              Style="{ThemeResource AccentButtonStyle}" Click="SaveButton_Click" />
-      <Button x:Name="cancelButton" Content="Cancel" Grid.Column="2" HorizontalAlignment="Stretch"
-              Click="CancelButton_Click" />
+      <Button x:Name="updateButton" Content="Update" HorizontalAlignment="Stretch"
+              Style="{ThemeResource AccentButtonStyle}" Click="UpdateButton_Click" />
+      <Button x:Name="resetButton" Content="Reset" Grid.Column="2" HorizontalAlignment="Stretch"
+              Click="ResetButton_Click" />
     </Grid>
   </Grid>
 </local:EditorPageBase>

@@ -36,20 +36,9 @@ public class NutritionPackage : PackageResource
             AddChildResourceInternal(DataSet);
     }
 
-    public override bool CanHandleChildResourceType(Type childResourceType)
-    {
-        return childResourceType == typeof(NutritionDataSet);
-    }
+    public override bool CanHandleChildResourceType(Type childResourceType) => childResourceType == typeof(NutritionDataSet);
 
-    public override bool CanAddChildResourceType(Type childResourceType)
-    {
-        if (childResourceType == typeof(NutritionDataSet))
-        {
-            return DataSet == null;
-        }
-
-        return false;
-    }
+    public override bool CanAddChildResourceType(Type childResourceType) => DataSet == null;
 
     protected override void OnAddChildResource(IResource? childResource)
     {

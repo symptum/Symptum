@@ -81,9 +81,6 @@ public record BookReference : LiteratureReference
         return "@book?" + col.ToString() + ParserHelper.BookReferenceDelimiter + Pages;
     }
 
-    public override string GetPreviewText()
-    {
-        return $"{Title} by {Authors}, " +
+    public override string GetPreviewText() => $"{Title} by {Authors}, " +
             $"Edition: {Edition}, Volume: {Volume}, Pages: {Pages}";
-    }
 }

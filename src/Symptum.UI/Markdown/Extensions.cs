@@ -1,10 +1,3 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
-//using ColorCode;
-//using ColorCode.Common;
-//using ColorCode.Styling;
 using Markdig.Syntax.Inlines;
 using System.Xml.Linq;
 using System.Globalization;
@@ -13,38 +6,46 @@ using Microsoft.UI.Xaml.Documents;
 using System.Text.RegularExpressions;
 using Windows.Foundation;
 using System.Text;
-
-/* Unmerged change from project 'Symptum.UI (net9.0-maccatalyst)'
-Added:
-using CommunityToolkit;
-using CommunityToolkit.Labs;
-using CommunityToolkit.Labs.WinUI;
-using Symptum.UI.Markdown;
-using Symptum.UI.Markdown;
-*/
+using ColorCode;
+using Markdig.Syntax;
+using HtmlAgilityPack;
+using Symptum.UI.Markdown.TextElements.Html;
 
 namespace Symptum.UI.Markdown;
 
 public static class Extensions
 {
-    public const string Blue = "#FF0000FF";
-    public const string White = "#FFFFFFFF";
-    public const string Black = "#FF000000";
-    public const string DullRed = "#FFA31515";
-    public const string Yellow = "#FFFFFF00";
-    public const string Green = "#FF008000";
-    public const string PowderBlue = "#FFB0E0E6";
-    public const string Teal = "#FF008080";
-    public const string Gray = "#FF808080";
-    public const string Navy = "#FF000080";
-    public const string OrangeRed = "#FFFF4500";
-    public const string Purple = "#FF800080";
-    public const string Red = "#FFFF0000";
-    public const string MediumTurqoise = "FF48D1CC";
-    public const string Magenta = "FFFF00FF";
-    public const string OliveDrab = "#FF6B8E23";
-    public const string DarkOliveGreen = "#FF556B2F";
-    public const string DarkCyan = "#FF008B8B";
+    public static ILanguage ToLanguage(this FencedCodeBlock fencedCodeBlock)
+    {
+        return (fencedCodeBlock.Info?.ToLower()) switch
+        {
+            "aspx" => Languages.Aspx,
+            "aspx - vb" => Languages.AspxVb,
+            "asax" => Languages.Asax,
+            "ascx" => Languages.AspxCs,
+            "ashx" or "asmx" or "axd" => Languages.Ashx,
+            "cs" or "csharp" or "c#" => Languages.CSharp,
+            "xhtml" or "html" or "hta" or "htm" or "html.hl" or "inc" or "xht" => Languages.Html,
+            "java" or "jav" or "jsh" => Languages.Java,
+            "js" or "node" or "_js" or "bones" or "cjs" or "es" or "es6" or "frag" or "gs" or "jake" or "javascript" or "jsb" or "jscad" or "jsfl" or "jslib" or "jsm" or "jspre" or "jss" or "jsx" or "mjs" or "njs" or "pac" or "sjs" or "ssjs" or "xsjs" or "xsjslib" => Languages.JavaScript,
+            "posh" or "pwsh" or "ps1" or "psd1" or "psm1" => Languages.PowerShell,
+            "sql" or "cql" or "ddl" or "mysql" or "prc" or "tab" or "udf" or "viw" => Languages.Sql,
+            "vb" or "vbhtml" or "visual basic" or "vbnet" or "vb .net" or "vb.net" => Languages.VbDotNet,
+            "rss" or "xsd" or "wsdl" or "xml" or "adml" or "admx" or "ant" or "axaml" or "axml" or "builds" or "ccproj" or "ccxml" or "clixml" or "cproject" or "cscfg" or "csdef" or "csl" or "csproj" or "ct" or "depproj" or "dita" or "ditamap" or "ditaval" or "dll.config" or "dotsettings" or "filters" or "fsproj" or "fxml" or "glade" or "gml" or "gmx" or "grxml" or "gst" or "hzp" or "iml" or "ivy" or "jelly" or "jsproj" or "kml" or "launch" or "mdpolicy" or "mjml" or "mm" or "mod" or "mxml" or "natvis" or "ncl" or "ndproj" or "nproj" or "nuspec" or "odd" or "osm" or "pkgproj" or "pluginspec" or "proj" or "props" or "ps1xml" or "psc1" or "pt" or "qhelp" or "rdf" or "res" or "resx" or "rs" or "sch" or "scxml" or "sfproj" or "shproj" or "srdf" or "storyboard" or "sublime-snippet" or "sw" or "targets" or "tml" or "ui" or "urdf" or "ux" or "vbproj" or "vcxproj" or "vsixmanifest" or "vssettings" or "vstemplate" or "vxml" or "wixproj" or "workflow" or "wsf" or "wxi" or "wxl" or "wxs" or "x3d" or "xacro" or "xaml" or "xib" or "xlf" or "xliff" or "xmi" or "xml.dist" or "xmp" or "xproj" or "xspec" or "xul" or "zcml" => Languages.Xml,
+            "php" or "aw" or "ctp" or "fcgi" or "php3" or "php4" or "php5" or "phps" or "phpt" => Languages.Php,
+            "css" or "scss" or "less" => Languages.Css,
+            "cpp" or "c++" or "cc" or "cp" or "cxx" or "h" or "h++" or "hh" or "hpp" or "hxx" or "inl" or "ino" or "ipp" or "ixx" or "re" or "tcc" or "tpp" => Languages.Cpp,
+            "ts" or "tsx" or "cts" or "mts" => Languages.Typescript,
+            "fsharp" or "fs" or "fsi" or "fsx" => Languages.FSharp,
+            "koka" => Languages.Koka,
+            "hs" or "hs-boot" or "hsc" => Languages.Haskell,
+            "pandoc" or "md" or "livemd" or "markdown" or "mdown" or "mdwn" or "mdx" or "mkd" or "mkdn" or "mkdown" or "ronn" or "scd" or "workbook" => Languages.Markdown,
+            "fortran" or "f" or "f77" or "for" or "fpp" => Languages.Fortran,
+            "python" or "py" or "cgi" or "gyp" or "gypi" or "lmi" or "py3" or "pyde" or "pyi" or "pyp" or "pyt" or "pyw" or "rpy" or "smk" or "spec" or "tac" or "wsgi" or "xpy" => Languages.Python,
+            "matlab" or "m" => Languages.MATLAB,
+            _ => Languages.JavaScript,
+        };
+    }
 
     public static string ToAlphabetical(this int index)
     {
@@ -118,7 +119,7 @@ public static class Extensions
     {
         if (string.IsNullOrEmpty(url))
         {
-            throw new ArgumentException("URL must not be null or empty", nameof(url));
+            return string.Empty;
         }
 
         // Create a regex pattern to match the URL with width and height
@@ -159,9 +160,22 @@ public static class Extensions
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
     }
 
+    internal static HtmlElementType TagToType(this string tag)
+    {
+        return tag.ToLower() switch
+        {
+            "address" or "article" or "aside" or "details" or "blockquote" or
+            "canvas" or "dd" or "div" or "dl" or "dt" or "fieldset" or "figcaption" or
+            "figure" or "footer" or "form" or "h1" or "h2" or "h3" or "h4" or "h5" or "h6"
+            or "header" or "hr" or "li" or "main" or "nav" or "noscript" or "ol" or "p" or
+            "pre" or "section" or "table" or "tfoot" or "ul" => HtmlElementType.Block,
+            _ => HtmlElementType.Inline,
+        };
+    }
+
     public static bool IsHeading(this string tag)
     {
-        List<string> headings = new() { "h1", "h2", "h3", "h4", "h5", "h6" };
+        List<string> headings = ["h1", "h2", "h3", "h4", "h5", "h6"];
         return headings.Contains(tag.ToLower());
     }
 
@@ -199,7 +213,7 @@ public static class Extensions
         string? url = link.Url;
         if (string.IsNullOrEmpty(url))
         {
-            throw new ArgumentException("Link must have a valid URL", nameof(link));
+            return default;
         }
 
         // Try to parse the width and height from the URL
@@ -227,7 +241,7 @@ public static class Extensions
         //}
 
         // Return default values if no width and height are found
-        return new(0, 0);
+        return default;
     }
 
     public static SolidColorBrush GetAccentColorBrush()
@@ -242,5 +256,12 @@ public static class Extensions
         SolidColorBrush accentBrush = new(accentColor);
 
         return accentBrush;
+    }
+
+    public static string GetAttribute(this HtmlNode node, string attributeName, string defaultValue)
+    {
+        ArgumentNullException.ThrowIfNull(attributeName);
+
+        return node.Attributes?[attributeName]?.Value ?? defaultValue;
     }
 }

@@ -65,10 +65,7 @@ public class Quantity : ObservableObject
         return false;
     }
 
-    public override string ToString()
-    {
-        return _value + (!string.IsNullOrWhiteSpace(_unit) ? " " + _unit : string.Empty);
-    }
+    public override string ToString() => _value + (!string.IsNullOrWhiteSpace(_unit) ? " " + _unit : string.Empty);
 
     public static implicit operator Quantity?(string? value)
     {

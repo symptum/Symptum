@@ -1,7 +1,10 @@
+using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Symptum.Core.Data;
 using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Data.ReferenceValues;
+using Symptum.Core.Extensions;
 using Symptum.Core.Management.Deployment;
 using Symptum.Core.Subjects;
 
@@ -12,67 +15,72 @@ namespace Symptum.Core.Management.Resources;
 [JsonDerivedType(typeof(Subject), "subject")]
 [JsonDerivedType(typeof(ReferenceValuesPackage), "referenceValues")]
 [JsonDerivedType(typeof(NutritionPackage), "nutrition")]
-public abstract class PackageResource : MetadataResource, IPackageResource
+public abstract partial class PackageResource : MetadataResource, IPackageResource
 {
     #region Properties
 
-    private string? description;
+    [ObservableProperty]
+    public partial string? Description { get; set; }
 
-    public string? Description
-    {
-        get => description;
-        set => SetProperty(ref description, value);
-    }
+    [ObservableProperty]
+    public partial Version? Version { get; set; }
 
-    private Version? version;
-
-    public Version? Version
-    {
-        get => version;
-        set => SetProperty(ref version, value);
-    }
-
-    private IList<AuthorInfo>? authors;
-
-    public IList<AuthorInfo>? Authors
-    {
-        get => authors;
-        set => SetProperty(ref authors, value);
-    }
-
-    private IList<IPackageResource>? dependencies;
+    [ObservableProperty]
+    public partial IList<AuthorInfo>? Authors { get; set; }
 
     [JsonIgnore]
-    public IList<IPackageResource>? Dependencies
-    {
-        get => dependencies;
-        set => SetProperty(ref dependencies, value);
-    }
-
-    private IList<string>? dependencyIds;
+    [ObservableProperty]
+    public partial IList<IPackageResource>? Dependencies { get; set; }
 
     [JsonPropertyName(nameof(Dependencies))]
-    public IList<string>? DependencyIds
+    [ObservableProperty]
+    public partial IList<string>? DependencyIds { get; set; }
+
+    [ObservableProperty]
+    public partial IList<string>? Tags { get; set; }
+
+    #endregion
+}
+
+public abstract class PackageResource<T> : PackageResource where T : IResource
+{
+    #region Properties
+
+    private ObservableCollection<T>? contents;
+
+    [JsonIgnore]
+    public virtual ObservableCollection<T>? Contents
     {
-        get => dependencyIds;
-        set => SetProperty(ref dependencyIds, value);
-    }
-
-    //private IList<string>? contents;
-
-    //public IList<string>? Contents
-    //{
-    //    get => contents;
-    //    set => SetProperty(ref contents, value);
-    //}
-
-    private IList<string>? tags;
-
-    public IList<string>? Tags
-    {
-        get => tags;
-        set => SetProperty(ref tags, value);
+        get => contents;
+        set
+        {
+            UnobserveCollection(contents);
+            SetProperty(ref contents, value);
+            SetChildrenResources(contents);
+        }
     }
 
     #endregion
+
+    protected override void OnInitializeResource(IResource? parent) => SetChildrenResources(Contents);
+
+    protected virtual bool ChildRestraint(Type childResourceType) => true;
+
+    public override bool CanHandleChildResourceType(Type childResourceType) =>
+        typeof(T).IsAssignableFrom(childResourceType) && ChildRestraint(childResourceType);
+
+    public override bool CanAddChildResourceType(Type childResourceType) => CanHandleChildResourceType(childResourceType);
+
+    protected override void OnAddChildResource(IResource? childResource)
+    {
+        Contents ??= [];
+        Contents.AddItemToListIfNotExists(childResource);
+    }
+
+    protected override void OnRemoveChildResource(IResource? childResource) => Contents.RemoveItemFromListIfExists(childResource);
+}
+
+public abstract class PackageResource<T, TCondition> : PackageResource<T> where T : IResource
+{
+    protected override bool ChildRestraint(Type childResourceType) => typeof(TCondition).IsAssignableFrom(childResourceType);
 }

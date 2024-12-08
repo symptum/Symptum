@@ -1,7 +1,3 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
-
 using Markdig.Extensions.Tables;
 using Symptum.UI.Markdown.TextElements;
 
@@ -14,9 +10,9 @@ public class TableRenderer : WinUIObjectRenderer<Table>
         ArgumentNullException.ThrowIfNull(renderer);
         ArgumentNullException.ThrowIfNull(table);
 
-        MyTable myTable = new(table);
+        TableElement _table = new(table, renderer.Configuration);
 
-        renderer.Push(myTable);
+        renderer.Push(_table);
 
         for (int rowIndex = 0; rowIndex < table.Count; rowIndex++)
         {
@@ -47,9 +43,9 @@ public class TableRenderer : WinUIObjectRenderer<Table>
                     };
                 }
 
-                MyTableCell myCell = new(cell, renderer.Config, textAlignment, row.IsHeader, columnIndex, rowIndex);
+                TableCellElement _cell = new(cell, renderer.Configuration, textAlignment, row.IsHeader, columnIndex, rowIndex);
 
-                renderer.Push(myCell);
+                renderer.Push(_cell);
                 renderer.Write(cell);
                 renderer.Pop();
             }

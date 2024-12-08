@@ -84,20 +84,17 @@ public class QuestionEntry : ObservableObject, IComparable, IComparable<Question
 
     #endregion
 
-    public QuestionEntry Clone()
+    public QuestionEntry Clone() => new QuestionEntry()
     {
-        return new QuestionEntry()
-        {
-            Id = id != null ? new() { QuestionType = id.QuestionType, SubjectCode = id.SubjectCode, CompetencyNumbers = id.CompetencyNumbers } : new(),
-            Title = title,
-            Descriptions = descriptions.CloneList(),
-            HasPreviouslyBeenAsked = hasPreviouslyBeenAsked,
-            Importance = importance,
-            YearsAsked = yearsAsked.CloneList(),
-            ProbableCases = probableCases.CloneList(),
-            References = references.CloneList(x => x with { })
-        };
-    }
+        Id = id != null ? new() { QuestionType = id.QuestionType, SubjectCode = id.SubjectCode, CompetencyNumbers = id.CompetencyNumbers } : new(),
+        Title = title,
+        Descriptions = descriptions.CloneList(),
+        HasPreviouslyBeenAsked = hasPreviouslyBeenAsked,
+        Importance = importance,
+        YearsAsked = yearsAsked.CloneList(),
+        ProbableCases = probableCases.CloneList(),
+        References = references.CloneList(x => x with { })
+    };
 
     public int CompareTo(QuestionEntry? other)
     {

@@ -7,10 +7,7 @@ public class PackageManager
 {
     private static Func<string, Task<IPackageResource?>>? _loadPackageCallback;
 
-    public static void Initialize(Func<string, Task<IPackageResource?>> loadPackageCallback)
-    {
-        _loadPackageCallback = loadPackageCallback;
-    }
+    public static void Initialize(Func<string, Task<IPackageResource?>> loadPackageCallback) => _loadPackageCallback = loadPackageCallback;
 
     #region Dependency Resolution
 

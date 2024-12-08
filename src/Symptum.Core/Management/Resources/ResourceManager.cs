@@ -50,10 +50,7 @@ public class ResourceManager
 
     public static PackageResource? LoadPackageFromMetadata(string metadata) => JsonSerializer.Deserialize<PackageResource>(metadata);
 
-    public static void LoadResourceMetadata(MetadataResource? resource, string metadata)
-    {
-        resource?.LoadMetadata(metadata);
-    }
+    public static void LoadResourceMetadata(MetadataResource? resource, string metadata) => resource?.LoadMetadata(metadata);
 
     private static readonly JsonSerializerOptions options = new()
     {
