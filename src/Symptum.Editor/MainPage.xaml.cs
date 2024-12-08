@@ -76,8 +76,6 @@ public sealed partial class MainPage : Page
 
         EditorPagesManager.CurrentEditorChanged += (s, e) => editorsTabView.SelectedItem = e;
 
-        EditorPagesManager.EditorPages.Add(new MarkdownEditorPage());
-
         SizeChanged += MainPage_SizeChanged;
     }
 

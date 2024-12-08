@@ -95,7 +95,6 @@ public class ImageElement : IAddChild
                 string? contentType = response.Content.Headers.ContentType.MediaType;
                 if (contentType == "image/svg+xml")
                 {
-
                     string? svgString = await response.Content.ReadAsStringAsync();
                     ImageSource resImage = await _svgRenderer.SvgToImageSource(svgString);
                     if (resImage != null)

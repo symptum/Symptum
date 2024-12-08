@@ -80,7 +80,7 @@ public class ListOfMetadataResourceConverter<TList, TResource> : JsonConverter<T
                 {
                     string? json = reader.GetString();
                     (Type? derivedType, string? filePath) = MetadataSerializationHelper.ParseSplitJson<TResource>(json);
-                    if (derivedType != null && Activator.CreateInstance(derivedType) is TResource obj)
+                    if (derivedType != null && !derivedType.IsAbstract && Activator.CreateInstance(derivedType) is TResource obj)
                     {
                         obj.SplitMetadata = true;
                         obj.MetadataPath = filePath;

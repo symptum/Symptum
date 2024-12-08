@@ -26,7 +26,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         InitializeComponent();
         IconSource = DefaultIconSources.DocumentIconSource;
         mdText.TextChanged += MdText_TextChanged;
-        mdText.SelectionChanged += (s, e) => UpdateStatusBar(onlyCaret: true, onlyCount: true);
+        mdText.SelectionChanged += (s, e) => UpdateStatusBar();
 
 #if !HAS_UNO
         mdText.PreviewKeyDown += MdText_KeyDown;
@@ -39,7 +39,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         KeyUp += Page_KeyUp;
 #endif
         mdText.Paste += (s, e) => OnClipboardEvent();
-        UpdateStatusBar(true, true);
+        UpdateStatusBar();
         SetupFindControl();
     }
 
@@ -48,10 +48,10 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         ProcessClipboardEvent();
         _mdDirtyForSearch = true;
         HasUnsavedChanges = true;
-        UpdateStatusBar(onlyCount: true);
+        UpdateStatusBar();
     }
 
-    private void UpdateStatusBar(bool onlyCaret = false, bool onlyCount = false)
+    private void UpdateStatusBar(bool onlyCaret = true, bool onlyCount = true)
     {
         if (onlyCaret)
         {

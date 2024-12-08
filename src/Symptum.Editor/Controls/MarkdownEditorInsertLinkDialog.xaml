@@ -6,7 +6,7 @@
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   Style="{ThemeResource DefaultContentDialogStyle}"
   Title="Insert Link" PrimaryButtonStyle="{ThemeResource AccentButtonStyle}"
-  PrimaryButtonText="Insert" SecondaryButtonText="Cancel">
+  PrimaryButtonText="Insert" SecondaryButtonText="Cancel" DefaultButton="Primary">
   <Grid RowSpacing="8">
     <Grid.RowDefinitions>
       <RowDefinition />

@@ -24,11 +24,11 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
     - name: Restore Dependencies
       run: dotnet restore ./main/src/Symptum.Editor/Symptum.Editor.csproj
     - name: Publish
-      run: dotnet publish ./main/src/Symptum.Editor/Symptum.Editor.csproj "-p:WasmShellWebAppBasePath=/editor/" --no-restore -f net8.0-browserwasm -c Release -o out
+      run: dotnet publish ./main/src/Symptum.Editor/Symptum.Editor.csproj "-p:WasmShellWebAppBasePath=/editor/" --no-restore -f net9.0-browserwasm -c Release -o out
     - name: Create Editor Folder
       run: mkdir editor
     - name: Copy Files to Editor Folder
