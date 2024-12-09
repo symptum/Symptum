@@ -28,7 +28,7 @@ jobs:
     - name: Restore Dependencies
       run: dotnet restore ./main/src/Symptum.Editor/Symptum.Editor.csproj
     - name: Publish
-      run: dotnet publish ./main/src/Symptum.Editor/Symptum.Editor.csproj "-p:WasmShellWebAppBasePath=/editor/" --no-restore -f net9.0-browserwasm -c Debug -o out
+      run: dotnet publish ./main/src/Symptum.Editor/Symptum.Editor.csproj "-p:WasmShellWebAppBasePath=/editor/" --no-restore -f net9.0-browserwasm -c Release -p:PublishTrimmed=false -o out
     - name: Create Editor Folder
       run: mkdir editor
     - name: Copy Files to Editor Folder
