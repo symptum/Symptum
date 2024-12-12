@@ -238,6 +238,7 @@ public sealed partial class MainPage : Page
         fileOpenPicker.FileTypeFilter.Add(CsvFileExtension);
         fileOpenPicker.FileTypeFilter.Add(MarkdownFileExtension);
         fileOpenPicker.FileTypeFilter.Add(JsonFileExtension);
+        fileOpenPicker.FileTypeFilter.AddRange(ImageFileExtensions);
 
 #if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
         WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, WindowHelper.WindowHandle);

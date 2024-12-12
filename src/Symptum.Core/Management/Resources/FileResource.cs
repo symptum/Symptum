@@ -69,19 +69,11 @@ public abstract class FileResource : NavigableResource, IContent
 
     internal void ReadFileText(string content) => OnReadFileText(content);
 
-    internal void ReadFileStream(Stream stream) => OnReadFileStream(stream);
-
     internal string WriteFileText() => OnWriteFileText();
-
-    internal Stream? WriteFileStream() => OnWriteFileStream();
 
     protected abstract void OnReadFileText(string content);
 
-    protected abstract void OnReadFileStream(Stream stream);
-
     protected abstract string OnWriteFileText();
-
-    protected abstract Stream? OnWriteFileStream();
 
     #region Ignore
 

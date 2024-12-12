@@ -14,6 +14,29 @@ public static class FileHelper
 
     public const string PackageFileExtension = ".zip";
 
+    #region Image File Extensions
+
+    public static readonly string[] ImageFileExtensions =
+    [
+        JpegFileExtension,
+        JpgFileExtension,
+        PngFileExtension,
+        BmpFileExtension,
+        SvgFileExtension
+    ];
+
+    public const string JpegFileExtension = ".jpeg";
+
+    public const string JpgFileExtension = ".jpg";
+
+    public const string PngFileExtension = ".png";
+
+    public const string BmpFileExtension = ".bmp";
+
+    public const string SvgFileExtension = ".svg";
+
+    #endregion
+
     public static (string folder, string fileName, string extension) GetDetailsFromFilePath(string? filePath)
     {
         string folder = string.Empty;
@@ -48,5 +71,22 @@ public static class FileHelper
         }
 
         return (folder, fileName, extension);
+    }
+
+    /// <summary>
+    /// Converts the given bytes into a human readable format (i.e. KB, MB, GB, etc.)
+    /// </summary>
+    /// <param name="bytes">The total bytes to be formatted.</param>
+    /// <param name="addSuffix">Specifies whether to add <strong>unit</strong> suffix (eg. 20 <strong>MB</strong>).</param>
+    /// <returns>The formatted value of the given bytes.</returns>
+    public static string FormatSize(ulong bytes, bool addSuffix = true)
+    {
+        string[] suf = { " Bytes", " KB", " MB", " GB", " TB", " PB", " EB" };
+
+        if (bytes == 0L) { return "0" + (addSuffix ? suf[0] : string.Empty); }
+
+        int place = (int)System.Math.Floor(System.Math.Log(bytes, 1024));
+        double num = System.Math.Round(bytes / System.Math.Pow(1024, place), 2);
+        return num.ToString() + (addSuffix ? suf[place] : string.Empty);
     }
 }

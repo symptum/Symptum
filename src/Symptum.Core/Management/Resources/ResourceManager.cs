@@ -42,11 +42,7 @@ public class ResourceManager
 
     public static void LoadResourceFile(FileResource? fileResource, string text) => fileResource?.ReadFileText(text);
 
-    public static void LoadResourceFile(FileResource? fileResource, Stream stream) => fileResource?.ReadFileStream(stream);
-
     public static string? WriteResourceFileText(FileResource? fileResource) => fileResource?.WriteFileText();
-
-    public static Stream? WriteResourceFileStream(FileResource? fileResource) => fileResource?.WriteFileStream();
 
     public static PackageResource? LoadPackageFromMetadata(string metadata) => JsonSerializer.Deserialize<PackageResource>(metadata);
 

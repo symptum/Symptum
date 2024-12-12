@@ -19,8 +19,7 @@ public class LinkInlineRenderer : WinUIObjectRenderer<LinkInline>
 
         if (link.IsImage)
         {
-            ImageElement image = new(link, Markdown.Extensions.GetUri(url, renderer.Configuration.BaseUrl), renderer.Configuration);
-            renderer.WriteInline(image);
+            renderer.Push(new ImageElement(link, Markdown.Extensions.GetUri(url, renderer.Configuration.BaseUrl), renderer.Configuration));
         }
         else
         {
@@ -30,13 +29,11 @@ public class LinkInlineRenderer : WinUIObjectRenderer<LinkInline>
             }
             else
             {
-                HyperlinkElement hyperlink = new(link, renderer.Configuration.BaseUrl, renderer.LinkHandler);
-
-                renderer.Push(hyperlink);
+                renderer.Push(new HyperlinkElement(link, renderer.Configuration.BaseUrl, renderer.LinkHandler));
             }
-
-            renderer.WriteChildren(link);
-            renderer.Pop();
         }
+
+        renderer.WriteChildren(link);
+        renderer.Pop();
     }
 }

@@ -21,6 +21,9 @@ public class ImageElement : IAddChild
     private double _precedentHeight;
     private bool _loaded;
 
+    private TextBlock _altText;
+    private static readonly Dictionary<Uri, ImageSource> _imageCache = [];
+
     public STextElement TextElement => _container;
 
     public ImageElement(LinkInline linkInline, Uri uri, MarkdownConfiguration config)
@@ -29,7 +32,7 @@ public class ImageElement : IAddChild
         _uri = uri;
         _imageProvider = config.ImageProvider;
         _svgRenderer = config.SVGRenderer ?? new DefaultSVGRenderer();
-        Init();
+        Init(linkInline.Label, config);
         Size size = Extensions.GetMarkdownImageSize(linkInline);
         if (size.Width != 0)
         {
@@ -49,7 +52,7 @@ public class ImageElement : IAddChild
         _htmlNode = htmlNode;
         _imageProvider = config.ImageProvider;
         _svgRenderer = config.SVGRenderer ?? new DefaultSVGRenderer();
-        Init();
+        Init(htmlNode.GetAttribute("alt", string.Empty), config);
         int.TryParse(htmlNode.GetAttribute("width", "0"),
             NumberStyles.Integer,
             CultureInfo.InvariantCulture,
@@ -70,74 +73,123 @@ public class ImageElement : IAddChild
         }
     }
 
-    private void Init()
+    private void Init(string? altText, MarkdownConfiguration config)
     {
         _image.Loaded += LoadImage;
-        _container.UIElement = _image;
+        Grid _grid = new();
+        _grid.RowDefinitions.Add(new() { Height = new(0, GridUnitType.Auto) });
+        _grid.RowDefinitions.Add(new() { Height = new(0, GridUnitType.Auto) });
+        _altText = new()
+        {
+            Text = altText,
+            Style = config.Themes.BodyTextBlockStyle
+        };
+        _altText.SetValue(Grid.RowProperty, 1);
+        _grid.Children.Add(_altText);
+        _grid.Children.Add(_image);
+        _container.UIElement = _grid;
     }
 
     private async void LoadImage(object sender, RoutedEventArgs e)
     {
         if (_loaded) return;
-        try
+
+        void imageLoaded(ImageSource source)
         {
-            if (_imageProvider != null && _imageProvider.ShouldUseThisProvider(_uri.AbsoluteUri))
-            {
-                _image.Source = await _imageProvider.GetImageSource(_uri.AbsoluteUri);
-            }
-            else
-            {
-                HttpClient client = new();
+            _loaded = true;
+            _imageCache.TryAdd(_uri, source);
+            _altText.Visibility = Visibility.Collapsed;
+        }
 
-                // Download data from URL
-                HttpResponseMessage response = await client.GetAsync(_uri);
-
-                string? contentType = response.Content.Headers.ContentType.MediaType;
-                if (contentType == "image/svg+xml")
+        if (_imageCache.TryGetValue(_uri, out ImageSource? value))
+        {
+            _image.Source = value;
+            imageLoaded(value);
+        }
+        else
+        {
+            try
+            {
+                if (_imageProvider != null && _imageProvider.ShouldUseThisProvider(_uri.AbsoluteUri))
                 {
-                    string? svgString = await response.Content.ReadAsStringAsync();
-                    ImageSource resImage = await _svgRenderer.SvgToImageSource(svgString);
-                    if (resImage != null)
-                    {
-                        _image.Source = resImage;
-                        Size size = Extensions.GetSvgSize(svgString);
-                        if (size.Width > 0) _image.Width = size.Width;
-                        if (size.Height > 0) _image.Height = size.Height;
-                    }
+                    var source = await _imageProvider.GetImageSource(_uri.AbsoluteUri);
+                    _image.Source = source;
+                    imageLoaded(source);
                 }
-                else
+                else if (_uri.Scheme == "file")
                 {
-                    byte[] data = await response?.Content?.ReadAsByteArrayAsync();
-                    // Create a BitmapImage for other supported formats
+                    // Load image from local file
+                    StorageFile file = await StorageFile.GetFileFromPathAsync(_uri.LocalPath);
+                    using IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.Read);
+                    // Create a BitmapImage
                     BitmapImage bitmap = new();
-                    using (InMemoryRandomAccessStream stream = new())
-                    {
-                        // Write the data to the stream
-                        await stream.WriteAsync(data.AsBuffer());
-                        stream.Seek(0);
-
-                        // Set the source of the BitmapImage
-                        await bitmap.SetSourceAsync(stream);
-                    }
+                    await bitmap.SetSourceAsync(stream);
                     _image.Source = bitmap;
                     _image.Width = bitmap.PixelWidth == 0 ? bitmap.DecodePixelWidth : bitmap.PixelWidth;
                     _image.Height = bitmap.PixelHeight == 0 ? bitmap.DecodePixelHeight : bitmap.PixelHeight;
+                    imageLoaded(bitmap);
                 }
+                else
+                {
+                    HttpClient client = new();
 
-                _loaded = true;
-            }
+                    // Download data from URL
+                    HttpResponseMessage response = await client.GetAsync(_uri);
 
-            if (_precedentWidth != 0)
-            {
-                _image.Width = _precedentWidth;
+                    string? contentType = response.Content.Headers.ContentType.MediaType;
+                    if (contentType == "image/svg+xml")
+                    {
+                        string? svgString = await response.Content.ReadAsStringAsync();
+                        ImageSource resImage = await _svgRenderer.SvgToImageSource(svgString);
+                        if (resImage != null)
+                        {
+                            _image.Source = resImage;
+                            Size size = Extensions.GetSvgSize(svgString);
+                            if (size.Width > 0) _image.Width = size.Width;
+                            if (size.Height > 0) _image.Height = size.Height;
+                            imageLoaded(resImage);
+                        }
+                    }
+                    else
+                    {
+                        byte[] data = await response?.Content?.ReadAsByteArrayAsync();
+                        // Create a BitmapImage for other supported formats
+                        BitmapImage bitmap = new();
+                        using (InMemoryRandomAccessStream stream = new())
+                        {
+                            // Write the data to the stream
+                            await stream.WriteAsync(data.AsBuffer());
+                            stream.Seek(0);
+
+                            // Set the source of the BitmapImage
+                            await bitmap.SetSourceAsync(stream);
+                        }
+                        _image.Source = bitmap;
+                        _image.Width = bitmap.PixelWidth == 0 ? bitmap.DecodePixelWidth : bitmap.PixelWidth;
+                        _image.Height = bitmap.PixelHeight == 0 ? bitmap.DecodePixelHeight : bitmap.PixelHeight;
+                        imageLoaded(bitmap);
+                    }
+
+                }
             }
-            if (_precedentHeight != 0)
-            {
-                _image.Height = _precedentHeight;
-            }
+            catch (Exception) { }
         }
-        catch (Exception) { }
+
+        if (_precedentWidth != 0)
+        {
+            _image.Width = _precedentWidth;
+        }
+        if (_precedentHeight != 0)
+        {
+            _image.Height = _precedentHeight;
+        }
     }
 
-    public void AddChild(IAddChild child) { }
+    public void AddChild(IAddChild child)
+    {
+        if (child !=null && child.TextElement is SInline inline)
+        {
+            _altText.Inlines.Add(inline.Inline);
+        }
+    }
 }

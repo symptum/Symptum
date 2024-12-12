@@ -14,9 +14,5 @@ public sealed partial class MarkdownFileResource : FileResource
 
     protected override void OnReadFileText(string content) => Markdown = content;
 
-    protected override void OnReadFileStream(Stream stream) { }
-
     protected override string OnWriteFileText() => Markdown;
-
-    protected override Stream? OnWriteFileStream() => null;
 }

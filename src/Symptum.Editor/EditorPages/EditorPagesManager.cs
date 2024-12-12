@@ -13,7 +13,8 @@ public class EditorPagesManager
         { typeof(QuestionBankTopic), typeof(QuestionTopicEditorPage) },
         { typeof(ReferenceValueGroup), typeof(ReferenceValueGroupEditorPage) },
         { typeof(FoodGroup), typeof(FoodGroupEditorPage) },
-        { typeof(MarkdownFileResource), typeof(MarkdownEditorPage) }
+        { typeof(MarkdownFileResource), typeof(MarkdownEditorPage) },
+        { typeof(ImageFileResource), typeof(ImageViewerPage) }
     };
 
     public static ObservableCollection<IEditorPage> EditorPages { get; private set; } = [];

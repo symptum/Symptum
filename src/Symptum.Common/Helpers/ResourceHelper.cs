@@ -2,6 +2,7 @@ using Symptum.Core.Extensions;
 using Symptum.Core.Helpers;
 using Symptum.Core.Management.Resources;
 using Windows.Storage.Pickers;
+using Windows.Storage.Streams;
 using static Symptum.Core.Helpers.FileHelper;
 
 namespace Symptum.Common.Helpers;
@@ -87,6 +88,23 @@ public class ResourceHelper
 
     #endregion
 
+    #region Image Resource Handling
+
+    private static readonly Dictionary<string, StorageFile> imageFileMap = [];
+
+    public static async Task<IRandomAccessStream?> OpenImageFileForReadAsync(ImageFileResource imageFileResource)
+    {
+        if (!string.IsNullOrEmpty(imageFileResource.FilePath) &&
+            imageFileMap.TryGetValue(imageFileResource.FilePath, out StorageFile? file))
+        {
+            return await file.OpenReadAsync();
+        }
+
+        return null;
+    }
+
+    #endregion
+
     #region Loading Resources
 
     public static async Task LoadResourcesFromWorkPathAsync()
@@ -115,13 +133,15 @@ public class ResourceHelper
             return await LoadMarkdownFileResourceFromFileAsync(file, parent);
         else if (file.FileType.Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase))
             return await LoadPackageResourceFromFileAsync(file);
+        else if (ImageFileExtensions.Any(ext => ext.Equals(file.FileType, StringComparison.InvariantCultureIgnoreCase)))
+            return await LoadImageFileResourceFromFileAsync(file, parent);
 
         return null;
     }
 
     private static async Task<CsvFileResource?> LoadCsvFileResourceFromFileAsync(StorageFile? file, IResource? parent)
     {
-        if (file != null && file.FileType.Equals(CsvFileExtension, StringComparison.InvariantCultureIgnoreCase))
+        if (file != null /*&& file.FileType.Equals(CsvFileExtension, StringComparison.InvariantCultureIgnoreCase)*/)
         {
             string csv = await FileIO.ReadTextAsync(file);
             if (CsvResourceHelper.TryGetCsvResourceType(csv, out Type? csvType) &&
@@ -144,7 +164,7 @@ public class ResourceHelper
 
     private static async Task<MarkdownFileResource?> LoadMarkdownFileResourceFromFileAsync(StorageFile? file, IResource? parent)
     {
-        if (file != null && file.FileType.Equals(MarkdownFileExtension, StringComparison.InvariantCultureIgnoreCase))
+        if (file != null /*&& file.FileType.Equals(MarkdownFileExtension, StringComparison.InvariantCultureIgnoreCase)*/)
         {
             string md = await FileIO.ReadTextAsync(file);
 
@@ -165,9 +185,33 @@ public class ResourceHelper
         return null;
     }
 
+    private static async Task<IResource?> LoadImageFileResourceFromFileAsync(StorageFile file, IResource? parent)
+    {
+        if (file != null)
+        {
+            ImageFileResource imageFileResource = new()
+            {
+                Title = file.DisplayName,
+                ImageType = file.FileType.ToLower(),
+                FilePath = file.Path
+            };
+
+            imageFileMap.TryAdd(file.Path, file);
+
+            if (parent != null && parent.CanAddChildResourceType(typeof(ImageFileResource)))
+                parent.AddChildResource(imageFileResource);
+            else
+                ResourceManager.Resources.Add(imageFileResource);
+
+            return imageFileResource;
+        }
+
+        return null;
+    }
+
     internal static async Task<PackageResource?> LoadPackageResourceFromFileAsync(StorageFile? file)
     {
-        if (file != null && file.FileType.Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase))
+        if (file != null /*&& file.FileType.Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase)*/)
         {
             string json = await FileIO.ReadTextAsync(file);
             var package = ResourceManager.LoadPackageFromMetadata(json);
@@ -193,6 +237,11 @@ public class ResourceHelper
         else if (resource is MarkdownFileResource markdownResource)
         {
             await LoadMarkdownFileResourceAsync(markdownResource);
+            resource.InitializeResource(parent);
+        }
+        else if (resource is ImageFileResource imageResource)
+        {
+            await LoadImageFileResourceAsync(imageResource);
             resource.InitializeResource(parent);
         }
         else
@@ -252,6 +301,14 @@ public class ResourceHelper
         }
     }
 
+    private static async Task LoadImageFileResourceAsync(ImageFileResource imageResource)
+    {
+        if (await GetResourceFileAsync(imageResource.FilePath) is StorageFile imgFile)
+        {
+            imageFileMap.TryAdd(imageResource.FilePath, imgFile);
+        }
+    }
+
     private static async Task LoadMetadataResourceAsync(MetadataResource resource)
     {
         if (await GetResourceFileAsync(resource.MetadataPath) is StorageFile jsonFile)
@@ -291,6 +348,10 @@ public class ResourceHelper
         else if (resource is MarkdownFileResource markdownResource)
         {
             return await SaveMarkdownFileAsync(markdownResource, targetFolder);
+        }
+        else if (resource is ImageFileResource imageResource)
+        {
+            return await SaveImageFileAsync(imageResource, targetFolder);
         }
         else
         {
@@ -345,6 +406,22 @@ public class ResourceHelper
             string? text = ResourceManager.WriteResourceFileText(markdownResource);
             return await StorageHelper.WriteToFileAsync(saveFile, text);
         }
+
+        return false;
+    }
+
+    private static async Task<bool> SaveImageFileAsync(ImageFileResource imageResource, StorageFolder? targetFolder = null)
+    {
+        return true;
+
+        if (imageResource == null) return false;
+        //bool pathExists = await VerifyWorkFolderAsync(targetFolder);
+        //if (!pathExists) return false;
+
+        string subFolderPath = ResourceManager.GetResourceFolderPath(imageResource);
+        string? fileName = ResourceManager.GetResourceFileName(imageResource);
+        imageResource.FilePath = subFolderPath + fileName + imageResource.ImageType;
+        //StorageFile? saveFile = await PickSaveFileAsync(fileName, imageResource.ImageType, "Image File", targetFolder, subFolderPath);
 
         return false;
     }
@@ -423,6 +500,8 @@ public class ResourceHelper
             await DeleteCSVFileAsync(csvResource);
         else if (delete && resource is MarkdownFileResource markdownResource)
             await DeleteMarkdownFileAsync(markdownResource);
+        else if (delete && resource is ImageFileResource imageResource)
+            await DeleteImageFileAsync(imageResource);
         else if (delete && resource is MetadataResource metadataResource)
             await DeleteMetadataAsync(metadataResource);
 
@@ -462,6 +541,22 @@ public class ResourceHelper
                 string path = ResourceManager.GetResourceFolderPath(markdownResource);
                 var folder = await StorageHelper.GetSubFolderAsync(_workFolder, path);
                 IStorageItem? file = await folder?.TryGetItemAsync(ResourceManager.GetResourceFileName(markdownResource) + MarkdownFileExtension);
+                if (file != null) await file.DeleteAsync();
+            }
+            catch { }
+        }
+    }
+
+    private static async Task DeleteImageFileAsync(ImageFileResource? imageResource)
+    {
+        if (imageResource == null) return;
+        if (_workFolder != null && StorageHelper.IsFolderPickerSupported)
+        {
+            try
+            {
+                string path = ResourceManager.GetResourceFolderPath(imageResource);
+                var folder = await StorageHelper.GetSubFolderAsync(_workFolder, path);
+                IStorageItem? file = await folder?.TryGetItemAsync(ResourceManager.GetResourceFileName(imageResource) + imageResource.ImageType);
                 if (file != null) await file.DeleteAsync();
             }
             catch { }
