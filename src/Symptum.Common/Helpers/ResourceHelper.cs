@@ -305,6 +305,7 @@ public class ResourceHelper
     {
         if (await GetResourceFileAsync(imageResource.FilePath) is StorageFile imgFile)
         {
+            imageResource.ImageType = imgFile.FileType.ToLower();
             imageFileMap.TryAdd(imageResource.FilePath, imgFile);
         }
     }
@@ -412,18 +413,29 @@ public class ResourceHelper
 
     private static async Task<bool> SaveImageFileAsync(ImageFileResource imageResource, StorageFolder? targetFolder = null)
     {
-        return true;
-
         if (imageResource == null) return false;
         //bool pathExists = await VerifyWorkFolderAsync(targetFolder);
         //if (!pathExists) return false;
 
         string subFolderPath = ResourceManager.GetResourceFolderPath(imageResource);
         string? fileName = ResourceManager.GetResourceFileName(imageResource);
-        imageResource.FilePath = subFolderPath + fileName + imageResource.ImageType;
-        //StorageFile? saveFile = await PickSaveFileAsync(fileName, imageResource.ImageType, "Image File", targetFolder, subFolderPath);
+        string filePath = subFolderPath + fileName + imageResource.ImageType;
 
-        return false;
+        if (filePath.Equals(imageResource.FilePath, StringComparison.InvariantCultureIgnoreCase) &&
+            (targetFolder == null || targetFolder == _workFolder)) // Prevent writing the file onto itself.
+            return true;
+
+        string? originalFilePath = imageResource.FilePath;
+        if (!string.IsNullOrEmpty(originalFilePath) && imageFileMap.TryGetValue(originalFilePath, out var imageFile))
+        {
+            imageResource.FilePath = filePath;
+
+            StorageFile? saveFile = await CopyFileAsync(imageFile, fileName, imageResource.ImageType, "Image File", targetFolder, subFolderPath);
+            imageFileMap.Remove(originalFilePath);
+            imageFileMap.TryAdd(filePath, saveFile);
+        }
+
+        return true;
     }
 
     private static async Task<bool> SaveMetadataAsync<T>(T resource, StorageFolder? targetFolder = null) where T : MetadataResource
@@ -463,6 +475,9 @@ public class ResourceHelper
 
     private static async Task<StorageFile?> PickSaveFileAsync(string name, string extension, string fileType, StorageFolder? targetFolder = null, string? subFolder = null)
     {
+        if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(extension) ||
+            string.IsNullOrEmpty(fileType)) return null;
+
         StorageFile saveFile;
         targetFolder ??= _workFolder;
         if (targetFolder != null && StorageHelper.IsFolderPickerSupported)
@@ -483,6 +498,46 @@ public class ResourceHelper
 #endif
             saveFile = await fileSavePicker.PickSaveFileAsync();
         }
+        return saveFile;
+    }
+
+    private static async Task<StorageFile?> CopyFileAsync(StorageFile file, string name, string extension, string fileType, StorageFolder? targetFolder = null, string? subFolder = null)
+    {
+        StorageFile? saveFile = file;
+        targetFolder ??= _workFolder;
+
+        if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(extension) ||
+            string.IsNullOrEmpty(fileType)) return saveFile;
+
+        if (targetFolder != null && StorageHelper.IsFolderPickerSupported)
+        {
+            var folder = await StorageHelper.CreateSubFoldersAsync(targetFolder, subFolder);
+            try
+            {
+                // NOTE: instead of doing this check here, do it before calling this function.
+                // This is to prevent copying the file onto itself.
+
+                //StorageFolder parent = await file.GetParentAsync();
+                //if (parent != null && folder != null && !parent.Path.Equals(folder?.Path, StringComparison.InvariantCultureIgnoreCase))
+                saveFile = await file.CopyAsync(folder, name + extension, NameCollisionOption.ReplaceExisting);
+            }
+            catch { }
+        }
+        else
+        {
+            saveFile = await PickSaveFileAsync(name, extension, fileType, targetFolder, subFolder);
+            if (saveFile != null)
+            {
+                CachedFileManager.DeferUpdates(saveFile);
+                var source = await file.OpenStreamForReadAsync();
+                var destination = await saveFile.OpenStreamForWriteAsync();
+                await source.CopyToAsync(destination);
+                await source.FlushAsync();
+                await destination.FlushAsync();
+                await CachedFileManager.CompleteUpdatesAsync(saveFile);
+            }
+        }
+
         return saveFile;
     }
 

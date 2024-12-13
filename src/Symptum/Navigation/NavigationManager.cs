@@ -88,8 +88,8 @@ public class NavigationManager
     {
         if (navigable is NavigationInfo navInfo)
             return navInfo.PageType;
-        else if (navigable is NavigableResource resource)
-            return typeof(SubjectViewPage);
+        else if (navigable is NavigableResource)
+            return typeof(DefaultPage);
         else
             return null;
     }
@@ -98,7 +98,7 @@ public class NavigationManager
     {
         return navigable switch
         {
-            Subject => new(navigable.Uri, navigable.Title, typeof(SubjectViewPage), new FontIconSource() { Glyph = "\uE82D" }),
+            Subject => new(navigable.Uri, navigable.Title, typeof(SubjectViewPage), new FontIconSource() { Glyph = "\uE82D" }, navigable),
             _ => null,
         };
     }

@@ -109,7 +109,7 @@ public class StorageHelper
         {
             string filePath
 #if __WASM__
-                = Path.Combine(sourceFolder.Path, file.Name); // file.Path returns the file's name and not it's actual path in WASM
+                = Path.Combine(sourceFolder.Path, file.Name); // NOTE: file.Path returns the file's name and not it's actual path in WASM
 #else
                 = file.Path;
 #endif

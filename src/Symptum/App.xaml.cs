@@ -28,7 +28,7 @@ public partial class App : Application
         WindowHelper.Initialize(MainWindow);
 
 #if DEBUG
-        MainWindow.EnableHotReload();
+        MainWindow.UseStudio();
 #endif
 
         await ResourceHelper.SelectWorkFolderAsync(await StorageFolder.GetFolderFromPathAsync("E:\\BUS\\Temp\\T"));

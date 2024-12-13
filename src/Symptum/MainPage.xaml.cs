@@ -47,7 +47,7 @@ public sealed partial class MainPage : Page
         navigable ??= NavigationManager.HomeNavInfo;
         Type? pageType = NavigationManager.GetPageTypeForNavigable(navigable);
 
-        if (pageType != null && ContentFrame.CurrentSourcePageType != pageType)
+        if (pageType != null && NavigationManager.CurrentNavigable != navigable)
         {
             ContentFrame.Navigate(pageType, navigable, info);
         }

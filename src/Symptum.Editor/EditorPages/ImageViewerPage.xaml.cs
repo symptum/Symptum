@@ -69,6 +69,7 @@ public sealed partial class ImageViewerPage : EditorPageBase
         }
         else
         {
+            // NOTE: IRandomAccessStream doesn't seem to render in WASM?
             BitmapImage bitmap = new();
             await bitmap.SetSourceAsync(stream);
             imagePreview.Source = bitmap;
