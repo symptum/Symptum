@@ -15,7 +15,5 @@ public interface IPackageResource : IResource
 
     public IList<string>? DependencyIds { get; set; }
 
-    // public IList<string>? Contents { get; set; } // Is this necessary?
-
     public IList<string>? Tags { get; set; }
 }

@@ -54,12 +54,13 @@ public class MarkdownHelper
         };
     }
 
-    private static string GetBookReference(BookReference? bookReference)
+    private static string GetReferences(ReferenceBase? reference)
     {
-        if (bookReference == null) return string.Empty;
+        if (reference is not PresetBookReference bookReference) return string.Empty;
+
         string volString = bookReference.Volume > 0 ? $" Volume {bookReference.Volume}," : string.Empty;
 
-        return $"{bookReference.Id}, {GetOrdinal(bookReference.Edition)} Edition,{volString} Pg.No: {bookReference.Pages}";
+        return $"{bookReference.Book?.Id}, {GetOrdinal(bookReference.Edition)} Edition,{volString} Pg.No: {bookReference.Pages}";
     }
 
     public static void GenerateMarkdownForQuestionBankTopic(QuestionBankTopic topic, ref StringBuilder mdBuilder)
@@ -125,7 +126,7 @@ public class MarkdownHelper
                 ListToStringConversion.ConvertToString<DateOnly>(entry.YearsAsked, GetYear));
         if (_includeBookReferences && entry.References != null && entry.References.Count > 0)
             mdBuilder.AppendFormat("\t({0})",
-                ListToStringConversion.ConvertToString<BookReference>(entry.References, GetBookReference));
+                ListToStringConversion.ConvertToString<ReferenceBase>(entry.References, GetReferences));
         mdBuilder.AppendLine();
         if (entry.Descriptions != null && entry.Descriptions.Count > 0)
         {

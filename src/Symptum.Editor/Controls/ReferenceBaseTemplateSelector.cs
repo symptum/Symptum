@@ -4,7 +4,7 @@ namespace Symptum.Editor.Controls;
 
 public partial class ReferenceBaseTemplateSelector : DataTemplateSelector
 {
-    public DataTemplate? BookReferenceTemplate { get; set; }
+    public DataTemplate? PresetBookReferenceTemplate { get; set; }
 
     public DataTemplate? LinkReferenceTemplate { get; set; }
 
@@ -16,7 +16,7 @@ public partial class ReferenceBaseTemplateSelector : DataTemplateSelector
         {
             template = reference switch
             {
-                BookReference => BookReferenceTemplate,
+                PresetBookReference => PresetBookReferenceTemplate,
                 LinkReference => LinkReferenceTemplate,
                 _ => null,
             };

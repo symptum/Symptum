@@ -27,7 +27,7 @@ public sealed partial class QuestionBankContextConfigureDialog : ContentDialog
             {
                 datePicker.Date = new(dateOnly.ToDateTime(new TimeOnly(0)));
             }
-            bookRefPicker.BookReference = context.PreferredBook ?? new();
+            bookRefPicker.PresetBookReference = context.PreferredBook ?? new();
         }
     }
 
@@ -37,7 +37,7 @@ public sealed partial class QuestionBankContextConfigureDialog : ContentDialog
         {
             context.SubjectCode = scCB.SelectedItem != null ? (SubjectList)scCB.SelectedItem : SubjectList.None;
             context.LastInputDate = DateOnly.FromDateTime(datePicker.SelectedDate?.Date ?? DateTime.Now);
-            context.PreferredBook = bookRefPicker.BookReference;
+            context.PreferredBook = bookRefPicker.PresetBookReference;
         }
     }
 
@@ -45,6 +45,6 @@ public sealed partial class QuestionBankContextConfigureDialog : ContentDialog
     {
         scCB.SelectedItem = null;
         datePicker.SelectedDate = null;
-        bookRefPicker.BookReference = null;
+        bookRefPicker.PresetBookReference = null;
     }
 }

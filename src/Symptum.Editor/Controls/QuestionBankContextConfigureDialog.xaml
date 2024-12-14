@@ -12,6 +12,6 @@
     <ComboBox x:Name="scCB" Header="Subject Code" HorizontalAlignment="Stretch" />
     <DatePicker x:Name="datePicker" Header="Last Input Date" DayVisible="False" HorizontalAlignment="Stretch" />
     <TextBlock Text="Preferred Book" />
-    <local:BookReferencePicker x:Name="bookRefPicker" HorizontalAlignment="Stretch" />
+    <local:PresetBookReferencePicker x:Name="bookRefPicker" HorizontalAlignment="Stretch" />
   </StackPanel>
 </ContentDialog>

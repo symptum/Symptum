@@ -91,7 +91,6 @@
             <FontIcon Glyph="&#xEDE1;" />
           </MenuFlyoutItem.Icon>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="Upgrade CSVs" Click="MenuFlyoutItem_Click" />
         <win:MenuFlyoutItem Text="Exit" Click="Exit_Click" />
       </MenuBarItem>
       <MenuBarItem Title="Edit">

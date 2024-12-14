@@ -130,30 +130,3 @@ public class QuestionEntry : ObservableObject, IComparable, IComparable<Question
         return CompareTo(obj as QuestionEntry);
     }
 }
-
-public class QuestionEntryO
-{
-    [TypeConverter(typeof(QuestionIdConverter))]
-    public QuestionId Id { get; set; }
-
-    public string Title { get; set; }
-
-    [TypeConverter(typeof(StringListConverter))]
-    public List<string> Descriptions { get; set; }
-
-    public bool HasPreviouslyBeenAsked { get; set; }
-
-    public int Importance {  get; set; }
-
-    [TypeConverter(typeof(DateOnlyListConverter))]
-    public List<DateOnly> YearsAsked { get; set; }
-
-    [TypeConverter(typeof(StringListConverter))]
-    public List<string> ProbableCases { get; set; }
-
-    [TypeConverter(typeof(BookReferenceListConverter))]
-    public List<BookReference> BookReferences { get; set; }
-
-    [TypeConverter(typeof(UriListConverter))]
-    public List<Uri> LinkReferences { get; set; }
-}

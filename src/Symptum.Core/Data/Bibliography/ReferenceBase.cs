@@ -4,12 +4,6 @@ namespace Symptum.Core.Data.Bibliography;
 
 public abstract record ReferenceBase
 {
-    #region Properties
-
-    public string? Id { get; init; }
-
-    #endregion
-
     public static bool TryParse(string? text, [NotNullWhen(true)] out ReferenceBase? reference)
     {
         bool parsed = false;
@@ -19,7 +13,7 @@ public abstract record ReferenceBase
         {
             if (text.StartsWith("@book?"))
             {
-                if (BookReference.TryParse(text, out BookReference? bookReference))
+                if (PresetBookReference.TryParse(text, out PresetBookReference? bookReference))
                 {
                     parsed = true;
                     reference = bookReference;

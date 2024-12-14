@@ -4,35 +4,35 @@ using Symptum.Core.Subjects.Books;
 
 namespace Symptum.Editor.Controls;
 
-public sealed partial class BookReferencePicker : UserControl
+public sealed partial class PresetBookReferencePicker : UserControl
 {
     #region Properties
 
-    public static readonly DependencyProperty BookReferenceProperty =
+    public static readonly DependencyProperty PresetBookReferenceProperty =
         DependencyProperty.Register(
-            nameof(BookReference),
-            typeof(BookReference),
-            typeof(BookReferencePicker),
-            new PropertyMetadata(null, OnBookReferenceChanged));
+            nameof(PresetBookReference),
+            typeof(PresetBookReference),
+            typeof(PresetBookReferencePicker),
+            new PropertyMetadata(null, OnPresetBookReferenceChanged));
 
-    private static void OnBookReferenceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    private static void OnPresetBookReferenceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-        if (d is BookReferencePicker bookReferencePicker)
+        if (d is PresetBookReferencePicker picker)
         {
-            bookReferencePicker.LoadBookReference();
-            bookReferencePicker.UpdatePreviewText();
+            picker.LoadBookReference();
+            picker.UpdatePreviewText();
         }
     }
 
-    public BookReference? BookReference
+    public PresetBookReference? PresetBookReference
     {
-        get => (BookReference)GetValue(BookReferenceProperty);
-        set => SetValue(BookReferenceProperty, value);
+        get => (PresetBookReference)GetValue(PresetBookReferenceProperty);
+        set => SetValue(PresetBookReferenceProperty, value);
     }
 
     #endregion
 
-    public BookReferencePicker()
+    public PresetBookReferencePicker()
     {
         InitializeComponent();
 #if HAS_UNO_WINUI
@@ -128,26 +128,24 @@ public sealed partial class BookReferencePicker : UserControl
 
     private void LoadBookReference()
     {
-        if (BookReference == null) return;
-        selectedBook = BookStore.Books.FirstOrDefault(x => x.Id == BookReference.Id);
+        if (PresetBookReference == null) return;
+        selectedBook = BookStore.Books.FirstOrDefault(x => x.Id == PresetBookReference.Book?.Id);
 #if HAS_UNO_WINUI
         bookQueryBox.Text = selectedBook?.ToString();
 #else
         bookList.SelectedItem = selectedBook;
 #endif
-        editionSelector.Value = BookReference.Edition;
-        volumeSelector.Value = BookReference.Volume;
-        pageNoSelector.Text = BookReference.Pages;
+        editionSelector.Value = PresetBookReference.Edition;
+        volumeSelector.Value = PresetBookReference.Volume;
+        pageNoSelector.Text = PresetBookReference.Pages;
     }
 
     private void UpdateBookReference()
     {
-        if (BookReference == null) return;
-        BookReference = BookReference with
+        if (PresetBookReference == null) return;
+        PresetBookReference = PresetBookReference with
         {
-            Id = selectedBook?.Id,
-            Title = selectedBook?.Title,
-            Authors = selectedBook?.Authors,
+            Book = selectedBook,
             Edition = (int)editionSelector.Value,
             Volume = (int)volumeSelector.Value,
             Pages = pageNoSelector.Text
@@ -156,9 +154,9 @@ public sealed partial class BookReferencePicker : UserControl
 
     private void UpdatePreviewText()
     {
-        if (BookReference == null) return;
+        if (PresetBookReference == null) return;
 
-        string previewText = BookReference.GetPreviewText();
+        string previewText = PresetBookReference.GetPreviewText();
         previewTextBlock.Text = previewText;
         ToolTipService.SetToolTip(previewButton, previewText);
     }
