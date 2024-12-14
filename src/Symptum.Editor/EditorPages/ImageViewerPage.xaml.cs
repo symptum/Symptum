@@ -56,11 +56,11 @@ public sealed partial class ImageViewerPage : EditorPageBase
 
         _imageFileResource = imageFileResource;
 
-        var stream = await ResourceHelper.OpenImageFileForReadAsync(imageFileResource);
+        var stream = await ResourceHelper.OpenFileForReadAsync(imageFileResource);
         if (stream == null) return;
 
         Vector2 availableSize = scrollViewer.ActualSize;
-        if (imageFileResource.ImageType.Equals(SvgFileExtension, StringComparison.InvariantCultureIgnoreCase))
+        if (SvgFileExtension.Equals(imageFileResource.FileExtension, StringComparison.InvariantCultureIgnoreCase))
         {
             SvgImageSource svg = new();
             await svg.SetSourceAsync(stream);

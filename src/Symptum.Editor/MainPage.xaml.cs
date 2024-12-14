@@ -12,13 +12,13 @@ using static Symptum.Core.Helpers.FileHelper;
 using CsvHelper;
 using System.Globalization;
 using Symptum.Core.Extensions;
+using Microsoft.UI.Xaml.Input;
 
 namespace Symptum.Editor;
 
 public sealed partial class MainPage : Page
 {
     private bool _collapsed = false;
-    private bool _showResourcesPane = true;
     private readonly AddNewItemDialog addNewItemDialog = new();
     private readonly QuestionBankContextConfigureDialog contextConfigureDialog = new();
 
@@ -79,6 +79,28 @@ public sealed partial class MainPage : Page
         SizeChanged += MainPage_SizeChanged;
     }
 
+    #region Properties
+
+    public static DependencyProperty ShowResourcesPaneProperty = DependencyProperty.Register(
+        nameof(ShowResourcesPane),
+        typeof(bool),
+        typeof(MainPage),
+        new(true, OnShowResourcesPaneProperty));
+
+    private static void OnShowResourcesPaneProperty(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is MainPage page)
+            page.ShowOrHideResourcesPane((bool)e.NewValue);
+    }
+
+    public bool ShowResourcesPane
+    {
+        get => (bool)GetValue(ShowResourcesPaneProperty);
+        set => SetValue(ShowResourcesPaneProperty, value);
+    }
+
+    #endregion
+
     private void MainPage_SizeChanged(object sender, SizeChangedEventArgs args)
     {
         bool collapsed = args.NewSize.Width switch
@@ -90,7 +112,7 @@ public sealed partial class MainPage : Page
         if (collapsed != _collapsed)
         {
             _collapsed = collapsed;
-            VisualStateManager.GoToState(this, collapsed || !_showResourcesPane ? "MinimalState" : "DefaultState", true);
+            VisualStateManager.GoToState(this, collapsed || !ShowResourcesPane ? "MinimalState" : "DefaultState", true);
         }
     }
 
@@ -322,14 +344,6 @@ public sealed partial class MainPage : Page
         UpdateDeleteButtonEnabled();
     }
 
-    private void ShowResourcesPaneButton_Click(object sender, RoutedEventArgs e)
-    {
-        _showResourcesPane = !_showResourcesPane;
-        ToolTipService.SetToolTip(showResourcesPaneButton, _showResourcesPane ? "Unpin" : "Pin");
-        resourcesPaneButtonSymbolIcon.Symbol = _showResourcesPane ? Symbol.UnPin : Symbol.Pin;
-        VisualStateManager.GoToState(this, _showResourcesPane && !_collapsed ? "DefaultState" : "MinimalState", true);
-    }
-
     private void UpdateDeleteButtonEnabled()
     {
         int count = treeView.SelectedItems.Count;
@@ -443,5 +457,48 @@ public sealed partial class MainPage : Page
                 }
             }
         }
+    }
+
+    private void ShowOrHideResourcesPane(bool showResourcesPane)
+    {
+        ToolTipService.SetToolTip(showResourcesPaneButton, showResourcesPane ? "Unpin" : "Pin");
+        resourcesPaneButtonSymbolIcon.Symbol = showResourcesPane ? Symbol.UnPin : Symbol.Pin;
+        showResourcesPaneMenuItem.IsChecked = showResourcesPane;
+        VisualStateManager.GoToState(this, showResourcesPane && !_collapsed ? "DefaultState" : "MinimalState", true);
+    }
+
+    private void ShowResourcesPaneButton_Click(object sender, RoutedEventArgs e)
+    {
+        ShowResourcesPane = !ShowResourcesPane;
+    }
+
+    private void CloseAllTabs_Click(object sender, RoutedEventArgs e)
+    {
+        EditorPagesManager.ResetEditors();
+    }
+
+    private void CloseSelectedTabKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        EditorPagesManager.TryCloseEditor(editorsTabView.SelectedItem as IEditorPage);
+    }
+
+    private void NavigateToNumberedTabKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        int max = editorsTabView.TabItems.Count - 1;
+        int tabToSelect = sender.Key switch
+        {
+            VirtualKey.Number1 => 0,
+            VirtualKey.Number2 => 1,
+            VirtualKey.Number3 => 2,
+            VirtualKey.Number4 => 3,
+            VirtualKey.Number5 => 4,
+            VirtualKey.Number6 => 5,
+            VirtualKey.Number7 => 6,
+            VirtualKey.Number8 => 7,
+            _ => max
+        };
+
+        tabToSelect = Math.Clamp(tabToSelect, 0, max);
+        editorsTabView.SelectedIndex = tabToSelect;
     }
 }

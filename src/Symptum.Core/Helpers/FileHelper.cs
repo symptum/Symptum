@@ -37,6 +37,17 @@ public static class FileHelper
 
     #endregion
 
+    #region Audio File Extensions
+
+    public static readonly string[] AudioFileExtensions =
+    [
+        Mp3FileExtension
+    ];
+
+    public const string Mp3FileExtension = ".mp3";
+
+    #endregion
+
     public static (string folder, string fileName, string extension) GetDetailsFromFilePath(string? filePath)
     {
         string folder = string.Empty;

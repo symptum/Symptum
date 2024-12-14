@@ -40,9 +40,9 @@ public class ResourceManager
         return path + GetResourceFileName(resource) + extension;
     }
 
-    public static void LoadResourceFile(FileResource? fileResource, string text) => fileResource?.ReadFileText(text);
+    public static void LoadResourceFileText(TextFileResource? fileResource, string text) => fileResource?.ReadFileText(text);
 
-    public static string? WriteResourceFileText(FileResource? fileResource) => fileResource?.WriteFileText();
+    public static string? WriteResourceFileText(TextFileResource? fileResource) => fileResource?.WriteFileText();
 
     public static PackageResource? LoadPackageFromMetadata(string metadata) => JsonSerializer.Deserialize<PackageResource>(metadata);
 

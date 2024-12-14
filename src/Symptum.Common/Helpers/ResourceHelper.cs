@@ -88,14 +88,14 @@ public class ResourceHelper
 
     #endregion
 
-    #region Image Resource Handling
+    #region Resource File Handling
 
-    private static readonly Dictionary<string, StorageFile> imageFileMap = [];
+    private static readonly Dictionary<FileResource, StorageFile> fileMap = [];
 
-    public static async Task<IRandomAccessStream?> OpenImageFileForReadAsync(ImageFileResource imageFileResource)
+    public static async Task<IRandomAccessStream?> OpenFileForReadAsync(FileResource fileResource)
     {
-        if (!string.IsNullOrEmpty(imageFileResource.FilePath) &&
-            imageFileMap.TryGetValue(imageFileResource.FilePath, out StorageFile? file))
+        if (!string.IsNullOrEmpty(fileResource.FilePath) &&
+            fileMap.TryGetValue(fileResource, out StorageFile? file))
         {
             return await file.OpenReadAsync();
         }
@@ -135,20 +135,22 @@ public class ResourceHelper
             return await LoadPackageResourceFromFileAsync(file);
         else if (ImageFileExtensions.Any(ext => ext.Equals(file.FileType, StringComparison.InvariantCultureIgnoreCase)))
             return await LoadImageFileResourceFromFileAsync(file, parent);
+        else if (AudioFileExtensions.Any(ext => ext.Equals(file.FileType, StringComparison.InvariantCultureIgnoreCase)))
+            return await LoadAudioFileResourceFromFileAsync(file, parent);
 
         return null;
     }
 
     private static async Task<CsvFileResource?> LoadCsvFileResourceFromFileAsync(StorageFile? file, IResource? parent)
     {
-        if (file != null /*&& file.FileType.Equals(CsvFileExtension, StringComparison.InvariantCultureIgnoreCase)*/)
+        if (file != null)
         {
             string csv = await FileIO.ReadTextAsync(file);
             if (CsvResourceHelper.TryGetCsvResourceType(csv, out Type? csvType) &&
                 Activator.CreateInstance(csvType) is CsvFileResource csvFileResource)
             {
                 csvFileResource.Title = file.DisplayName;
-                ResourceManager.LoadResourceFile(csvFileResource, csv);
+                ResourceManager.LoadResourceFileText(csvFileResource, csv);
 
                 if (parent != null && parent.CanAddChildResourceType(csvType))
                     parent.AddChildResource(csvFileResource);
@@ -164,7 +166,7 @@ public class ResourceHelper
 
     private static async Task<MarkdownFileResource?> LoadMarkdownFileResourceFromFileAsync(StorageFile? file, IResource? parent)
     {
-        if (file != null /*&& file.FileType.Equals(MarkdownFileExtension, StringComparison.InvariantCultureIgnoreCase)*/)
+        if (file != null)
         {
             string md = await FileIO.ReadTextAsync(file);
 
@@ -172,7 +174,7 @@ public class ResourceHelper
             {
                 Title = file.DisplayName
             };
-            ResourceManager.LoadResourceFile(markdownFileResource, md);
+            ResourceManager.LoadResourceFileText(markdownFileResource, md);
 
             if (parent != null && parent.CanAddChildResourceType(typeof(MarkdownFileResource)))
                 parent.AddChildResource(markdownFileResource);
@@ -192,11 +194,11 @@ public class ResourceHelper
             ImageFileResource imageFileResource = new()
             {
                 Title = file.DisplayName,
-                ImageType = file.FileType.ToLower(),
                 FilePath = file.Path
             };
+            imageFileResource.SetMediaFileExtension(file.FileType.ToLower());
 
-            imageFileMap.TryAdd(file.Path, file);
+            fileMap.TryAdd(imageFileResource, file);
 
             if (parent != null && parent.CanAddChildResourceType(typeof(ImageFileResource)))
                 parent.AddChildResource(imageFileResource);
@@ -209,9 +211,33 @@ public class ResourceHelper
         return null;
     }
 
+    private static async Task<IResource?> LoadAudioFileResourceFromFileAsync(StorageFile file, IResource? parent)
+    {
+        if (file != null)
+        {
+            AudioFileResource audioFileResource = new()
+            {
+                Title = file.DisplayName,
+                FilePath = file.Path
+            };
+            audioFileResource.SetMediaFileExtension(file.FileType.ToLower());
+
+            fileMap.TryAdd(audioFileResource, file);
+
+            if (parent != null && parent.CanAddChildResourceType(typeof(AudioFileResource)))
+                parent.AddChildResource(audioFileResource);
+            else
+                ResourceManager.Resources.Add(audioFileResource);
+
+            return audioFileResource;
+        }
+
+        return null;
+    }
+
     internal static async Task<PackageResource?> LoadPackageResourceFromFileAsync(StorageFile? file)
     {
-        if (file != null /*&& file.FileType.Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase)*/)
+        if (file != null)
         {
             string json = await FileIO.ReadTextAsync(file);
             var package = ResourceManager.LoadPackageFromMetadata(json);
@@ -229,19 +255,16 @@ public class ResourceHelper
 
     public static async Task LoadResourceAsync(IResource resource, IResource? parent = null)
     {
-        if (resource is CsvFileResource csvResource)
+        if (resource is TextFileResource textResource)
         {
-            await LoadCSVFileResourceAsync(csvResource);
+            // CSVs and Markdowns
+            await LoadTextFileResourceAsync(textResource);
             resource.InitializeResource(parent);
         }
-        else if (resource is MarkdownFileResource markdownResource)
+        else if (resource is MediaFileResource mediaResource)
         {
-            await LoadMarkdownFileResourceAsync(markdownResource);
-            resource.InitializeResource(parent);
-        }
-        else if (resource is ImageFileResource imageResource)
-        {
-            await LoadImageFileResourceAsync(imageResource);
+            // Images and Audios
+            await LoadMediaFileResourceAsync(mediaResource);
             resource.InitializeResource(parent);
         }
         else
@@ -283,30 +306,21 @@ public class ResourceHelper
         return null;
     }
 
-    private static async Task LoadCSVFileResourceAsync(CsvFileResource csvResource)
+    private static async Task LoadTextFileResourceAsync(TextFileResource textResource)
     {
-        if (await GetResourceFileAsync(csvResource.FilePath) is StorageFile csvFile)
+        if (await GetResourceFileAsync(textResource.FilePath) is StorageFile textFile)
         {
-            string text = await FileIO.ReadTextAsync(csvFile);
-            ResourceManager.LoadResourceFile(csvResource, text);
+            string text = await FileIO.ReadTextAsync(textFile);
+            ResourceManager.LoadResourceFileText(textResource, text);
         }
     }
 
-    private static async Task LoadMarkdownFileResourceAsync(MarkdownFileResource markdownResource)
+    private static async Task LoadMediaFileResourceAsync(MediaFileResource mediaResource)
     {
-        if (await GetResourceFileAsync(markdownResource.FilePath) is StorageFile mdFile)
+        if (await GetResourceFileAsync(mediaResource.FilePath) is StorageFile mediaFile)
         {
-            string text = await FileIO.ReadTextAsync(mdFile);
-            ResourceManager.LoadResourceFile(markdownResource, text);
-        }
-    }
-
-    private static async Task LoadImageFileResourceAsync(ImageFileResource imageResource)
-    {
-        if (await GetResourceFileAsync(imageResource.FilePath) is StorageFile imgFile)
-        {
-            imageResource.ImageType = imgFile.FileType.ToLower();
-            imageFileMap.TryAdd(imageResource.FilePath, imgFile);
+            mediaResource.SetMediaFileExtension(mediaFile.FileType.ToLower());
+            fileMap.TryAdd(mediaResource, mediaFile);
         }
     }
 
@@ -342,17 +356,15 @@ public class ResourceHelper
     {
         if (resource == null) return false;
 
-        if (resource is CsvFileResource csvResource)
+        if (resource is TextFileResource textResource)
         {
-            return await SaveCSVFileAsync(csvResource, targetFolder);
+            // CSVs and Markdowns
+            return await SaveTextFileResourceAsync(textResource, targetFolder);
         }
-        else if (resource is MarkdownFileResource markdownResource)
+        else if (resource is MediaFileResource mediaResource)
         {
-            return await SaveMarkdownFileAsync(markdownResource, targetFolder);
-        }
-        else if (resource is ImageFileResource imageResource)
-        {
-            return await SaveImageFileAsync(imageResource, targetFolder);
+            // Images and Audios
+            return await CopySaveFileResourceAsync(mediaResource, targetFolder);
         }
         else
         {
@@ -371,68 +383,44 @@ public class ResourceHelper
         }
     }
 
-    private static async Task<bool> SaveCSVFileAsync(CsvFileResource csvResource, StorageFolder? targetFolder = null)
+    private static async Task<bool> SaveTextFileResourceAsync(TextFileResource textResource, StorageFolder? targetFolder = null)
     {
-        if (csvResource == null) return false;
-        //bool pathExists = await VerifyWorkFolderAsync(targetFolder);
-        //if (!pathExists) return false;
+        if (textResource == null) return false;
 
-        string subFolderPath = ResourceManager.GetResourceFolderPath(csvResource);
-        string? fileName = ResourceManager.GetResourceFileName(csvResource);
-        csvResource.FilePath = subFolderPath + fileName + CsvFileExtension;
-        StorageFile? saveFile = await PickSaveFileAsync(fileName, CsvFileExtension, "CSV File", targetFolder, subFolderPath);
+        string subFolderPath = ResourceManager.GetResourceFolderPath(textResource);
+        string? fileName = ResourceManager.GetResourceFileName(textResource);
+        textResource.FilePath = subFolderPath + fileName + textResource.FileExtension;
+        StorageFile? saveFile = await PickSaveFileAsync(fileName, textResource.FileExtension, $"{textResource.FileType} File", targetFolder, subFolderPath);
 
         if (saveFile != null)
         {
-            string? text = ResourceManager.WriteResourceFileText(csvResource);
-            return await StorageHelper.WriteToFileAsync(saveFile, text);
+            string? text = ResourceManager.WriteResourceFileText(textResource);
+            if (!string.IsNullOrEmpty(text))
+                return await StorageHelper.WriteToFileAsync(saveFile, text);
         }
 
         return false;
     }
 
-    private static async Task<bool> SaveMarkdownFileAsync(MarkdownFileResource markdownResource, StorageFolder? targetFolder = null)
+    private static async Task<bool> CopySaveFileResourceAsync(FileResource fileResource, StorageFolder? targetFolder = null)
     {
-        if (markdownResource == null) return false;
-        //bool pathExists = await VerifyWorkFolderAsync(targetFolder);
-        //if (!pathExists) return false;
+        if (fileResource == null) return false;
 
-        string subFolderPath = ResourceManager.GetResourceFolderPath(markdownResource);
-        string? fileName = ResourceManager.GetResourceFileName(markdownResource);
-        markdownResource.FilePath = subFolderPath + fileName + MarkdownFileExtension;
-        StorageFile? saveFile = await PickSaveFileAsync(fileName, MarkdownFileExtension, "Markdown File", targetFolder, subFolderPath);
+        string subFolderPath = ResourceManager.GetResourceFolderPath(fileResource);
+        string? fileName = ResourceManager.GetResourceFileName(fileResource);
+        string filePath = subFolderPath + fileName + fileResource.FileExtension;
 
-        if (saveFile != null)
-        {
-            string? text = ResourceManager.WriteResourceFileText(markdownResource);
-            return await StorageHelper.WriteToFileAsync(saveFile, text);
-        }
-
-        return false;
-    }
-
-    private static async Task<bool> SaveImageFileAsync(ImageFileResource imageResource, StorageFolder? targetFolder = null)
-    {
-        if (imageResource == null) return false;
-        //bool pathExists = await VerifyWorkFolderAsync(targetFolder);
-        //if (!pathExists) return false;
-
-        string subFolderPath = ResourceManager.GetResourceFolderPath(imageResource);
-        string? fileName = ResourceManager.GetResourceFileName(imageResource);
-        string filePath = subFolderPath + fileName + imageResource.ImageType;
-
-        if (filePath.Equals(imageResource.FilePath, StringComparison.InvariantCultureIgnoreCase) &&
+        if (filePath.Equals(fileResource.FilePath, StringComparison.InvariantCultureIgnoreCase) &&
             (targetFolder == null || targetFolder == _workFolder)) // Prevent writing the file onto itself.
             return true;
 
-        string? originalFilePath = imageResource.FilePath;
-        if (!string.IsNullOrEmpty(originalFilePath) && imageFileMap.TryGetValue(originalFilePath, out var imageFile))
+        if (fileMap.TryGetValue(fileResource, out var file))
         {
-            imageResource.FilePath = filePath;
+            fileResource.FilePath = filePath;
 
-            StorageFile? saveFile = await CopyFileAsync(imageFile, fileName, imageResource.ImageType, "Image File", targetFolder, subFolderPath);
-            imageFileMap.Remove(originalFilePath);
-            imageFileMap.TryAdd(filePath, saveFile);
+            StorageFile? saveFile = await CopyFileAsync(file, fileName, fileResource.FileExtension, $"{fileResource.FileType} File", targetFolder, subFolderPath);
+            fileMap.Remove(fileResource);
+            if (saveFile != null) fileMap.TryAdd(fileResource, saveFile);
         }
 
         return true;
@@ -441,8 +429,6 @@ public class ResourceHelper
     private static async Task<bool> SaveMetadataAsync<T>(T resource, StorageFolder? targetFolder = null) where T : MetadataResource
     {
         if (resource == null) return false;
-        //bool pathExists = await VerifyWorkFolderAsync(targetFolder);
-        //if (!pathExists) return false;
 
         string subFolderPath = ResourceManager.GetResourceFolderPath(resource);
         string? fileName = ResourceManager.GetResourceFileName(resource);
@@ -473,17 +459,17 @@ public class ResourceHelper
         return true;
     }
 
-    private static async Task<StorageFile?> PickSaveFileAsync(string name, string extension, string fileType, StorageFolder? targetFolder = null, string? subFolder = null)
+    private static async Task<StorageFile?> PickSaveFileAsync(string? name, string? extension, string? fileType, StorageFolder? targetFolder = null, string? subFolder = null)
     {
         if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(extension) ||
             string.IsNullOrEmpty(fileType)) return null;
 
-        StorageFile saveFile;
+        StorageFile? saveFile = null;
         targetFolder ??= _workFolder;
         if (targetFolder != null && StorageHelper.IsFolderPickerSupported)
         {
             var folder = await StorageHelper.CreateSubFoldersAsync(targetFolder, subFolder);
-            saveFile = await folder?.CreateFileAsync(name + extension, CreationCollisionOption.ReplaceExisting);
+            if (folder != null) saveFile = await folder.CreateFileAsync(name + extension, CreationCollisionOption.ReplaceExisting);
         }
         else
         {
@@ -501,12 +487,12 @@ public class ResourceHelper
         return saveFile;
     }
 
-    private static async Task<StorageFile?> CopyFileAsync(StorageFile file, string name, string extension, string fileType, StorageFolder? targetFolder = null, string? subFolder = null)
+    private static async Task<StorageFile?> CopyFileAsync(StorageFile? file, string? name, string? extension, string? fileType, StorageFolder? targetFolder = null, string? subFolder = null)
     {
         StorageFile? saveFile = file;
         targetFolder ??= _workFolder;
 
-        if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(extension) ||
+        if (file == null || string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(extension) ||
             string.IsNullOrEmpty(fileType)) return saveFile;
 
         if (targetFolder != null && StorageHelper.IsFolderPickerSupported)
@@ -519,7 +505,7 @@ public class ResourceHelper
 
                 //StorageFolder parent = await file.GetParentAsync();
                 //if (parent != null && folder != null && !parent.Path.Equals(folder?.Path, StringComparison.InvariantCultureIgnoreCase))
-                saveFile = await file.CopyAsync(folder, name + extension, NameCollisionOption.ReplaceExisting);
+                if (folder != null) saveFile = await file.CopyAsync(folder, name + extension, NameCollisionOption.ReplaceExisting);
             }
             catch { }
         }
@@ -551,12 +537,12 @@ public class ResourceHelper
 
         await RemoveChildrenAsync(resource, delete);
 
-        if (delete && resource is CsvFileResource csvResource)
-            await DeleteCSVFileAsync(csvResource);
-        else if (delete && resource is MarkdownFileResource markdownResource)
-            await DeleteMarkdownFileAsync(markdownResource);
-        else if (delete && resource is ImageFileResource imageResource)
-            await DeleteImageFileAsync(imageResource);
+        if (resource is FileResource fileResource)
+        {
+            if (fileResource is MediaFileResource)
+                fileMap.Remove(fileResource); // Images and Audios
+            if (delete) await DeleteResourceFileAsync(fileResource);
+        }
         else if (delete && resource is MetadataResource metadataResource)
             await DeleteMetadataAsync(metadataResource);
 
@@ -570,48 +556,18 @@ public class ResourceHelper
         ResourceManager.UnregisterResource(resource);
     }
 
-    private static async Task DeleteCSVFileAsync(CsvFileResource? csvResource)
+    private static async Task DeleteResourceFileAsync(FileResource? fileResource)
     {
-        if (csvResource == null) return;
-        if (_workFolder != null && StorageHelper.IsFolderPickerSupported)
-        {
-            try
-            {
-                string path = ResourceManager.GetResourceFolderPath(csvResource);
-                var folder = await StorageHelper.GetSubFolderAsync(_workFolder, path);
-                IStorageItem? file = await folder?.TryGetItemAsync(ResourceManager.GetResourceFileName(csvResource) + CsvFileExtension);
-                if (file != null) await file.DeleteAsync();
-            }
-            catch { }
-        }
-    }
+        if (fileResource == null) return;
 
-    private static async Task DeleteMarkdownFileAsync(MarkdownFileResource? markdownResource)
-    {
-        if (markdownResource == null) return;
         if (_workFolder != null && StorageHelper.IsFolderPickerSupported)
         {
             try
             {
-                string path = ResourceManager.GetResourceFolderPath(markdownResource);
+                string path = ResourceManager.GetResourceFolderPath(fileResource);
                 var folder = await StorageHelper.GetSubFolderAsync(_workFolder, path);
-                IStorageItem? file = await folder?.TryGetItemAsync(ResourceManager.GetResourceFileName(markdownResource) + MarkdownFileExtension);
-                if (file != null) await file.DeleteAsync();
-            }
-            catch { }
-        }
-    }
-
-    private static async Task DeleteImageFileAsync(ImageFileResource? imageResource)
-    {
-        if (imageResource == null) return;
-        if (_workFolder != null && StorageHelper.IsFolderPickerSupported)
-        {
-            try
-            {
-                string path = ResourceManager.GetResourceFolderPath(imageResource);
-                var folder = await StorageHelper.GetSubFolderAsync(_workFolder, path);
-                IStorageItem? file = await folder?.TryGetItemAsync(ResourceManager.GetResourceFileName(imageResource) + imageResource.ImageType);
+                if (folder == null) return;
+                IStorageItem? file = await folder.TryGetItemAsync(ResourceManager.GetResourceFileName(fileResource) + fileResource.FileExtension);
                 if (file != null) await file.DeleteAsync();
             }
             catch { }

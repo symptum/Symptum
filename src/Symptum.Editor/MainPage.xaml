@@ -103,6 +103,25 @@
           </MenuFlyoutItem>
         </MenuFlyoutSubItem>
       </MenuBarItem>
+      <MenuBarItem Title="View">
+        <MenuFlyoutSubItem Text="Toolbars">
+          <ToggleMenuFlyoutItem x:Name="showResourcesPaneMenuItem" Text="Resources Pane" IsChecked="{x:Bind ShowResourcesPane, Mode=TwoWay}">
+            <ToggleMenuFlyoutItem.KeyboardAccelerators>
+              <KeyboardAccelerator Modifiers="Control,Shift" Key="R" />
+            </ToggleMenuFlyoutItem.KeyboardAccelerators>
+          </ToggleMenuFlyoutItem>
+          <ToggleMenuFlyoutItem Text="Status Bar" IsChecked="True">
+            <ToggleMenuFlyoutItem.KeyboardAccelerators>
+              <KeyboardAccelerator Modifiers="Control,Shift" Key="S" />
+            </ToggleMenuFlyoutItem.KeyboardAccelerators>
+          </ToggleMenuFlyoutItem>
+        </MenuFlyoutSubItem>
+        <MenuFlyoutItem Text="Close All Tabs" Click="CloseAllTabs_Click">
+          <MenuFlyoutItem.KeyboardAccelerators>
+            <KeyboardAccelerator Modifiers="Control,Shift" Key="W" />
+          </MenuFlyoutItem.KeyboardAccelerators>
+        </MenuFlyoutItem>
+      </MenuBarItem>
     </MenuBar>
     <SplitView x:Name="splitView" Grid.Row="2" PaneBackground="Transparent"
                IsPaneOpen="True" OpenPaneLength="301" CompactPaneLength="48" DisplayMode="Inline">
@@ -176,6 +195,18 @@
               </TabViewItem>
             </DataTemplate>
           </TabView.TabItemTemplate>
+          <TabView.KeyboardAccelerators>
+            <KeyboardAccelerator Key="W" Modifiers="Control" Invoked="CloseSelectedTabKeyboardAccelerator_Invoked" />
+            <KeyboardAccelerator Key="Number1" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
+            <KeyboardAccelerator Key="Number2" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
+            <KeyboardAccelerator Key="Number3" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
+            <KeyboardAccelerator Key="Number4" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
+            <KeyboardAccelerator Key="Number5" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
+            <KeyboardAccelerator Key="Number6" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
+            <KeyboardAccelerator Key="Number7" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
+            <KeyboardAccelerator Key="Number8" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
+            <KeyboardAccelerator Key="Number9" Modifiers="Control" Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked" />
+          </TabView.KeyboardAccelerators>
         </TabView>
       </Grid>
     </SplitView>

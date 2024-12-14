@@ -320,7 +320,7 @@
         </TreeView>
       </ScrollViewer>
     </Grid>
-    <Grid x:Name="statusBar" Grid.Row="3" Grid.ColumnSpan="4" Margin="8,0,4,0" ColumnSpacing="8">
+    <Grid x:Name="statusBar" Grid.Row="3" Grid.ColumnSpan="4" Margin="8,0,4,0" Height="32" ColumnSpacing="8">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto" />

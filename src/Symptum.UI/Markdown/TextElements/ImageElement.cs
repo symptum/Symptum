@@ -1,7 +1,6 @@
 using Markdig.Syntax.Inlines;
 using Windows.Storage.Streams;
 using Microsoft.UI.Xaml.Media.Imaging;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using HtmlAgilityPack;
 using System.Globalization;
@@ -118,58 +117,57 @@ public class ImageElement : IAddChild
                 }
                 else if (_uri.Scheme == "file")
                 {
-                    // Load image from local file
-                    StorageFile file = await StorageFile.GetFileFromPathAsync(_uri.LocalPath);
-                    using IRandomAccessStream stream = await file.OpenAsync(FileAccessMode.Read);
-                    // Create a BitmapImage
-                    BitmapImage bitmap = new();
-                    await bitmap.SetSourceAsync(stream);
-                    _image.Source = bitmap;
-                    _image.Width = bitmap.PixelWidth == 0 ? bitmap.DecodePixelWidth : bitmap.PixelWidth;
-                    _image.Height = bitmap.PixelHeight == 0 ? bitmap.DecodePixelHeight : bitmap.PixelHeight;
-                    imageLoaded(bitmap);
-                }
-                else
-                {
-                    HttpClient client = new();
-
-                    // Download data from URL
-                    HttpResponseMessage response = await client.GetAsync(_uri);
-
-                    string? contentType = response.Content.Headers.ContentType.MediaType;
-                    if (contentType == "image/svg+xml")
+                    StorageFile? file = await StorageFile.GetFileFromPathAsync(_uri.LocalPath);
+                    if (file != null)
                     {
-                        string? svgString = await response.Content.ReadAsStringAsync();
-                        ImageSource resImage = await _svgRenderer.SvgToImageSource(svgString);
-                        if (resImage != null)
-                        {
-                            _image.Source = resImage;
-                            Size size = Extensions.GetSvgSize(svgString);
-                            if (size.Width > 0) _image.Width = size.Width;
-                            if (size.Height > 0) _image.Height = size.Height;
-                            imageLoaded(resImage);
-                        }
-                    }
-                    else
-                    {
-                        byte[] data = await response?.Content?.ReadAsByteArrayAsync();
-                        // Create a BitmapImage for other supported formats
+                        using IRandomAccessStream? stream = await file.OpenAsync(FileAccessMode.Read);
                         BitmapImage bitmap = new();
-                        using (InMemoryRandomAccessStream stream = new())
-                        {
-                            // Write the data to the stream
-                            await stream.WriteAsync(data.AsBuffer());
-                            stream.Seek(0);
-
-                            // Set the source of the BitmapImage
-                            await bitmap.SetSourceAsync(stream);
-                        }
+                        if (stream != null) await bitmap.SetSourceAsync(stream);
                         _image.Source = bitmap;
                         _image.Width = bitmap.PixelWidth == 0 ? bitmap.DecodePixelWidth : bitmap.PixelWidth;
                         _image.Height = bitmap.PixelHeight == 0 ? bitmap.DecodePixelHeight : bitmap.PixelHeight;
                         imageLoaded(bitmap);
                     }
+                }
+                else
+                {
+                    HttpClient client = new();
+//#if __WASM__
+//                    client.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
+//                    client.DefaultRequestHeaders.Add("Access-Control-Allow-Methods", "*");
+//                    client.DefaultRequestHeaders.Add("Access-Control-Allow-Headers", "*");
+//                    client.DefaultRequestHeaders.Add("Access-Control-Max-Age", "86400");
+//#endif
+                    HttpResponseMessage response = await client.GetAsync(_uri);
+                    if (response != null)
+                    {
+                        string? contentType = response.Content.Headers?.ContentType?.MediaType;
+                        if (contentType == "image/svg+xml")
+                        {
+                            string? svgString = await response.Content.ReadAsStringAsync();
+                            ImageSource resImage = await _svgRenderer.SvgToImageSource(svgString);
+                            if (resImage != null)
+                            {
+                                _image.Source = resImage;
+                                Size size = Extensions.GetSvgSize(svgString);
+                                if (size.Width > 0) _image.Width = size.Width;
+                                if (size.Height > 0) _image.Height = size.Height;
+                                imageLoaded(resImage);
+                            }
+                        }
+                        else
+                        {
+                            using Stream? stream = await response.Content.ReadAsStreamAsync();
+                            BitmapImage bitmap = new();
 
+                            if (stream != null) await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
+
+                            _image.Source = bitmap;
+                            _image.Width = bitmap.PixelWidth == 0 ? bitmap.DecodePixelWidth : bitmap.PixelWidth;
+                            _image.Height = bitmap.PixelHeight == 0 ? bitmap.DecodePixelHeight : bitmap.PixelHeight;
+                            imageLoaded(bitmap);
+                        }
+                    }
                 }
             }
             catch (Exception) { }
@@ -187,7 +185,7 @@ public class ImageElement : IAddChild
 
     public void AddChild(IAddChild child)
     {
-        if (child !=null && child.TextElement is SInline inline)
+        if (child != null && child.TextElement is SInline inline)
         {
             _altText.Inlines.Add(inline.Inline);
         }

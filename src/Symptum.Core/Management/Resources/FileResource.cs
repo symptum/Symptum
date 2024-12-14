@@ -1,79 +1,42 @@
 using System.Text.Json.Serialization;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Symptum.Core.Data;
 using Symptum.Core.Management.Navigation;
 
 namespace Symptum.Core.Management.Resources;
 
-public abstract class FileResource : NavigableResource, IContent
+public abstract partial class FileResource : NavigableResource, IContent
 {
     #region Properties
 
-    #region IContent
+    [ObservableProperty]
+    public partial string? FilePath { get; set; }
+
+    [JsonIgnore]
+    [ObservableProperty]
+    public partial string? FileExtension { get; protected set; }
 
     [JsonIgnore]
     public abstract ContentFileType FileType { get; }
 
-    private string? description;
+    [ObservableProperty]
+    public partial string? Description { get; set; }
 
-    public string? Description
-    {
-        get => description;
-        set => SetProperty(ref description, value);
-    }
+    [ObservableProperty]
+    public partial IList<AuthorInfo>? Authors { get; set; }
 
-    private IList<AuthorInfo>? authors;
+    [ObservableProperty]
+    public partial DateOnly? DateModified { get; set; }
 
-    public IList<AuthorInfo>? Authors
-    {
-        get => authors;
-        set => SetProperty(ref authors, value);
-    }
+    [ObservableProperty]
+    public partial IList<string>? Tags { get; set; }
 
-    private DateOnly? dateModified;
-
-    public DateOnly? DateModified
-    {
-        get => dateModified;
-        set => SetProperty(ref dateModified, value);
-    }
-
-    private IList<string>? tags;
-
-    public IList<string>? Tags
-    {
-        get => tags;
-        set => SetProperty(ref tags, value);
-    }
-
-    private IList<string>? seeAlso;
-
-    public IList<string>? SeeAlso
-    {
-        get => seeAlso;
-        set => SetProperty(ref seeAlso, value);
-    }
-
-    #endregion
-
-    private string? filePath;
-
-    public string? FilePath
-    {
-        get => filePath;
-        set => SetProperty(ref filePath, value);
-    }
+    [ObservableProperty]
+    public partial IList<string>? SeeAlso { get; set; }
 
     #endregion
 
     protected override void OnInitializeResource(IResource? parent) { }
-
-    internal void ReadFileText(string content) => OnReadFileText(content);
-
-    internal string WriteFileText() => OnWriteFileText();
-
-    protected abstract void OnReadFileText(string content);
-
-    protected abstract string OnWriteFileText();
 
     #region Ignore
 
@@ -92,4 +55,35 @@ public abstract class FileResource : NavigableResource, IContent
     protected override void OnRemoveChildResource(IResource? childResource) => throw new NotImplementedException();
 
     #endregion
+}
+
+public abstract class TextFileResource : FileResource
+{
+    internal void ReadFileText(string content) => OnReadFileText(content);
+
+    internal string? WriteFileText() => OnWriteFileText();
+
+    protected abstract void OnReadFileText(string content);
+
+    protected abstract string? OnWriteFileText();
+}
+
+public abstract class MediaFileResource : FileResource
+{
+    public void SetMediaFileExtension(string? extension)
+    {
+        FileExtension = extension;
+    }
+}
+
+public sealed partial class ImageFileResource : MediaFileResource
+{
+    [JsonIgnore]
+    public override ContentFileType FileType { get; } = ContentFileType.Image;
+}
+
+public sealed partial class AudioFileResource : MediaFileResource
+{
+    [JsonIgnore]
+    public override ContentFileType FileType { get; } = ContentFileType.Audio;
 }

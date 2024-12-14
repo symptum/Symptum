@@ -14,8 +14,8 @@ public class NutrientQuantityGenerator : ISourceGenerator
 
     private static (string? fieldName, string? propertyName, string? header, string? unit, string? comment, bool isComment) ParseLine(string line)
     {
-        List<char> fieldName = [];
-        List<char> propertyName = [];
+        StringBuilder fieldName = new();
+        StringBuilder propertyName = new();
         string? header = null;
         string? unit = null;
         string? comment = null;
@@ -39,20 +39,19 @@ public class NutrientQuantityGenerator : ISourceGenerator
                 unitIndex = i;
             else if (char.IsLetter(ch))
             {
-                fieldName.Add(firstChar ? char.ToLower(ch) : ch);
-                propertyName.Add(firstChar ? char.ToUpper(ch) : ch);
+                fieldName.Append(firstChar ? char.ToLower(ch) : ch);
+                propertyName.Append(firstChar ? char.ToUpper(ch) : ch);
                 firstChar = false;
             }
             else if (char.IsDigit(ch))
             {
                 if (firstChar)
                 {
-                    fieldName.Add('_');
-                    fieldName.Add('_'); // Add "__" to field for distinguishment
-                    propertyName.Add('_');
+                    fieldName.Append("__"); // Add "__" to field for distinguishment
+                    propertyName.Append('_');
                 }
-                fieldName.Add(ch);
-                propertyName.Add(ch);
+                fieldName.Append(ch);
+                propertyName.Append(ch);
                 firstChar = false;
             }
         }
@@ -76,7 +75,7 @@ public class NutrientQuantityGenerator : ISourceGenerator
 
         return firstChar ?
             (null, null, null, null, comment, true) :
-            (new([.. fieldName]), new([.. propertyName]), header, unit, comment, false);
+            (fieldName.ToString(), propertyName.ToString(), header, unit, comment, false);
     }
 
     public void Execute(GeneratorExecutionContext context)
@@ -103,10 +102,12 @@ namespace Symptum.Core.Data.Nutrition
             (string? fieldName, string? propertyName, string? header, string? unit, string? comment, bool isComment) = ParseLine(line);
             if (isComment) continue;
 
+            string desc = !string.IsNullOrEmpty(comment) ? $@", Description = ""{comment}""" : string.Empty;
+
             source.Append($@"
         private Quantity? {fieldName};
 
-        [GenerateUI(Header = ""{header} (in {unit})"", Description = ""{comment}"")]
+        [GenerateUI(Header = ""{header} (in {unit})""{desc})]
         [TypeConverter(typeof(QuantityCsvConverter))]
         public Quantity? {propertyName}
         {{

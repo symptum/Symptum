@@ -1,4 +1,5 @@
 using System.Text;
+using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
 
 namespace Symptum.Editor.SourceGenerators;
@@ -67,9 +68,11 @@ namespace Symptum.Editor.Controls
                 description = data.NamedArguments.FirstOrDefault(x => x.Key == "Description").Value.Value?.ToString();
             }
 
+            string desc = !string.IsNullOrEmpty(description) ? $@", Description = ""{description}""" : string.Empty;
+
             // Creating fields
             source.Append($@"
-        private readonly TextBox {controlName} = new() {{ Header = ""{header}"", Description = ""{description}"" }};");
+        private readonly TextBox {controlName} = new() {{ Header = ""{header}""{desc} }};");
 
             // We are doing the other gens in a single loop;
             addControls.Append($@"
