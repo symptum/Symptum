@@ -39,4 +39,8 @@
     <ProjectReference Include="..\Symptum.Core\Symptum.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="..\..\..\Symptum.Data\resources\Subjects\Books\*.csv" Link="Assets\Books\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

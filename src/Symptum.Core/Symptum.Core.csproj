@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="..\..\..\Symptum.Data\src\Symptum.Data\Nutrition\NutrientIndex.txt" />
+    <AdditionalFiles Include="..\..\..\Symptum.Data\resources\Nutrition\NutrientIndex.txt" />
   </ItemGroup>
   
 </Project>

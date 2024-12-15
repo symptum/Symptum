@@ -32,7 +32,7 @@ public sealed partial class ImageViewerPage : EditorPageBase
     public ImageViewerPage()
     {
         InitializeComponent();
-        IconSource = DefaultIconSources.PicturesIconSource;
+        IconSource = DefaultIconSources.PhotoIconSource;
         zoomCB.ItemsSource = zoomLevels;
         Loaded += ImageViewerPage_Loaded;
     }

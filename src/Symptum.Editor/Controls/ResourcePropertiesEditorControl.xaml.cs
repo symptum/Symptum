@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
+using Symptum.Common.ProjectSystem;
 using Symptum.Core.Data;
+using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
 using Symptum.Editor.EditorPages;
 
@@ -63,6 +65,8 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
         titleTB.Text = null;
         idTB.Text = null;
         uriTB.Text = null;
+        idTB.Visibility = Visibility.Visible;
+        uriTB.Visibility = Visibility.Visible;
         resourceTreeExpander.Visibility = Visibility.Collapsed;
         childrenResIR.ItemsSource = null;
         packageExpander.Visibility = Visibility.Collapsed;
@@ -81,10 +85,7 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
         _fileTags.LoadFromList(null);
     }
 
-    public void ResetResource()
-    {
-        LoadResource(Resource);
-    }
+    public void ResetResource() => LoadResource(Resource);
 
     private void LoadResource(IResource? resource)
     {
@@ -97,6 +98,7 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
             parentResourceButton.Content = "Parent Resource: " + (resource.ParentResource?.Id ?? resource.ParentResource?.Title);
         }
         titleTB.Text = resource.Title;
+
         idTB.Text = resource.Id;
         uriTB.Text = resource.Uri?.ToString();
 
@@ -129,6 +131,13 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
             _fileAuthors.LoadFromList(fileResource.Authors);
             _fileTags.LoadFromList(fileResource.Tags);
         }
+
+        if (resource is ProjectFolder)
+        {
+            idTB.Visibility = Visibility.Collapsed;
+            uriTB.Visibility = Visibility.Collapsed;
+            metadataExpander.Visibility = Visibility.Collapsed;
+        }
     }
 
     public void UpdateResource()
@@ -136,17 +145,18 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
         IResource? resource = Resource;
         if (resource == null) return;
 
-        resource.Title = titleTB.Text;
-        resource.Id = idTB.Text;
+        resource.Title = titleTB.Text.ToNullIfEmpty();
+        resource.Id = idTB.Text.ToNullIfEmpty();
         try
         {
-            resource.Uri = new(uriTB.Text);
+            if (Uri.TryCreate(uriTB.Text, UriKind.Absolute, out Uri? uri))
+                resource.Uri = uri;
         }
         catch { }
 
         if (resource is PackageResource package)
         {
-            package.Description = packageDescriptionTB.Text;
+            package.Description = packageDescriptionTB.Text.ToNullIfEmpty();
             if (Version.TryParse(packageVersionTB.Text, out Version? version))
             {
                 package.Version = version;
@@ -160,25 +170,49 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
         }
         else if (resource is FileResource fileResource)
         {
-            fileResource.Description = fileDescriptionTB.Text;
+            fileResource.Description = fileDescriptionTB.Text.ToNullIfEmpty();
             fileResource.Authors = _fileAuthors.UnwrapToList();
             fileResource.Tags = _fileTags.UnwrapToList();
         }
     }
 
-    private void OpenParentResource()
+    private void OpenParentResource() => OpenResource(Resource?.ParentResource);
+
+    private static void OpenResource(IResource? resource) => EditorPagesManager.CreateOrOpenEditor(resource);
+
+    private void ChildButton_Click(object sender, RoutedEventArgs e) => OpenResource((sender as HyperlinkButton)?.DataContext as IResource);
+
+    private void GenButton_Click(object sender, RoutedEventArgs e) => GenerateIdAndUriFromAncestors();
+
+    private void GenerateIdAndUriFromAncestors()
     {
-        OpenResource(Resource?.ParentResource);
+        idTB.Text = GenerateIdFromAncestors(Resource, "Symptum");
+        uriTB.Text = GenerateUriFromAncestors(Resource, "symptum://");
     }
 
-    private static void OpenResource(IResource? resource)
+    private string? ConvertResourceTitleToId(string? title) => title?.Replace(" ", string.Empty);
+
+    private string? ConvertResourceTitleToUri(string? title) => ConvertResourceTitleToId(title)?.ToLowerInvariant();
+
+    private string? GenerateIdFromAncestors(IResource? resource, string? prefix = null)
     {
-        EditorPagesManager.CreateOrOpenEditor(resource);
+        string? id = prefix;
+        if (resource != null)
+            id = (resource.ParentResource?.Id ?? prefix + GenerateIdFromAncestors(resource.ParentResource))
+                + "." + ConvertResourceTitleToId(resource.Title);
+
+        return id;
     }
 
-    private void ChildButton_Click(object sender, RoutedEventArgs e)
+    private string? GenerateUriFromAncestors(IResource? resource, string? prefix = null)
     {
-        OpenResource((sender as HyperlinkButton)?.DataContext as IResource);
+        string? id = prefix;
+        if (resource != null)
+            id = (resource.ParentResource?.Uri?.ToString() ?? prefix + GenerateUriFromAncestors(resource.ParentResource))
+                + (resource.ParentResource != null ? "/" : string.Empty)
+                + ConvertResourceTitleToUri(resource.Title);
+
+        return id;
     }
 
     private void HandleListEditors()

@@ -3,10 +3,10 @@ using Microsoft.UI.Xaml.Input;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects.QuestionBanks;
 using Symptum.Core.TypeConversion;
-using Symptum.Common.Helpers;
 using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
 using Symptum.Core.Extensions;
+using Symptum.Common.ProjectSystem;
 
 namespace Symptum.Editor.EditorPages;
 
@@ -82,7 +82,7 @@ public sealed partial class QuestionTopicEditorPage : EditorPageBase
         _isBeingSaved = true;
 
         if (currentTopic != null)
-            HasUnsavedChanges = !await ResourceHelper.SaveResourceAsync(currentTopic);
+            HasUnsavedChanges = !await ProjectSystemManager.SaveResourceAndAncestorAsync(currentTopic);
         _isBeingSaved = false;
     }
 

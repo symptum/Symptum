@@ -22,21 +22,67 @@ public class ResourceManager
 
     #region Resource File Handling
 
+    /// <summary>
+    /// Gets the file name of the resource.
+    /// </summary>
+    /// <param name="resource">The resource to get the file name from.</param>
+    /// <returns>The file name of the resource.</returns>
     public static string? GetResourceFileName(IResource? resource) => resource?.Title;
 
-    public static string GetResourceFolderPath(IResource? resource)
+    /// <summary>
+    /// Gets the absolute folder path of the resource including its path.
+    /// </summary>
+    /// <param name="resource">The resource to get the path from.</param>
+    /// <returns>The absolute folder path of the resource including its path.</returns>
+    public static string GetAbsoluteFolderPath(IResource? resource)
     {
         string _path = PathSeparator.ToString();
-        if (resource?.ParentResource is IResource parent)
+        if (resource != null)
         {
-            _path = GetResourceFolderPath(parent) + GetResourceFileName(parent) + PathSeparator;
+            _path = GetAbsoluteFolderPath(resource.ParentResource) + GetResourceFileName(resource) + PathSeparator;
         }
         return _path;
     }
 
+    /// <summary>
+    /// Gets the absolute folder path of the resource.
+    /// </summary>
+    /// <param name="resource">The resource to get the path from.</param>
+    /// <returns>The absolute folder path of the resource.</returns>
+    public static string GetAbsoluteResourceFolderPath(IResource? resource)
+    {
+        string _path = PathSeparator.ToString();
+        if (resource?.ParentResource is IResource parent)
+        {
+            _path = GetAbsoluteResourceFolderPath(parent) + GetResourceFileName(parent) + PathSeparator;
+        }
+        return _path;
+    }
+
+    /// <summary>
+    /// Gets the folder path of the resource relative to its parent <see cref="PackageResource"/>.
+    /// </summary>
+    /// <param name="resource">The resource to get the path from.</param>
+    /// <returns>The folder path of the resource relative to its parent <see cref="PackageResource"/></returns>
+    public static string GetRelativeResourceFolderPath(IResource? resource)
+    {
+        string _path = PathSeparator.ToString();
+        if (resource is not PackageResource && resource?.ParentResource is IResource parent)
+        {
+            _path = GetRelativeResourceFolderPath(parent) + GetResourceFileName(parent) + PathSeparator;
+        }
+        return _path;
+    }
+
+    /// <summary>
+    /// Gets the file path of the resource relative to its parent <see cref="PackageResource"/>.
+    /// </summary>
+    /// <param name="resource">The resource to get the path from.</param>
+    /// <param name="extension">The file extension of the resource.</param>
+    /// <returns>The file path of the resource relative to its parent <see cref="PackageResource"/></returns>
     public static string GetResourceFilePath(IResource? resource, string? extension)
     {
-        string path = GetResourceFolderPath(resource);
+        string path = GetRelativeResourceFolderPath(resource);
         return path + GetResourceFileName(resource) + extension;
     }
 
@@ -61,6 +107,34 @@ public class ResourceManager
     #endregion
 
     #region Resource Fetching
+
+    #region Get Parent
+
+    public static bool TryGetParentOfType<T>(IResource? resource, [NotNullWhen(true)] out T? parent,
+        Func<T?, bool>? condition = null) where T : IResource
+    {
+        parent = default;
+        if (resource == null) return false;
+
+        if (resource.ParentResource is T p)
+        {
+            if (condition == null || condition(p))
+            {
+                parent = p;
+                return true;
+            }
+        }
+
+        return TryGetParentOfType(resource.ParentResource, out parent, condition);
+    }
+
+    public static bool TryGetSavableParent(IResource? resource, [NotNullWhen(true)] out IMetadataResource? parent) =>
+        TryGetParentOfType(resource, out parent, x => x is PackageResource || (x != null && x.SplitMetadata));
+
+    public static bool TryGetParentPackage(IResource? resource, [NotNullWhen(true)] out PackageResource? package) =>
+        TryGetParentOfType(resource, out package);
+
+    #endregion
 
     #region From Id
 

@@ -9,10 +9,8 @@ using System.Text;
 using Symptum.Core.Subjects.QuestionBanks;
 using Symptum.Core.Management.Deployment;
 using static Symptum.Core.Helpers.FileHelper;
-using CsvHelper;
-using System.Globalization;
-using Symptum.Core.Extensions;
 using Microsoft.UI.Xaml.Input;
+using Symptum.Common.ProjectSystem;
 
 namespace Symptum.Editor;
 
@@ -250,6 +248,17 @@ public sealed partial class MainPage : Page
         }
     }
 
+    private async void NewProject_Click(object sender, RoutedEventArgs e)
+    {
+        addNewItemDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
+        var result = await addNewItemDialog.CreateProjectAsync();
+        if (result == EditorResult.Create)
+        {
+            ProjectSystemManager.CurrentProject = new() { Name = addNewItemDialog.ItemTitle, Entries = [] };
+            ProjectSystemManager.UseProjectManager = true;
+        }
+    }
+
     private async void OpenFile_Click(object sender, RoutedEventArgs e)
     {
         IResource? parent = null;
@@ -261,6 +270,7 @@ public sealed partial class MainPage : Page
         fileOpenPicker.FileTypeFilter.Add(MarkdownFileExtension);
         fileOpenPicker.FileTypeFilter.Add(JsonFileExtension);
         fileOpenPicker.FileTypeFilter.AddRange(ImageFileExtensions);
+        fileOpenPicker.FileTypeFilter.AddRange(AudioFileExtensions);
 
 #if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
         WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, WindowHelper.WindowHandle);
@@ -274,7 +284,7 @@ public sealed partial class MainPage : Page
 
     private async void OpenFolder_Click(object sender, RoutedEventArgs e)
     {
-        bool result = await ResourceHelper.OpenWorkFolderAsync();
+        bool result = await ProjectSystemManager.OpenWorkFolderAsync();
         if (result)
         {
             EditorPagesManager.ResetEditors();
@@ -289,7 +299,8 @@ public sealed partial class MainPage : Page
 
         _isBeingSaved = true;
 
-        bool allSaved = await ResourceHelper.SaveAllResourcesAsync();
+        EditorPagesManager.UpdateEditors();
+        bool allSaved = await ProjectSystemManager.SaveAllResourcesAsync();
         if (allSaved) EditorPagesManager.MarkAllOpenEditorsAsSaved();
 
         _isBeingSaved = false;

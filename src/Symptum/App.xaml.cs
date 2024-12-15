@@ -1,3 +1,4 @@
+using Symptum.Common;
 using Symptum.Common.Helpers;
 using Uno.Resizetizer;
 
@@ -31,8 +32,8 @@ public partial class App : Application
         MainWindow.UseStudio();
 #endif
 
+        await Bootstrapper.InitializeAsync();
         await ResourceHelper.SelectWorkFolderAsync(await StorageFolder.GetFolderFromPathAsync("E:\\BUS\\Temp\\T"));
-        await PackageHelper.InitializeAsync();
         await ResourceHelper.LoadResourcesFromWorkPathAsync();
 
         // Do not repeat app initialization when the Window already has content,

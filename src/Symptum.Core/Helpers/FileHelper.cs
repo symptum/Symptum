@@ -6,6 +6,8 @@ public static class FileHelper
 
     public const char ExtensionSeparator = '.';
 
+    public const string ProjectFileExtension = ".symproj";
+
     public const string JsonFileExtension = ".json";
 
     public const string CsvFileExtension = ".csv";
@@ -74,10 +76,15 @@ public static class FileHelper
             }
         }
 
-        if (dotIndex > 0 && slashIndex > 0)
-        {
+        if (slashIndex > 0)
             folder = filePath[..slashIndex];
-            fileName = filePath[slashIndex..dotIndex];
+
+        if (dotIndex > 0)
+        {
+            if (slashIndex > 0)
+                fileName = filePath[slashIndex..dotIndex];
+            else
+                fileName = filePath[..dotIndex];
             extension = filePath[dotIndex..];
         }
 

@@ -1,10 +1,11 @@
+using Symptum.Common.ProjectSystem;
 using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
 using Symptum.Core.Subjects.QuestionBanks;
 
-namespace Symptum.Editor.Controls;
+namespace Symptum.Editor.Common;
 
 public class NewItemType
 {
@@ -26,6 +27,7 @@ public class NewItemType
 
     public static List<NewItemType> KnownTypes { get; } =
     [
+        new("Folder", typeof(ProjectFolder), "Common"),
         new("Subject", typeof(Subject), "Subjects"),
         new("Category", typeof(CategoryResource), "Common"),
         new("Image Category", typeof(ImageCategoryResource), "Common"),

@@ -14,7 +14,7 @@ public class ResourceHelper
     public static StorageFolder? WorkFolder
     {
         get => _workFolder;
-        private set
+        internal set
         {
             _workFolder = value;
             WorkFolderChanged?.Invoke(null, _workFolder);
@@ -23,35 +23,10 @@ public class ResourceHelper
 
     #region Work Folder Handling
 
-    public static async Task<bool> OpenWorkFolderAsync(StorageFolder? folder = null)
-    {
-        bool result = await SelectWorkFolderAsync(folder);
-        if (result && StorageHelper.IsFolderPickerSupported)
-        {
-            ResourceManager.Resources.Clear();
-            await LoadResourcesFromWorkPathAsync();
-            return true;
-        }
-
-        return false;
-    }
-
     public static void CloseWorkFolder()
     {
         WorkFolder = null;
         ResourceManager.Resources.Clear();
-    }
-
-    private static async Task<bool> VerifyWorkFolderAsync(StorageFolder? targetFolder = null)
-    {
-        bool pathExists = true;
-        if (targetFolder == null)
-        {
-            if (_workFolder == null)
-                pathExists = await SelectWorkFolderAsync();
-        }
-
-        return pathExists;
     }
 
     public static async Task<bool> SelectWorkFolderAsync(StorageFolder? folder = null)
@@ -113,17 +88,17 @@ public class ResourceHelper
         await LoadResourcesFromFilesAsync(files);
     }
 
-    public static async Task LoadResourcesFromFilesAsync(IEnumerable<StorageFile>? files, IResource? parent = null)
+    public static async Task LoadResourcesFromFilesAsync(IEnumerable<StorageFile>? files, IResource? parent = null, StorageFolder? sourceFolder = null)
     {
         if (files == null) return;
 
         foreach (StorageFile file in files)
         {
-            await LoadResourceFromFileAsync(file, parent);
+            await LoadResourceFromFileAsync(file, parent, sourceFolder);
         }
     }
 
-    public static async Task<IResource?> LoadResourceFromFileAsync(StorageFile file, IResource? parent = null)
+    public static async Task<IResource?> LoadResourceFromFileAsync(StorageFile? file, IResource? parent = null, StorageFolder? sourceFolder = null)
     {
         if (file == null) return null;
 
@@ -132,7 +107,7 @@ public class ResourceHelper
         else if (file.FileType.Equals(MarkdownFileExtension, StringComparison.InvariantCultureIgnoreCase))
             return await LoadMarkdownFileResourceFromFileAsync(file, parent);
         else if (file.FileType.Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase))
-            return await LoadPackageResourceFromFileAsync(file);
+            return await LoadPackageResourceFromFileAsync(file, parent, sourceFolder);
         else if (ImageFileExtensions.Any(ext => ext.Equals(file.FileType, StringComparison.InvariantCultureIgnoreCase)))
             return await LoadImageFileResourceFromFileAsync(file, parent);
         else if (AudioFileExtensions.Any(ext => ext.Equals(file.FileType, StringComparison.InvariantCultureIgnoreCase)))
@@ -187,7 +162,7 @@ public class ResourceHelper
         return null;
     }
 
-    private static async Task<IResource?> LoadImageFileResourceFromFileAsync(StorageFile file, IResource? parent)
+    private static async Task<IResource?> LoadImageFileResourceFromFileAsync(StorageFile? file, IResource? parent)
     {
         if (file != null)
         {
@@ -211,7 +186,7 @@ public class ResourceHelper
         return null;
     }
 
-    private static async Task<IResource?> LoadAudioFileResourceFromFileAsync(StorageFile file, IResource? parent)
+    private static async Task<IResource?> LoadAudioFileResourceFromFileAsync(StorageFile? file, IResource? parent)
     {
         if (file != null)
         {
@@ -235,7 +210,7 @@ public class ResourceHelper
         return null;
     }
 
-    internal static async Task<PackageResource?> LoadPackageResourceFromFileAsync(StorageFile? file)
+    internal static async Task<PackageResource?> LoadPackageResourceFromFileAsync(StorageFile? file, IResource? parent = null, StorageFolder? sourceFolder = null)
     {
         if (file != null)
         {
@@ -243,9 +218,12 @@ public class ResourceHelper
             var package = ResourceManager.LoadPackageFromMetadata(json);
             if (package != null)
             {
-                ResourceManager.Resources.Add(package);
+                if (parent != null && parent.CanAddChildResourceType(package.GetType()))
+                    parent.AddChildResource(package);
+                else
+                    ResourceManager.Resources.Add(package);
                 ResourceManager.RegisterResource(package);
-                await LoadResourceAsync(package);
+                await LoadResourceAsync(package, parent, sourceFolder);
                 return package;
             }
         }
@@ -253,47 +231,48 @@ public class ResourceHelper
         return null;
     }
 
-    public static async Task LoadResourceAsync(IResource resource, IResource? parent = null)
+    public static async Task LoadResourceAsync(IResource? resource, IResource? parent = null, StorageFolder? sourceFolder = null)
     {
         if (resource is TextFileResource textResource)
         {
             // CSVs and Markdowns
-            await LoadTextFileResourceAsync(textResource);
+            await LoadTextFileResourceAsync(textResource, sourceFolder);
             resource.InitializeResource(parent);
         }
         else if (resource is MediaFileResource mediaResource)
         {
             // Images and Audios
-            await LoadMediaFileResourceAsync(mediaResource);
+            await LoadMediaFileResourceAsync(mediaResource, sourceFolder);
             resource.InitializeResource(parent);
         }
         else
         {
             if (resource is MetadataResource metadataResource && metadataResource.SplitMetadata)
             {
-                await LoadMetadataResourceAsync(metadataResource);
+                await LoadMetadataResourceAsync(metadataResource, sourceFolder);
             }
 
             resource.InitializeResource(parent);
-            await LoadChildrenResourcesAsync(resource); // Temporary
+            await LoadChildrenResourcesAsync(resource, sourceFolder); // Temporary
         }
     }
 
-    private static async Task LoadChildrenResourcesAsync(IResource resource)
+    private static async Task LoadChildrenResourcesAsync(IResource? resource, StorageFolder? sourceFolder = null)
     {
         if (resource != null && resource.CanHandleChildren && resource.ChildrenResources != null)
         {
             foreach (var child in resource.ChildrenResources)
             {
-                await LoadResourceAsync(child, resource);
+                await LoadResourceAsync(child, resource, sourceFolder);
             }
         }
     }
 
-    private static async Task<StorageFile?> GetResourceFileAsync(string? path)
+    private static async Task<StorageFile?> GetResourceFileAsync(string? path, StorageFolder? sourceFolder = null)
     {
+        sourceFolder ??= _workFolder;
         (string folderPath, string fileName, string extension) = GetDetailsFromFilePath(path);
-        StorageFolder? folder = await StorageHelper.GetSubFolderAsync(_workFolder, folderPath);
+        StorageFolder? folder = await StorageHelper.GetSubFolderAsync(sourceFolder, folderPath);
         if (folder != null)
         {
             try
@@ -306,27 +285,27 @@ public class ResourceHelper
         return null;
     }
 
-    private static async Task LoadTextFileResourceAsync(TextFileResource textResource)
+    private static async Task LoadTextFileResourceAsync(TextFileResource textResource, StorageFolder? sourceFolder = null)
     {
-        if (await GetResourceFileAsync(textResource.FilePath) is StorageFile textFile)
+        if (await GetResourceFileAsync(textResource.FilePath, sourceFolder) is StorageFile textFile)
         {
             string text = await FileIO.ReadTextAsync(textFile);
             ResourceManager.LoadResourceFileText(textResource, text);
         }
     }
 
-    private static async Task LoadMediaFileResourceAsync(MediaFileResource mediaResource)
+    private static async Task LoadMediaFileResourceAsync(MediaFileResource mediaResource, StorageFolder? sourceFolder = null)
     {
-        if (await GetResourceFileAsync(mediaResource.FilePath) is StorageFile mediaFile)
+        if (await GetResourceFileAsync(mediaResource.FilePath, sourceFolder) is StorageFile mediaFile)
         {
             mediaResource.SetMediaFileExtension(mediaFile.FileType.ToLower());
             fileMap.TryAdd(mediaResource, mediaFile);
         }
     }
 
-    private static async Task LoadMetadataResourceAsync(MetadataResource resource)
+    private static async Task LoadMetadataResourceAsync(MetadataResource resource, StorageFolder? sourceFolder = null)
     {
-        if (await GetResourceFileAsync(resource.MetadataPath) is StorageFile jsonFile)
+        if (await GetResourceFileAsync(resource.MetadataPath, sourceFolder) is StorageFile jsonFile)
         {
             string text = await FileIO.ReadTextAsync(jsonFile);
             ResourceManager.LoadResourceMetadata(resource, text);
@@ -336,21 +315,6 @@ public class ResourceHelper
     #endregion
 
     #region Saving Resources
-
-    public static async Task<bool> SaveAllResourcesAsync(StorageFolder? targetFolder = null)
-    {
-        if (ResourceManager.Resources.Count > 0)
-        {
-            bool allSaved = true;
-            foreach (var resource in ResourceManager.Resources)
-            {
-                allSaved &= await SaveResourceAsync(resource, targetFolder);
-            }
-            return allSaved;
-        }
-
-        return false;
-    }
 
     public static async Task<bool> SaveResourceAsync(IResource resource, StorageFolder? targetFolder = null)
     {
@@ -387,7 +351,7 @@ public class ResourceHelper
     {
         if (textResource == null) return false;
 
-        string subFolderPath = ResourceManager.GetResourceFolderPath(textResource);
+        string subFolderPath = ResourceManager.GetRelativeResourceFolderPath(textResource);
         string? fileName = ResourceManager.GetResourceFileName(textResource);
         textResource.FilePath = subFolderPath + fileName + textResource.FileExtension;
         StorageFile? saveFile = await PickSaveFileAsync(fileName, textResource.FileExtension, $"{textResource.FileType} File", targetFolder, subFolderPath);
@@ -406,7 +370,7 @@ public class ResourceHelper
     {
         if (fileResource == null) return false;
 
-        string subFolderPath = ResourceManager.GetResourceFolderPath(fileResource);
+        string subFolderPath = ResourceManager.GetRelativeResourceFolderPath(fileResource);
         string? fileName = ResourceManager.GetResourceFileName(fileResource);
         string filePath = subFolderPath + fileName + fileResource.FileExtension;
 
@@ -430,7 +394,7 @@ public class ResourceHelper
     {
         if (resource == null) return false;
 
-        string subFolderPath = ResourceManager.GetResourceFolderPath(resource);
+        string subFolderPath = ResourceManager.GetRelativeResourceFolderPath(resource);
         string? fileName = ResourceManager.GetResourceFileName(resource);
         resource.MetadataPath = subFolderPath + fileName + JsonFileExtension;
         StorageFile? saveFile = await PickSaveFileAsync(fileName, JsonFileExtension, "JSON File", targetFolder, subFolderPath);
@@ -459,7 +423,7 @@ public class ResourceHelper
         return true;
     }
 
-    private static async Task<StorageFile?> PickSaveFileAsync(string? name, string? extension, string? fileType, StorageFolder? targetFolder = null, string? subFolder = null)
+    internal static async Task<StorageFile?> PickSaveFileAsync(string? name, string? extension, string? fileType, StorageFolder? targetFolder = null, string? subFolder = null)
     {
         if (string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(extension) ||
             string.IsNullOrEmpty(fileType)) return null;
@@ -559,12 +523,11 @@ public class ResourceHelper
     private static async Task DeleteResourceFileAsync(FileResource? fileResource)
     {
         if (fileResource == null) return;
-
         if (_workFolder != null && StorageHelper.IsFolderPickerSupported)
         {
             try
             {
-                string path = ResourceManager.GetResourceFolderPath(fileResource);
+                string path = ResourceManager.GetAbsoluteResourceFolderPath(fileResource);
                 var folder = await StorageHelper.GetSubFolderAsync(_workFolder, path);
                 if (folder == null) return;
                 IStorageItem? file = await folder.TryGetItemAsync(ResourceManager.GetResourceFileName(fileResource) + fileResource.FileExtension);
@@ -581,16 +544,17 @@ public class ResourceHelper
         {
             try
             {
-                string path = ResourceManager.GetResourceFolderPath(resource);
+                string path = ResourceManager.GetAbsoluteResourceFolderPath(resource);
                 string? resourceName = ResourceManager.GetResourceFileName(resource);
 
                 var folder = await StorageHelper.GetSubFolderAsync(_workFolder, path);
+                if (folder == null) return;
                 if (resource.SplitMetadata || resource is PackageResource)
                 {
-                    IStorageItem? file = await folder?.TryGetItemAsync(resourceName + JsonFileExtension);
+                    IStorageItem? file = await folder.TryGetItemAsync(resourceName + JsonFileExtension);
                     if (file != null) await file.DeleteAsync();
                 }
-                IStorageItem? folder1 = await folder?.TryGetItemAsync(resourceName);
+                IStorageItem? folder1 = await folder.TryGetItemAsync(resourceName);
                 if (folder1 != null) await folder1.DeleteAsync();
             }
             catch { }

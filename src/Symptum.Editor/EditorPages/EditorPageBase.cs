@@ -44,4 +44,8 @@ public partial class EditorPageBase : Page, IEditorPage
     #endregion
 
     protected virtual void OnSetEditableContent(IResource? resource) { }
+
+    public void UpdateContent() => OnUpdateContent();
+
+    protected virtual void OnUpdateContent() { }
 }

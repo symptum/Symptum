@@ -1,11 +1,11 @@
 using System.Collections.ObjectModel;
 using Microsoft.UI.Xaml.Input;
 using Symptum.Core.Management.Resources;
-using Symptum.Common.Helpers;
 using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
 using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Extensions;
+using Symptum.Common.ProjectSystem;
 
 namespace Symptum.Editor.EditorPages;
 
@@ -81,7 +81,7 @@ public sealed partial class FoodGroupEditorPage : EditorPageBase
         _isBeingSaved = true;
 
         if (currentGroup != null)
-            HasUnsavedChanges = !await ResourceHelper.SaveResourceAsync(currentGroup);
+            HasUnsavedChanges = !await ProjectSystemManager.SaveResourceAndAncestorAsync(currentGroup);
         _isBeingSaved = false;
     }
 

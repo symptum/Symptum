@@ -1,36 +1,36 @@
 ﻿<ContentDialog
-    x:Class="Symptum.Editor.Controls.AddNewItemDialog"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Symptum.Editor.Controls"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    Title="Add New Item"
-    Style="{ThemeResource DefaultContentDialogStyle}"
-    PrimaryButtonText="Add" CloseButtonText="Cancel" DefaultButton="Primary">
-  <ScrollViewer>
-    <StackPanel Spacing="16">
-      <TextBox Name="titleTextBox" Header="Title" />
-      <TextBlock x:Name="parentInfo" TextWrapping="WrapWholeWords" />
-      <AutoSuggestBox x:Name="queryBox" Header="Item Type" QueryIcon="Find" PlaceholderText="Search" />
-      <ListView x:Name="newItemsLV" SelectionMode="Single" MaxHeight="200">
-        <ListView.ItemTemplate>
-          <DataTemplate x:DataType="local:NewItemType">
-            <ListViewItem ToolTipService.ToolTip="{x:Bind DisplayName}">
-              <Grid HorizontalAlignment="Stretch">
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*" />
-                  <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{x:Bind DisplayName}" HorizontalAlignment="Stretch" Margin="0,0,5,0"
-                           TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
-                <TextBlock Grid.Column="1" Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind GroupName}"
-                           HorizontalAlignment="Right" VerticalAlignment="Center" />
-              </Grid>
-            </ListViewItem>
-          </DataTemplate>
-        </ListView.ItemTemplate>
-      </ListView>
-      <InfoBar x:Name="errorInfoBar" Severity="Error" IsOpen="False" IsClosable="False" />
-    </StackPanel>
-  </ScrollViewer>
+  x:Class="Symptum.Editor.Controls.AddNewItemDialog"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="using:Symptum.Editor.Controls"
+  xmlns:common="using:Symptum.Editor.Common"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  Style="{ThemeResource DefaultContentDialogStyle}"
+  CloseButtonText="Cancel" DefaultButton="Primary">
+  <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
+    <TextBox Name="titleTextBox" Header="Title" />
+    <TextBlock x:Name="parentInfo" Margin="0,16,0,0" Grid.Row="1" TextWrapping="WrapWholeWords" />
+    <AutoSuggestBox x:Name="queryBox" Grid.Row="2" Margin="0,16,0,0" Header="Item Type" QueryIcon="Find" PlaceholderText="Search" />
+    <ListView x:Name="newItemsLV" Grid.Row="3" Margin="0,16,0,0" SelectionMode="Single" MaxHeight="200">
+      <ListView.ItemTemplate>
+        <DataTemplate x:DataType="common:NewItemType">
+          <ListViewItem ToolTipService.ToolTip="{x:Bind DisplayName}">
+            <Grid HorizontalAlignment="Stretch" ColumnSpacing="8">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
+              <IconSourceElement common:ResourceBaseToIconSourceExtension.ResourceType="{x:Bind Type}" />
+              <TextBlock Text="{x:Bind DisplayName}" HorizontalAlignment="Stretch" Margin="0,0,5,0"
+                         Grid.Column="1" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+              <TextBlock Grid.Column="2" Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind GroupName}"
+                         HorizontalAlignment="Right" VerticalAlignment="Center" />
+            </Grid>
+          </ListViewItem>
+        </DataTemplate>
+      </ListView.ItemTemplate>
+    </ListView>
+    <InfoBar x:Name="errorInfoBar" Grid.Row="4" Margin="0,16,0,0" Severity="Error" IsOpen="False" IsClosable="False" />
+  </Grid>
 </ContentDialog>

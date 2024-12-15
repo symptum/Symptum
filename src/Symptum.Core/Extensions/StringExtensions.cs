@@ -1,5 +1,3 @@
-using System;
-
 namespace Symptum.Core.Extensions;
 
 public static class StringExtensions

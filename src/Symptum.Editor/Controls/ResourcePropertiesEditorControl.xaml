@@ -15,6 +15,7 @@
     <TextBlock x:Name="typeTB" />
     <HyperlinkButton x:Name="parentResourceButton" Visibility="Collapsed" />
     <TextBox x:Name="titleTB" Header="Title" />
+    <Button x:Name="genButton" Content="Generate Id and Uri" Click="GenButton_Click" />
     <TextBox x:Name="idTB" Header="Id" />
     <TextBox x:Name="uriTB" Header="Uri" />
     <Expander x:Name="resourceTreeExpander" Header="Resource Tree" Visibility="Collapsed"
