@@ -1,3 +1,4 @@
+using Symptum.Common.ProjectSystem;
 using Symptum.Editor.Common;
 
 namespace Symptum.Editor.EditorPages;
@@ -10,10 +11,20 @@ public sealed partial class DefaultEditorPage : EditorPageBase
         IconSource = DefaultIconSources.PropertiesIconSource;
     }
 
-    private void UpdateButton_Click(object sender, RoutedEventArgs e)
+    private bool _isBeingSaved = false;
+
+    private async void SaveButton_Click(object sender, RoutedEventArgs e)
     {
-        propertiesEditor.UpdateResource();
-        HasUnsavedChanges = false;
+        if (_isBeingSaved) return;
+
+        _isBeingSaved = true;
+
+        if (EditableContent != null)
+        {
+            propertiesEditor.UpdateResource();
+            HasUnsavedChanges = !await ProjectSystemManager.SaveResourceAndAncestorAsync(EditableContent);
+        }
+        _isBeingSaved = false;
     }
 
     private void ResetButton_Click(object sender, RoutedEventArgs e) => propertiesEditor.ResetResource();

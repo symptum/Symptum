@@ -57,6 +57,14 @@ public sealed partial class MainPage : Page
             workFolderButton.Visibility = e != null ? Visibility.Visible : Visibility.Collapsed;
         };
 
+        ProjectSystemManager.CurrentProjectChanged += (s, e) =>
+        {
+            if (e == null || string.IsNullOrEmpty(e.Name))
+                resourcesTB.Text = "Resources";
+            else
+                resourcesTB.Text = $"Resources - {e.Name}";
+        };
+
         treeView.SelectionChanged += (_, _) => UpdateDeleteButtonEnabled();
 
         treeView.ItemInvoked += (s, e) =>
@@ -308,6 +316,7 @@ public sealed partial class MainPage : Page
 
     private void CloseFolder_Click(object sender, RoutedEventArgs e)
     {
+        ProjectSystemManager.CurrentProject = null;
         EditorPagesManager.ResetEditors();
         ResourceHelper.CloseWorkFolder();
     }

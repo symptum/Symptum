@@ -10,15 +10,15 @@ namespace Symptum.Core.Management.Resources;
 
 public class ResourceManager
 {
-    private static readonly string defaultUriScheme = "symptum://";
+    public static readonly string DefaultUriScheme = "symptum://";
 
-    public static readonly Uri DefaultUri = new(defaultUriScheme);
+    public static readonly Uri DefaultUri = new(DefaultUriScheme);
 
     private static readonly ObservableCollection<IResource> _resources = [];
 
     public static ObservableCollection<IResource> Resources { get => _resources; }
 
-    public static Uri GetAbsoluteUri(string path) => new(defaultUriScheme + path);
+    public static Uri GetAbsoluteUri(string path) => new(DefaultUriScheme + path);
 
     #region Resource File Handling
 

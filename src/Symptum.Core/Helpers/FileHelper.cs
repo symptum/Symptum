@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace Symptum.Core.Helpers;
 
 public static class FileHelper
@@ -89,6 +91,20 @@ public static class FileHelper
         }
 
         return (folder, fileName, extension);
+    }
+
+    /// <summary>
+    /// Removes illegal characters from the given text that are not allowed in file names.
+    /// </summary>
+    /// <param name="text">The input text from which illegal characters need to be removed.</param>
+    /// <param name="predicate">An optional function to test each character for a condition.</param>
+    /// <returns>A new string with all illegal characters removed. If the input text is null or empty, an empty string is returned.</returns>
+    public static string RemoveIllegalCharacters(string? text, Func<char, bool> predicate = null)
+    {
+        if (string.IsNullOrEmpty(text)) return string.Empty;
+        char[] invalidChars = Path.GetInvalidFileNameChars();
+        predicate ??= (ch) => true;
+        return new([.. text.Where(ch => predicate(ch) && !invalidChars.Contains(ch))]);
     }
 
     /// <summary>

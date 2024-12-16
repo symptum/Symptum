@@ -8,6 +8,9 @@
   xmlns:qb="using:Symptum.Core.Subjects.QuestionBanks"
   xmlns:res="using:Symptum.Core.Management.Resources"
   xmlns:data="using:Symptum.Core.Data"
+  xmlns:ui="using:CommunityToolkit.WinUI"
+  xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+  xmlns:sub="using:Symptum.Core.Subjects"
   mc:Ignorable="d"
   d:DesignHeight="300"
   d:DesignWidth="400">
@@ -15,9 +18,12 @@
     <TextBlock x:Name="typeTB" />
     <HyperlinkButton x:Name="parentResourceButton" Visibility="Collapsed" />
     <TextBox x:Name="titleTB" Header="Title" />
-    <Button x:Name="genButton" Content="Generate Id and Uri" Click="GenButton_Click" />
     <TextBox x:Name="idTB" Header="Id" />
     <TextBox x:Name="uriTB" Header="Uri" />
+    <Button x:Name="genButton" Content="Generate Id and Uri"
+            HorizontalAlignment="Stretch" Click="GenButton_Click" />
+    <ComboBox x:Name="scCB" Header="Subject Code" Visibility="Collapsed"
+              HorizontalAlignment="Stretch" ItemsSource="{ui:EnumValues Type=sub:SubjectList}" />
     <Expander x:Name="resourceTreeExpander" Header="Resource Tree" Visibility="Collapsed"
               HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
       <ItemsRepeater x:Name="childrenResIR">
@@ -54,15 +60,7 @@
             </DataTemplate>
           </local:ListEditorControl.ItemTemplate>
         </local:ListEditorControl>
-        <local:ListEditorControl x:Name="packageTagsLE" Header="Tags">
-          <local:ListEditorControl.ItemTemplate>
-            <DataTemplate>
-              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
-                <TextBox Text="{Binding Value, Mode=TwoWay}" />
-              </local:ListEditorItemCommandsButton>
-            </DataTemplate>
-          </local:ListEditorControl.ItemTemplate>
-        </local:ListEditorControl>
+        <controls:TokenizingTextBox x:Name="packageTagsTTB" Header="Tags" ItemsSource="{x:Bind _packageTags}" TokenDelimiter=";" />
       </StackPanel>
     </Expander>
     <Expander x:Name="fileExpander" Header="File" Visibility="Collapsed"
@@ -81,15 +79,7 @@
             </DataTemplate>
           </local:ListEditorControl.ItemTemplate>
         </local:ListEditorControl>
-        <local:ListEditorControl x:Name="fileTagsLE" Header="Tags">
-          <local:ListEditorControl.ItemTemplate>
-            <DataTemplate>
-              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
-                <TextBox Text="{Binding Value, Mode=TwoWay}" />
-              </local:ListEditorItemCommandsButton>
-            </DataTemplate>
-          </local:ListEditorControl.ItemTemplate>
-        </local:ListEditorControl>
+        <controls:TokenizingTextBox x:Name="fileTagsTTB" Header="Tags" ItemsSource="{x:Bind _fileTags}" TokenDelimiter=";" />
       </StackPanel>
     </Expander>
   </StackPanel>

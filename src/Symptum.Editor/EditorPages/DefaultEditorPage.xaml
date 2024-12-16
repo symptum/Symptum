@@ -23,8 +23,8 @@
         <ColumnDefinition Width="{ThemeResource ContentDialogButtonSpacing}" />
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
-      <Button x:Name="updateButton" Content="Update" HorizontalAlignment="Stretch"
-              Style="{ThemeResource AccentButtonStyle}" Click="UpdateButton_Click" />
+      <Button x:Name="saveButton" Content="Save" HorizontalAlignment="Stretch"
+              Style="{ThemeResource AccentButtonStyle}" Click="SaveButton_Click" />
       <Button x:Name="resetButton" Content="Reset" Grid.Column="2" HorizontalAlignment="Stretch"
               Click="ResetButton_Click" />
     </Grid>

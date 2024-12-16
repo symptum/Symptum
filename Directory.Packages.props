@@ -13,6 +13,7 @@
     <PackageVersion Include="CommunityToolkit.WinUI.Controls.Primitives" Version="8.2.241112-preview1" />
     <PackageVersion Include="CommunityToolkit.WinUI.Controls.Segmented" Version="8.2.241112-preview1" />
     <PackageVersion Include="CommunityToolkit.WinUI.Controls.Sizers" Version="8.2.241112-preview1" />
+    <PackageVersion Include="CommunityToolkit.WinUI.Controls.TokenizingTextBox" Version="8.2.241112-preview1" />
     <PackageVersion Include="CsvHelper" Version="33.0.1" />
     <PackageVersion Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
     <PackageVersion Include="HtmlAgilityPack" Version="1.11.71" />

@@ -316,7 +316,7 @@ public class ResourceHelper
 
     #region Saving Resources
 
-    public static async Task<bool> SaveResourceAsync(IResource resource, StorageFolder? targetFolder = null)
+    public static async Task<bool> SaveResourceAsync(IResource? resource, StorageFolder? targetFolder = null, bool saveChildren = true)
     {
         if (resource == null) return false;
 
@@ -332,7 +332,7 @@ public class ResourceHelper
         }
         else
         {
-            bool result = await SaveChildrenAsync(resource, targetFolder);
+            bool result = !saveChildren || await SaveChildrenAsync(resource, targetFolder);
 
             if (resource is MetadataResource metadataResource && metadataResource.SplitMetadata)
             {

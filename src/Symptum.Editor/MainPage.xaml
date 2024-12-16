@@ -58,7 +58,8 @@
       </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
     <win:Grid x:Name="AppTitleBar" Height="32" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0" Spacing="5">
+      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0" Spacing="8">
+        <ImageIcon Height="16" Width="16" Source="/Assets/Images/Symptum Editor.png" />
         <TextBlock x:Name="TitleTextBlock" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" />
       </StackPanel>
     </win:Grid>
@@ -168,7 +169,8 @@
               </AppBarButton.Icon>
             </AppBarButton>
           </CommandBar>
-          <TextBlock Margin="12,0" Grid.Row="1" FontWeight="SemiBold" Text="Resources" />
+          <TextBlock x:Name="resourcesTB" Margin="12,0" Grid.Row="1"
+                     FontWeight="SemiBold" Text="Resources" TextTrimming="CharacterEllipsis" />
           <ScrollViewer x:Name="sideStackPanel" Grid.Row="2" HorizontalScrollBarVisibility="Auto">
             <TreeView x:Name="treeView" SelectionMode="Single"
               CanReorderItems="False" CanDragItems="False" CanDrag="False"

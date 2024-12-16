@@ -3,17 +3,20 @@ using Symptum.Common.ProjectSystem;
 using Symptum.Core.Data;
 using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
+using Symptum.Core.Subjects;
+using Symptum.Core.Subjects.QuestionBanks;
 using Symptum.Editor.EditorPages;
+using static Symptum.Core.Helpers.FileHelper;
 
 namespace Symptum.Editor.Controls;
 
 public sealed partial class ResourcePropertiesEditorControl : UserControl
 {
     private readonly ObservableCollection<ListEditorItemWrapper<AuthorInfo>> _packageAuthors = [];
-    private readonly ObservableCollection<ListEditorItemWrapper<string>> _packageTags = [];
+    private readonly ObservableCollection<string> _packageTags = [];
 
     private readonly ObservableCollection<ListEditorItemWrapper<AuthorInfo>> _fileAuthors = [];
-    private readonly ObservableCollection<ListEditorItemWrapper<string>> _fileTags = [];
+    private readonly ObservableCollection<string> _fileTags = [];
 
     public ResourcePropertiesEditorControl()
     {
@@ -67,13 +70,15 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
         uriTB.Text = null;
         idTB.Visibility = Visibility.Visible;
         uriTB.Visibility = Visibility.Visible;
+        genButton.Visibility = Visibility.Visible;
+        scCB.Visibility = Visibility.Collapsed;
         resourceTreeExpander.Visibility = Visibility.Collapsed;
         childrenResIR.ItemsSource = null;
         packageExpander.Visibility = Visibility.Collapsed;
         packageDescriptionTB.Text = null;
         packageVersionTB.Text = null;
         _packageAuthors.LoadFromList(null);
-        _packageTags.LoadFromList(null);
+        _packageTags.Clear();
         metadataExpander.Visibility = Visibility.Collapsed;
         splitMDCB.IsChecked = null;
         mdPathTB.Text = null;
@@ -82,7 +87,7 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
         filePathTB.Text = null;
         fileDescriptionTB.Text = null;
         _fileAuthors.LoadFromList(null);
-        _fileTags.LoadFromList(null);
+        _fileTags.Clear();
     }
 
     public void ResetResource() => LoadResource(Resource);
@@ -114,7 +119,8 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
             packageDescriptionTB.Text = package.Description;
             packageVersionTB.Text = package.Version?.ToString();
             _packageAuthors.LoadFromList(package.Authors);
-            _packageTags.LoadFromList(package.Tags);
+            _packageTags.Clear();
+            _packageTags.AddRange(package.Tags);
         }
         else if (resource is MetadataResource metadataResource)
         {
@@ -129,14 +135,27 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
             filePathTB.Text = "File Path: " + fileResource.FilePath;
             fileDescriptionTB.Text = fileResource.Description;
             _fileAuthors.LoadFromList(fileResource.Authors);
-            _fileTags.LoadFromList(fileResource.Tags);
+            _fileTags.Clear();
+            _fileTags.AddRange(fileResource.Tags);
         }
 
         if (resource is ProjectFolder)
         {
             idTB.Visibility = Visibility.Collapsed;
             uriTB.Visibility = Visibility.Collapsed;
+            genButton.Visibility = Visibility.Collapsed;
             metadataExpander.Visibility = Visibility.Collapsed;
+        }
+
+        if (resource is Subject or QuestionBank)
+        {
+            scCB.Visibility = Visibility.Visible;
+            scCB.SelectedItem = resource switch
+            {
+                Subject sub => sub.SubjectCode,
+                QuestionBank qb => qb.SubjectCode,
+                _ => SubjectList.None
+            };
         }
     }
 
@@ -162,7 +181,7 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
                 package.Version = version;
             }
             package.Authors = _packageAuthors.UnwrapToList();
-            package.Tags = _packageTags.UnwrapToList();
+            package.Tags = _packageTags.ToList();
         }
         else if (resource is MetadataResource metadataResource)
         {
@@ -172,8 +191,13 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
         {
             fileResource.Description = fileDescriptionTB.Text.ToNullIfEmpty();
             fileResource.Authors = _fileAuthors.UnwrapToList();
-            fileResource.Tags = _fileTags.UnwrapToList();
+            fileResource.Tags = _fileTags.ToList();
         }
+
+        if (resource is Subject sub)
+            sub.SubjectCode = (SubjectList)scCB.SelectedItem;
+        else if (resource is QuestionBank qb)
+            qb.SubjectCode = (SubjectList)scCB.SelectedItem;
     }
 
     private void OpenParentResource() => OpenResource(Resource?.ParentResource);
@@ -187,10 +211,10 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
     private void GenerateIdAndUriFromAncestors()
     {
         idTB.Text = GenerateIdFromAncestors(Resource, "Symptum");
-        uriTB.Text = GenerateUriFromAncestors(Resource, "symptum://");
+        uriTB.Text = GenerateUriFromAncestors(Resource, ResourceManager.DefaultUriScheme);
     }
 
-    private string? ConvertResourceTitleToId(string? title) => title?.Replace(" ", string.Empty);
+    private string? ConvertResourceTitleToId(string? title) => RemoveIllegalCharacters(title, ch => ch != ' ');
 
     private string? ConvertResourceTitleToUri(string? title) => ConvertResourceTitleToId(title)?.ToLowerInvariant();
 
@@ -253,42 +277,6 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
 
         #endregion
 
-        #region Package Tags
-
-        packageTagsLE.ItemsSource = _packageTags;
-        packageTagsLE.AddItemRequested += (s, e) => _packageTags.Add(new ListEditorItemWrapper<string>(string.Empty));
-        packageTagsLE.ClearItemsRequested += (s, e) => _packageTags.Clear();
-        packageTagsLE.RemoveItemRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<string> tag)
-                _packageTags.Remove(tag);
-        };
-        packageTagsLE.DuplicateItemRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<string> tag)
-                _packageTags.Add(new() { Value = tag.Value });
-        };
-        packageTagsLE.MoveItemUpRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<string> tag)
-            {
-                int oldIndex = _packageTags.IndexOf(tag);
-                int newIndex = Math.Max(oldIndex - 1, 0);
-                _packageTags.Move(oldIndex, newIndex);
-            }
-        };
-        packageTagsLE.MoveItemDownRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<string> tag)
-            {
-                int oldIndex = _packageTags.IndexOf(tag);
-                int newIndex = Math.Min(oldIndex + 1, _packageTags.Count - 1);
-                _packageTags.Move(oldIndex, newIndex);
-            }
-        };
-
-        #endregion
-
         #region File Authors
 
         fileAuthorsLE.ItemsSource = _fileAuthors;
@@ -320,42 +308,6 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
                 int oldIndex = _fileAuthors.IndexOf(author);
                 int newIndex = Math.Min(oldIndex + 1, _fileAuthors.Count - 1);
                 _fileAuthors.Move(oldIndex, newIndex);
-            }
-        };
-
-        #endregion
-
-        #region File Tags
-
-        fileTagsLE.ItemsSource = _fileTags;
-        fileTagsLE.AddItemRequested += (s, e) => _fileTags.Add(new ListEditorItemWrapper<string>(string.Empty));
-        fileTagsLE.ClearItemsRequested += (s, e) => _fileTags.Clear();
-        fileTagsLE.RemoveItemRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<string> tag)
-                _fileTags.Remove(tag);
-        };
-        fileTagsLE.DuplicateItemRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<string> tag)
-                _fileTags.Add(new() { Value = tag.Value });
-        };
-        fileTagsLE.MoveItemUpRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<string> tag)
-            {
-                int oldIndex = _fileTags.IndexOf(tag);
-                int newIndex = Math.Max(oldIndex - 1, 0);
-                _fileTags.Move(oldIndex, newIndex);
-            }
-        };
-        fileTagsLE.MoveItemDownRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<string> tag)
-            {
-                int oldIndex = _fileTags.IndexOf(tag);
-                int newIndex = Math.Min(oldIndex + 1, _fileTags.Count - 1);
-                _fileTags.Move(oldIndex, newIndex);
             }
         };
 

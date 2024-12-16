@@ -8,7 +8,18 @@ public class ProjectSystemManager
 {
     public static bool UseProjectManager { get; set; } = false;
 
-    public static Project? CurrentProject { get; set; }
+    public static Project? CurrentProject
+    {
+        get;
+        set
+        {
+            if (field != value)
+            {
+                field = value;
+                CurrentProjectChanged?.Invoke(null, value);
+            }
+        }
+    }
 
     public static async Task<bool> OpenWorkFolderAsync(StorageFolder? folder = null)
     {
@@ -84,10 +95,11 @@ public class ProjectSystemManager
         if (file == null) return;
 
         string xml = await FileIO.ReadTextAsync(file);
-        CurrentProject = Project.DeserializeProject(xml);
-        if (CurrentProject != null && CurrentProject.Entries != null)
+        Project? project = Project.DeserializeProject(xml);
+        if (project != null && project.Entries != null)
         {
-            CurrentProject.Name = file.DisplayName;
+            project.Name = file.DisplayName;
+            CurrentProject = project;
             UseProjectManager = true;
             foreach (ProjectEntry entry in CurrentProject.Entries)
             {
@@ -175,24 +187,37 @@ public class ProjectSystemManager
 
     // This will find the ancestor project folder and savable metadata and save it as well
     // (i.e. PackageResource or MetadataResource with SplitMetadata = true).
-    // NOTE: wouldn't it be problematic if this function also saves the sibling resources?
+    // NOTE: would it be problematic if this function also saves the sibling resources?
     public static async Task<bool> SaveResourceAndAncestorAsync(IResource? resource)
     {
-        if (UseProjectManager && ResourceManager.TryGetSavableParent(resource, out IMetadataResource? parent))
+        if (UseProjectManager && GetSavableResource(resource) is IMetadataResource savable)
         {
             StorageFolder? targetFolder = null;
             // Checks if there are any parent ProjectFolder.
-            if (ResourceManager.TryGetParentOfType(parent, out ProjectFolder? folder))
+            if (ResourceManager.TryGetParentOfType(savable, out ProjectFolder? folder))
             {
                 string subFolderPath = ResourceManager.GetAbsoluteFolderPath(folder);
                 targetFolder = await StorageHelper.CreateSubFoldersAsync(ResourceHelper.WorkFolder, subFolderPath);
             }
 
-            return await ResourceHelper.SaveResourceAsync(parent, targetFolder);
+            // This is to save just the resource and its savable parent without affecting the siblings
+            bool result = resource == savable || await ResourceHelper.SaveResourceAsync(resource, targetFolder, false);
+            result &= await ResourceHelper.SaveResourceAsync(savable, targetFolder, false);
+            return result;
         }
 
         // Rely on relative folder path
         return await ResourceHelper.SaveResourceAsync(resource);
+    }
+
+    private static IMetadataResource? GetSavableResource(IResource? resource)
+    {
+        if (resource == null) return null;
+        else if (resource is PackageResource package) return package;
+        else if (resource is MetadataResource metadataResource && metadataResource.SplitMetadata) return metadataResource;
+        else if (ResourceManager.TryGetSavableParent(resource, out IMetadataResource? parent)) return parent;
+
+        return null;
     }
 
     private static async Task<bool> SaveProjectFileAsync()
@@ -208,4 +233,6 @@ public class ProjectSystemManager
 
         return false;
     }
+
+    public static event EventHandler<Project?> CurrentProjectChanged;
 }
