@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace Symptum.Core.Helpers;
 
 public static class FileHelper

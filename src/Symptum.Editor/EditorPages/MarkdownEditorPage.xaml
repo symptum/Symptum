@@ -70,7 +70,7 @@
       <ColumnDefinition Width="Auto" />
     </Grid.ColumnDefinitions>
     <controls:Ribbon x:Name="ribbon" HorizontalAlignment="Stretch" Grid.ColumnSpan="4">
-      <controls:RibbonCollapsibleGroup CollapsedAccessKey="RR" Priority="2" Label="Resource"
+      <controls:RibbonCollapsibleGroup CollapsedAccessKey="RR" Priority="1" Label="Resource"
                                        Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
         <controls:RibbonCollapsibleGroup.IconSource>
           <FontIconSource Glyph="&#xE7B8;" />
@@ -86,7 +86,7 @@
           </AppBarButton>
         </StackPanel>
       </controls:RibbonCollapsibleGroup>
-      <controls:RibbonCollapsibleGroup CollapsedAccessKey="E" Priority="1" Label="Edit"
+      <controls:RibbonCollapsibleGroup CollapsedAccessKey="E" Priority="2" Label="Edit"
                                  Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
         <controls:RibbonCollapsibleGroup.IconSource>
           <FontIconSource Glyph="&#xE70F;" />

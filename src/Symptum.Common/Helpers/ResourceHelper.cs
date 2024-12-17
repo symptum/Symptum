@@ -359,7 +359,7 @@ public class ResourceHelper
         if (saveFile != null)
         {
             string? text = ResourceManager.WriteResourceFileText(textResource);
-            if (!string.IsNullOrEmpty(text))
+            if (text != null)
                 return await StorageHelper.WriteToFileAsync(saveFile, text);
         }
 

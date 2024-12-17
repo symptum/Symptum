@@ -5,6 +5,8 @@ using Symptum.UI.Markdown.TextElements;
 using Symptum.UI.Markdown.Renderers.ObjectRenderers;
 using Symptum.UI.Markdown.Renderers.ObjectRenderers.Inlines;
 using Symptum.UI.Markdown.Renderers.ObjectRenderers.Extensions;
+using Markdig.Syntax.Inlines;
+using Symptum.Markdown.Embedding;
 
 namespace Symptum.UI.Markdown.Renderers;
 
@@ -24,15 +26,21 @@ public class WinUIRenderer : RendererBase
         set => _config = value;
     }
 
+    public MarkdownTextBlock MarkdownTextBlock { get; private set; }
+
+    public ImportsHandler ImportsHandler { get; private set; }
+
     public ILinkHandler? LinkHandler { get; set; }
 
-    public WinUIRenderer(FlowDocumentElement document, MarkdownConfiguration config, DocumentOutline documentOutline)
+    public WinUIRenderer(MarkdownTextBlock markdownTextBlock, FlowDocumentElement document)
     {
+        MarkdownTextBlock = markdownTextBlock;
         _buffer = new char[1024];
-        Configuration = config;
+        Configuration = markdownTextBlock.Configuration;
         FlowDocument = document;
-        DocumentOutline = documentOutline;
-        LinkHandler = new DefaultLinkHandler(documentOutline);
+        DocumentOutline = markdownTextBlock.DocumentOutline;
+        LinkHandler = new DefaultLinkHandler(DocumentOutline);
+        ImportsHandler = markdownTextBlock.ImportsHandler;
         _stack.Push(FlowDocument);
         LoadOverridenRenderers();
     }
@@ -45,6 +53,8 @@ public class WinUIRenderer : RendererBase
     public override object Render(MarkdownObject markdownObject)
     {
         Write(markdownObject);
+        //_stack.Clear();
+        ImportsHandler.ResolveImports(markdownObject?.Descendants<ExportBlock>(), this, MarkdownTextBlock._pipeline);
         return FlowDocument ?? new(Configuration);
     }
 
@@ -60,7 +70,7 @@ public class WinUIRenderer : RendererBase
     public void WriteLeafInline(LeafBlock leafBlock)
     {
         if (leafBlock == null || leafBlock.Inline == null) throw new ArgumentNullException(nameof(leafBlock));
-        Markdig.Syntax.Inlines.Inline? inline = (Markdig.Syntax.Inlines.Inline)leafBlock.Inline;
+        Inline? inline = leafBlock.Inline;
         while (inline != null)
         {
             Write(inline);
@@ -90,10 +100,10 @@ public class WinUIRenderer : RendererBase
         _stack.Push(child);
     }
 
-    public void Pop()
+    public void Pop(bool peek = true)
     {
         IAddChild popped = _stack.Pop();
-        _stack.Peek().AddChild(popped);
+        if (peek) _stack.Peek().AddChild(popped);
     }
 
     public void WriteBlock(IAddChild obj)
@@ -116,7 +126,7 @@ public class WinUIRenderer : RendererBase
 
     public void WriteText(string? text)
     {
-        WriteInline(new TextInlineElement(text ?? ""));
+        WriteInline(new TextInlineElement(text ?? string.Empty));
     }
 
     public void WriteText(string? text, int offset, int length)
@@ -178,5 +188,7 @@ public class WinUIRenderer : RendererBase
         ObjectRenderers.Add(new TaskListRenderer());
 
         ObjectRenderers.Add(new ReferenceInlineRenderer());
+        ObjectRenderers.Add(new ExportBlockRenderer());
+        ObjectRenderers.Add(new ImportBlockRenderer());
     }
 }

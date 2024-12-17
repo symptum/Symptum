@@ -1,5 +1,6 @@
 using Markdig;
 using Markdig.Syntax;
+using Symptum.Markdown.Embedding;
 using Symptum.Markdown.Reference;
 using Symptum.UI.Markdown.Renderers;
 using Symptum.UI.Markdown.TextElements;
@@ -11,7 +12,7 @@ public partial class MarkdownTextBlock : Control
 {
     private const string MarkdownContainerName = "MarkdownContainer";
     private Grid? _container;
-    private MarkdownPipeline _pipeline;
+    internal MarkdownPipeline _pipeline;
     private FlowDocumentElement _document;
     private WinUIRenderer? _renderer;
 
@@ -83,6 +84,8 @@ public partial class MarkdownTextBlock : Control
 
     public DocumentOutline DocumentOutline { get; }
 
+    public ImportsHandler ImportsHandler { get; }
+
     #endregion
 
     public MarkdownTextBlock()
@@ -99,8 +102,11 @@ public partial class MarkdownTextBlock : Control
             .UseGridTables()
             .UseAutoIdentifiers(Markdig.Extensions.AutoIdentifiers.AutoIdentifierOptions.GitHub)
             .Use<ReferenceInlineExtension>()
+            .Use<ExportBlockExtension>()
+            .Use<ImportBlockExtension>()
             .Build();
         DocumentOutline = new();
+        ImportsHandler = new();
     }
 
     protected override void OnApplyTemplate()
@@ -140,7 +146,9 @@ public partial class MarkdownTextBlock : Control
             if (markdown != null)
             {
                 MarkdownDocument = markdown;
+                MarkdownParsed?.Invoke(this, new(markdown));
                 _renderer.Render(markdown);
+                MarkdownRendered?.Invoke(this, null);
             }
         }
         else _document.StackPanel.Children.Clear();
@@ -152,10 +160,14 @@ public partial class MarkdownTextBlock : Control
         {
             if (_renderer == null)
             {
-                _renderer = new WinUIRenderer(_document, Configuration, DocumentOutline);
+                _renderer = new WinUIRenderer(this, _document);
             }
             _pipeline.Setup(_renderer);
             ApplyText(false);
         }
     }
+
+    public event EventHandler<MarkdownParsedEventArgs>? MarkdownParsed;
+
+    public event EventHandler? MarkdownRendered;
 }
