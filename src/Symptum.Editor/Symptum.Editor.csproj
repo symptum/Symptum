@@ -69,7 +69,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Symptum.Editor.SourceGenerators\Symptum.Editor.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-    <ProjectReference Include="..\Symptum.UI\Symptum.UI.csproj" />
   </ItemGroup>
 
   <ItemGroup>

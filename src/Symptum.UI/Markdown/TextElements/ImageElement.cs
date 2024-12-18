@@ -32,7 +32,7 @@ public class ImageElement : IAddChild
         _imageProvider = config.ImageProvider;
         _svgRenderer = config.SVGRenderer ?? new DefaultSVGRenderer();
         Init(linkInline.Label, config);
-        Size size = Extensions.GetMarkdownImageSize(linkInline);
+        Size size = Helper.GetMarkdownImageSize(linkInline);
         if (size.Width != 0)
         {
             _precedentWidth = size.Width;
@@ -149,7 +149,7 @@ public class ImageElement : IAddChild
                             if (resImage != null)
                             {
                                 _image.Source = resImage;
-                                Size size = Extensions.GetSvgSize(svgString);
+                                Size size = Helper.GetSvgSize(svgString);
                                 if (size.Width > 0) _image.Width = size.Width;
                                 if (size.Height > 0) _image.Height = size.Height;
                                 imageLoaded(resImage);

@@ -13,7 +13,7 @@ using Symptum.UI.Markdown.TextElements.Html;
 
 namespace Symptum.UI.Markdown;
 
-public static class Extensions
+public static class Helper
 {
     public static ILanguage ToLanguage(this FencedCodeBlock fencedCodeBlock)
     {
