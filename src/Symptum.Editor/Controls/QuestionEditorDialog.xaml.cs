@@ -311,7 +311,7 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         rfLE.ItemsSource = references;
         rfLE.ItemTypes =
         [
-            new ("Book Reference", typeof(BookReference)),
+            new ("Preset Book Reference", typeof(PresetBookReference)),
             new ("Journal Article Reference", typeof(JournalArticleReference)),
             new ("Link Reference", typeof(LinkReference)),
         ];
@@ -319,9 +319,9 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         rfLE.ItemsSource = references;
         rfLE.AddItemRequested += (s, e) =>
         {
-            if (e == typeof(BookReference))
+            if (e == typeof(PresetBookReference))
             {
-                BookReference bookReference = context?.PreferredBook ?? new();
+                PresetBookReference bookReference = context?.PreferredBook ?? new();
                 references.Add(new() { Value = bookReference });
             }
             else if (e == typeof(LinkReference))

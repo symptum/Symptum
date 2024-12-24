@@ -48,11 +48,6 @@ public class StringListConverter : ListConverter<string>
     public override void ValidateData(string text, List<string> list) => ListToStringConversion.ValidateDataForString(text, list);
 }
 
-public class BookReferenceListConverter : ListConverter<BookReference>
-{
-    public override void ValidateData(string text, List<BookReference> list) => ListToStringConversion.ValidateDataForBookReference(text, list);
-}
-
 #endregion
 
 #region Reference Values
@@ -160,14 +155,6 @@ public class ListToStringConversion
         if (!string.IsNullOrEmpty(text))
         {
             list.Add(text);
-        }
-    }
-
-    public static void ValidateDataForBookReference(string text, List<BookReference> list)
-    {
-        if (BookReference.TryParse(text, out BookReference? reference))
-        {
-            list.Add(reference);
         }
     }
 

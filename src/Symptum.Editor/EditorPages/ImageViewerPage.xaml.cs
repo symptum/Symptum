@@ -32,7 +32,7 @@ public sealed partial class ImageViewerPage : EditorPageBase
     public ImageViewerPage()
     {
         InitializeComponent();
-        IconSource = DefaultIconSources.PicturesIconSource;
+        IconSource = DefaultIconSources.PhotoIconSource;
         zoomCB.ItemsSource = zoomLevels;
         Loaded += ImageViewerPage_Loaded;
     }
@@ -56,11 +56,11 @@ public sealed partial class ImageViewerPage : EditorPageBase
 
         _imageFileResource = imageFileResource;
 
-        var stream = await ResourceHelper.OpenImageFileForReadAsync(imageFileResource);
+        var stream = await ResourceHelper.OpenFileForReadAsync(imageFileResource);
         if (stream == null) return;
 
         Vector2 availableSize = scrollViewer.ActualSize;
-        if (imageFileResource.ImageType.Equals(SvgFileExtension, StringComparison.InvariantCultureIgnoreCase))
+        if (SvgFileExtension.Equals(imageFileResource.FileExtension, StringComparison.InvariantCultureIgnoreCase))
         {
             SvgImageSource svg = new();
             await svg.SetSourceAsync(stream);
@@ -69,6 +69,7 @@ public sealed partial class ImageViewerPage : EditorPageBase
         }
         else
         {
+            // NOTE: IRandomAccessStream doesn't seem to render in WASM?
             BitmapImage bitmap = new();
             await bitmap.SetSourceAsync(stream);
             imagePreview.Source = bitmap;

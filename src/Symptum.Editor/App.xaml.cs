@@ -1,6 +1,6 @@
+using Symptum.Common;
 using Symptum.Common.Helpers;
 using Symptum.Core.Management.Deployment;
-using Symptum.Core.Subjects.Books;
 using Uno.Resizetizer;
 
 namespace Symptum.Editor;
@@ -16,10 +16,7 @@ public partial class App : Application
 
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
-        await PackageHelper.InitializeAsync();
-        StorageHelper.Initialize();
-
-        await LoadAllBookListsAsync();
+        await Bootstrapper.InitializeAsync();
 
         PackageManager.StartDependencyResolution();
 
@@ -34,7 +31,7 @@ public partial class App : Application
         WindowHelper.Initialize(MainWindow);
 
 #if DEBUG
-        MainWindow.EnableHotReload();
+        MainWindow.UseStudio();
 #endif
 
         // Do not repeat app initialization when the Window already has content,
@@ -66,26 +63,6 @@ public partial class App : Application
     private void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
     {
         throw new InvalidOperationException($"Failed to load {e.SourcePageType.FullName}: {e.Exception}");
-    }
-
-    private async Task LoadAllBookListsAsync()
-    {
-        try
-        {
-            var file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Books/First Year Books.csv"));
-            string content = await FileIO.ReadTextAsync(file);
-            BookStore.LoadBooks(content);
-            file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Books/Second Year Books.csv"));
-            content = await FileIO.ReadTextAsync(file);
-            BookStore.LoadBooks(content);
-            file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Books/Third Year Books.csv"));
-            content = await FileIO.ReadTextAsync(file);
-            BookStore.LoadBooks(content);
-            file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Books/Final Year Books.csv"));
-            content = await FileIO.ReadTextAsync(file);
-            BookStore.LoadBooks(content);
-        }
-        catch { }
     }
 
     /// <summary>

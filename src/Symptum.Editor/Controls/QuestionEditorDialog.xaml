@@ -14,9 +14,9 @@
   Style="{ThemeResource DefaultContentDialogStyle}"
   CloseButtonText="Cancel" PrimaryButtonStyle="{ThemeResource AccentButtonStyle}">
   <ContentDialog.Resources>
-    <DataTemplate x:Key="BookReferenceTemplate">
+    <DataTemplate x:Key="PresetBookReferenceTemplate">
       <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
-        <local:BookReferencePicker BookReference="{Binding Value, Mode=TwoWay}" HorizontalAlignment="Stretch" />
+        <local:PresetBookReferencePicker PresetBookReference="{Binding Value, Mode=TwoWay}" HorizontalAlignment="Stretch" />
       </local:ListEditorItemCommandsButton>
     </DataTemplate>
     <DataTemplate x:Key="LinkReferenceTemplate">
@@ -25,7 +25,7 @@
       </local:ListEditorItemCommandsButton>
     </DataTemplate>
     <local:ReferenceBaseTemplateSelector x:Key="ReferenceBaseTemplateSelector"
-      BookReferenceTemplate="{StaticResource BookReferenceTemplate}"
+      PresetBookReferenceTemplate="{StaticResource PresetBookReferenceTemplate}"
       LinkReferenceTemplate="{StaticResource LinkReferenceTemplate}" />
   </ContentDialog.Resources>
   <ScrollViewer>

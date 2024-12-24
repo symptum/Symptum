@@ -1,9 +1,16 @@
+using System.Text.Json.Serialization;
 using Symptum.Core.Data;
 
 namespace Symptum.Core.Management.Resources;
 
 public interface IContent : IResource
 {
+    public string? FilePath { get; set; }
+
+    [JsonIgnore]
+    public string? FileExtension { get; }
+
+    [JsonIgnore]
     public abstract ContentFileType FileType { get; }
 
     public string? Description { get; set; }

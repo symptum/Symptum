@@ -14,5 +14,5 @@ internal class QuestionBankContext
 
     public DateOnly? LastInputDate { get; set; }
 
-    public BookReference? PreferredBook { get; set; }
+    public PresetBookReference? PreferredBook { get; set; }
 }

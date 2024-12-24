@@ -1,8 +1,9 @@
-﻿namespace Symptum.Core.Management.Resources;
+namespace Symptum.Core.Management.Resources;
 
 public enum ContentFileType
 {
     Markdown,
     Csv,
-    Image
+    Image,
+    Audio
 }

@@ -150,10 +150,9 @@ public class PackageHelper
         if (zipFile != null && zipFile.FileType.Equals(PackageFileExtension, StringComparison.InvariantCultureIgnoreCase)
             && PackageCacheFolder != null && PackagesFolder != null)
         {
-            StorageFolder? targetFolder = await PackageCacheFolder.CreateFolderAsync(zipFile.DisplayName, CreationCollisionOption.ReplaceExisting);
             Stream zipStream;
 #if __WASM__
-            var buffer = await FileIO.ReadBufferAsync(zipFile); // OpenStreamForReadAsync() crashes on WASM?
+            var buffer = await FileIO.ReadBufferAsync(zipFile); // NOTE: OpenStreamForReadAsync() crashes on WASM?
             zipStream = new MemoryStream(buffer.ToArray());
 #else
             zipStream = await zipFile.OpenStreamForReadAsync();

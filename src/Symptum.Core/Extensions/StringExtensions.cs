@@ -1,5 +1,3 @@
-using System;
-
 namespace Symptum.Core.Extensions;
 
 public static class StringExtensions
@@ -109,5 +107,12 @@ public static class StringExtensions
         }
 
         return (line, position - lastLineStart + 1);
+    }
+
+    public static string? ToNullIfEmpty(this string? text)
+    {
+        if (string.IsNullOrEmpty(text)) return null;
+
+        return text;
     }
 }

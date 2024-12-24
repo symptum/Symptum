@@ -1,0 +1,23 @@
+﻿<local:NavigablePage x:Class="Symptum.Pages.DefaultPage"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="using:Symptum.Pages"
+  xmlns:res="using:Symptum.Core.Management.Resources"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  mc:Ignorable="d">
+  <ScrollViewer>
+    <ItemsRepeater Margin="10" x:Name="subjectsView" ItemsSource="{x:Bind NavigableResource.ChildrenResources}">
+      <ItemsRepeater.Layout>
+        <UniformGridLayout MinColumnSpacing="16" MinRowSpacing="16" />
+      </ItemsRepeater.Layout>
+      <ItemsRepeater.ItemTemplate>
+        <DataTemplate x:DataType="res:IResource">
+          <Button Width="150" Height="100" Click="Button_Click" Tag="{x:Bind }">
+            <TextBlock Text="{x:Bind Title}" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+          </Button>
+        </DataTemplate>
+      </ItemsRepeater.ItemTemplate>
+    </ItemsRepeater>
+  </ScrollViewer>
+</local:NavigablePage>

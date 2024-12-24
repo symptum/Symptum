@@ -1,4 +1,5 @@
 using Symptum.Core.Management.Resources;
+using Symptum.Editor.Common;
 
 namespace Symptum.Editor.Controls;
 
@@ -65,11 +66,11 @@ public sealed partial class AddNewItemDialog : ContentDialog
     {
         bool valid = Validate();
         args.Cancel = !valid;
-
+        errorInfoBar.IsOpen = !valid;
         if (valid)
         {
             Result = EditorResult.Create;
-            SelectedItemType = (newItemsLV.SelectedItem as NewItemType)?.Type;
+            if (!_newProject) SelectedItemType = (newItemsLV.SelectedItem as NewItemType)?.Type;
             ItemTitle = titleTextBox.Text;
         }
     }
@@ -81,39 +82,54 @@ public sealed partial class AddNewItemDialog : ContentDialog
 
     private bool Validate()
     {
-        bool valid = false;
-
-        if (newItemsLV.SelectedItem is NewItemType itemType)
+        if (!string.IsNullOrWhiteSpace(titleTextBox.Text))
         {
-            valid = (ParentResource != null
-                && ParentResource.CanAddChildResourceType(itemType.Type))
-                || ParentResource == null;
+            if (_newProject) return true;
 
-            if (valid)
+            if (newItemsLV.SelectedItem is NewItemType itemType)
             {
-                var title = titleTextBox.Text;
-                valid = !string.IsNullOrEmpty(title)
-                    && !string.IsNullOrWhiteSpace(title);
-
-                if (!valid)
-                    errorInfoBar.Message = "Title must not be empty";
+                if ((ParentResource != null
+                    && ParentResource.CanAddChildResourceType(itemType.Type))
+                    || ParentResource == null)
+                    return true;
+                else
+                    errorInfoBar.Message = "Cannot add a new item to the parent item (" + ParentResource?.Title + ")";
             }
             else
-                errorInfoBar.Message = "Cannot add a new item to the parent item (" + ParentResource?.Title + ")";
+                errorInfoBar.Message = "An item type must be selected";
         }
         else
-            errorInfoBar.Message = "An item type must be selected";
+            errorInfoBar.Message = "Title must not be empty.";
 
-        errorInfoBar.IsOpen = !valid;
-        return valid;
+        return false;
+    }
+
+    private bool _newProject = false;
+
+    public async Task<EditorResult> CreateProjectAsync()
+    {
+        _newProject = true;
+        parentInfo.Visibility = Visibility.Collapsed;
+        queryBox.Visibility = Visibility.Collapsed;
+        newItemsLV.Visibility = Visibility.Collapsed;
+        ItemTitle = titleTextBox.Text = string.Empty;
+        Title = "Create A New Project";
+        PrimaryButtonText = "Create";
+        await ShowAsync(ContentDialogPlacement.Popup);
+        return Result;
     }
 
     public async Task<EditorResult> CreateAsync(IResource? parentResource)
     {
+        _newProject = false;
+        queryBox.Visibility = Visibility.Visible;
+        newItemsLV.Visibility = Visibility.Visible;
         ParentResource = parentResource;
         SetParentInfo(parentResource);
         FilterItems(parentResource);
         ItemTitle = titleTextBox.Text = string.Empty;
+        Title = "Add New Item";
+        PrimaryButtonText = "Add";
         await ShowAsync(ContentDialogPlacement.Popup);
         return Result;
     }

@@ -1,5 +1,8 @@
+using System.Text.Json.Serialization;
+
 namespace Symptum.Core.Subjects;
 
+[JsonConverter(typeof(JsonStringEnumConverter<SubjectList>))]
 public enum SubjectList
 {
     None,

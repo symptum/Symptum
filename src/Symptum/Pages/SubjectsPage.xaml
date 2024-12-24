@@ -14,8 +14,8 @@
       </ItemsRepeater.Layout>
       <ItemsRepeater.ItemTemplate>
         <DataTemplate x:DataType="sub:Subject">
-          <Button Width="150" Height="100" Click="Button_Click" Tag="{Binding Uri}">
-            <TextBlock Text="{Binding Title}" Style="{ThemeResource BodyStrongTextBlockStyle}" />
+          <Button Width="150" Height="100" Click="Button_Click" Tag="{x:Bind Uri}">
+            <TextBlock Text="{x:Bind Title}" Style="{ThemeResource BodyStrongTextBlockStyle}" />
           </Button>
         </DataTemplate>
       </ItemsRepeater.ItemTemplate>

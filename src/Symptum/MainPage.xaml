@@ -27,9 +27,9 @@
       </NavigationView.FooterMenuItems>
       <NavigationView.MenuItemTemplate>
         <DataTemplate x:DataType="nav:NavigationInfo">
-          <NavigationViewItem Content="{Binding Title}" Tag="{Binding Path}" MenuItemsSource="{Binding Children}">
+          <NavigationViewItem Content="{x:Bind Title}" Tag="{x:Bind }" MenuItemsSource="{Binding Children}">
             <NavigationViewItem.Icon>
-              <IconSourceElement IconSource="{Binding IconSource}" />
+              <IconSourceElement IconSource="{x:Bind IconSource}" />
             </NavigationViewItem.Icon>
           </NavigationViewItem>
         </DataTemplate>

@@ -78,4 +78,12 @@ public class EditorPagesManager
         }
         EditorPages.Clear();
     }
+
+    public static void UpdateEditors()
+    {
+        foreach (var editor in EditorPages)
+        {
+            editor.UpdateContent();
+        }
+    }
 }

@@ -19,7 +19,7 @@ public class LinkInlineRenderer : WinUIObjectRenderer<LinkInline>
 
         if (link.IsImage)
         {
-            renderer.Push(new ImageElement(link, Markdown.Extensions.GetUri(url, renderer.Configuration.BaseUrl), renderer.Configuration));
+            renderer.Push(new ImageElement(link, Markdown.Helper.GetUri(url, renderer.Configuration.BaseUrl), renderer.Configuration));
         }
         else
         {

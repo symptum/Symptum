@@ -8,4 +8,8 @@
     <PackageReference Include="Markdig" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Symptum.Core\Symptum.Core.csproj" />
+  </ItemGroup>
+
 </Project>

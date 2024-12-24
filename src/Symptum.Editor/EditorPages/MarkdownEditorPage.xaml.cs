@@ -1,6 +1,6 @@
 using System.Text;
 using Microsoft.UI.Xaml.Data;
-using Symptum.Common.Helpers;
+using Symptum.Common.ProjectSystem;
 using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
 using Symptum.Editor.Common;
@@ -183,6 +183,12 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         }
     }
 
+    protected override void OnUpdateContent()
+    {
+        if (_markdownResource != null)
+            _markdownResource.Markdown = mdText.Text;
+    }
+
     private bool _isBeingSaved = false;
 
     private async void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -194,7 +200,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         if (_markdownResource != null)
         {
             _markdownResource.Markdown = mdText.Text;
-            HasUnsavedChanges = !await ResourceHelper.SaveResourceAsync(_markdownResource);
+            HasUnsavedChanges = !await ProjectSystemManager.SaveResourceAndAncestorAsync(_markdownResource);
         }
 
         _isBeingSaved = false;

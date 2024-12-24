@@ -6,6 +6,8 @@ public static class FileHelper
 
     public const char ExtensionSeparator = '.';
 
+    public const string ProjectFileExtension = ".symproj";
+
     public const string JsonFileExtension = ".json";
 
     public const string CsvFileExtension = ".csv";
@@ -37,6 +39,17 @@ public static class FileHelper
 
     #endregion
 
+    #region Audio File Extensions
+
+    public static readonly string[] AudioFileExtensions =
+    [
+        Mp3FileExtension
+    ];
+
+    public const string Mp3FileExtension = ".mp3";
+
+    #endregion
+
     public static (string folder, string fileName, string extension) GetDetailsFromFilePath(string? filePath)
     {
         string folder = string.Empty;
@@ -63,14 +76,33 @@ public static class FileHelper
             }
         }
 
-        if (dotIndex > 0 && slashIndex > 0)
-        {
+        if (slashIndex > 0)
             folder = filePath[..slashIndex];
-            fileName = filePath[slashIndex..dotIndex];
+
+        if (dotIndex > 0)
+        {
+            if (slashIndex > 0)
+                fileName = filePath[slashIndex..dotIndex];
+            else
+                fileName = filePath[..dotIndex];
             extension = filePath[dotIndex..];
         }
 
         return (folder, fileName, extension);
+    }
+
+    /// <summary>
+    /// Removes illegal characters from the given text that are not allowed in file names.
+    /// </summary>
+    /// <param name="text">The input text from which illegal characters need to be removed.</param>
+    /// <param name="predicate">An optional function to test each character for a condition.</param>
+    /// <returns>A new string with all illegal characters removed. If the input text is null or empty, an empty string is returned.</returns>
+    public static string RemoveIllegalCharacters(string? text, Func<char, bool> predicate = null)
+    {
+        if (string.IsNullOrEmpty(text)) return string.Empty;
+        char[] invalidChars = Path.GetInvalidFileNameChars();
+        predicate ??= (ch) => true;
+        return new([.. text.Where(ch => predicate(ch) && !invalidChars.Contains(ch))]);
     }
 
     /// <summary>

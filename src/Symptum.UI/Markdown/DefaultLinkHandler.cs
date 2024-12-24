@@ -22,7 +22,7 @@ public sealed class DefaultLinkHandler : ILinkHandler
         }
         else
         {
-            Uri uri = Extensions.GetUri(url, baseUrl);
+            Uri uri = Helper.GetUri(url, baseUrl);
             await Launcher.LaunchUriAsync(uri);
         }
     }

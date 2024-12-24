@@ -42,7 +42,7 @@
                   HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
       <Image x:Name="imagePreview" Stretch="None" />
     </ScrollViewer>
-    <Grid Grid.Row="1" ColumnSpacing="8" Height="32">
+    <Grid x:Name="statusBar" Grid.Row="1" ColumnSpacing="8" Height="32">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto"/>
