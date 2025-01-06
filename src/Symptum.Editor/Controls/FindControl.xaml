@@ -22,23 +22,23 @@
     </Grid.ColumnDefinitions>
     <AutoSuggestBox x:Name="queryBox" Text="{x:Bind QueryText, Mode=TwoWay}" AllowFocusOnInteraction="True" QueryIcon="Find" Margin="4" PlaceholderText="Find" />
     <Button x:Name="fPrevButton" Visibility="{x:Bind FindPreviousEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
-            Grid.Column="1" Margin="4" VerticalAlignment="Bottom"
+            Grid.Column="1" Margin="4" VerticalAlignment="Stretch"
             HorizontalAlignment="Stretch" ToolTipService.ToolTip="Find Previous">
-      <FontIcon Glyph="&#xE72B;" />
+      <FontIcon Glyph="&#xE72B;" FontSize="16" />
     </Button>
     <Button x:Name="fNextButton" Visibility="{x:Bind FindNextEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
-            Grid.Column="2" Margin="4" VerticalAlignment="Bottom"
+            Grid.Column="2" Margin="4" VerticalAlignment="Stretch"
             HorizontalAlignment="Stretch" ToolTipService.ToolTip="Find Next">
-      <FontIcon Glyph="&#xE72A;" />
+      <FontIcon Glyph="&#xE72A;" FontSize="16" />
     </Button>
     <Button x:Name="fAllButton" Visibility="{x:Bind FindAllEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
             Grid.Column="3" Margin="4" VerticalAlignment="Bottom"
             HorizontalAlignment="Stretch" ToolTipService.ToolTip="Find All">
-      <SymbolIcon Symbol="Find" />
+      <FontIcon Glyph="&#xE71E;" FontSize="16" />
     </Button>
-    <Button x:Name="fClearButton" Grid.Column="4" Margin="4" VerticalAlignment="Bottom"
+    <Button x:Name="fClearButton" Grid.Column="4" Margin="4" VerticalAlignment="Stretch"
             HorizontalAlignment="Stretch" ToolTipService.ToolTip="Clear">
-      <SymbolIcon Symbol="Cancel" />
+      <FontIcon Glyph="&#xE711;" FontSize="16" />
     </Button>
     <ComboBox x:Name="fContextComboBox" ItemsSource="{x:Bind FindContexts}" SelectedItem="{x:Bind SelectedContext, Mode=TwoWay}"
                 Grid.Row="1" Grid.ColumnSpan="2" Margin="4" HorizontalAlignment="Stretch" />

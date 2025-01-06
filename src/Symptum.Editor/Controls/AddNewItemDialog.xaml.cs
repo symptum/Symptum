@@ -144,7 +144,7 @@ public sealed partial class AddNewItemDialog : ContentDialog
         else
         {
             parentInfo.Visibility = Visibility.Visible;
-            parentInfo.Text = $"The new item will be added to {parentResource.Title}";
+            parentInfo.Text = $"The new item will be added to \"{parentResource.Title}\"";
         }
     }
 
