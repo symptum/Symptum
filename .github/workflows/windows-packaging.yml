@@ -12,7 +12,9 @@ jobs:
   build:
     runs-on: windows-latest
     env:
-      Project_Path: ./main/src/Symptum.Editor/Symptum.Editor.csproj
+      Project_Path: ./main/src/Symptum.Editor/Symptum.Editor/
+      Project_File: ./main/src/Symptum.Editor/Symptum.Editor.csproj
+      Project_Cert_File: ./main/src/Symptum.Editor/Symptum.Editor_TemporaryKey.pfx
 
     steps:
     - name: Checkout
@@ -35,18 +37,19 @@ jobs:
 
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
-      run: msbuild $env:Project_Path /r /t:Restore /p:Configuration=Release
+      run: msbuild $env:Project_File /r /t:Restore /p:Configuration=Release
 
     # Decode the base 64 encoded pfx and save the Signing_Certificate
     - name: Decode the pfx
       run: |
         $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.BASE64_ENCODED_PFX }}")
-        $certificatePath = "GitHubActionsWorkflow.pfx"
+        $certificatePath = "${{ env.Project_Cert_File }}"
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
+        Write-Output $certificatePath
 
     # Create the app package by building and packaging the project
     - name: Create the app package
-      run: msbuild $env:Project_Path /p:TargetFramework=net9.0-windows10.0.22621 /p:Configuration=Release /p:Platform=x64 /p:PublishSignedPackage=true /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:AppxPackageDir="Packages\\"
+      run: msbuild $env:Project_File /p:TargetFramework=net9.0-windows10.0.22621 /p:Configuration=Release /p:Platform=x64 /p:PublishSignedPackage=true /p:PackageCertificateKeyFile=$env:Project_Cert_File /p:AppxPackageDir="Packages\\"
 
     # Remove the pfx
     - name: Remove the pfx
@@ -57,4 +60,4 @@ jobs:
       uses: actions/upload-artifact@v4.6.2
       with:
         name: MSIX Package
-        path: ${{ env.Project_Path}}\\Packages\\
+        path: ${{ env.Project_Path }}\\Packages\\
