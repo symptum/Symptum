@@ -39,11 +39,12 @@ jobs:
     - name: Decode the pfx
       run: |
         $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.BASE64_ENCODED_PFX }}")
-        $currentDir = Get-Location
-        $certificatePath = Join-Path -Path $currentDir -ChildPath $env.Project_Path -AdditionalChildPath $env.Project_Cert
+        $currentDirectory = Get-Location
+        Write-Output $currentDirectory
+        $certificatePath = Join-Path -Path $currentDirectory -ChildPath $env:Project_Path -AdditionalChildPath $env:Project_Cert
         Write-Output $certificatePath
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
-
+        
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
       run: msbuild $env:Project_File /r /t:Restore /p:Configuration=Release
