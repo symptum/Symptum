@@ -10,12 +10,6 @@ on:
 jobs:
 
   build:
-
-    strategy:
-      matrix:
-        configuration: [Release]
-        platform: [x64, x86]
-
     runs-on: windows-latest
     env:
       Project_Path: ./main/src/Symptum.Editor/Symptum.Editor.csproj
@@ -37,13 +31,11 @@ jobs:
 
     # Add  MSBuild to the PATH: https://github.com/microsoft/setup-msbuild
     - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v1.0.2
+      uses: microsoft/setup-msbuild@v2
 
     # Restore the application to populate the obj folder with RuntimeIdentifiers
     - name: Restore the application
-      run: msbuild $env:Project_Path /t:Restore /p:TargetFramework=net9.0-windows10.0.22621 /p:Configuration=$env:Configuration
-      env:
-        Configuration: ${{ matrix.configuration }}
+      run: msbuild $env:Project_Path /r /t:Restore /p:Configuration=Release
 
     # Decode the base 64 encoded pfx and save the Signing_Certificate
     - name: Decode the pfx
@@ -54,13 +46,7 @@ jobs:
 
     # Create the app package by building and packaging the project
     - name: Create the app package
-      run: msbuild $env:Project_Path /p:TargetFramework=net9.0-windows10.0.22621 /p:Configuration=$env:Configuration /p:Platform=$env:Platform /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:AppxPackageDir="$env:Appx_Package_Dir" /p:GenerateAppxPackageOnBuild=true
-      env:
-        Appx_Bundle: Never
-        Appx_Package_Build_Mode: SideloadOnly
-        Appx_Package_Dir: Packages\
-        Configuration: ${{ matrix.configuration }}
-        Platform: ${{ matrix.platform }}
+      run: msbuild $env:Project_Path /p:TargetFramework=net9.0-windows10.0.22621 /p:Configuration=Release /p:Platform=x64 /p:PublishSignedPackage=true /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:AppxPackageDir="Packages\\"
 
     # Remove the pfx
     - name: Remove the pfx
@@ -71,4 +57,4 @@ jobs:
       uses: actions/upload-artifact@v4.6.2
       with:
         name: MSIX Package
-        path: ${{ env.Project_Path}}\\Packages
+        path: ${{ env.Project_Path}}\\Packages\\

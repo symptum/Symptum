@@ -77,4 +77,11 @@
     <UnoSplashScreen Include="$(MSBuildThisFileDirectory)Assets\Splash\splash_screen.svg" BaseSize="1024,1024" Color="#003148" />
   </ItemGroup>
 
+  <PropertyGroup Condition="'$(PublishSignedPackage)' == 'true'">
+    <GenerateAppxPackageOnBuild>true</GenerateAppxPackageOnBuild>
+    <AppxBundle>Never</AppxBundle>
+    <UapAppxPackageBuildMode>Sideloading</UapAppxPackageBuildMode>
+    <AppxPackageSigningEnabled>true</AppxPackageSigningEnabled>
+  </PropertyGroup>
+
 </Project>
