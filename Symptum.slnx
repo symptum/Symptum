@@ -1,0 +1,45 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Github Actions/">
+    <File Path=".github/workflows/web-editor-deploy.yml" />
+    <File Path=".github/workflows/windows-packaging.yml" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="LICENSE" />
+    <File Path="nuget.config" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Symptum.Common/Symptum.Common.csproj">
+      <Deploy Solution="Debug|Any CPU" />
+      <Deploy Solution="Release|x64" />
+    </Project>
+    <Project Path="src/Symptum.Core.SourceGenerators/Symptum.Core.SourceGenerators.csproj" />
+    <Project Path="src/Symptum.Core/Symptum.Core.csproj" />
+    <Project Path="src/Symptum.Editor.SourceGenerators/Symptum.Editor.SourceGenerators.csproj" />
+    <Project Path="src/Symptum.Editor/Symptum.Editor.csproj">
+      <Deploy />
+    </Project>
+    <Project Path="src/Symptum.Markdown/Symptum.Markdown.csproj" />
+    <Project Path="src/Symptum.UI/Symptum.UI.csproj">
+      <Deploy Solution="Debug|Any CPU" />
+      <Deploy Solution="Release|x64" />
+    </Project>
+    <Project Path="src/Symptum/Symptum.csproj">
+      <Deploy />
+    </Project>
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Playground/Playground.csproj" />
+    <Project Path="tests/SymptumCore.Test/SymptumCore.Test.csproj" />
+  </Folder>
+</Solution>

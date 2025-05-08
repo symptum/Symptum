@@ -38,6 +38,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Symptum.Editor.SourceGenera
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Symptum.UI", "src\Symptum.UI\Symptum.UI.csproj", "{A4BC2540-9288-4723-BCC3-485E3C172AAB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Github Actions", "Github Actions", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\web-editor-deploy.yml = .github\workflows\web-editor-deploy.yml
+		.github\workflows\windows-packaging.yml = .github\workflows\windows-packaging.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -116,6 +122,7 @@ Global
 		{FD017540-53DB-43A2-91F5-4F84FDED2840}.Release|x86.Build.0 = Release|Any CPU
 		{4946C9EB-403A-4D70-A05D-BEA297160B92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4946C9EB-403A-4D70-A05D-BEA297160B92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4946C9EB-403A-4D70-A05D-BEA297160B92}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{4946C9EB-403A-4D70-A05D-BEA297160B92}.Debug|ARM64.ActiveCfg = Debug|Any CPU
 		{4946C9EB-403A-4D70-A05D-BEA297160B92}.Debug|ARM64.Build.0 = Debug|Any CPU
 		{4946C9EB-403A-4D70-A05D-BEA297160B92}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -128,6 +135,7 @@ Global
 		{4946C9EB-403A-4D70-A05D-BEA297160B92}.Release|ARM64.Build.0 = Release|Any CPU
 		{4946C9EB-403A-4D70-A05D-BEA297160B92}.Release|x64.ActiveCfg = Release|Any CPU
 		{4946C9EB-403A-4D70-A05D-BEA297160B92}.Release|x64.Build.0 = Release|Any CPU
+		{4946C9EB-403A-4D70-A05D-BEA297160B92}.Release|x64.Deploy.0 = Release|Any CPU
 		{4946C9EB-403A-4D70-A05D-BEA297160B92}.Release|x86.ActiveCfg = Release|Any CPU
 		{4946C9EB-403A-4D70-A05D-BEA297160B92}.Release|x86.Build.0 = Release|Any CPU
 		{3BD6C56B-73D1-4AA9-B39D-77E81F27BEBF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -212,6 +220,7 @@ Global
 		{581A06AB-1776-4673-8104-5E55DC4D77F7}.Release|x86.Build.0 = Release|Any CPU
 		{A4BC2540-9288-4723-BCC3-485E3C172AAB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A4BC2540-9288-4723-BCC3-485E3C172AAB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4BC2540-9288-4723-BCC3-485E3C172AAB}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{A4BC2540-9288-4723-BCC3-485E3C172AAB}.Debug|ARM64.ActiveCfg = Debug|Any CPU
 		{A4BC2540-9288-4723-BCC3-485E3C172AAB}.Debug|ARM64.Build.0 = Debug|Any CPU
 		{A4BC2540-9288-4723-BCC3-485E3C172AAB}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -224,6 +233,7 @@ Global
 		{A4BC2540-9288-4723-BCC3-485E3C172AAB}.Release|ARM64.Build.0 = Release|Any CPU
 		{A4BC2540-9288-4723-BCC3-485E3C172AAB}.Release|x64.ActiveCfg = Release|Any CPU
 		{A4BC2540-9288-4723-BCC3-485E3C172AAB}.Release|x64.Build.0 = Release|Any CPU
+		{A4BC2540-9288-4723-BCC3-485E3C172AAB}.Release|x64.Deploy.0 = Release|Any CPU
 		{A4BC2540-9288-4723-BCC3-485E3C172AAB}.Release|x86.ActiveCfg = Release|Any CPU
 		{A4BC2540-9288-4723-BCC3-485E3C172AAB}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
