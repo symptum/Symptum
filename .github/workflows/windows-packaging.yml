@@ -14,7 +14,7 @@ jobs:
     env:
       Project_Path: ./main/src/Symptum.Editor/Symptum.Editor/
       Project_File: ./main/src/Symptum.Editor/Symptum.Editor.csproj
-      Project_Cert_File: ./main/src/Symptum.Editor/Symptum.Editor_TemporaryKey.pfx
+      Project_Cert: Symptum.Editor_TemporaryKey.pfx
 
     steps:
     - name: Checkout
@@ -43,17 +43,18 @@ jobs:
     - name: Decode the pfx
       run: |
         $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.BASE64_ENCODED_PFX }}")
-        $certificatePath = "${{ env.Project_Cert_File }}"
-        [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
+        $currentDir = Get-Location
+        $certificatePath = Join-Path -Path $currentDir -ChildPath $env.Project_Path -AdditionalChildPath $env.Project_Cert
         Write-Output $certificatePath
+        [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
 
     # Create the app package by building and packaging the project
     - name: Create the app package
-      run: msbuild $env:Project_File /p:TargetFramework=net9.0-windows10.0.22621 /p:Configuration=Release /p:Platform=x64 /p:PublishSignedPackage=true /p:PackageCertificateKeyFile=$env:Project_Cert_File /p:AppxPackageDir="Packages\\"
+      run: msbuild $env:Project_File /p:TargetFramework=net9.0-windows10.0.22621 /p:Configuration=Release /p:Platform=x64 /p:PublishSignedPackage=true /p:PackageCertificateKeyFile=$env:Project_Cert /p:AppxPackageDir="Packages\\"
 
     # Remove the pfx
     - name: Remove the pfx
-      run: Remove-Item -path GitHubActionsWorkflow.pfx
+      run: Remove-Item -path $env:Project_Path\$env:Project_Cert
 
     # Upload the MSIX package: https://github.com/marketplace/actions/upload-a-build-artifact
     - name: Upload MSIX package
