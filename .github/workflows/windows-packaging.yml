@@ -12,7 +12,7 @@ jobs:
   build:
     runs-on: windows-latest
     env:
-      Project_Path: main/src/Symptum.Editor/Symptum.Editor/
+      Project_Path: main/src/Symptum.Editor/
       Project_File: main/src/Symptum.Editor/Symptum.Editor.csproj
       Project_Cert: Symptum.Editor_TemporaryKey.pfx
 
