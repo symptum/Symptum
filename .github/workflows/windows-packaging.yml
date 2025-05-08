@@ -12,8 +12,8 @@ jobs:
   build:
     runs-on: windows-latest
     env:
-      Project_Path: ./main/src/Symptum.Editor/Symptum.Editor/
-      Project_File: ./main/src/Symptum.Editor/Symptum.Editor.csproj
+      Project_Path: main/src/Symptum.Editor/Symptum.Editor/
+      Project_File: main/src/Symptum.Editor/Symptum.Editor.csproj
       Project_Cert: Symptum.Editor_TemporaryKey.pfx
 
     steps:
@@ -35,10 +35,6 @@ jobs:
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v2
 
-    # Restore the application to populate the obj folder with RuntimeIdentifiers
-    - name: Restore the application
-      run: msbuild $env:Project_File /r /t:Restore /p:Configuration=Release
-
     # Decode the base 64 encoded pfx and save the Signing_Certificate
     - name: Decode the pfx
       run: |
@@ -47,6 +43,10 @@ jobs:
         $certificatePath = Join-Path -Path $currentDir -ChildPath $env.Project_Path -AdditionalChildPath $env.Project_Cert
         Write-Output $certificatePath
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
+
+    # Restore the application to populate the obj folder with RuntimeIdentifiers
+    - name: Restore the application
+      run: msbuild $env:Project_File /r /t:Restore /p:Configuration=Release
 
     # Create the app package by building and packaging the project
     - name: Create the app package
