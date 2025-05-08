@@ -47,7 +47,8 @@
       Svg;
     </UnoFeatures>
     <WasmShellILLinkerEnabled>false</WasmShellILLinkerEnabled>
-  </PropertyGroup>
+    <WindowsAppSDKSelfContained>True</WindowsAppSDKSelfContained>
+   </PropertyGroup>
 
   <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" />
