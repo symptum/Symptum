@@ -32,7 +32,7 @@
       <FontIcon Glyph="&#xE72A;" FontSize="16" />
     </Button>
     <Button x:Name="fAllButton" Visibility="{x:Bind FindAllEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
-            Grid.Column="3" Margin="4" VerticalAlignment="Bottom"
+            Grid.Column="3" Margin="4" VerticalAlignment="Stretch"
             HorizontalAlignment="Stretch" ToolTipService.ToolTip="Find All">
       <FontIcon Glyph="&#xE71E;" FontSize="16" />
     </Button>

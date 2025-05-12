@@ -102,7 +102,6 @@
         <controls:DataGridTextColumn Header="Id" Binding="{Binding Id.IdString}" />
         <controls:DataGridTextColumn Header="Question Type" Binding="{Binding Id.QuestionType}" />
         <controls:DataGridTextColumn Header="Subject Code" Binding="{Binding Id.SubjectCode}" />
-        <controls:DataGridTextColumn Header="Competency Numbers" Binding="{Binding Id.CompetencyNumbers}" />
         <controls:DataGridTextColumn Header="Title" Binding="{Binding Title}" Tag="Title" />
         <controls:DataGridTextColumn Header="Descriptions" Binding="{Binding Descriptions, Converter={StaticResource StringListToStringConverter}}" />
         <controls:DataGridCheckBoxColumn Header="Has Previously Been Asked" Binding="{Binding HasPreviouslyBeenAsked}" />

@@ -200,7 +200,7 @@ public sealed partial class QuestionTopicEditorPage : EditorPageBase
 
     private void FindButton_Click(object sender, RoutedEventArgs e)
     {
-        findControl.Visibility = Visibility.Visible;
+        findControl.ShowFindControl();
     }
 
     private void FindControl_QueryCleared(object? sender, EventArgs e)
@@ -211,7 +211,6 @@ public sealed partial class QuestionTopicEditorPage : EditorPageBase
         dataGrid.SelectedItem = selectedItem;
         findTextBlock.Text = string.Empty;
         OnFilter(false);
-        findControl.Visibility = Visibility.Collapsed;
     }
 
     private void FindControl_QuerySubmitted(object? sender, FindControlQuerySubmittedEventArgs e)

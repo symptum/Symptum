@@ -17,7 +17,7 @@
         <TextBlock x:Name="previewTextBlock" TextTrimming="CharacterEllipsis" />
       </Button.Content>
       <Button.Flyout>
-        <Flyout x:Name="flyout" Opening="Flyout_Opening" Closed="Flyout_Closed" ShouldConstrainToRootBounds="False">
+        <Flyout x:Name="flyout" Opening="Flyout_Opening" Opened="Flyout_Opened"  Closed="Flyout_Closed" ShouldConstrainToRootBounds="False">
           <Grid Width="300">
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto" />

@@ -36,7 +36,7 @@ public class ResourceHelper
             FolderPicker folderPicker = new();
             folderPicker.FileTypeFilter.Add("*");
 
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+#if WINDOWS && !HAS_UNO
             WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, WindowHelper.WindowHandle);
 #endif
             folder = await folderPicker.PickSingleFolderAsync();
@@ -443,7 +443,7 @@ public class ResourceHelper
             };
             fileSavePicker.FileTypeChoices.Add(fileType, [extension]);
 
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+#if WINDOWS && !HAS_UNO
             WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, WindowHelper.WindowHandle);
 #endif
             saveFile = await fileSavePicker.PickSaveFileAsync();

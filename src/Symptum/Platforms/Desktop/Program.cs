@@ -1,6 +1,7 @@
-using Uno.UI.Runtime.Skia;
+using Uno.UI.Hosting;
 
 namespace Symptum;
+
 public class Program
 {
     [STAThread]
@@ -8,12 +9,12 @@ public class Program
     {
         App.InitializeLogging();
 
-        var host = SkiaHostBuilder.Create()
+        var host = UnoPlatformHostBuilder.Create()
             .App(() => new App())
             .UseX11()
             .UseLinuxFrameBuffer()
             .UseMacOS()
-            .UseWindows()
+            .UseWin32()
             .Build();
 
         host.Run();

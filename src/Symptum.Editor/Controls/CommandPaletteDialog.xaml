@@ -1,0 +1,24 @@
+﻿<ContentDialog
+  x:Class="Symptum.Editor.Controls.CommandPaletteDialog"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="using:Symptum.Editor.Controls"
+  xmlns:res="using:Symptum.Core.Management.Resources"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  Style="{ThemeResource DefaultContentDialogStyle}"
+  PrimaryButtonStyle="{ThemeResource AccentButtonStyle}"
+  PrimaryButtonText="Open" CloseButtonText="Close"
+  Title="Navigate Resources" DefaultButton="Primary">
+  <Grid RowDefinitions="Auto,Auto">
+    <TextBox Name="commandBox" />
+    <ListView x:Name="commandsLV" Grid.Row="1" Margin="0,16,0,0" SelectionMode="Single" MaxHeight="200">
+      <ListView.ItemTemplate>
+        <DataTemplate x:DataType="res:IResource">
+          <ListViewItem ToolTipService.ToolTip="{x:Bind Title}">
+            <TextBlock Text="{x:Bind Title}" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+          </ListViewItem>
+        </DataTemplate>
+      </ListView.ItemTemplate>
+    </ListView>
+  </Grid>
+</ContentDialog>

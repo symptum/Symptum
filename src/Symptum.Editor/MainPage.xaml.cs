@@ -19,6 +19,7 @@ public sealed partial class MainPage : Page
     private bool _collapsed = false;
     private readonly AddNewItemDialog addNewItemDialog = new();
     private readonly QuestionBankContextConfigureDialog contextConfigureDialog = new();
+    private readonly CommandPaletteDialog cmdDialog = new();
 
     private DeleteItemsDialog deleteResourceDialog = new()
     {
@@ -30,13 +31,13 @@ public sealed partial class MainPage : Page
     {
         InitializeComponent();
 
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+#if WINDOWS && !HAS_UNO
 
         if (WindowHelper.MainWindow is Window mainWindow)
         {
             mainWindow.SetTitleBar(AppTitleBar);
-            TitleTextBlock.Text = mainWindow.Title;
         }
+        titleTB.Text = App.AppTitle;
 
         Background = null;
 
@@ -81,6 +82,18 @@ public sealed partial class MainPage : Page
         };
 
         EditorPagesManager.CurrentEditorChanged += (s, e) => editorsTabView.SelectedItem = e;
+
+#if WINDOWS && !HAS_UNO
+        editorsTabView.SelectionChanged += (s, e) =>
+        {
+            titleTB.Text = App.AppTitle;
+            if (e.AddedItems.Count > 0 && e.AddedItems[0] is IEditorPage page)
+            {
+                string? title = page.EditableContent?.Title;
+                titleTB.Text += $" - {title}";
+            }
+        };
+#endif
 
         SizeChanged += MainPage_SizeChanged;
     }
@@ -207,7 +220,7 @@ public sealed partial class MainPage : Page
         };
         fileSavePicker.FileTypeChoices.Add("Markdown File", [MarkdownFileExtension]);
 
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+#if WINDOWS && !HAS_UNO
         WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, WindowHelper.WindowHandle);
 #endif
         StorageFile saveFile = await fileSavePicker.PickSaveFileAsync();
@@ -280,7 +293,7 @@ public sealed partial class MainPage : Page
         fileOpenPicker.FileTypeFilter.AddRange(ImageFileExtensions);
         fileOpenPicker.FileTypeFilter.AddRange(AudioFileExtensions);
 
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+#if WINDOWS && !HAS_UNO
         WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, WindowHelper.WindowHandle);
 #endif
         var pickedFiles = await fileOpenPicker.PickMultipleFilesAsync();
@@ -455,5 +468,15 @@ public sealed partial class MainPage : Page
 
         tabToSelect = Math.Clamp(tabToSelect, 0, max);
         editorsTabView.SelectedIndex = tabToSelect;
+    }
+
+    private async void CommandPalette_Click(object sender, RoutedEventArgs e)
+    {
+        cmdDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
+        await cmdDialog.ShowAsync();
+        if (cmdDialog.SelectedResource is IResource resource)
+        {
+            EditorPagesManager.CreateOrOpenEditor(resource);
+        }
     }
 }

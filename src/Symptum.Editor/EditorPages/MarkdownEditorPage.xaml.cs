@@ -243,14 +243,13 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         findControl.SelectedContext = columns[0];
     }
 
-    private void FindButton_Click(object sender, RoutedEventArgs e) => findControl.Visibility = Visibility.Visible;
+    private void FindButton_Click(object sender, RoutedEventArgs e) => findControl.ShowFindControl();
 
     private void FindControl_QueryCleared(object? sender, EventArgs e)
     {
         _searchText = null;
         searchIndices = [];
         currentSearchIndex = 0;
-        findControl.Visibility = Visibility.Collapsed;
     }
 
     private bool _mdDirtyForSearch = false;

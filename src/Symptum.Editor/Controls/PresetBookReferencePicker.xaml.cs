@@ -188,4 +188,11 @@ public sealed partial class PresetBookReferencePicker : UserControl
     {
         bookQueryBox.Text = string.Empty;
     }
+
+    private void Flyout_Opened(object sender, object e)
+    {
+        // This allows directly editing page numbers when a Book has already been selected.
+        if (selectedBook != null)
+            pageNoSelector.Focus(FocusState.Programmatic);
+    }
 }

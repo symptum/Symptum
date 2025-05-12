@@ -20,7 +20,7 @@ public partial class App : Application
     {
         MainWindow = new();
 
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+#if WINDOWS && !HAS_UNO
         MainWindow.ExtendsContentIntoTitleBar = true;
         MainWindow.SystemBackdrop = new MicaBackdrop();
         MainWindow.Title = "Symptum";

@@ -60,7 +60,7 @@
     <win:Grid x:Name="AppTitleBar" Height="32" HorizontalAlignment="Stretch" VerticalAlignment="Top">
       <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0" Spacing="8">
         <ImageIcon Height="16" Width="16" Source="/Assets/Images/Symptum Editor.png" />
-        <TextBlock x:Name="TitleTextBlock" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" />
+        <TextBlock x:Name="titleTB" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" />
       </StackPanel>
     </win:Grid>
     <MenuBar Grid.Row="1">
@@ -117,6 +117,13 @@
         </MenuFlyoutSubItem>
       </MenuBarItem>
       <MenuBarItem Title="View">
+        <MenuFlyoutSubItem Text="Command Palette">
+          <MenuFlyoutItem Text="Navigate Resources" Click="CommandPalette_Click">
+            <MenuFlyoutItem.KeyboardAccelerators>
+              <KeyboardAccelerator Modifiers="Control" Key="P" />
+            </MenuFlyoutItem.KeyboardAccelerators>
+          </MenuFlyoutItem>
+        </MenuFlyoutSubItem>
         <MenuFlyoutSubItem Text="Toolbars">
           <ToggleMenuFlyoutItem x:Name="showResourcesPaneMenuItem" Text="Resources Pane" IsChecked="{x:Bind ShowResourcesPane, Mode=TwoWay}">
             <ToggleMenuFlyoutItem.KeyboardAccelerators>

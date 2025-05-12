@@ -179,6 +179,12 @@ public sealed partial class FindControl : UserControl
 
     #endregion
 
+    public void ShowFindControl()
+    {
+        Visibility = Visibility.Visible;
+        queryBox.Focus(FocusState.Programmatic);
+    }
+
     public void ShowErrorMessage(FindError findError)
     {
         errorInfoBar.Message = findError switch
@@ -228,6 +234,7 @@ public sealed partial class FindControl : UserControl
     private void Clear()
     {
         QueryText = string.Empty;
+        Visibility = Visibility.Collapsed;
         QueryCleared?.Invoke(this, new());
     }
 

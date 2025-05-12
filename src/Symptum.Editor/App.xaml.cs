@@ -7,6 +7,8 @@ namespace Symptum.Editor;
 
 public partial class App : Application
 {
+    public const string AppTitle = "Symptum Editor";
+
     public App()
     {
         InitializeComponent();
@@ -22,10 +24,10 @@ public partial class App : Application
 
         MainWindow = new();
 
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+#if WINDOWS && !HAS_UNO
         MainWindow.ExtendsContentIntoTitleBar = true;
         MainWindow.SystemBackdrop = new MicaBackdrop();
-        MainWindow.Title = "Symptum Editor";
+        MainWindow.Title = AppTitle;
 #endif
 
         WindowHelper.Initialize(MainWindow);

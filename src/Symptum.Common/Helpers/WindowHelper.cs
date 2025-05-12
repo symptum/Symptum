@@ -14,7 +14,7 @@ public class WindowHelper
     {
         mainWindow = window;
 
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+#if WINDOWS && !HAS_UNO
         windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(window);
 #endif
     }

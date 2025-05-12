@@ -62,7 +62,7 @@ public class PackageHelper
             FolderPicker folderPicker = new();
             folderPicker.FileTypeFilter.Add("*");
 
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+#if WINDOWS && !HAS_UNO
             WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, WindowHelper.WindowHandle);
 #endif
             folder = await folderPicker.PickSingleFolderAsync();

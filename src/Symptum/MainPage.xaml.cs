@@ -13,7 +13,7 @@ public sealed partial class MainPage : Page
     {
         InitializeComponent();
 
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
+#if WINDOWS && !HAS_UNO
 
         if (WindowHelper.MainWindow is Window mainWindow)
         {
