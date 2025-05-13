@@ -2,7 +2,7 @@ using Symptum.Core.Management.Resources;
 using Symptum.Common.Helpers;
 using Symptum.Editor.Helpers;
 using Symptum.Editor.Controls;
-using Symptum.Editor.EditorPages;
+using Symptum.Editor.Pages;
 using Windows.Storage.Pickers;
 using Windows.System;
 using System.Text;
@@ -83,17 +83,18 @@ public sealed partial class MainPage : Page
 
         EditorPagesManager.CurrentEditorChanged += (s, e) => editorsTabView.SelectedItem = e;
 
-#if WINDOWS && !HAS_UNO
         editorsTabView.SelectionChanged += (s, e) =>
         {
+            EditorPagesManager.CurrentEditor = editorsTabView.SelectedItem as IEditorPage;
+#if WINDOWS && !HAS_UNO
             titleTB.Text = App.AppTitle;
             if (e.AddedItems.Count > 0 && e.AddedItems[0] is IEditorPage page)
             {
                 string? title = page.EditableContent?.Title;
                 titleTB.Text += $" - {title}";
             }
-        };
 #endif
+        };
 
         SizeChanged += MainPage_SizeChanged;
     }
@@ -385,7 +386,7 @@ public sealed partial class MainPage : Page
 
     private async void DeleteResourcesButton_Click(object sender, RoutedEventArgs e)
     {
-        IList<object> toDelete = treeView.SelectedItems.ToList();
+        List<object> toDelete = [..treeView.SelectedItems];
         if (toDelete.Count > 0)
         {
             deleteResourceDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
@@ -473,10 +474,6 @@ public sealed partial class MainPage : Page
     private async void CommandPalette_Click(object sender, RoutedEventArgs e)
     {
         cmdDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
-        await cmdDialog.ShowAsync();
-        if (cmdDialog.SelectedResource is IResource resource)
-        {
-            EditorPagesManager.CreateOrOpenEditor(resource);
-        }
+        await cmdDialog.ExecuteAsync();
     }
 }

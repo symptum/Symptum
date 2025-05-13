@@ -69,7 +69,7 @@
           </local:ListEditorControl.ItemTemplate>
         </local:ListEditorControl>
       </Expander>
-      <Expander Header="Probable Cases" IsExpanded="True" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+      <Expander Header="Probable Cases" IsExpanded="False" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
         <local:ListEditorControl x:Name="pcLE">
           <local:ListEditorControl.ItemTemplate>
             <DataTemplate>

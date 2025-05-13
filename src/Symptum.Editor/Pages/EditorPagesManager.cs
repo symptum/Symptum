@@ -4,7 +4,7 @@ using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects.QuestionBanks;
 
-namespace Symptum.Editor.EditorPages;
+namespace Symptum.Editor.Pages;
 
 public class EditorPagesManager
 {
@@ -18,6 +18,8 @@ public class EditorPagesManager
     };
 
     public static ObservableCollection<IEditorPage> EditorPages { get; private set; } = [];
+
+    public static IEditorPage? CurrentEditor { get; set; }
 
     public static EventHandler<IEditorPage?> CurrentEditorChanged;
 

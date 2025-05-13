@@ -8,7 +8,7 @@ using Symptum.Editor.Controls;
 using Symptum.UI.Markdown;
 using Windows.System;
 
-namespace Symptum.Editor.EditorPages;
+namespace Symptum.Editor.Pages;
 
 public sealed partial class MarkdownEditorPage : EditorPageBase
 {

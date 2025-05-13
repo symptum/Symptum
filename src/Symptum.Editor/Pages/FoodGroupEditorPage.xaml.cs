@@ -1,29 +1,29 @@
 using System.Collections.ObjectModel;
 using Microsoft.UI.Xaml.Input;
-using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
 using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
+using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Extensions;
 using Symptum.Common.ProjectSystem;
 
-namespace Symptum.Editor.EditorPages;
+namespace Symptum.Editor.Pages;
 
-public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
+public sealed partial class FoodGroupEditorPage : EditorPageBase
 {
-    private ReferenceValueGroup? currentGroup;
-    private ReferenceValueParameterEditorDialog parameterEditorDialog = new();
+    private FoodGroup? currentGroup;
+    private FoodEditorDialog foodEditorDialog = new();
     private ResourcePropertiesEditorDialog propertyEditorDialog = new();
 
     private DeleteItemsDialog deleteEntriesDialog = new()
     {
-        Title = "Delete Parameter(s)?",
-        Content = "Do you want to delete the parameter(s)?\nOnce you delete you won't be able to restore."
+        Title = "Delete Food(s)?",
+        Content = "Do you want to delete the food(s)?\nOnce you delete you won't be able to restore."
     };
 
     private bool _isFiltered = false;
 
-    public ReferenceValueGroupEditorPage()
+    public FoodGroupEditorPage()
     {
         InitializeComponent();
         IconSource = DefaultIconSources.DataGridIconSource;
@@ -32,7 +32,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
 
     protected override void OnSetEditableContent(IResource? resource)
     {
-        if (resource is ReferenceValueGroup group)
+        if (resource is FoodGroup group)
             LoadGroup(group);
         else
             Reset();
@@ -50,13 +50,13 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         SetCountsText(true);
     }
 
-    private void LoadGroup(ReferenceValueGroup? group)
+    private void LoadGroup(FoodGroup? group)
     {
         if (group == null) return;
 
         currentGroup = group;
-        group.Parameters ??= [];
-        dataGrid.ItemsSource = group.Parameters;
+        group.Foods ??= [];
+        dataGrid.ItemsSource = group.Foods;
         dataGrid.IsEnabled = true;
         saveButton.IsEnabled = true;
         addButton.IsEnabled = true;
@@ -69,7 +69,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         if (clear)
             countTextBlock.Text = null;
         else
-            countTextBlock.Text = $"{currentGroup?.Parameters?.Count} Parameters, {dataGrid.SelectedItems.Count} Selected";
+            countTextBlock.Text = $"{currentGroup?.Foods?.Count} Foods, {dataGrid.SelectedItems.Count} Selected";
     }
 
     private bool _isBeingSaved = false;
@@ -100,12 +100,12 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     {
         if (currentGroup != null)
         {
-            parameterEditorDialog.XamlRoot = XamlRoot;
-            var result = await parameterEditorDialog.CreateAsync();
-            if (result == EditorResult.Create && parameterEditorDialog.Parameter is ReferenceValueParameter parameter)
+            foodEditorDialog.XamlRoot = XamlRoot;
+            var result = await foodEditorDialog.CreateAsync();
+            if (result == EditorResult.Create && foodEditorDialog.Food is Food food)
             {
-                currentGroup?.Parameters?.Add(parameter);
-                dataGrid.SelectedItem = parameter;
+                currentGroup?.Foods?.Add(food);
+                dataGrid.SelectedItem = food;
                 HasUnsavedChanges = true;
                 SetCountsText();
             }
@@ -123,17 +123,17 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         SetCountsText();
     }
 
-    private async void EditButton_Click(object sender, RoutedEventArgs e) => await EnterEditParameterAsync();
+    private async void EditButton_Click(object sender, RoutedEventArgs e) => await EnterEditFoodAsync();
 
-    private async void DataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e) => await EnterEditParameterAsync();
+    private async void DataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e) => await EnterEditFoodAsync();
 
-    private async Task EnterEditParameterAsync()
+    private async Task EnterEditFoodAsync()
     {
         if (dataGrid.SelectedItems.Count == 0) return;
-        if (dataGrid.SelectedItems[0] is ReferenceValueParameter parameter)
+        if (dataGrid.SelectedItems[0] is Food food)
         {
-            parameterEditorDialog.XamlRoot = XamlRoot;
-            var result = await parameterEditorDialog.EditAsync(parameter);
+            foodEditorDialog.XamlRoot = XamlRoot;
+            var result = await foodEditorDialog.EditAsync(food);
             if (result == EditorResult.Update || result == EditorResult.Save)
                 HasUnsavedChanges = true;
         }
@@ -142,16 +142,16 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     private void DuplicateButton_Click(object sender, RoutedEventArgs e)
     {
         if (dataGrid.SelectedItems.Count == 0
-            || currentGroup == null || currentGroup.Parameters == null) return;
-        List<ReferenceValueParameter> toDupe = [];
+            || currentGroup?.Foods == null) return;
+        List<Food> toDupe = [];
 
         foreach (var item in dataGrid.SelectedItems)
         {
-            if (item is ReferenceValueParameter parameter && currentGroup.Parameters.Contains(parameter))
-                toDupe.Add(parameter);
+            if (item is Food food && currentGroup.Foods.Contains(food))
+                toDupe.Add(food);
         }
         dataGrid.SelectedItems.Clear();
-        //toDupe.ForEach(x => currentGroup?.Parameters?.Add(x.Clone()));
+        //toDupe.ForEach(x => currentGroup?.Foods?.Add(x.Clone()));
         toDupe.Clear();
         HasUnsavedChanges = true;
         SetCountsText();
@@ -160,21 +160,21 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     private async void DeleteButton_Click(object sender, RoutedEventArgs e)
     {
         if (dataGrid.SelectedItems.Count == 0
-            || currentGroup?.Parameters == null) return;
+            || currentGroup?.Foods == null) return;
 
         deleteEntriesDialog.XamlRoot = XamlRoot;
         var result = await deleteEntriesDialog.ShowAsync();
         if (result == ContentDialogResult.Primary)
         {
-            List<ReferenceValueParameter> toDelete = [];
+            List<Food> toDelete = [];
 
             foreach (var item in dataGrid.SelectedItems)
             {
-                if (item is ReferenceValueParameter parameter && currentGroup.Parameters.Contains(parameter))
-                    toDelete.Add(parameter);
+                if (item is Food food && currentGroup.Foods.Contains(food))
+                    toDelete.Add(food);
             }
             dataGrid.SelectedItems.Clear();
-            toDelete.ForEach(x => currentGroup?.Parameters?.Remove(x));
+            toDelete.ForEach(x => currentGroup?.Foods?.Remove(x));
             toDelete.Clear();
             HasUnsavedChanges = true;
             SetCountsText();
@@ -187,7 +187,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     {
         List<string> columns =
         [
-            nameof(ReferenceValueParameter.Title),
+            nameof(Food.Title),
         ];
 
         findControl.FindContexts = columns;
@@ -203,7 +203,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     {
         var selectedItem = dataGrid.SelectedItem;
         if (currentGroup != null)
-            dataGrid.ItemsSource = currentGroup.Parameters;
+            dataGrid.ItemsSource = currentGroup.Foods;
         dataGrid.SelectedItem = selectedItem;
         findTextBlock.Text = string.Empty;
         OnFilter(false);
@@ -215,11 +215,11 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
             return;
         if (currentGroup != null)
         {
-            var parameters = new ObservableCollection<ReferenceValueParameter>(from parameter in currentGroup?.Parameters?.ToList()
-                                                                               where ReferenceValueParameterPropertyMatchValue(parameter, e)
-                                                                               select parameter);
-            dataGrid.ItemsSource = parameters;
-            findTextBlock.Text = $"Find results for '{e.QueryText}' in {e.Context}. Matching Parameters: {parameters.Count}";
+            var foods = new ObservableCollection<Food>(from food in currentGroup?.Foods?.ToList()
+                                                       where FoodPropertyMatchValue(food, e)
+                                                       select food);
+            dataGrid.ItemsSource = foods;
+            findTextBlock.Text = $"Find results for '{e.QueryText}' in {e.Context}. Matching Foods: {foods.Count}";
             OnFilter(true);
         }
     }
@@ -227,10 +227,10 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     private void OnFilter(bool filtered) => _isFiltered = filtered;
 
     // TODO: Implement Match Whole Word
-    private bool ReferenceValueParameterPropertyMatchValue(ReferenceValueParameter parameter, FindControlQuerySubmittedEventArgs e) => e.Context switch
+    private bool FoodPropertyMatchValue(Food food, FindControlQuerySubmittedEventArgs e) => e.Context switch
     {
-        nameof(ReferenceValueParameter.Title) =>
-            parameter?.Title?.Contains(e.QueryText, e.MatchCase, e.MatchWholeWord),
+        nameof(Food.Title) =>
+            food?.Title?.Contains(e.QueryText, e.MatchCase, e.MatchWholeWord),
         _ => false
     } ?? false;
 
@@ -238,11 +238,11 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
 
     private bool CanMoveUp() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != 0;
 
-    private bool CanMoveDown() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != currentGroup?.Parameters?.Count - 1;
+    private bool CanMoveDown() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != currentGroup?.Foods?.Count - 1;
 
-    private void MoveParameter(int oldIndex, int newIndex)
+    private void MoveFood(int oldIndex, int newIndex)
     {
-        currentGroup?.Parameters?.Move(oldIndex, newIndex);
+        currentGroup?.Foods?.Move(oldIndex, newIndex);
         dataGrid.SelectedItems.Clear();
         dataGrid.SelectedItem = null;
         dataGrid.SelectedIndex = newIndex;
@@ -252,34 +252,34 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         dataGrid.ScrollIntoView(dataGrid.SelectedItem, null);
     }
 
-    private void MoveParameterUp(bool toTop)
+    private void MoveFoodUp(bool toTop)
     {
         if (CanMoveUp())
         {
             int oldIndex = dataGrid.SelectedIndex;
             int newIndex = toTop ? 0 : Math.Max(dataGrid.SelectedIndex - 1, 0);
-            MoveParameter(oldIndex, newIndex);
+            MoveFood(oldIndex, newIndex);
         }
     }
 
-    private void MoveParameterDown(bool toBottom)
+    private void MoveFoodDown(bool toBottom)
     {
         if (CanMoveDown())
         {
             int oldIndex = dataGrid.SelectedIndex;
-            int last = currentGroup?.Parameters?.Count - 1 ?? 0;
+            int last = currentGroup?.Foods?.Count - 1 ?? 0;
             int newIndex = toBottom ? last : Math.Min(dataGrid.SelectedIndex + 1, last);
-            MoveParameter(oldIndex, newIndex);
+            MoveFood(oldIndex, newIndex);
         }
     }
 
-    private void MoveUpButton_Click(object sender, RoutedEventArgs e) => MoveParameterUp(false);
+    private void MoveUpButton_Click(object sender, RoutedEventArgs e) => MoveFoodUp(false);
 
-    private void MoveToTopButton_Click(object sender, RoutedEventArgs e) => MoveParameterUp(true);
+    private void MoveToTopButton_Click(object sender, RoutedEventArgs e) => MoveFoodUp(true);
 
-    private void MoveDownButton_Click(object sender, RoutedEventArgs e) => MoveParameterDown(false);
+    private void MoveDownButton_Click(object sender, RoutedEventArgs e) => MoveFoodDown(false);
 
-    private void MoveToBottomButton_Click(object sender, RoutedEventArgs e) => MoveParameterDown(true);
+    private void MoveToBottomButton_Click(object sender, RoutedEventArgs e) => MoveFoodDown(true);
 
     private void DataGrid_LoadingRow(object sender, CommunityToolkit.WinUI.UI.Controls.DataGridRowEventArgs e) => e.Row.Header = e.Row.GetIndex() + 1;
 }

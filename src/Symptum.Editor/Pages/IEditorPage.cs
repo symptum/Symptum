@@ -1,6 +1,6 @@
 using Symptum.Core.Management.Resources;
 
-namespace Symptum.Editor.EditorPages;
+namespace Symptum.Editor.Pages;
 
 public interface IEditorPage
 {

@@ -4,7 +4,7 @@
       xmlns:local="using:Symptum.Editor"
       xmlns:qbank="using:Symptum.Core.Subjects.QuestionBanks"
       xmlns:secontrols="using:Symptum.Editor.Controls"
-      xmlns:ed="using:Symptum.Editor.EditorPages"
+      xmlns:ed="using:Symptum.Editor.Pages"
       xmlns:res="using:Symptum.Core.Management.Resources"
       xmlns:win="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:controls="using:CommunityToolkit.WinUI.Controls"

@@ -8,7 +8,7 @@ using Symptum.Editor.Controls;
 using Symptum.Core.Extensions;
 using Symptum.Common.ProjectSystem;
 
-namespace Symptum.Editor.EditorPages;
+namespace Symptum.Editor.Pages;
 
 public sealed partial class QuestionTopicEditorPage : EditorPageBase
 {
@@ -99,10 +99,15 @@ public sealed partial class QuestionTopicEditorPage : EditorPageBase
 
     private async void AddButton_Click(object sender, RoutedEventArgs e)
     {
+        await CreateNewQuestionAsync();
+    }
+
+    public async Task CreateNewQuestionAsync(QuestionType? questionType = null)
+    {
         if (currentTopic != null)
         {
             questionEditorDialog.XamlRoot = XamlRoot;
-            var result = await questionEditorDialog.CreateAsync();
+            var result = await questionEditorDialog.CreateAsync(questionType);
             if (result == EditorResult.Create && questionEditorDialog.QuestionEntry is QuestionEntry entry)
             {
                 currentTopic?.Entries?.Add(entry);

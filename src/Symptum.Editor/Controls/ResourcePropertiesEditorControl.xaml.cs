@@ -5,7 +5,7 @@ using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
 using Symptum.Core.Subjects.QuestionBanks;
-using Symptum.Editor.EditorPages;
+using Symptum.Editor.Pages;
 using static Symptum.Core.Helpers.FileHelper;
 
 namespace Symptum.Editor.Controls;

@@ -7,7 +7,7 @@ using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
 using static Symptum.Core.Helpers.FileHelper;
 
-namespace Symptum.Editor.EditorPages;
+namespace Symptum.Editor.Pages;
 
 public sealed partial class ImageViewerPage : EditorPageBase
 {

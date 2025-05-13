@@ -1,7 +1,7 @@
 using Symptum.Common.ProjectSystem;
 using Symptum.Editor.Common;
 
-namespace Symptum.Editor.EditorPages;
+namespace Symptum.Editor.Pages;
 
 public sealed partial class DefaultEditorPage : EditorPageBase
 {
