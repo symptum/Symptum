@@ -19,7 +19,6 @@ public sealed partial class MainPage : Page
     private bool _collapsed = false;
     private readonly AddNewItemDialog addNewItemDialog = new();
     private readonly QuestionBankContextConfigureDialog contextConfigureDialog = new();
-    private readonly CommandPaletteDialog cmdDialog = new();
 
     private DeleteItemsDialog deleteResourceDialog = new()
     {
@@ -471,9 +470,8 @@ public sealed partial class MainPage : Page
         editorsTabView.SelectedIndex = tabToSelect;
     }
 
-    private async void CommandPalette_Click(object sender, RoutedEventArgs e)
+    private void CommandPalette_Click(object sender, RoutedEventArgs e)
     {
-        cmdDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
-        await cmdDialog.ExecuteAsync();
+        commandPalette.ShowPalette();
     }
 }

@@ -7,19 +7,8 @@
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
   mc:Ignorable="d" AllowFocusOnInteraction="True">
   <Grid Padding="8" BorderBrush="{ThemeResource TextControlElevationBorderFocusedBrush}"
-        BorderThickness="1,1,1,2" CornerRadius="{ThemeResource ControlCornerRadius}" Margin="4">
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="Auto" />
-    </Grid.RowDefinitions>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition />
-      <ColumnDefinition Width="Auto" />
-      <ColumnDefinition Width="Auto" />
-      <ColumnDefinition Width="Auto" />
-      <ColumnDefinition Width="Auto" />
-    </Grid.ColumnDefinitions>
+        BorderThickness="1,1,1,2" CornerRadius="{ThemeResource ControlCornerRadius}" Margin="4"
+        RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="Auto,Auto,Auto,Auto">
     <AutoSuggestBox x:Name="queryBox" Text="{x:Bind QueryText, Mode=TwoWay}" AllowFocusOnInteraction="True" QueryIcon="Find" Margin="4" PlaceholderText="Find" />
     <Button x:Name="fPrevButton" Visibility="{x:Bind FindPreviousEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
             Grid.Column="1" Margin="4" VerticalAlignment="Stretch"

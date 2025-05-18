@@ -102,12 +102,13 @@ public sealed partial class QuestionTopicEditorPage : EditorPageBase
         await CreateNewQuestionAsync();
     }
 
-    public async Task CreateNewQuestionAsync(QuestionType? questionType = null)
+    public async Task CreateNewQuestionAsync(QuestionType? questionType = null,
+        string? title = null, string? pages = null)
     {
         if (currentTopic != null)
         {
             questionEditorDialog.XamlRoot = XamlRoot;
-            var result = await questionEditorDialog.CreateAsync(questionType);
+            var result = await questionEditorDialog.CreateAsync(questionType, title, pages);
             if (result == EditorResult.Create && questionEditorDialog.QuestionEntry is QuestionEntry entry)
             {
                 currentTopic?.Entries?.Add(entry);

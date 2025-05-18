@@ -107,14 +107,19 @@ public sealed partial class QuestionEditorDialog : ContentDialog
 
     private bool _isCreate = false;
     private QuestionType _questionType = QuestionType.ShortNote;
+    private string _title = string.Empty;
+    private string _pages = string.Empty;
 
-    public async Task<EditorResult> CreateAsync(QuestionType? questionType = null)
+    public async Task<EditorResult> CreateAsync(QuestionType? questionType = null,
+        string? title = null, string? pages = null)
     {
         Title = "Add a New Question";
         PrimaryButtonText = "Add";
         QuestionEntry = null;
         _isCreate = true;
         if (questionType.HasValue) _questionType = questionType.Value;
+        if (title != null) _title = title;
+        if (pages != null) _pages = pages;
         await ShowAsync();
         return EditResult;
     }
@@ -134,6 +139,7 @@ public sealed partial class QuestionEditorDialog : ContentDialog
         if (QuestionEntry == null)
         {
             qtCB.SelectedItem = _questionType;
+            titleTB.Text = _title;
             // Load new question entry with context's subject code, selected year and book.
             scCB.SelectedItem = context?.SubjectCode;
             if (context?.LastInputDate is DateOnly date)
@@ -142,7 +148,7 @@ public sealed partial class QuestionEditorDialog : ContentDialog
                 CalculateImportance();
             }
             if (context?.PreferredBook is PresetBookReference bookReference)
-                references.Add(new() { Value = bookReference });
+                references.Add(new() { Value = bookReference with { Pages = _pages } });
 
             return;
         }

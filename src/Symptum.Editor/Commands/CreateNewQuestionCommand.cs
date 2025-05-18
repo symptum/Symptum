@@ -9,18 +9,33 @@ internal class CreateNewQuestionCommand : IEditorCommand
 
     public Type? EditorPageType { get; } = typeof(QuestionTopicEditorPage);
 
-    public async void Execute(EditorCommandOption? option = null)
+    public int NumberOfArguments => 3;
+
+    public async void Execute(IEnumerable<EditorCommandArgument>? args = null)
     {
-        if (EditorPagesManager.CurrentEditor is QuestionTopicEditorPage editorPage &&
-            option?.Parameter is QuestionType questionType)
+        if (EditorPagesManager.CurrentEditor is QuestionTopicEditorPage editorPage && args != null)
         {
-            await editorPage.CreateNewQuestionAsync(questionType);
+            if (args.ElementAt(0).Parameter is QuestionType questionType &&
+                args.ElementAt(1).Parameter is string title && 
+                args.ElementAt(2).Parameter is string pages)
+            {
+                await editorPage.CreateNewQuestionAsync(questionType, title, pages);
+            }   
         }
     }
 
-    public IEnumerable<EditorCommandOption> GetOptions(string? parameter = null)
+    public async Task<EditorCommandArgumentRequest?> GetRequestAsync(string? text = null, int argIndex = 0)
     {
-        return Enum.GetValues<QuestionType>()
-            .Select(questionType => new EditorCommandOption(questionType.ToString(), questionType));
+        return await Task.Run<EditorCommandArgumentRequest?>(() =>
+        {
+            return argIndex switch
+            {
+                0 => new("Question Type", EditorCommandArgumentRequestType.Option, Enum.GetValues<QuestionType>()
+           .Select(q => new EditorCommandArgument(q.ToString(), q))),
+                1 => new("Title", EditorCommandArgumentRequestType.Text),
+                2 => new("Pages", EditorCommandArgumentRequestType.Text),
+                _ => null
+            };
+        });
     }
 }

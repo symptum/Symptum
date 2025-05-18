@@ -9,24 +9,29 @@ internal class NavigateResourcesCommand : IEditorCommand
 
     public Type? EditorPageType { get; } = null;
 
-    public void Execute(EditorCommandOption? option = null)
+    public int NumberOfArguments => 1;
+
+    public void Execute(IEnumerable<EditorCommandArgument>? args = null)
     {
-        if (option?.Parameter is IResource resource)
+        if (args?.FirstOrDefault()?.Parameter is IResource resource)
         {
             EditorPagesManager.CreateOrOpenEditor(resource);
         }
     }
 
-    public IEnumerable<EditorCommandOption> GetOptions(string? parameter = null)
+    public async Task<EditorCommandArgumentRequest?> GetRequestAsync(string? text = null, int argIndex = 0)
     {
-        IEnumerable<IResource> matches = ResourceManager.Resources.Take(10);
-        if (!string.IsNullOrWhiteSpace(parameter))
+        return await Task.Run<EditorCommandArgumentRequest>(() =>
         {
-            matches = ResourceManager.Resources.Where(x => x.Title?.Contains(parameter,
-                StringComparison.InvariantCultureIgnoreCase) ?? false).Take(10);
-        }
+            IEnumerable<IResource> matches = ResourceManager.Resources.Take(10);
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                matches = ResourceManager.Resources.Where(x => x.Title?.Contains(text,
+                    StringComparison.InvariantCultureIgnoreCase) ?? false).Take(10);
+            }
 
-        IEnumerable<EditorCommandOption> options = matches.Select(resource => new EditorCommandOption(resource.Title, resource));
-        return options;
+            IEnumerable<EditorCommandArgument> args = matches.Select(resource => new EditorCommandArgument(resource.Title, resource));
+            return new("Select a resource", EditorCommandArgumentRequestType.Search, args);
+        });
     }
 }
