@@ -19,5 +19,6 @@ public enum SubjectList
     GeneralMedicine,
     GeneralSurgery,
     Pediatrics,
-    ObstetricsAndGynaecology
+    ObstetricsAndGynaecology,
+    Orthopaedics
 }

@@ -26,6 +26,7 @@ public class SubjectMap
             { "SU", SubjectList.GeneralSurgery },
             { "PE", SubjectList.Pediatrics },
             { "OG", SubjectList.ObstetricsAndGynaecology },
+            { "OR", SubjectList.Orthopaedics }
         };
 
         SubjectCodes = new(codes);
