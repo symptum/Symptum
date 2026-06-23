@@ -2,7 +2,7 @@ using Uno.UI.Hosting;
 
 namespace Symptum;
 
-public class Program
+internal class Program
 {
     [STAThread]
     public static void Main(string[] args)

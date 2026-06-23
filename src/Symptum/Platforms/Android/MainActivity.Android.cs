@@ -1,7 +1,11 @@
 using Android.App;
+using Android.Content.PM;
+using Android.OS;
 using Android.Views;
+using Android.Widget;
 
 namespace Symptum.Droid;
+
 [Activity(
     MainLauncher = true,
     ConfigurationChanges = global::Uno.UI.ActivityHelper.AllConfigChanges,
@@ -9,4 +13,11 @@ namespace Symptum.Droid;
 )]
 public class MainActivity : Microsoft.UI.Xaml.ApplicationActivity
 {
+    protected override void OnCreate(Bundle? savedInstanceState)
+    {
+        global::AndroidX.Core.SplashScreen.SplashScreen.InstallSplashScreen(this);
+
+        base.OnCreate(savedInstanceState);
+    }
+
 }

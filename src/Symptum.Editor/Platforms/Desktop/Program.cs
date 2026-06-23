@@ -1,7 +1,8 @@
 using Uno.UI.Hosting;
 
 namespace Symptum.Editor;
-public class Program
+
+internal class Program
 {
     [STAThread]
     public static void Main(string[] args)

@@ -51,7 +51,7 @@ jobs:
 
     # Create the app package by building and packaging the project
     - name: Create the app package
-      run: msbuild $env:Project_File /p:TargetFramework=net9.0-windows10.0.22621 /p:Configuration=Release /p:Platform=x64 /p:PublishSignedPackage=true /p:PackageCertificateKeyFile=$env:Project_Cert /p:AppxPackageDir="Packages\\"
+      run: msbuild $env:Project_File /p:TargetFramework=net10.0-windows10.0.22621 /p:Configuration=Release /p:Platform=x64 /p:PublishSignedPackage=true /p:PackageCertificateKeyFile=$env:Project_Cert /p:AppxPackageDir="Packages\\"
 
     # Remove the pfx
     - name: Remove the pfx

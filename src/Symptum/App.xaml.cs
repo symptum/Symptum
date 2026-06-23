@@ -33,7 +33,7 @@ public partial class App : Application
 #endif
 
         await Bootstrapper.InitializeAsync();
-        await ResourceHelper.SelectWorkFolderAsync(await StorageFolder.GetFolderFromPathAsync("E:\\BUS\\Temp\\T"));
+        // await ResourceHelper.SelectWorkFolderAsync(await StorageFolder.GetFolderFromPathAsync(""));
         await ResourceHelper.LoadResourcesFromWorkPathAsync();
 
         // Do not repeat app initialization when the Window already has content,
