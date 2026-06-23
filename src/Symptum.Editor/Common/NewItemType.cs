@@ -3,7 +3,6 @@ using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
-using Symptum.Core.Subjects.QuestionBanks;
 
 namespace Symptum.Editor.Common;
 
@@ -34,9 +33,6 @@ public class NewItemType
         new("Markdown Category", typeof(MarkdownCategoryResource), "Common"),
         new("Image File", typeof(ImageFileResource), "Common"),
         new("Markdown File", typeof(MarkdownFileResource), "Common"),
-        new("Question Bank", typeof(QuestionBank), "Question Banks"),
-        new("Question Bank Paper", typeof(QuestionBankPaper), "Question Banks"),
-        new("Question Bank Topic", typeof(QuestionBankTopic), "Question Banks"),
         new("Reference Values Package", typeof(ReferenceValuesPackage), "Reference Values"),
         new("Reference Value Family", typeof(ReferenceValueFamily), "Reference Values"),
         new("Reference Value Group", typeof(ReferenceValueGroup), "Reference Values"),

@@ -11,14 +11,7 @@ public abstract record ReferenceBase
 
         if (!string.IsNullOrEmpty(text))
         {
-            if (text.StartsWith("@book?"))
-            {
-                if (PresetBookReference.TryParse(text, out PresetBookReference? bookReference))
-                {
-                    parsed = true;
-                    reference = bookReference;
-                }
-            }
+           
         }
 
         return parsed;

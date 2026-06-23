@@ -4,7 +4,6 @@ using Symptum.Core.Data;
 using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
-using Symptum.Core.Subjects.QuestionBanks;
 using Symptum.Editor.Pages;
 using static Symptum.Core.Helpers.FileHelper;
 
@@ -147,13 +146,12 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
             metadataExpander.Visibility = Visibility.Collapsed;
         }
 
-        if (resource is Subject or QuestionBank)
+        if (resource is Subject)
         {
             scCB.Visibility = Visibility.Visible;
             scCB.SelectedItem = resource switch
             {
                 Subject sub => sub.SubjectCode,
-                QuestionBank qb => qb.SubjectCode,
                 _ => SubjectList.None
             };
         }
@@ -196,8 +194,6 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
 
         if (resource is Subject sub)
             sub.SubjectCode = (SubjectList)scCB.SelectedItem;
-        else if (resource is QuestionBank qb)
-            qb.SubjectCode = (SubjectList)scCB.SelectedItem;
     }
 
     private void OpenParentResource() => OpenResource(Resource?.ParentResource);

@@ -1,12 +1,9 @@
 using Symptum.Core.Management.Resources;
 using Symptum.Common.Helpers;
-using Symptum.Editor.Helpers;
 using Symptum.Editor.Controls;
 using Symptum.Editor.Pages;
 using Windows.Storage.Pickers;
 using Windows.System;
-using System.Text;
-using Symptum.Core.Subjects.QuestionBanks;
 using Symptum.Core.Management.Deployment;
 using static Symptum.Core.Helpers.FileHelper;
 using Microsoft.UI.Xaml.Input;
@@ -18,7 +15,6 @@ public sealed partial class MainPage : Page
 {
     private bool _collapsed = false;
     private readonly AddNewItemDialog addNewItemDialog = new();
-    private readonly QuestionBankContextConfigureDialog contextConfigureDialog = new();
 
     private DeleteItemsDialog deleteResourceDialog = new()
     {
@@ -133,106 +129,6 @@ public sealed partial class MainPage : Page
             _collapsed = collapsed;
             VisualStateManager.GoToState(this, collapsed || !ShowResourcesPane ? "MinimalState" : "DefaultState", true);
         }
-    }
-
-    private async void Markdown_Click(object sender, RoutedEventArgs e)
-    {
-        //Dictionary<int, Dictionary<QuestionBankTopic, int>> totalW = [];
-        //List<QuestionBankTopic> topics = [];
-        //foreach (var resource in ResourceManager.Resources)
-        //{
-        //    if (resource is QuestionBankTopic topic)
-        //    {
-        //        var weightages = topic.GenerateWeightage();
-        //        foreach (var weightage in weightages)
-        //        {
-        //            var year = weightage.Key;
-        //            if (totalW.TryGetValue(year, out Dictionary<QuestionBankTopic, int>? values))
-        //            {
-        //                values.Add(topic, weightage.Value);
-        //            }
-        //            else totalW.Add(year, new() { { topic, weightage.Value } });
-        //        }
-        //        topics.Add(topic);
-        //    }
-        //}
-
-        //using var writer = new StringWriter();
-        //using var csvW = new CsvWriter(writer, CultureInfo.InvariantCulture);
-
-        //csvW.WriteField("Year");
-        //foreach (var topic in topics)
-        //{
-        //    csvW.WriteField(topic.Title);
-        //}
-        //csvW.NextRecord();
-        ////if (Entries != null)
-        ////{
-        ////    foreach (var entry in Entries)
-        ////    {
-        ////        csvW.WriteRecord(entry);
-        ////        csvW.NextRecord();
-        ////    }
-        ////}
-
-        //foreach (var w in totalW.OrderBy(x => x.Key))
-        //{
-        //    csvW.WriteField(w.Key);
-        //    if (w.Value is Dictionary<QuestionBankTopic, int> d)
-        //    {
-        //        foreach (var topic in topics)
-        //        {
-        //            int value = 0;
-        //            foreach (var w2 in d)
-        //            {
-        //                if (w2.Key == topic)
-        //                    value = w2.Value;
-        //            }
-        //            csvW.WriteField(value);
-        //        }
-        //    }
-        //    csvW.NextRecord();
-        //    //if (w.Value is Dictionary<QuestionBankTopic, int> d)
-        //    //{
-        //    //    foreach (var w2 in d)
-        //    //    {
-        //    //    }
-        //    //}
-        //}
-
-        //System.Diagnostics.Debug.WriteLine(writer.ToString());
-
-        //return;
-
-        if (_isBeingSaved) return;
-
-        _isBeingSaved = true;
-
-        StringBuilder mdBuilder = new();
-        foreach (var resource in ResourceManager.Resources)
-        {
-            if (resource is QuestionBankTopic topic)
-                MarkdownHelper.GenerateMarkdownForQuestionBankTopic(topic, ref mdBuilder);
-        }
-        var fileSavePicker = new FileSavePicker
-        {
-            SuggestedFileName = string.Empty
-        };
-        fileSavePicker.FileTypeChoices.Add("Markdown File", [MarkdownFileExtension]);
-
-#if WINDOWS && !HAS_UNO
-        WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, WindowHelper.WindowHandle);
-#endif
-        StorageFile saveFile = await fileSavePicker.PickSaveFileAsync();
-        if (saveFile != null)
-        {
-            CachedFileManager.DeferUpdates(saveFile);
-
-            await FileIO.WriteTextAsync(saveFile, mdBuilder.ToString());
-
-            await CachedFileManager.CompleteUpdatesAsync(saveFile);
-        }
-        _isBeingSaved = false;
     }
 
     private void EditorsTabView_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
@@ -358,12 +254,6 @@ public sealed partial class MainPage : Page
     private void Exit_Click(object sender, RoutedEventArgs e)
     {
         Application.Current.Exit();
-    }
-
-    private async void ConfigureContext_Click(object sender, RoutedEventArgs e)
-    {
-        contextConfigureDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
-        await contextConfigureDialog.ShowAsync();
     }
 
     private void MultiSelectButton_Click(object sender, RoutedEventArgs e)

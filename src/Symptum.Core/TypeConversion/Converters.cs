@@ -7,29 +7,23 @@ using Symptum.Core.Data.Bibliography;
 using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Helpers;
-using Symptum.Core.Subjects.QuestionBanks;
 
 namespace Symptum.Core.TypeConversion;
 
 // These are not named as "...ToStringConverter" because they are used for CSV and are essentially converting to and from string.
 // Another reason is to differentiate them from XAML Type Converters used for Data Binding. Where there is a convention of adding "...ToStringConverter" to their names.
 
-#region Question Bank
 
-public class QuestionIdConverter : DefaultTypeConverter
+#region Reference Values
+
+public class ReferenceValueEntryListConverter : ListConverter<ReferenceValueEntry>
 {
-    public override object? ConvertFromString(string? text, IReaderRow row, MemberMapData memberMapData)
-    {
-        return QuestionId.Parse(text);
-    }
-
-    public override string? ConvertToString(object? value, IWriterRow row, MemberMapData memberMapData)
-    {
-        if (value is QuestionId id)
-            return id.ToString();
-        else return string.Empty;
-    }
+    public override void ValidateData(string text, List<ReferenceValueEntry> list) => ListToStringConversion.ValidateDataForReferenceValueEntry(text, list);
 }
+
+#endregion
+
+#region Common
 
 public class DateOnlyListConverter : ListConverter<DateOnly>
 {
@@ -47,19 +41,6 @@ public class StringListConverter : ListConverter<string>
 {
     public override void ValidateData(string text, List<string> list) => ListToStringConversion.ValidateDataForString(text, list);
 }
-
-#endregion
-
-#region Reference Values
-
-public class ReferenceValueEntryListConverter : ListConverter<ReferenceValueEntry>
-{
-    public override void ValidateData(string text, List<ReferenceValueEntry> list) => ListToStringConversion.ValidateDataForReferenceValueEntry(text, list);
-}
-
-#endregion
-
-#region Common
 
 public class QuantityCsvConverter : DefaultTypeConverter
 {

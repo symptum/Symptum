@@ -8,7 +8,6 @@ public class EditorCommandsManager
 
     static EditorCommandsManager()
     {
-        Register(new CreateNewQuestionCommand());
     }
 
     public static IEditorCommand DefaultCommand { get => _defaultCommand; }

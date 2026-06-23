@@ -5,7 +5,6 @@
   xmlns:local="using:Symptum.Editor.Controls"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:qb="using:Symptum.Core.Subjects.QuestionBanks"
   xmlns:res="using:Symptum.Core.Management.Resources"
   xmlns:data="using:Symptum.Core.Data"
   xmlns:ui="using:CommunityToolkit.WinUI"

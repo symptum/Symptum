@@ -1,6 +1,5 @@
 using Symptum.Common;
 using Symptum.Common.Helpers;
-using Uno.Resizetizer;
 
 namespace Symptum;
 public partial class App : Application

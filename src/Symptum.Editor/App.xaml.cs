@@ -1,7 +1,6 @@
 using Symptum.Common;
 using Symptum.Common.Helpers;
 using Symptum.Core.Management.Deployment;
-using Uno.Resizetizer;
 
 namespace Symptum.Editor;
 

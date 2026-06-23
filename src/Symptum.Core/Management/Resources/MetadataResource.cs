@@ -1,13 +1,11 @@
 using System.Text.Json.Serialization;
 using Symptum.Core.Management.Navigation;
 using Symptum.Core.Serialization;
-using Symptum.Core.Subjects.QuestionBanks;
 
 namespace Symptum.Core.Management.Resources;
 
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type",
     UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor)]
-[JsonDerivedType(typeof(QuestionBank), "questionBank")]
 [JsonDerivedType(typeof(CategoryResource), "category")]
 [JsonDerivedType(typeof(ImageCategoryResource), "imageCategory")]
 [JsonDerivedType(typeof(MarkdownCategoryResource), "markdownCategory")]

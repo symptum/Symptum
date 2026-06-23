@@ -4,7 +4,6 @@ public enum NavigationType
 {
     TopLevel,
     SubLevel,
-    QuestionBank,
     ListOfContents,
     MarkdownContent
 }
