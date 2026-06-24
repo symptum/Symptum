@@ -33,11 +33,9 @@ internal class HtmlBlockElement : IAddChild
 
     private void StyleBlock()
     {
-        switch (_htmlNode.Name.ToLower())
+        if (string.Equals(_htmlNode.Name, "address", StringComparison.OrdinalIgnoreCase))
         {
-            case "address":
-                _paragraph.TextBlockStyle = _config.Themes.AddressBlockTextBlockStyle;
-                break;
+            _paragraph.TextBlockStyle = _config.Themes.AddressBlockTextBlockStyle;
         }
     }
 }

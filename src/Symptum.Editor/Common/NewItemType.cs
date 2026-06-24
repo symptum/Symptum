@@ -1,5 +1,4 @@
 using Symptum.Common.ProjectSystem;
-using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
@@ -36,8 +35,5 @@ public class NewItemType
         new("Reference Values Package", typeof(ReferenceValuesPackage), "Reference Values"),
         new("Reference Value Family", typeof(ReferenceValueFamily), "Reference Values"),
         new("Reference Value Group", typeof(ReferenceValueGroup), "Reference Values"),
-        new("Nutrition Package", typeof(NutritionPackage), "Nutrition"),
-        new("Nutrition Data Set", typeof(NutritionDataSet), "Nutrition"),
-        new("Food Group", typeof(FoodGroup), "Nutrition"),
     ];
 }

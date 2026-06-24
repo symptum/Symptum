@@ -156,18 +156,24 @@ public abstract class ResourceBase : ObservableObject, IResource
         }
     }
 
+    bool _isObservingCollection = false;
+
     protected void UnobserveCollection<T>(ObservableCollection<T>? collection) where T : IResource
     {
         if (hasInitialized)
             childrenResources?.Clear();
         if (collection != null)
+        {
             collection.CollectionChanged -= Collection_Changed;
+            _isObservingCollection = false;
+        }
     }
 
     protected void ObserveCollection<T>(ObservableCollection<T> collection) where T : IResource
     {
-        if (collection == null) return;
+        if (collection == null || _isObservingCollection) return;
         collection.CollectionChanged += Collection_Changed;
+        _isObservingCollection = true;
     }
 
     private void Collection_Changed(object? sender, NotifyCollectionChangedEventArgs e)

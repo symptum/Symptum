@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using CsvHelper;
-using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Data.ReferenceValues;
 
 namespace Symptum.Core.Helpers;
@@ -9,7 +8,6 @@ namespace Symptum.Core.Helpers;
 public static class CsvResourceHelper
 {
     private static readonly string?[]? hRVP;
-    private static readonly string?[]? hFood;
 
     static CsvResourceHelper()
     {
@@ -18,8 +16,6 @@ public static class CsvResourceHelper
 
         csvW.WriteHeader<ReferenceValueParameter>();
         hRVP = csvW.HeaderRecord;
-        csvW.WriteHeader<Food>();
-        hFood = csvW.HeaderRecord;
     }
 
     public static bool TryGetCsvResourceType(string csv, [NotNullWhen(true)] out Type? csvType)
@@ -39,11 +35,6 @@ public static class CsvResourceHelper
                 if (header.SequenceEqual(hRVP))
                 {
                     csvType = typeof(ReferenceValueGroup);
-                    return true;
-                }
-                else if (header.SequenceEqual(hFood))
-                {
-                    csvType = typeof(FoodGroup);
                     return true;
                 }
             }

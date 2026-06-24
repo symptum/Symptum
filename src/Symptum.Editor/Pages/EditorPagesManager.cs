@@ -1,16 +1,20 @@
 using System.Collections.ObjectModel;
-using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
+using Symptum.Editor.Controls;
 
 namespace Symptum.Editor.Pages;
 
 public class EditorPagesManager
 {
+    private static readonly Dictionary<Type, IEditorDialog> _dialogInstances = new()
+    {
+        { typeof(ResourcePropertiesEditorDialog), new ResourcePropertiesEditorDialog() },
+    };
+
     private static readonly Dictionary<Type, Type> _editorTypeMap = new()
     {
         { typeof(ReferenceValueGroup), typeof(ReferenceValueGroupEditorPage) },
-        { typeof(FoodGroup), typeof(FoodGroupEditorPage) },
         { typeof(MarkdownFileResource), typeof(MarkdownEditorPage) },
         { typeof(ImageFileResource), typeof(ImageViewerPage) }
     };
@@ -85,5 +89,24 @@ public class EditorPagesManager
         {
             editor.UpdateContent();
         }
+    }
+
+    public static T? CreateOrGetDialog<T>() where T : class, IEditorDialog
+    {
+        if (_dialogInstances.TryGetValue(typeof(T), out IEditorDialog? dialogInstance))
+        {
+            return dialogInstance as T;
+        }
+        else
+        {
+            dialogInstance = Activator.CreateInstance(typeof(T)) as IEditorDialog;
+            if (dialogInstance != null)
+            {
+                _dialogInstances[typeof(T)] = dialogInstance;
+                return dialogInstance as T;
+            }
+        }
+
+        return null;
     }
 }

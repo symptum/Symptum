@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Symptum.Editor.Controls;
 
-public sealed partial class MarkdownEditorInsertTableDialog : ContentDialog
+public sealed partial class MarkdownEditorInsertTableDialog : ContentDialog, IEditorDialog
 {
     public EditorResult EditResult { get; private set; } = EditorResult.None;
 

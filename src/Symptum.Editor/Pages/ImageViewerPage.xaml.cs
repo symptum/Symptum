@@ -12,7 +12,7 @@ namespace Symptum.Editor.Pages;
 public sealed partial class ImageViewerPage : EditorPageBase
 {
     private ImageFileResource? _imageFileResource;
-    private ResourcePropertiesEditorDialog propertyEditorDialog = new();
+    private ResourcePropertiesEditorDialog? propertyEditorDialog;
     private List<string> zoomLevels =
     [
         "800%",
@@ -35,11 +35,12 @@ public sealed partial class ImageViewerPage : EditorPageBase
         IconSource = DefaultIconSources.PhotoIconSource;
         zoomCB.ItemsSource = zoomLevels;
         Loaded += ImageViewerPage_Loaded;
+        Unloaded += ImageViewerPage_Unloaded;
     }
 
     private async void PropsButton_Click(object sender, RoutedEventArgs e)
     {
-        if (_imageFileResource != null)
+        if (_imageFileResource != null && propertyEditorDialog != null)
         {
             propertyEditorDialog.XamlRoot = XamlRoot;
             var result = await propertyEditorDialog.EditAsync(_imageFileResource);
@@ -50,13 +51,22 @@ public sealed partial class ImageViewerPage : EditorPageBase
 
     private bool _loaded = false;
 
+    private void ImageViewerPage_Unloaded(object sender, RoutedEventArgs e)
+    {
+        _loaded = false;
+        imagePreview.Source = null;
+        _imageFileResource = null;
+        propertyEditorDialog = null;
+    }
+
     private async void ImageViewerPage_Loaded(object sender, RoutedEventArgs e)
     {
+        propertyEditorDialog = EditorPagesManager.CreateOrGetDialog<ResourcePropertiesEditorDialog>();
         if (_loaded || EditableContent is not ImageFileResource imageFileResource) return;
 
         _imageFileResource = imageFileResource;
 
-        var stream = await ResourceHelper.OpenFileForReadAsync(imageFileResource);
+        using var stream = await ResourceHelper.OpenFileForReadAsync(imageFileResource);
         if (stream == null) return;
 
         Vector2 availableSize = scrollViewer.ActualSize;

@@ -43,7 +43,7 @@ public class NavigationManager
     {
         INavigable? navigable = GetNavigationInfoForUri(uri);
 
-        if (navigable == null && ResourceManager.TryGetResourceFromUri(uri, out var resource) && resource is INavigable navResource)
+        if (navigable == null && ResourceManager.TryGetResourceByUri(uri, out var resource) && resource is INavigable navResource)
         {
             navigable = navResource;
         }

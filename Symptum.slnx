@@ -19,9 +19,7 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Symptum.Common/Symptum.Common.csproj" />
-    <Project Path="src/Symptum.Core.SourceGenerators/Symptum.Core.SourceGenerators.csproj" />
     <Project Path="src/Symptum.Core/Symptum.Core.csproj" />
-    <Project Path="src/Symptum.Editor.SourceGenerators/Symptum.Editor.SourceGenerators.csproj" />
     <Project Path="src/Symptum.Editor/Symptum.Editor.csproj">
       <Deploy />
     </Project>

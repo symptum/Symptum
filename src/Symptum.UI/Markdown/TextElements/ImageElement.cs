@@ -22,6 +22,7 @@ public class ImageElement : IAddChild
 
     private TextBlock _altText;
     private static readonly Dictionary<Uri, ImageSource> _imageCache = [];
+    private static readonly HttpClient client = new();
 
     public STextElement TextElement => _container;
 
@@ -131,7 +132,6 @@ public class ImageElement : IAddChild
                 }
                 else
                 {
-                    HttpClient client = new();
 //#if __WASM__
 //                    client.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
 //                    client.DefaultRequestHeaders.Add("Access-Control-Allow-Methods", "*");

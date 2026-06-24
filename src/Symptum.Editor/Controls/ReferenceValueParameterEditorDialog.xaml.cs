@@ -3,7 +3,7 @@ using Symptum.Core.Data.ReferenceValues;
 
 namespace Symptum.Editor.Controls;
 
-public sealed partial class ReferenceValueParameterEditorDialog : ContentDialog
+public sealed partial class ReferenceValueParameterEditorDialog : ContentDialog, IEditorDialog
 {
     public ReferenceValueParameter? Parameter { get; private set; }
 

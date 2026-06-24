@@ -20,12 +20,12 @@ internal class HtmlWriter
             else if (node.NodeType == HtmlNodeType.Element && elementType == HtmlElementType.Inline)
             {
                 // detect br here
-                var inlineTagName = node.Name.ToLower();
-                if (inlineTagName == "br")
+                var inlineTagName = node.Name;
+                if (string.Equals(inlineTagName, "br", StringComparison.OrdinalIgnoreCase))
                 {
                     renderer.WriteInline(new LineBreakElement());
                 }
-                else if (inlineTagName == "a")
+                else if (string.Equals(inlineTagName, "a", StringComparison.OrdinalIgnoreCase))
                 {
                     IAddChild hyperLink;
                     if (node.ChildNodes.Any(n => n.Name != "#text"))
@@ -40,7 +40,7 @@ internal class HtmlWriter
                     WriteHtml(renderer, node.ChildNodes);
                     renderer.Pop();
                 }
-                else if (inlineTagName == "img")
+                else if (string.Equals(inlineTagName, "img", StringComparison.OrdinalIgnoreCase))
                 {
                     var image = new ImageElement(node, renderer.Configuration);
                     renderer.WriteInline(image);

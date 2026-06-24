@@ -27,7 +27,7 @@ public class ImportsHandler
                 var ids = id.Split('?');
                 string resId = ids[0];
                 string impId = ids[1];
-                if (ResourceManager.TryGetResourceFromId(resId, out IResource? resource)
+                if (ResourceManager.TryGetResourceById(resId, out IResource? resource)
                     && resource is MarkdownFileResource markdownFileResource
                     && !string.IsNullOrEmpty(markdownFileResource.Markdown))
                 {

@@ -21,7 +21,6 @@
       <converters:DateOnlyListToStringConverter x:Key="DateOnlyListToStringConverter" />
       <converters:StringListToStringConverter x:Key="StringListToStringConverter" />
       <converters:ReferenceValueEntryListToStringConverter x:Key="ReferenceValueEntryListToStringConverter" />
-      <converters:FoodMeasureListToStringConverter x:Key="FoodMeasureListToStringConverter" />
       <converters:NumericalValueToStringConverter x:Key="NumericalValueToStringConverter"/>
       <converters:DateOnlyToDateTimeOffsetConverter x:Key="DateOnlyToDateTimeOffsetConverter" />
       <converters:UriToStringConverter x:Key="UriToStringConverter" />

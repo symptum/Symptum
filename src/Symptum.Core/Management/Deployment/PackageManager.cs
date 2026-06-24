@@ -1,5 +1,5 @@
+using System.Collections.Concurrent;
 using Symptum.Core.Management.Resources;
-using System.Collections.ObjectModel;
 
 namespace Symptum.Core.Management.Deployment;
 
@@ -7,106 +7,95 @@ public class PackageManager
 {
     private static Func<string, Task<IPackageResource?>>? _loadPackageCallback;
 
-    public static void Initialize(Func<string, Task<IPackageResource?>> loadPackageCallback) => _loadPackageCallback = loadPackageCallback;
+    public static void Initialize(Func<string, Task<IPackageResource?>> loadPackageCallback) =>
+        Interlocked.Exchange(ref _loadPackageCallback, loadPackageCallback);
 
     #region Dependency Resolution
 
-    private static readonly Dictionary<string, List<TaskCompletionSource<IPackageResource?>>> dependencyLinks = [];
+    private static readonly ConcurrentDictionary<string, TaskCompletionSource<IPackageResource?>> dependencyLinks = new();
 
-    // TODO: Make thread safe
     public static void ResolveDependencies(IPackageResource? package)
     {
-        if (package != null && package.DependencyIds != null)
+        if (package == null || package.DependencyIds == null || package.DependencyIds.Count == 0)
+            return;
+
+        package.Dependencies ??= [];
+
+        foreach (var dependencyId in package.DependencyIds)
         {
-            ObservableCollection<IPackageResource>? dependencies = [];
-            package.Dependencies = dependencies;
-            foreach (var dependencyId in package.DependencyIds)
+            _ = ResolveDependencyAsync(package, dependencyId);
+        }
+    }
+
+    private static async Task ResolveDependencyAsync(IPackageResource? package, string dependencyId)
+    {
+        IPackageResource? dependency = await GetDependencyAsync(dependencyId);
+        if (dependency == null)
+            return;
+
+        if (package?.Dependencies is IList<IPackageResource> dependencies)
+        {
+            lock (dependencies)
             {
-                ResolveDependencyAsync(package, dependencyId);
+                if (!dependencies.Contains(dependency))
+                    dependencies.Add(dependency);
             }
         }
     }
 
-    private static async void ResolveDependencyAsync(IPackageResource? package, string dependencyId)
+    private static Task<IPackageResource?> GetDependencyAsync(string id)
     {
-        IPackageResource? dependency = await GetDependencyAsync(dependencyId);
-        if (dependency != null)
-            package?.Dependencies?.Add(dependency);
-    }
-
-    private static async Task<IPackageResource?> GetDependencyAsync(string id)
-    {
-        TaskCompletionSource<IPackageResource?> taskCompletionSource = new();
-        if (!dependencyLinks.TryGetValue(id, out List<TaskCompletionSource<IPackageResource?>>? tasks))
-        {
-            tasks = [];
-            dependencyLinks.Add(id, tasks);
-        }
-
-        tasks.Add(taskCompletionSource);
-        var package = await taskCompletionSource.Task;
-        return package;
+        var taskCompletionSource = dependencyLinks.GetOrAdd(id, _ => new TaskCompletionSource<IPackageResource?>(TaskCreationOptions.RunContinuationsAsynchronously));
+        return taskCompletionSource.Task;
     }
 
     // Only need to call this method after loading all the primary local packages.
     // Then it will be called again automatically after loading the dependencies.
     public static void StartDependencyResolution()
     {
-        List<string> finishedIds = [];
-        foreach (var pair in dependencyLinks)
+        var pendingIds = dependencyLinks.Keys.ToArray();
+        foreach (var id in pendingIds)
         {
-            var id = pair.Key;
-            var tasks = pair.Value;
             if (ResourceManager.Resources.FirstOrDefault(x => x.Id == id) is IPackageResource dependency)
             {
-                foreach (var task in tasks)
+                if (dependencyLinks.TryRemove(id, out var taskCompletionSource))
                 {
-                    task.SetResult(dependency);
+                    taskCompletionSource.TrySetResult(dependency);
                 }
-                tasks.Clear();
-                finishedIds.Add(id);
             }
             else
-                LoadDependencyAsync(id);
+            {
+                _ = LoadDependencyAsync(id);
+            }
         }
-        foreach (var id in finishedIds)
-        {
-            dependencyLinks.Remove(id);
-        }
-        finishedIds.Clear();
     }
 
-    // idk what or how this works, made sense to me
     private static int loadWaits = 0;
 
-    private static async void LoadDependencyAsync(string id)
+    private static async Task LoadDependencyAsync(string id)
     {
-        if (_loadPackageCallback == null) return;
+        var loadPackageCallback = Volatile.Read(ref _loadPackageCallback);
+        if (loadPackageCallback == null)
+            return;
 
-        loadWaits++;
+        Interlocked.Increment(ref loadWaits);
 
         // This will call Symptum.Common.Helpers.PackageHelper.LoadPackageAsync(string packageId)
         // PackageHelper will be responsible for downloading, caching or loading a package from cache
-        var package = await _loadPackageCallback(id);
+        var package = await loadPackageCallback(id);
         if (package != null)
         {
-            // Link the newly loaded dependencies
-            if (dependencyLinks.TryGetValue(id, out var tasks))
+            if (dependencyLinks.TryRemove(id, out var taskCompletionSource))
             {
-                foreach (var task in tasks)
-                {
-                    task.SetResult(package);
-                }
-                dependencyLinks.Remove(id);
+                taskCompletionSource.TrySetResult(package);
             }
-            ResolveDependencies(package);
 
-            loadWaits--;
+            ResolveDependencies(package);
         }
-        if (loadWaits == 0) // Resolve dependencies of the newly loaded packages after loading all the packages
+
+        if (Interlocked.Decrement(ref loadWaits) == 0)
         {
             StartDependencyResolution();
-            _ = id;
         }
     }
 

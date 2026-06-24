@@ -2,7 +2,7 @@ using Symptum.Core.Management.Resources;
 
 namespace Symptum.Editor.Controls;
 
-public sealed partial class ResourcePropertiesEditorDialog : ContentDialog
+public sealed partial class ResourcePropertiesEditorDialog : ContentDialog, IEditorDialog
 {
     public IResource? Resource { get; private set; }
 

@@ -12,10 +12,10 @@ namespace Symptum.Editor.Pages;
 public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
 {
     private ReferenceValueGroup? currentGroup;
-    private ReferenceValueParameterEditorDialog parameterEditorDialog = new();
-    private ResourcePropertiesEditorDialog propertyEditorDialog = new();
+    private ReferenceValueParameterEditorDialog? parameterEditorDialog;
+    private ResourcePropertiesEditorDialog? propertyEditorDialog;
 
-    private DeleteItemsDialog deleteEntriesDialog = new()
+    private static readonly DeleteItemsDialog deleteEntriesDialog = new()
     {
         Title = "Delete Parameter(s)?",
         Content = "Do you want to delete the parameter(s)?\nOnce you delete you won't be able to restore."
@@ -26,8 +26,23 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     public ReferenceValueGroupEditorPage()
     {
         InitializeComponent();
+        Loaded += ReferenceValueGroupEditorPage_Loaded;
+        Unloaded += ReferenceValueGroupEditorPage_Unloaded;
+    }
+
+    private void ReferenceValueGroupEditorPage_Loaded(object sender, RoutedEventArgs e)
+    {
         IconSource = DefaultIconSources.TableViewIconSource;
+        parameterEditorDialog = EditorPagesManager.CreateOrGetDialog<ReferenceValueParameterEditorDialog>();
+        propertyEditorDialog = EditorPagesManager.CreateOrGetDialog<ResourcePropertiesEditorDialog>();
         SetupFindControl();
+    }
+
+    private void ReferenceValueGroupEditorPage_Unloaded(object sender, RoutedEventArgs e)
+    {
+        currentGroup = null;
+        parameterEditorDialog = null;
+        propertyEditorDialog = null;
     }
 
     protected override void OnSetEditableContent(IResource? resource)
@@ -87,7 +102,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
 
     private async void PropsButton_Click(object sender, RoutedEventArgs e)
     {
-        if (currentGroup != null)
+        if (currentGroup != null && propertyEditorDialog != null)
         {
             propertyEditorDialog.XamlRoot = XamlRoot;
             var result = await propertyEditorDialog.EditAsync(currentGroup);
@@ -98,7 +113,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
 
     private async void AddButton_Click(object sender, RoutedEventArgs e)
     {
-        if (currentGroup != null)
+        if (currentGroup != null && parameterEditorDialog != null)
         {
             parameterEditorDialog.XamlRoot = XamlRoot;
             var result = await parameterEditorDialog.CreateAsync();
@@ -130,7 +145,8 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     private async Task EnterEditParameterAsync()
     {
         if (tableView.SelectedItems.Count == 0) return;
-        if (tableView.SelectedItems[0] is ReferenceValueParameter parameter)
+        if (tableView.SelectedItems[0] is ReferenceValueParameter parameter &&
+            parameterEditorDialog != null)
         {
             parameterEditorDialog.XamlRoot = XamlRoot;
             var result = await parameterEditorDialog.EditAsync(parameter);

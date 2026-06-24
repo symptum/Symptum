@@ -13,34 +13,70 @@ namespace Symptum.Editor.Pages;
 public sealed partial class MarkdownEditorPage : EditorPageBase
 {
     private MarkdownFileResource? _markdownResource;
-    private ResourcePropertiesEditorDialog propertyEditorDialog = new();
-    private MarkdownEditorInsertTableDialog insertTableDialog = new();
-    private MarkdownEditorInsertLinkDialog insertLinkDialog = new();
-    private const string m_CurrentDocument = "Current Document";
-    private const string m_Selection = "Selection";
-    private const string m_Indentation = "    "; // NOTE: Should this support switching between Tabs ("\t") vs 4 Spaces ("    ")?
-    private readonly char newLine = Environment.NewLine[0];
+    private ResourcePropertiesEditorDialog? propertyEditorDialog;
+    private MarkdownEditorInsertTableDialog? insertTableDialog;
+    private MarkdownEditorInsertLinkDialog? insertLinkDialog;
+    private static readonly string m_CurrentDocument = "Current Document";
+    private static readonly string m_Selection = "Selection";
+    private static readonly string m_Indentation = "    "; // NOTE: Should this support switching between Tabs ("\t") vs 4 Spaces ("    ")?
+    private static readonly char newLine = Environment.NewLine[0];
 
     public MarkdownEditorPage()
     {
         InitializeComponent();
+
+        Loaded += Page_Loaded;
+        Unloaded += Page_Unloaded;
+    }
+
+    #region Page Lifecycle
+
+    private void Page_Loaded(object sender, RoutedEventArgs e)
+    {
         IconSource = DefaultIconSources.DocumentIconSource;
         mdText.TextChanged += MdText_TextChanged;
-        mdText.SelectionChanged += (s, e) => UpdateStatusBar();
+        mdText.SelectionChanged += MdText_SelectionChanged;
 
 #if !HAS_UNO
         mdText.PreviewKeyDown += MdText_KeyDown;
         PreviewKeyDown += Page_PreviewKeyDown;
         PreviewKeyUp += Page_PreviewKeyUp;
-        mdText.CuttingToClipboard += (s, e) => OnClipboardEvent();
+        mdText.CuttingToClipboard += MdText_CuttingToClipboard;
 #else
         mdText.KeyDown += MdText_KeyDown;
         KeyDown += Page_KeyDown;
         KeyUp += Page_KeyUp;
 #endif
-        mdText.Paste += (s, e) => OnClipboardEvent();
+        mdText.Paste += MdText_Paste;
+
+        propertyEditorDialog = EditorPagesManager.CreateOrGetDialog<ResourcePropertiesEditorDialog>();
+        insertTableDialog = EditorPagesManager.CreateOrGetDialog<MarkdownEditorInsertTableDialog>();
+        insertLinkDialog = EditorPagesManager.CreateOrGetDialog<MarkdownEditorInsertLinkDialog>();
         UpdateStatusBar();
         SetupFindControl();
+    }
+
+    private void Page_Unloaded(object sender, RoutedEventArgs e)
+    {
+        mdText.TextChanged -= MdText_TextChanged;
+        mdText.SelectionChanged -= MdText_SelectionChanged;
+
+#if !HAS_UNO
+        mdText.PreviewKeyDown -= MdText_KeyDown;
+        PreviewKeyDown -= Page_PreviewKeyDown;
+        PreviewKeyUp -= Page_PreviewKeyUp;
+        mdText.CuttingToClipboard -= MdText_CuttingToClipboard;
+#else
+        mdText.KeyDown -= MdText_KeyDown;
+        KeyDown -= Page_KeyDown;
+        KeyUp -= Page_KeyUp;
+#endif
+        mdText.Paste -= MdText_Paste;
+
+        _markdownResource = null;
+        propertyEditorDialog = null;
+        insertTableDialog = null;
+        insertLinkDialog = null;
     }
 
     private void MdText_TextChanged(object sender, TextChangedEventArgs e)
@@ -50,6 +86,11 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         HasUnsavedChanges = true;
         UpdateStatusBar();
     }
+
+    private void MdText_SelectionChanged(object sender, RoutedEventArgs e) => UpdateStatusBar();
+
+    private void MdText_CuttingToClipboard(object sender, TextControlCuttingToClipboardEventArgs e) => OnClipboardEvent();
+    private void MdText_Paste(object sender, TextControlPasteEventArgs e) => OnClipboardEvent();
 
     private void UpdateStatusBar(bool onlyCaret = true, bool onlyCount = true)
     {
@@ -65,6 +106,8 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
             countTB.Text = (slen > 0 ? slen.ToString() + " of " : string.Empty) + mdText.Text.Length.ToString() + " characters";
         }
     }
+
+    #endregion
 
     #region Key Input Handling
 
@@ -208,7 +251,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     private async void PropsButton_Click(object sender, RoutedEventArgs e)
     {
-        if (_markdownResource != null)
+        if (_markdownResource != null && propertyEditorDialog != null)
         {
             propertyEditorDialog.XamlRoot = XamlRoot;
             var result = await propertyEditorDialog.EditAsync(_markdownResource);
@@ -248,7 +291,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     private void FindControl_QueryCleared(object? sender, EventArgs e)
     {
         _searchText = null;
-        searchIndices = [];
+        searchIndices.Clear();
         currentSearchIndex = 0;
     }
 
@@ -257,7 +300,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     private bool _matchWholeWord = false;
     private string? _currentContext;
     private string? _searchText;
-    private int[] searchIndices;
+    private List<int> searchIndices;
     private int currentSearchIndex = 0;
 
     private bool SearchText(string? searchText, string context, bool matchCase = false, bool matchWholeWord = false)
@@ -282,7 +325,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
             start = mdText.SelectionStart;
             end = start + mdText.SelectionLength;
         }
-        searchIndices = text.SearchTextAndFindAllMatches(searchText, start, end, matchCase, matchWholeWord);
+        text.SearchTextAndFindAllMatches(ref searchIndices, searchText, start, end, matchCase, matchWholeWord);
 
         return true;
     }
@@ -293,11 +336,11 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
         bool isNew = SearchText(e.QueryText, e.Context, e.MatchCase, e.MatchWholeWord);
 
-        if (searchIndices.Length == 0)
+        if (searchIndices.Count == 0)
         {
             findControl.ShowErrorMessage(FindError.NoMatches);
         }
-        else if (searchIndices.Length == 1 && !isNew)
+        else if (searchIndices.Count == 1 && !isNew)
         {
             findControl.ShowErrorMessage(FindError.NoMoreMatches);
         }
@@ -308,10 +351,10 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
                     currentSearchIndex--;
                 else currentSearchIndex++;
 
-            if (currentSearchIndex >= searchIndices.Length)
+            if (currentSearchIndex >= searchIndices.Count)
                 currentSearchIndex = 0;
             else if (currentSearchIndex < 0)
-                currentSearchIndex = searchIndices.Length - 1;
+                currentSearchIndex = searchIndices.Count - 1;
 
             mdText.Select(searchIndices[currentSearchIndex], e.QueryText.Length);
             mdText.Focus(FocusState.Programmatic);
@@ -331,10 +374,13 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     private bool preview = false;
 
+    private Binding _mdBinding;
+
     private void PreviewButton_Checked(object sender, RoutedEventArgs e)
     {
-        mdTB.SetBinding(MarkdownTextBlock.TextProperty,
-            new Binding() { Path = new(nameof(TextBox.Text)), Source = mdText, Mode = BindingMode.OneWay });
+        _mdBinding ??= new() { Path = new(nameof(TextBox.Text)), Source = mdText, Mode = BindingMode.OneWay };
+    
+        mdTB.SetBinding(MarkdownTextBlock.TextProperty, _mdBinding);
 
         preview = true;
         GoToEditorVisualState();
@@ -734,8 +780,9 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     private void RedoButton_Click(object sender, RoutedEventArgs e) => Redo();
 
-    private Stack<TextHistory> undoStack = [];
-    private Stack<TextHistory> redoStack = [];
+    private const int MaxHistoryEntries = 100;
+    private readonly List<TextHistory> undoStack = [];
+    private readonly List<TextHistory> redoStack = [];
 
     private string _prevText = string.Empty;
     private int _prevSelectionStart;
@@ -798,10 +845,24 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         _prevSelectionLength = mdText.SelectionLength;
     }
 
+    private static void PushHistory(List<TextHistory> history, TextHistory entry)
+    {
+        history.Add(entry);
+        if (history.Count > MaxHistoryEntries)
+            history.RemoveAt(0);
+    }
+
+    private static TextHistory PopHistory(List<TextHistory> history)
+    {
+        var historyEntry = history[^1];
+        history.RemoveAt(history.Count - 1);
+        return historyEntry;
+    }
+
     private void CommitHistory()
     {
         redoStack.Clear();
-        undoStack.Push(new(_prevText, _prevSelectionStart, _prevSelectionLength, mdText.Text, mdText.SelectionStart, mdText.SelectionLength));
+        PushHistory(undoStack, new(_prevText, _prevSelectionStart, _prevSelectionLength, mdText.Text, mdText.SelectionStart, mdText.SelectionLength));
         StoreCurrentTextState();
 
         UpdateCanUndoRedo();
@@ -819,7 +880,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
         if (undoStack.Count == 0) return;
 
-        var currentHistory = undoStack.Pop();
+        var currentHistory = PopHistory(undoStack);
 
         _textChangedReason = TextChangedReason.HistoryApplied;
 
@@ -835,7 +896,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         catch { }
 #endif
 
-        redoStack.Push(currentHistory);
+        PushHistory(redoStack, currentHistory);
 
         if (undoStack.Count == 0)
             StoreCurrentTextState();
@@ -847,7 +908,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     {
         if (redoStack.Count == 0) return;
 
-        var currentHistory = redoStack.Pop();
+        var currentHistory = PopHistory(redoStack);
 
         _textChangedReason = TextChangedReason.HistoryApplied;
 
@@ -863,7 +924,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         catch { }
 #endif
 
-        undoStack.Push(currentHistory);
+        PushHistory(undoStack, currentHistory);
 
         UpdateCanUndoRedo();
     }

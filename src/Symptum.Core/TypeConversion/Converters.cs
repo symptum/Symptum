@@ -4,7 +4,6 @@ using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
 using Symptum.Core.Data;
 using Symptum.Core.Data.Bibliography;
-using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Helpers;
 
@@ -62,15 +61,6 @@ public class QuantityCsvConverter : DefaultTypeConverter
 public class ReferenceListConverter : ListConverter<ReferenceBase>
 {
     public override void ValidateData(string text, List<ReferenceBase> list) => ListToStringConversion.ValidateDataForReference(text, list);
-}
-
-#endregion
-
-#region Nutrition
-
-public class FoodMeasureListConverter : ListConverter<FoodMeasure>
-{
-    public override void ValidateData(string text, List<FoodMeasure> list) => ListToStringConversion.ValidateDataForFoodMeasure(text, list);
 }
 
 #endregion
@@ -152,14 +142,6 @@ public class ListToStringConversion
         if (ReferenceValueEntry.TryParse(text, out ReferenceValueEntry? entry))
         {
             list.Add(entry);
-        }
-    }
-
-    public static void ValidateDataForFoodMeasure(string text, List<FoodMeasure> list)
-    {
-        if (FoodMeasure.TryParse(text, out FoodMeasure? measure))
-        {
-            list.Add(measure);
         }
     }
 

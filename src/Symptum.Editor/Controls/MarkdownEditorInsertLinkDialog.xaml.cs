@@ -2,7 +2,7 @@ using System.Text;
 
 namespace Symptum.Editor.Controls;
 
-public sealed partial class MarkdownEditorInsertLinkDialog : ContentDialog
+public sealed partial class MarkdownEditorInsertLinkDialog : ContentDialog, IEditorDialog
 {
     public EditorResult EditResult { get; private set; } = EditorResult.None;
 

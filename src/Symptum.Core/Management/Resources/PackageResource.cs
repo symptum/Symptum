@@ -2,7 +2,6 @@ using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Symptum.Core.Data;
-using Symptum.Core.Data.Nutrition;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Extensions;
 using Symptum.Core.Management.Deployment;
@@ -14,7 +13,6 @@ namespace Symptum.Core.Management.Resources;
     UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor)]
 [JsonDerivedType(typeof(Subject), "subject")]
 [JsonDerivedType(typeof(ReferenceValuesPackage), "referenceValues")]
-[JsonDerivedType(typeof(NutritionPackage), "nutrition")]
 public abstract partial class PackageResource : MetadataResource, IPackageResource
 {
     #region Properties
