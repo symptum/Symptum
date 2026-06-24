@@ -18,10 +18,7 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src/Symptum.Common/Symptum.Common.csproj">
-      <Deploy Solution="Debug|Any CPU" />
-      <Deploy Solution="Release|x64" />
-    </Project>
+    <Project Path="src/Symptum.Common/Symptum.Common.csproj" />
     <Project Path="src/Symptum.Core.SourceGenerators/Symptum.Core.SourceGenerators.csproj" />
     <Project Path="src/Symptum.Core/Symptum.Core.csproj" />
     <Project Path="src/Symptum.Editor.SourceGenerators/Symptum.Editor.SourceGenerators.csproj" />
@@ -29,10 +26,7 @@
       <Deploy />
     </Project>
     <Project Path="src/Symptum.Markdown/Symptum.Markdown.csproj" />
-    <Project Path="src/Symptum.UI/Symptum.UI.csproj">
-      <Deploy Solution="Debug|Any CPU" />
-      <Deploy Solution="Release|x64" />
-    </Project>
+    <Project Path="src/Symptum.UI/Symptum.UI.csproj" />
     <Project Path="src/Symptum/Symptum.csproj">
       <Deploy />
     </Project>

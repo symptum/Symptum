@@ -28,7 +28,7 @@ internal class ResourceBaseToIconSourceExtension
                 {
                     ProjectFolder => DefaultIconSources.FolderIconSource,
                     Subject => DefaultIconSources.DictionaryIconSource,
-                    CsvFileResource => DefaultIconSources.DataGridIconSource,
+                    CsvFileResource => DefaultIconSources.TableViewIconSource,
                     ImageFileResource => DefaultIconSources.PhotoIconSource,
                     MarkdownFileResource => DefaultIconSources.DocumentIconSource,
                     ImageCategoryResource => DefaultIconSources.PicturesIconSource,
@@ -63,7 +63,7 @@ internal class ResourceBaseToIconSourceExtension
             {
                 iconSourceElement.IconSource = typeof(ProjectFolder).IsAssignableFrom(resourceType) ? DefaultIconSources.FolderIconSource :
                                                typeof(Subject).IsAssignableFrom(resourceType) ? DefaultIconSources.DictionaryIconSource :
-                                               typeof(CsvFileResource).IsAssignableFrom(resourceType) ? DefaultIconSources.DataGridIconSource :
+                                               typeof(CsvFileResource).IsAssignableFrom(resourceType) ? DefaultIconSources.TableViewIconSource :
                                                typeof(ImageFileResource).IsAssignableFrom(resourceType) ? DefaultIconSources.PhotoIconSource :
                                                typeof(MarkdownFileResource).IsAssignableFrom(resourceType) ? DefaultIconSources.DocumentIconSource :
                                                typeof(ImageCategoryResource).IsAssignableFrom(resourceType) ? DefaultIconSources.PicturesIconSource :

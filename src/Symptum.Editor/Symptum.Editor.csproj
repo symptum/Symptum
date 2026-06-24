@@ -50,13 +50,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
-    <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" />
-  </ItemGroup>
-  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'windows'">
-    <PackageReference Include="Uno.CommunityToolkit.WinUI.UI.Controls.DataGrid" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Symptum.Common\Symptum.Common.csproj" />
     <ProjectReference Include="..\Symptum.Core\Symptum.Core.csproj" />
@@ -66,6 +59,7 @@
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.TokenizingTextBox" />
+    <PackageReference Include="WinUI.TableView" />
   </ItemGroup>
 
   <ItemGroup>

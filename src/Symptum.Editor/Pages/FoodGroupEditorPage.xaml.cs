@@ -26,7 +26,7 @@ public sealed partial class FoodGroupEditorPage : EditorPageBase
     public FoodGroupEditorPage()
     {
         InitializeComponent();
-        IconSource = DefaultIconSources.DataGridIconSource;
+        IconSource = DefaultIconSources.TableViewIconSource;
         SetupFindControl();
     }
 
@@ -40,9 +40,9 @@ public sealed partial class FoodGroupEditorPage : EditorPageBase
 
     private void Reset()
     {
-        dataGrid.SelectedItems.Clear();
-        dataGrid.ItemsSource = null;
-        dataGrid.IsEnabled = false;
+        tableView.SelectedItems.Clear();
+        tableView.ItemsSource = null;
+        tableView.IsEnabled = false;
         saveButton.IsEnabled = false;
         addButton.IsEnabled = false;
         findButton.IsEnabled = false;
@@ -56,8 +56,8 @@ public sealed partial class FoodGroupEditorPage : EditorPageBase
 
         currentGroup = group;
         group.Foods ??= [];
-        dataGrid.ItemsSource = group.Foods;
-        dataGrid.IsEnabled = true;
+        tableView.ItemsSource = group.Foods;
+        tableView.IsEnabled = true;
         saveButton.IsEnabled = true;
         addButton.IsEnabled = true;
         findButton.IsEnabled = true;
@@ -69,7 +69,7 @@ public sealed partial class FoodGroupEditorPage : EditorPageBase
         if (clear)
             countTextBlock.Text = null;
         else
-            countTextBlock.Text = $"{currentGroup?.Foods?.Count} Foods, {dataGrid.SelectedItems.Count} Selected";
+            countTextBlock.Text = $"{currentGroup?.Foods?.Count} Foods, {tableView.SelectedItems.Count} Selected";
     }
 
     private bool _isBeingSaved = false;
@@ -105,16 +105,16 @@ public sealed partial class FoodGroupEditorPage : EditorPageBase
             if (result == EditorResult.Create && foodEditorDialog.Food is Food food)
             {
                 currentGroup?.Foods?.Add(food);
-                dataGrid.SelectedItem = food;
+                tableView.SelectedItem = food;
                 HasUnsavedChanges = true;
                 SetCountsText();
             }
         }
     }
 
-    private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void TableView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        int count = dataGrid.SelectedItems.Count;
+        int count = tableView.SelectedItems.Count;
         deleteButton.IsEnabled = count > 0;
         duplicateButton.IsEnabled = count > 0;
         editButton.IsEnabled = count == 1;
@@ -125,12 +125,12 @@ public sealed partial class FoodGroupEditorPage : EditorPageBase
 
     private async void EditButton_Click(object sender, RoutedEventArgs e) => await EnterEditFoodAsync();
 
-    private async void DataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e) => await EnterEditFoodAsync();
+    private async void TableView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e) => await EnterEditFoodAsync();
 
     private async Task EnterEditFoodAsync()
     {
-        if (dataGrid.SelectedItems.Count == 0) return;
-        if (dataGrid.SelectedItems[0] is Food food)
+        if (tableView.SelectedItems.Count == 0) return;
+        if (tableView.SelectedItems[0] is Food food)
         {
             foodEditorDialog.XamlRoot = XamlRoot;
             var result = await foodEditorDialog.EditAsync(food);
@@ -141,16 +141,16 @@ public sealed partial class FoodGroupEditorPage : EditorPageBase
 
     private void DuplicateButton_Click(object sender, RoutedEventArgs e)
     {
-        if (dataGrid.SelectedItems.Count == 0
+        if (tableView.SelectedItems.Count == 0
             || currentGroup?.Foods == null) return;
         List<Food> toDupe = [];
 
-        foreach (var item in dataGrid.SelectedItems)
+        foreach (var item in tableView.SelectedItems)
         {
             if (item is Food food && currentGroup.Foods.Contains(food))
                 toDupe.Add(food);
         }
-        dataGrid.SelectedItems.Clear();
+        tableView.SelectedItems.Clear();
         //toDupe.ForEach(x => currentGroup?.Foods?.Add(x.Clone()));
         toDupe.Clear();
         HasUnsavedChanges = true;
@@ -159,7 +159,7 @@ public sealed partial class FoodGroupEditorPage : EditorPageBase
 
     private async void DeleteButton_Click(object sender, RoutedEventArgs e)
     {
-        if (dataGrid.SelectedItems.Count == 0
+        if (tableView.SelectedItems.Count == 0
             || currentGroup?.Foods == null) return;
 
         deleteEntriesDialog.XamlRoot = XamlRoot;
@@ -168,12 +168,12 @@ public sealed partial class FoodGroupEditorPage : EditorPageBase
         {
             List<Food> toDelete = [];
 
-            foreach (var item in dataGrid.SelectedItems)
+            foreach (var item in tableView.SelectedItems)
             {
                 if (item is Food food && currentGroup.Foods.Contains(food))
                     toDelete.Add(food);
             }
-            dataGrid.SelectedItems.Clear();
+            tableView.SelectedItems.Clear();
             toDelete.ForEach(x => currentGroup?.Foods?.Remove(x));
             toDelete.Clear();
             HasUnsavedChanges = true;
@@ -201,10 +201,10 @@ public sealed partial class FoodGroupEditorPage : EditorPageBase
 
     private void FindControl_QueryCleared(object? sender, EventArgs e)
     {
-        var selectedItem = dataGrid.SelectedItem;
+        var selectedItem = tableView.SelectedItem;
         if (currentGroup != null)
-            dataGrid.ItemsSource = currentGroup.Foods;
-        dataGrid.SelectedItem = selectedItem;
+            tableView.ItemsSource = currentGroup.Foods;
+        tableView.SelectedItem = selectedItem;
         findTextBlock.Text = string.Empty;
         OnFilter(false);
     }
@@ -218,7 +218,7 @@ public sealed partial class FoodGroupEditorPage : EditorPageBase
             var foods = new ObservableCollection<Food>(from food in currentGroup?.Foods?.ToList()
                                                        where FoodPropertyMatchValue(food, e)
                                                        select food);
-            dataGrid.ItemsSource = foods;
+            tableView.ItemsSource = foods;
             findTextBlock.Text = $"Find results for '{e.QueryText}' in {e.Context}. Matching Foods: {foods.Count}";
             OnFilter(true);
         }
@@ -236,28 +236,28 @@ public sealed partial class FoodGroupEditorPage : EditorPageBase
 
     #endregion
 
-    private bool CanMoveUp() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != 0;
+    private bool CanMoveUp() => tableView.SelectedItems.Count == 1 && tableView.SelectedIndex != 0;
 
-    private bool CanMoveDown() => dataGrid.SelectedItems.Count == 1 && dataGrid.SelectedIndex != currentGroup?.Foods?.Count - 1;
+    private bool CanMoveDown() => tableView.SelectedItems.Count == 1 && tableView.SelectedIndex != currentGroup?.Foods?.Count - 1;
 
     private void MoveFood(int oldIndex, int newIndex)
     {
         currentGroup?.Foods?.Move(oldIndex, newIndex);
-        dataGrid.SelectedItems.Clear();
-        dataGrid.SelectedItem = null;
-        dataGrid.SelectedIndex = newIndex;
+        tableView.SelectedItems.Clear();
+        tableView.SelectedItem = null;
+        tableView.SelectedIndex = newIndex;
         moveUpButton.IsEnabled = moveToTopButton.IsEnabled = CanMoveUp();
         moveDownButton.IsEnabled = moveToBottomButton.IsEnabled = CanMoveDown();
         HasUnsavedChanges = true;
-        dataGrid.ScrollIntoView(dataGrid.SelectedItem, null);
+        tableView.ScrollIntoView(tableView.SelectedItem, ScrollIntoViewAlignment.Default);
     }
 
     private void MoveFoodUp(bool toTop)
     {
         if (CanMoveUp())
         {
-            int oldIndex = dataGrid.SelectedIndex;
-            int newIndex = toTop ? 0 : Math.Max(dataGrid.SelectedIndex - 1, 0);
+            int oldIndex = tableView.SelectedIndex;
+            int newIndex = toTop ? 0 : Math.Max(tableView.SelectedIndex - 1, 0);
             MoveFood(oldIndex, newIndex);
         }
     }
@@ -266,9 +266,9 @@ public sealed partial class FoodGroupEditorPage : EditorPageBase
     {
         if (CanMoveDown())
         {
-            int oldIndex = dataGrid.SelectedIndex;
+            int oldIndex = tableView.SelectedIndex;
             int last = currentGroup?.Foods?.Count - 1 ?? 0;
-            int newIndex = toBottom ? last : Math.Min(dataGrid.SelectedIndex + 1, last);
+            int newIndex = toBottom ? last : Math.Min(tableView.SelectedIndex + 1, last);
             MoveFood(oldIndex, newIndex);
         }
     }
@@ -280,6 +280,4 @@ public sealed partial class FoodGroupEditorPage : EditorPageBase
     private void MoveDownButton_Click(object sender, RoutedEventArgs e) => MoveFoodDown(false);
 
     private void MoveToBottomButton_Click(object sender, RoutedEventArgs e) => MoveFoodDown(true);
-
-    private void DataGrid_LoadingRow(object sender, CommunityToolkit.WinUI.UI.Controls.DataGridRowEventArgs e) => e.Row.Header = e.Row.GetIndex() + 1;
 }

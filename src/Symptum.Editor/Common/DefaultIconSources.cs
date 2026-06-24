@@ -2,7 +2,7 @@ namespace Symptum.Editor.Common;
 
 public static class DefaultIconSources
 {
-    public static IconSource DataGridIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.List };
+    public static IconSource TableViewIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.List };
 
     public static IconSource PropertiesIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.Repair };
 
