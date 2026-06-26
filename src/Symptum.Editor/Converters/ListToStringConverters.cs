@@ -1,4 +1,3 @@
-using Microsoft.UI.Xaml.Data;
 using Symptum.Core.Data.Bibliography;
 using Symptum.Core.Data.ReferenceValues;
 using static Symptum.Core.TypeConversion.ListToStringConversion;

@@ -28,9 +28,14 @@
       <FontIcon Glyph="&#xE711;" FontSize="12" />
     </Button>
     <AutoSuggestBox x:Name="commandBox" Grid.Row="1" Grid.ColumnSpan="2" Margin="8"
-                    QueryIcon="Forward" DisplayMemberPath="Key" />
+                    QueryIcon="Forward" DisplayMemberPath="Key"
+                    TextChanged = "CommandBox_TextChanged"
+                    SuggestionChosen = "CommandBox_SuggestionChosen"
+                    QuerySubmitted = "CommandBox_QuerySubmitted"
+                    KeyDown = "CommandBox_KeyDown"/>
     <ListView x:Name="optionsLV" Grid.Row="2" Grid.ColumnSpan="2" Margin="8" MaxHeight="200"
-              IsItemClickEnabled="True" SelectionMode="Single">
+              IsItemClickEnabled="True" SelectionMode="Single"
+              ItemClick="OptionsLV_ItemClick">
       <ListView.ItemTemplate>
         <DataTemplate x:DataType="cmd:EditorCommandArgument">
           <ListViewItem ToolTipService.ToolTip="{x:Bind Title}">

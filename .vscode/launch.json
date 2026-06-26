@@ -5,7 +5,7 @@
         "name": "Symptum.Editor (Desktop) Debug",
         "type": "coreclr",
         "request": "launch",
-        "preLaunchTask": "build-desktop",
+        "preLaunchTask": "build-editor-desktop",
         "program": "${workspaceFolder}/src/Symptum.Editor/bin/Debug/net10.0-desktop/Symptum.Editor.dll",
         "args": [],
         "launchSettingsProfile": "Symptum.Editor (Desktop)",

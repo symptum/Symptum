@@ -30,7 +30,7 @@
     </Project>
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/Playground/Playground.csproj" />
-    <Project Path="tests/SymptumCore.Test/SymptumCore.Test.csproj" />
+    <Project Path="tests/Symptum.Common.Tests/Symptum.Common.Tests.csproj" />
+    <Project Path="tests/Symptum.Core.Tests/Symptum.Core.Tests.csproj" />
   </Folder>
 </Solution>

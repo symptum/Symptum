@@ -1,26 +1,12 @@
-using Symptum.Core.Management.Resources;
-using Symptum.Common.Helpers;
-using Symptum.Editor.Controls;
 using Symptum.Editor.Pages;
-using Windows.Storage.Pickers;
+using Symptum.Editor.ViewModels;
 using Windows.System;
-using Symptum.Core.Management.Deployment;
-using static Symptum.Core.Helpers.FileHelper;
-using Microsoft.UI.Xaml.Input;
-using Symptum.Common.ProjectSystem;
 
 namespace Symptum.Editor;
 
 public sealed partial class MainPage : Page
 {
     private bool _collapsed = false;
-    private readonly AddNewItemDialog addNewItemDialog = new();
-
-    private DeleteItemsDialog deleteResourceDialog = new()
-    {
-        Title = "Delete Resource(s)?",
-        Content = "Do you want to delete the resources(s)?\nOnce you delete you won't be able to restore."
-    };
 
     public MainPage()
     {
@@ -36,62 +22,19 @@ public sealed partial class MainPage : Page
 
         Background = null;
 
-        workFolderButton.Click += async (s, e) =>
-        {
-            if (ResourceHelper.WorkFolder != null)
-                await Launcher.LaunchFolderAsync(ResourceHelper.WorkFolder);
-        };
-
 #endif
-
-        treeView.ItemsSource = ResourceManager.Resources;
-
-        ResourceHelper.WorkFolderChanged += (s, e) =>
-        {
-            workFolderText.Text = e?.DisplayName;
-            ToolTipService.SetToolTip(workFolderButton, e?.Path);
-            workFolderButton.Visibility = e != null ? Visibility.Visible : Visibility.Collapsed;
-        };
-
-        ProjectSystemManager.CurrentProjectChanged += (s, e) =>
-        {
-            if (e == null || string.IsNullOrEmpty(e.Name))
-                resourcesTB.Text = "Resources";
-            else
-                resourcesTB.Text = $"Resources - {e.Name}";
-        };
-
-        treeView.SelectionChanged += (_, _) => UpdateDeleteButtonEnabled();
-
-        treeView.ItemInvoked += (s, e) =>
-        {
-            if (e.InvokedItem is IResource resource)
-            {
-                EditorPagesManager.CreateOrOpenEditor(resource);
-            }
-        };
 
         expandResourcesPaneButton.Click += (s, e) =>
         {
             splitView.IsPaneOpen = true;
         };
 
-        EditorPagesManager.CurrentEditorChanged += (s, e) => editorsTabView.SelectedItem = e;
-
-        editorsTabView.SelectionChanged += (s, e) =>
-        {
-            EditorPagesManager.CurrentEditor = editorsTabView.SelectedItem as IEditorPage;
-#if WINDOWS && !HAS_UNO
-            titleTB.Text = App.AppTitle;
-            if (e.AddedItems.Count > 0 && e.AddedItems[0] is IEditorPage page)
-            {
-                string? title = page.EditableContent?.Title;
-                titleTB.Text += $" - {title}";
-            }
-#endif
-        };
-
         SizeChanged += MainPage_SizeChanged;
+        Loaded += (s, e) =>
+        {
+            ViewModel.Initialize();
+            EditorPagesManager.ShowWelcomePage();
+        };
     }
 
     #region Properties
@@ -113,6 +56,8 @@ public sealed partial class MainPage : Page
         get => (bool)GetValue(ShowResourcesPaneProperty);
         set => SetValue(ShowResourcesPaneProperty, value);
     }
+
+    public MainViewModel ViewModel { get => MainViewModel.Instance; }
 
     #endregion
 
@@ -136,187 +81,6 @@ public sealed partial class MainPage : Page
         EditorPagesManager.TryCloseEditor(args.Item as IEditorPage);
     }
 
-    private async void New_Click(object sender, RoutedEventArgs e)
-    {
-        await AddNewItemAsync();
-    }
-
-    private async Task AddNewItemAsync(IResource? parent = null)
-    {
-        addNewItemDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
-        var result = await addNewItemDialog.CreateAsync(parent);
-        if (result == EditorResult.Create)
-        {
-            var selectedType = addNewItemDialog.SelectedItemType;
-            if (selectedType != null)
-            {
-                if (Activator.CreateInstance(selectedType) is IResource instance)
-                {
-                    instance.Title = addNewItemDialog.ItemTitle;
-                    if (parent != null)
-                        parent.AddChildResource(instance);
-                    else
-                    {
-                        ResourceManager.Resources.Add(instance);
-                        instance.InitializeResource(null);
-                    }
-                }
-            }
-        }
-    }
-
-    private async void NewProject_Click(object sender, RoutedEventArgs e)
-    {
-        addNewItemDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
-        var result = await addNewItemDialog.CreateProjectAsync();
-        if (result == EditorResult.Create)
-        {
-            ProjectSystemManager.CurrentProject = new() { Name = addNewItemDialog.ItemTitle, Entries = [] };
-            ProjectSystemManager.UseProjectManager = true;
-        }
-    }
-
-    private async void OpenFile_Click(object sender, RoutedEventArgs e)
-    {
-        IResource? parent = null;
-        if (treeView.SelectedItems.Count > 0 && treeView.SelectedItems[0] is IResource resource)
-            parent = resource;
-
-        FileOpenPicker fileOpenPicker = new();
-        fileOpenPicker.FileTypeFilter.Add(CsvFileExtension);
-        fileOpenPicker.FileTypeFilter.Add(MarkdownFileExtension);
-        fileOpenPicker.FileTypeFilter.Add(JsonFileExtension);
-        fileOpenPicker.FileTypeFilter.AddRange(ImageFileExtensions);
-        fileOpenPicker.FileTypeFilter.AddRange(AudioFileExtensions);
-
-#if WINDOWS && !HAS_UNO
-        WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, WindowHelper.WindowHandle);
-#endif
-        var pickedFiles = await fileOpenPicker.PickMultipleFilesAsync();
-        if (pickedFiles.Count > 0)
-        {
-            await ResourceHelper.LoadResourcesFromFilesAsync(pickedFiles, parent);
-        }
-    }
-
-    private async void OpenFolder_Click(object sender, RoutedEventArgs e)
-    {
-        bool result = await ProjectSystemManager.OpenWorkFolderAsync();
-        if (result)
-        {
-            EditorPagesManager.ResetEditors();
-        }
-    }
-
-    private bool _isBeingSaved = false;
-
-    private async void SaveAll_Click(object sender, RoutedEventArgs e)
-    {
-        if (_isBeingSaved) return;
-
-        _isBeingSaved = true;
-
-        EditorPagesManager.UpdateEditors();
-        bool allSaved = await ProjectSystemManager.SaveAllResourcesAsync();
-        if (allSaved) EditorPagesManager.MarkAllOpenEditorsAsSaved();
-
-        _isBeingSaved = false;
-    }
-
-    private void CloseFolder_Click(object sender, RoutedEventArgs e)
-    {
-        ProjectSystemManager.CurrentProject = null;
-        EditorPagesManager.ResetEditors();
-        ResourceHelper.CloseWorkFolder();
-    }
-
-    private async void ImportPackage_Click(object sender, RoutedEventArgs e)
-    {
-        FileOpenPicker fileOpenPicker = new();
-        fileOpenPicker.FileTypeFilter.Add(PackageFileExtension);
-
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-        WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, WindowHelper.WindowHandle);
-#endif
-        var pickedFiles = await fileOpenPicker.PickMultipleFilesAsync();
-        foreach (var file in pickedFiles)
-        {
-            await PackageHelper.ImportPackageAsync(file);
-        }
-    }
-
-    private async void ExportPackage_Click(object sender, RoutedEventArgs e)
-    {
-        if (treeView.SelectedItems.Count > 0 && treeView.SelectedItems[0] is IPackageResource package)
-            await PackageHelper.ExportPackageAsync(package);
-    }
-
-    private void Exit_Click(object sender, RoutedEventArgs e)
-    {
-        Application.Current.Exit();
-    }
-
-    private void MultiSelectButton_Click(object sender, RoutedEventArgs e)
-    {
-        treeView.SelectionMode = multiSelectButton.IsChecked switch
-        {
-            true => TreeViewSelectionMode.Multiple,
-            false => TreeViewSelectionMode.Single,
-            _ => TreeViewSelectionMode.None
-        };
-        UpdateDeleteButtonEnabled();
-    }
-
-    private void UpdateDeleteButtonEnabled()
-    {
-        int count = treeView.SelectedItems.Count;
-        deleteResourcesButton.IsEnabled = (multiSelectButton.IsChecked ?? false) && count > 0;
-    }
-
-    private async void DeleteResourcesButton_Click(object sender, RoutedEventArgs e)
-    {
-        List<object> toDelete = [..treeView.SelectedItems];
-        if (toDelete.Count > 0)
-        {
-            deleteResourceDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
-            var result = await deleteResourceDialog.ShowAsync();
-            if (result == ContentDialogResult.Primary)
-            {
-                foreach (var item in toDelete)
-                {
-                    if (item is IResource resource)
-                    {
-                        await ResourceHelper.RemoveResourceAsync(resource, true);
-                    }
-                }
-            }
-        }
-        treeView.SelectedItems.Clear();
-    }
-
-    private async void DeleteFlyoutItem_Click(object sender, RoutedEventArgs e)
-    {
-        var context = (sender as MenuFlyoutItem)?.DataContext;
-        if (context is IResource resource)
-        {
-            deleteResourceDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
-            var result = await deleteResourceDialog.ShowAsync();
-            if (result == ContentDialogResult.Primary)
-            {
-                await ResourceHelper.RemoveResourceAsync(resource, true);
-            }
-        }
-    }
-
-    private async void AddNewFlyoutItem_Click(object sender, RoutedEventArgs e)
-    {
-        var context = (sender as MenuFlyoutItem)?.DataContext;
-        if (context is IResource parent)
-        {
-            await AddNewItemAsync(parent);
-        }
-    }
-
     private void ShowOrHideResourcesPane(bool showResourcesPane)
     {
         ToolTipService.SetToolTip(showResourcesPaneButton, showResourcesPane ? "Unpin" : "Pin");
@@ -328,11 +92,6 @@ public sealed partial class MainPage : Page
     private void ShowResourcesPaneButton_Click(object sender, RoutedEventArgs e)
     {
         ShowResourcesPane = !ShowResourcesPane;
-    }
-
-    private void CloseAllTabs_Click(object sender, RoutedEventArgs e)
-    {
-        EditorPagesManager.ResetEditors();
     }
 
     private void CloseSelectedTabKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)

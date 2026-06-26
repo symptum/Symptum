@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>
       <!-- net10.0-android; -->
-      net10.0-windows10.0.22621;
+      <!-- net10.0-windows10.0.22621; -->
       net10.0-desktop;
       <!-- net10.0-browserwasm; -->
     </TargetFrameworks>
@@ -38,6 +38,7 @@
       https://aka.platform.uno/singleproject-features
     -->
     <UnoFeatures>
+      CSharpMarkup;
       MediaElement;
       Toolkit;
       Mvvm;
@@ -51,8 +52,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Symptum.Common\Symptum.Common.csproj" />
     <ProjectReference Include="..\Symptum.Core\Symptum.Core.csproj" />
+    <ProjectReference Include="..\Symptum.Common\Symptum.Common.csproj" />
+    <ProjectReference Include="..\Symptum.UI\Symptum.UI.csproj" />
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="CommunityToolkit.Labs.WinUI.Ribbon" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.HeaderedControls" />

@@ -1,5 +1,4 @@
 using System.Text;
-using Microsoft.UI.Xaml.Data;
 using Symptum.Common.ProjectSystem;
 using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
@@ -26,7 +25,6 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         InitializeComponent();
 
         Loaded += Page_Loaded;
-        Unloaded += Page_Unloaded;
     }
 
     #region Page Lifecycle
@@ -211,7 +209,12 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     protected override void OnSetEditableContent(IResource? resource)
     {
-        if (resource is MarkdownFileResource markdownResource)
+        if (resource == null)
+        {
+            _markdownResource = null;
+            mdText.Text = string.Empty;
+        }
+        else if (resource is MarkdownFileResource markdownResource)
         {
             _markdownResource = markdownResource;
             mdText.Text = markdownResource.Markdown;
@@ -230,6 +233,34 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     {
         if (_markdownResource != null)
             _markdownResource.Markdown = mdText.Text;
+    }
+
+    protected override void OnCleanupPage()
+    {
+        mdText.TextChanged -= MdText_TextChanged;
+        mdText.SelectionChanged -= MdText_SelectionChanged;
+
+#if !HAS_UNO
+        mdText.PreviewKeyDown -= MdText_KeyDown;
+        PreviewKeyDown -= Page_PreviewKeyDown;
+        PreviewKeyUp -= Page_PreviewKeyUp;
+        mdText.CuttingToClipboard -= MdText_CuttingToClipboard;
+#else
+        mdText.KeyDown -= MdText_KeyDown;
+        KeyDown -= Page_KeyDown;
+        KeyUp -= Page_KeyUp;
+#endif
+        mdText.Paste -= MdText_Paste;
+
+        _markdownResource = null;
+        propertyEditorDialog = null;
+        insertTableDialog = null;
+        insertLinkDialog = null;
+        _mdBinding = null;
+        undoStack.Clear();
+        redoStack.Clear();
+        _prevText = null;
+        searchIndices.Clear();
     }
 
     private bool _isBeingSaved = false;
@@ -300,7 +331,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     private bool _matchWholeWord = false;
     private string? _currentContext;
     private string? _searchText;
-    private List<int> searchIndices;
+    private List<int> searchIndices = [];
     private int currentSearchIndex = 0;
 
     private bool SearchText(string? searchText, string context, bool matchCase = false, bool matchWholeWord = false)
@@ -379,7 +410,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     private void PreviewButton_Checked(object sender, RoutedEventArgs e)
     {
         _mdBinding ??= new() { Path = new(nameof(TextBox.Text)), Source = mdText, Mode = BindingMode.OneWay };
-    
+
         mdTB.SetBinding(MarkdownTextBlock.TextProperty, _mdBinding);
 
         preview = true;
@@ -728,6 +759,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     private async void TableButton_Click(object sender, RoutedEventArgs e)
     {
+        if (insertTableDialog == null) return;
 
         insertTableDialog.XamlRoot = XamlRoot;
         var result = await insertTableDialog.CreateAsync();
@@ -740,6 +772,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     private async void LinkButton_Click(object sender, RoutedEventArgs e)
     {
+        if (insertLinkDialog == null) return;
 
         insertLinkDialog.XamlRoot = XamlRoot;
         var result = await insertLinkDialog.CreateAsync();

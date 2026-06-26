@@ -48,4 +48,11 @@ public partial class EditorPageBase : Page, IEditorPage
     public void UpdateContent() => OnUpdateContent();
 
     protected virtual void OnUpdateContent() { }
+
+    protected virtual void OnCleanupPage() { }
+
+    public new void Dispose()
+    {
+        OnCleanupPage();
+    }
 }

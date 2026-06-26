@@ -1,11 +1,10 @@
-using System.Collections.ObjectModel;
-using Microsoft.UI.Xaml.Input;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
 using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
 using Symptum.Core.Extensions;
 using Symptum.Common.ProjectSystem;
+using Uno.Extensions.Specialized;
 
 namespace Symptum.Editor.Pages;
 
@@ -157,20 +156,20 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
 
     private void DuplicateButton_Click(object sender, RoutedEventArgs e)
     {
-        if (tableView.SelectedItems.Count == 0
-            || currentGroup == null || currentGroup.Parameters == null) return;
-        List<ReferenceValueParameter> toDupe = [];
+        // if (tableView.SelectedItems.Count == 0
+        //     || currentGroup == null || currentGroup.Parameters == null) return;
+        // List<ReferenceValueParameter> toDupe = [];
 
-        foreach (var item in tableView.SelectedItems)
-        {
-            if (item is ReferenceValueParameter parameter && currentGroup.Parameters.Contains(parameter))
-                toDupe.Add(parameter);
-        }
-        tableView.SelectedItems.Clear();
-        //toDupe.ForEach(x => currentGroup?.Parameters?.Add(x.Clone()));
-        toDupe.Clear();
-        HasUnsavedChanges = true;
-        SetCountsText();
+        // foreach (var item in tableView.SelectedItems)
+        // {
+        //     if (item is ReferenceValueParameter parameter && currentGroup.Parameters.Contains(parameter))
+        //         toDupe.Add(parameter);
+        // }
+        // tableView.SelectedItems.Clear();
+        // //toDupe.ForEach(x => currentGroup?.Parameters?.Add(x.Clone()));
+        // toDupe.Clear();
+        // HasUnsavedChanges = true;
+        // SetCountsText();
     }
 
     private async void DeleteButton_Click(object sender, RoutedEventArgs e)
@@ -231,11 +230,11 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
             return;
         if (currentGroup != null)
         {
-            var parameters = new ObservableCollection<ReferenceValueParameter>(from parameter in currentGroup?.Parameters?.ToList()
-                                                                               where ReferenceValueParameterPropertyMatchValue(parameter, e)
-                                                                               select parameter);
+            var parameters = from parameter in currentGroup?.Parameters
+                             where ReferenceValueParameterPropertyMatchValue(parameter, e)
+                             select parameter;
             tableView.ItemsSource = parameters;
-            findTextBlock.Text = $"Find results for '{e.QueryText}' in {e.Context}. Matching Parameters: {parameters.Count}";
+            findTextBlock.Text = $"Find results for '{e.QueryText}' in {e.Context}. Matching Parameters: {parameters.Count()}";
             OnFilter(true);
         }
     }

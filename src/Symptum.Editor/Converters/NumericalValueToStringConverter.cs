@@ -1,4 +1,3 @@
-using Microsoft.UI.Xaml.Data;
 using Symptum.Core.Math;
 
 namespace Symptum.Editor.Converters;

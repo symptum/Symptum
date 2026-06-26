@@ -171,7 +171,7 @@ public class ProjectSystemManager
                 _ => string.Empty
             };
 
-            // NOTE: To prevent adding the resources to the project file.
+            // NOTE: To prevent adding the resources which are int the root folder to the project file.
             // As they will be loaded regardless.
             if (resource.ParentResource is ProjectFolder)
                 CurrentProject?.Entries?.Add(new(subFolder ?? PathSeparator.ToString(), resource.Title + extension));

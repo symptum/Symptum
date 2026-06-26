@@ -447,6 +447,15 @@ public class ResourceHelper
             WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, WindowHelper.WindowHandle);
 #endif
             saveFile = await fileSavePicker.PickSaveFileAsync();
+
+#if HAS_UNO && DESKTOP
+            if (saveFile != null)
+            {
+                // Workaround for FileSavePicker.PickSaveFileAsync() in Linux which returns a StorageFile that doesn't exist yet,
+                // which causes an exception when trying to open it for writing.
+                saveFile = await StorageHelper.EnsureStorageFileExistsAsync(saveFile);
+            }
+#endif
         }
         return saveFile;
     }

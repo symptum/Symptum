@@ -1,4 +1,5 @@
 using Symptum.Editor.Commands;
+using Windows.System;
 
 namespace Symptum.Editor.Controls;
 
@@ -11,30 +12,43 @@ public sealed partial class CommandPaletteControl : UserControl
     public CommandPaletteControl()
     {
         InitializeComponent();
+    }
 
-        commandBox.TextChanged += (s, e) =>
-        {
-            if (e.Reason == AutoSuggestionBoxTextChangeReason.UserInput) HandleTextChange(s.Text);
-        };
-        commandBox.SuggestionChosen += (s, e) =>
-        {
-            if (e.SelectedItem is IEditorCommand cmd)
-                s.Text = ">" + cmd.Key;
-        };
+    private void CommandBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+            HandleTextChange(sender.Text);
+    }
 
-        commandBox.QuerySubmitted += (s, e) =>
+    private void CommandBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+    {
+        if (args.SelectedItem is IEditorCommand cmd)
+            sender.Text = ">" + cmd.Key;
+    }
+
+    private void CommandBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+    {
+        if (args.ChosenSuggestion is IEditorCommand cmd)
+            SelectCommand(cmd);
+        else
+            HandleSubmit(args.QueryText);
+    }
+
+    private void CommandBox_KeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        if (e.Key == VirtualKey.Escape)
         {
-            if (e.ChosenSuggestion is IEditorCommand cmd)
-                SelectCommand(cmd);
+            if (_isInCommandContext)
+                ResetPalette();
             else
-                HandleSubmit(e.QueryText);
-        };
+                Visibility = Visibility.Collapsed;
+        }
+    }
 
-        optionsLV.ItemClick += (s, e) =>
-        {
-            if (e.ClickedItem is EditorCommandArgument arg)
-                PushArgumentAndMove(arg);
-        };
+    private void OptionsLV_ItemClick(object sender, ItemClickEventArgs e)
+    {
+        if (e.ClickedItem is EditorCommandArgument arg)
+            PushArgumentAndMove(arg);
     }
 
     public void ShowPalette()

@@ -2,7 +2,7 @@ using Symptum.Core.Management.Resources;
 
 namespace Symptum.Editor.Pages;
 
-public interface IEditorPage
+public interface IEditorPage : IDisposable
 {
     public IconSource? IconSource { get; }
 

@@ -6,7 +6,7 @@ namespace Symptum.Editor;
 
 public partial class App : Application
 {
-    public const string AppTitle = "Symptum Editor";
+    public const string AppTitle = "Symptum Editor (Dev)";
 
     public App()
     {

@@ -9,6 +9,7 @@
       xmlns:controls="using:CommunityToolkit.WinUI.Controls"
       xmlns:common="using:Symptum.Editor.Common"
       xmlns:utu="using:Uno.Toolkit.UI" xmlns:sub="using:Symptum.Core.Subjects"
+      xmlns:vm="using:Symptum.Editor.ViewModels"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
   <Grid x:Name="mainGrid" utu:SafeArea.Insets="All">
     <Grid.RowDefinitions>
@@ -28,10 +29,13 @@
           </TreeViewItem.Content>
           <TreeViewItem.ContextFlyout>
             <MenuFlyout>
-              <MenuFlyoutItem Icon="Document" Text="Add New Item" Click="AddNewFlyoutItem_Click"
+              <MenuFlyoutItem Icon="Document" Text="Add New Item"
+                              Command="{x:Bind vm:MainViewModel.Instance.AddNewItemCommand}"
+                              CommandParameter="{Binding }"
                               Visibility="{Binding CanHandleChildren, Converter={StaticResource BooleanToVisibilityConverter}}" />
-              <!--<MenuFlyoutItem Icon="Document" Text="Add Existing Item" />-->
-              <MenuFlyoutItem Icon="Delete" Text="Delete" Click="DeleteFlyoutItem_Click" />
+              <MenuFlyoutItem Icon="Delete" Text="Delete"
+                Command="{x:Bind vm:MainViewModel.Instance.DeleteResourceCommand}"
+                CommandParameter="{Binding }" />
             </MenuFlyout>
           </TreeViewItem.ContextFlyout>
         </TreeViewItem>
@@ -64,22 +68,22 @@
     </win:Grid>
     <MenuBar Grid.Row="1">
       <MenuBarItem Title="File">
-        <MenuFlyoutItem Text="New" Icon="Document" Click="New_Click">
+        <MenuFlyoutItem Text="New" Icon="Document" Command="{x:Bind ViewModel.AddNewItemCommand}">
           <MenuFlyoutItem.KeyboardAccelerators>
             <KeyboardAccelerator Modifiers="Control" Key="N" />
           </MenuFlyoutItem.KeyboardAccelerators>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="New Project" Click="NewProject_Click">
+        <MenuFlyoutItem Text="New Project" Command="{x:Bind ViewModel.CreateNewProjectCommand}">
           <MenuFlyoutItem.Icon>
             <IconSourceElement IconSource="{StaticResource EditorIconSource}" />
           </MenuFlyoutItem.Icon>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="Open File(s)" Icon="OpenFile" Click="OpenFile_Click">
+        <MenuFlyoutItem Text="Open File(s)" Icon="OpenFile" Command="{x:Bind ViewModel.OpenFileCommand}">
           <MenuFlyoutItem.KeyboardAccelerators>
             <KeyboardAccelerator Modifiers="Control" Key="O" />
           </MenuFlyoutItem.KeyboardAccelerators>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="Open Folder" Click="OpenFolder_Click">
+        <MenuFlyoutItem Text="Open Folder" Command="{x:Bind ViewModel.OpenWorkFolderCommand}">
           <MenuFlyoutItem.Icon>
             <FontIcon Glyph="&#xE8DA;" />
           </MenuFlyoutItem.Icon>
@@ -87,34 +91,32 @@
             <KeyboardAccelerator Modifiers="Control, Menu" Key="O" />
           </MenuFlyoutItem.KeyboardAccelerators>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="Save All" Icon="Save" Click="SaveAll_Click">
+        <MenuFlyoutItem Text="Save All" Icon="Save" Command="{x:Bind ViewModel.SaveAllCommand}">
           <MenuFlyoutItem.KeyboardAccelerators>
             <KeyboardAccelerator Modifiers="Control,Menu" Key="S" />
           </MenuFlyoutItem.KeyboardAccelerators>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="Close Folder" Click="CloseFolder_Click" />
-        <MenuFlyoutItem Text="Import Package" Click="ImportPackage_Click">
+        <MenuFlyoutItem Text="Close Folder" Command="{x:Bind ViewModel.CloseWorkFolderCommand}" />
+        <MenuFlyoutItem Text="Import Package" Command="{x:Bind ViewModel.ImportPackageCommand}">
           <MenuFlyoutItem.Icon>
             <FontIcon Glyph="&#xE8B5;" />
           </MenuFlyoutItem.Icon>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="Export Package" Click="ExportPackage_Click">
+        <MenuFlyoutItem Text="Export Package" Command="{x:Bind ViewModel.ExportPackageCommand}">
           <MenuFlyoutItem.Icon>
             <FontIcon Glyph="&#xEDE1;" />
           </MenuFlyoutItem.Icon>
         </MenuFlyoutItem>
-        <win:MenuFlyoutItem Text="Exit" Click="Exit_Click" />
+        <win:MenuFlyoutItem Text="Exit" Command="{x:Bind ViewModel.ExitApplicationCommand}" />
       </MenuBarItem>
       <MenuBarItem Title="View">
-        <MenuFlyoutSubItem Text="Command Palette">
-          <MenuFlyoutItem Text="Navigate Resources" Click="CommandPalette_Click">
-            <MenuFlyoutItem.KeyboardAccelerators>
-              <KeyboardAccelerator Modifiers="Control" Key="P" />
-            </MenuFlyoutItem.KeyboardAccelerators>
-          </MenuFlyoutItem>
-        </MenuFlyoutSubItem>
+        <MenuFlyoutItem Text="Command Palette" Click="CommandPalette_Click">
+          <MenuFlyoutItem.KeyboardAccelerators>
+            <KeyboardAccelerator Modifiers="Control" Key="P" />
+          </MenuFlyoutItem.KeyboardAccelerators>
+        </MenuFlyoutItem>
         <MenuFlyoutSubItem Text="Toolbars">
-          <ToggleMenuFlyoutItem x:Name="showResourcesPaneMenuItem" Text="Resources Pane" IsChecked="{x:Bind ShowResourcesPane, Mode=TwoWay}">
+          <ToggleMenuFlyoutItem x:Name="showResourcesPaneMenuItem" Text="Resources Pane">
             <ToggleMenuFlyoutItem.KeyboardAccelerators>
               <KeyboardAccelerator Modifiers="Control,Shift" Key="R" />
             </ToggleMenuFlyoutItem.KeyboardAccelerators>
@@ -125,7 +127,7 @@
             </ToggleMenuFlyoutItem.KeyboardAccelerators>
           </ToggleMenuFlyoutItem>
         </MenuFlyoutSubItem>
-        <MenuFlyoutItem Text="Close All Tabs" Click="CloseAllTabs_Click">
+        <MenuFlyoutItem Text="Close All Tabs" Command="{x:Bind ViewModel.CloseAllEditorsCommand}">
           <MenuFlyoutItem.KeyboardAccelerators>
             <KeyboardAccelerator Modifiers="Control,Shift" Key="W" />
           </MenuFlyoutItem.KeyboardAccelerators>
@@ -143,17 +145,25 @@
           </Grid.RowDefinitions>
           <CommandBar x:Name="cmdbar" IsOpen="False" DefaultLabelPosition="Collapsed">
             <AppBarElementContainer VerticalAlignment="Center">
-              <Button x:Name="workFolderButton" Visibility="Collapsed" MaxWidth="100" Margin="5,0">
-                <TextBlock x:Name="workFolderText" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+              <Button x:Name="workFolderButton"
+                      ToolTipService.Tooltip="{x:Bind ViewModel.WorkFolderPath}"
+                      Visibility="{x:Bind ViewModel.WorkFolderAvailable, Converter={StaticResource BooleanToVisibilityConverter}}"
+                      MaxWidth="100" Margin="5,0" Command="{x:Bind ViewModel.LaunchWorkFolderCommand}">
+                <TextBlock x:Name="workFolderText" TextTrimming="CharacterEllipsis"
+                           VerticalAlignment="Center" Text="{x:Bind ViewModel.WorkFolderName}" />
               </Button>
             </AppBarElementContainer>
-            <AppBarToggleButton x:Name="multiSelectButton" ToolTipService.ToolTip="Multi Select" Click="MultiSelectButton_Click">
+            <AppBarToggleButton x:Name="multiSelectButton"
+                                ToolTipService.ToolTip="Multi Select"
+                                IsChecked="{x:Bind ViewModel.TreeViewMultiSelectionEnabled, Mode=TwoWay}">
               <AppBarToggleButton.Icon>
                 <FontIcon Glyph="&#xE762;" />
               </AppBarToggleButton.Icon>
             </AppBarToggleButton>
-            <AppBarButton x:Name="deleteResourcesButton" IsEnabled="False" Icon="Delete"
-                          ToolTipService.ToolTip="Delete" Click="DeleteResourcesButton_Click">
+            <AppBarButton x:Name="deleteResourcesButton" Icon="Delete"
+                          IsEnabled="{x:Bind ViewModel.DeleteButtonEnabled}"
+                          ToolTipService.ToolTip="Delete"
+                          Command="{x:Bind ViewModel.DeleteResourcesCommand}">
               <AppBarButton.KeyboardAccelerators>
                 <KeyboardAccelerator Modifiers="Shift" Key="Delete" />
               </AppBarButton.KeyboardAccelerators>
@@ -166,9 +176,14 @@
             </AppBarButton>
           </CommandBar>
           <TextBlock x:Name="resourcesTB" Margin="12,0" Grid.Row="1"
-                     FontWeight="SemiBold" Text="Resources" TextTrimming="CharacterEllipsis" />
+                     FontWeight="SemiBold" Text="{x:Bind ViewModel.ResourcePaneTitle}"
+                     TextTrimming="CharacterEllipsis" />
           <ScrollViewer x:Name="sideStackPanel" Grid.Row="2" HorizontalScrollBarVisibility="Auto">
-            <TreeView x:Name="treeView" SelectionMode="Single"
+            <TreeView x:Name="treeView"
+              SelectionMode="{x:Bind ViewModel.TreeViewMultiSelectionEnabled, Mode=TwoWay, Converter={StaticResource BooleanToTreeViewSelectionModeConverter}}"
+              ItemsSource="{x:Bind res:ResourceManager.Resources}"
+              SelectionChanged="{x:Bind ViewModel.TreeView_SelectionChanged}"
+              ItemInvoked="{x:Bind ViewModel.TreeView_ItemInvoked}"
               CanReorderItems="False" CanDragItems="False" CanDrag="False"
               ItemTemplate="{StaticResource DefaultResourceDataTemplate}" />
           </ScrollViewer>
@@ -181,6 +196,7 @@
             CornerRadius="{ThemeResource NavigationViewContentGridCornerRadius}">
         <TabView x:Name="editorsTabView" VerticalAlignment="Stretch" IsAddTabButtonVisible="False"
                  TabItemsSource="{x:Bind ed:EditorPagesManager.EditorPages}"
+                 SelectedItem="{x:Bind ViewModel.CurrentEditor, Mode=TwoWay}"
                  TabCloseRequested="EditorsTabView_TabCloseRequested">
           <TabView.TabStripHeader>
             <Button x:Name="expandResourcesPaneButton" Visibility="Collapsed" ToolTipService.ToolTip="Resources"

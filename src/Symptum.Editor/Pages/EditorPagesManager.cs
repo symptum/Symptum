@@ -21,10 +21,23 @@ public class EditorPagesManager
 
     public static ObservableCollection<IEditorPage> EditorPages { get; private set; } = [];
 
-    public static IEditorPage? CurrentEditor { get; set; }
+    public static EventHandler<IEditorPage?> SelectEditorRequested;
 
-    public static EventHandler<IEditorPage?> CurrentEditorChanged;
+    public static void ShowWelcomePage()
+    {
+        IEditorPage? welcomePage = EditorPages.FirstOrDefault(x => x is WelcomePage);
+        if (welcomePage == null)
+        {
+            welcomePage = new WelcomePage
+            {
+                EditableContent = new CategoryResource() { Title = "Welcome" }
+            };
+            EditorPages.Add(welcomePage);
+        }
 
+        SelectEditorRequested?.Invoke(null, welcomePage);
+    }
+    
     public static IEditorPage? GetEditorForContentType(Type contentType)
     {
         if (_editorTypeMap.TryGetValue(contentType, out Type? pageType))
@@ -51,15 +64,16 @@ public class EditorPagesManager
             }
         }
 
-        CurrentEditorChanged?.Invoke(null, editor);
+        SelectEditorRequested?.Invoke(null, editor);
     }
 
     public static bool TryCloseEditor(IEditorPage? editor)
     {
         if (editor != null && EditorPages.Contains(editor))
         {
-            EditorPages.Remove(editor);
             editor.EditableContent = null;
+            editor.Dispose();
+            EditorPages.Remove(editor);
             return true;
         }
 
@@ -79,6 +93,7 @@ public class EditorPagesManager
         foreach (var editor in EditorPages)
         {
             editor.EditableContent = null;
+            editor.Dispose();
         }
         EditorPages.Clear();
     }

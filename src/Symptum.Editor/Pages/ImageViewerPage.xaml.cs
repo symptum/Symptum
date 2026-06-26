@@ -1,5 +1,4 @@
 using System.Numerics;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Symptum.Common.Helpers;
 using Symptum.Core.Management.Resources;
@@ -13,7 +12,8 @@ public sealed partial class ImageViewerPage : EditorPageBase
 {
     private ImageFileResource? _imageFileResource;
     private ResourcePropertiesEditorDialog? propertyEditorDialog;
-    private List<string> zoomLevels =
+    
+    private static List<string> zoomLevels =
     [
         "800%",
         "700%",
@@ -35,7 +35,6 @@ public sealed partial class ImageViewerPage : EditorPageBase
         IconSource = DefaultIconSources.PhotoIconSource;
         zoomCB.ItemsSource = zoomLevels;
         Loaded += ImageViewerPage_Loaded;
-        Unloaded += ImageViewerPage_Unloaded;
     }
 
     private async void PropsButton_Click(object sender, RoutedEventArgs e)
@@ -51,7 +50,7 @@ public sealed partial class ImageViewerPage : EditorPageBase
 
     private bool _loaded = false;
 
-    private void ImageViewerPage_Unloaded(object sender, RoutedEventArgs e)
+    protected override void OnCleanupPage()
     {
         _loaded = false;
         imagePreview.Source = null;

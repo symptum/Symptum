@@ -23,11 +23,6 @@ public sealed partial class AddNewItemDialog : ContentDialog
     {
         InitializeComponent();
         newItemsLV.ItemsSource = NewItemType.KnownTypes;
-        Opened += AddNewItemDialog_Opened;
-        PrimaryButtonClick += AddNewItemDialog_PrimaryButtonClick;
-        CloseButtonClick += AddNewItemDialog_CloseButtonClick;
-        queryBox.TextChanged += QueryBox_TextChanged;
-        queryBox.QuerySubmitted += QueryBox_QuerySubmitted;
     }
 
     private void QueryBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
@@ -93,7 +88,7 @@ public sealed partial class AddNewItemDialog : ContentDialog
                     || ParentResource == null)
                     return true;
                 else
-                    errorInfoBar.Message = "Cannot add a new item to the parent item (" + ParentResource?.Title + ")";
+                    errorInfoBar.Message = $"Cannot add a new item to the parent item ({ParentResource?.Title})";
             }
             else
                 errorInfoBar.Message = "An item type must be selected";

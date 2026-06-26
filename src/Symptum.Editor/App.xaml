@@ -17,6 +17,7 @@
       </ResourceDictionary.MergedDictionaries>
 
       <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+      <converters:BooleanToTreeViewSelectionModeConverter x:Key="BooleanToTreeViewSelectionModeConverter" />
       <converters:ReferenceListToStringConverter x:Key="ReferenceListToStringConverter" />
       <converters:DateOnlyListToStringConverter x:Key="DateOnlyListToStringConverter" />
       <converters:StringListToStringConverter x:Key="StringListToStringConverter" />

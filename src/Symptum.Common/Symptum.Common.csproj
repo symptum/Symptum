@@ -42,7 +42,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Symptum.Core\Symptum.Core.csproj" />
-    <ProjectReference Include="..\Symptum.UI\Symptum.UI.csproj" />
   </ItemGroup>
 
 </Project>
