@@ -8,7 +8,6 @@
                     xmlns:local="using:Symptum.Editor.Controls">
     <local:DepthToWidthConverter x:Key="DepthToWidthConverter" />
     <local:BooleanToRotationConverter x:Key="BooleanToRotationConverter"/>
-
     <Style TargetType="local:ResourceView">
         <Setter Property="IsTabStop"
                 Value="True"/>

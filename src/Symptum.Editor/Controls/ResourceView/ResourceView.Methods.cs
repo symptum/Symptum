@@ -13,7 +13,7 @@ public sealed partial class ResourceView
     private int _focusedIndex = -1;
     private bool _suppressEvents;
 
-    public void SetRootNodes(IReadOnlyList<IResource> resources)
+    public void SetRootNodes(IReadOnlyList<IResource>? resources)
     {
         ClearAll();
         if (resources != null)
@@ -133,7 +133,7 @@ public sealed partial class ResourceView
             kvp.Value._flatIndex = -1;
         UnobserveAllSources();
         _focusedIndex = -1;
-        
+
         // There is a possibility that the focused item could be removed from the visual tree.
         // So we shift the keyboard focus back to the ResourceView.
         Focus(FocusState.Keyboard);
@@ -148,16 +148,18 @@ public sealed partial class ResourceView
         node._flatIndex = index;
         SubscribeEvents(node);
         FlattenedItems.Add(node);
+        node.UpdateHasChildren();
         index++;
 
-        if (node.IsExpanded && node.Resource.ChildrenResources != null)
+        if (node.Resource.ChildrenResources != null)
         {
             ObserveSourceChildren(node);
-            foreach (var childResource in node.Resource.ChildrenResources)
-            {
-                var childNode = ResolveOrCreateNode(childResource, node);
-                index = FlattenNode(childNode, index);
-            }
+            if (node.IsExpanded)
+                foreach (var childResource in node.Resource.ChildrenResources)
+                {
+                    var childNode = ResolveOrCreateNode(childResource, node);
+                    index = FlattenNode(childNode, index);
+                }
         }
         return index;
     }
@@ -191,7 +193,6 @@ public sealed partial class ResourceView
     internal void ExpandFromNode(ResourceViewNode node)
     {
         if (node == null || node._flatIndex < 0) return;
-        ObserveSourceChildren(node);
 
         var focusedNode = _focusedIndex >= 0 && _focusedIndex < FlattenedItems.Count
             ? FlattenedItems[_focusedIndex] : null;
@@ -215,7 +216,6 @@ public sealed partial class ResourceView
     internal void CollapseFromNode(ResourceViewNode node)
     {
         if (node == null || node._flatIndex < 0) return;
-        UnobserveSourceChildren(node);
 
         int removed = CascadeRemove(node._flatIndex + 1, node.Depth);
         UpdateIndices(node._flatIndex + 1);
@@ -243,9 +243,9 @@ public sealed partial class ResourceView
         node._flatIndex = insertAt;
         insertAt++;
 
+        ObserveSourceChildren(node);
         if (node.IsExpanded)
         {
-            ObserveSourceChildren(node);
             if (node.Resource.ChildrenResources != null)
             {
                 foreach (var childResource in node.Resource.ChildrenResources)
@@ -369,6 +369,10 @@ public sealed partial class ResourceView
         if (_suppressEvents) return;
         if (sender is not INotifyCollectionChanged observable) return;
         if (!_sourceObserverMap.TryGetValue(observable, out var parentNode)) return;
+
+        parentNode.UpdateHasChildren();
+
+        if (!parentNode.IsExpanded) return;
 
         if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems != null)
         {

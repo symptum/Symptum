@@ -23,26 +23,14 @@ public class BooleanToResourceViewSelectionModeConverter : IValueConverter
         };
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, string language)
-    {
+    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
         throw new NotImplementedException();
-    }
 }
 
 public class BooleanToRotationConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language) =>
         (value is bool isExpanded && isExpanded) ? 90.0 : 0.0;
-
-    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
-        throw new NotImplementedException();
-}
-
-public class SelectionModeToVisibilityConverter : IValueConverter
-{
-    public object Convert(object value, Type targetType, object parameter, string language) =>
-        value is ResourceViewSelectionMode mode && mode == ResourceViewSelectionMode.Multiple
-            ? Visibility.Visible : Visibility.Collapsed;
 
     public object ConvertBack(object value, Type targetType, object parameter, string language) =>
         throw new NotImplementedException();

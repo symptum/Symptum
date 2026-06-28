@@ -5,7 +5,6 @@ namespace Symptum.Editor.Controls;
 
 public partial class ResourceViewNode : ObservableObject
 {
-    private IResource _resource;
     private ResourceViewNode? _parent;
     private int _depth;
 
@@ -20,16 +19,25 @@ public partial class ResourceViewNode : ObservableObject
     [ObservableProperty]
     public partial bool IsFocused { get; set; }
 
-    public IResource Resource => _resource;
+    [ObservableProperty]
+    public partial IResource Resource { get; private set; }
+
+    [ObservableProperty]
+    public partial bool HasChildren { get; private set; }
+    
     public int Depth => _depth;
+
     public ResourceViewNode? Parent => _parent;
-    public bool HasChildren => _resource?.ChildrenResources?.Count > 0;
 
     public ResourceViewNode(IResource resource, ResourceViewNode? parent = null)
     {
-        _resource = resource;
+        Resource = resource;
         _parent = parent;
         _depth = parent != null ? parent.Depth + 1 : 0;
         resource.InitializeResource(parent?.Resource);
+        UpdateHasChildren();
     }
+
+    public void UpdateHasChildren() =>
+        HasChildren = Resource?.ChildrenResources?.Count > 0;
 }
