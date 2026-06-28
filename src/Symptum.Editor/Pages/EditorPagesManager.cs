@@ -7,10 +7,7 @@ namespace Symptum.Editor.Pages;
 
 public class EditorPagesManager
 {
-    private static readonly Dictionary<Type, IEditorDialog> _dialogInstances = new()
-    {
-        { typeof(ResourcePropertiesEditorDialog), new ResourcePropertiesEditorDialog() },
-    };
+    private static readonly Dictionary<Type, IEditorDialog> _dialogInstances = [];
 
     private static readonly Dictionary<Type, Type> _editorTypeMap = new()
     {

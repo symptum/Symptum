@@ -4,5 +4,5 @@ public class ListEditorItemActionRequestedEventArgs(ListEditorItemActionType act
 {
     public ListEditorItemActionType ActionType { get; } = actionType;
 
-    public object? Arguments { get; } = null;
+    public object? Arguments { get; } = args;
 }

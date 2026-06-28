@@ -43,8 +43,13 @@ public sealed partial class ListEditorControl : UserControl
             nameof(ItemsSource),
             typeof(object),
             typeof(ListEditorControl),
-            new(null));
+            new(null, OnItemsSourcePropertyChanged));
 
+    private static void OnItemsSourcePropertyChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs args)
+    {
+        if (dependencyObject is ListEditorControl editorControl)
+            editorControl.itemsRepeater.ItemsSource = args.NewValue;
+    }
 
     public object ItemsSource
     {
