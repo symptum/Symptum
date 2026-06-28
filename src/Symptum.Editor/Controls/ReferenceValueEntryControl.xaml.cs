@@ -8,13 +8,6 @@ public sealed partial class ReferenceValueEntryControl : UserControl
 {
     private readonly ObservableCollection<ListEditorItemWrapper<Quantity>> _quantities = [];
 
-    public ReferenceValueEntryControl()
-    {
-        InitializeComponent();
-
-        HandleListEditors();
-    }
-
     #region Properties
 
     public static readonly DependencyProperty EntryProperty =
@@ -40,6 +33,24 @@ public sealed partial class ReferenceValueEntryControl : UserControl
 
     #endregion
 
+    public ReferenceValueEntryControl()
+    {
+        InitializeComponent();
+    }
+
+    private void ReferenceValueEntryControl_Loaded(object? s, RoutedEventArgs e)
+    {
+        qtLE.ItemsSource = _quantities;
+        qtLE.ActionRequested += LE_ActionRequested;
+    }
+
+    private void ReferenceValueEntryControl_Unloaded(object? s, RoutedEventArgs e)
+    {
+        qtLE.ItemsSource = null;
+        _quantities.ClearWrapperListSafe();
+        qtLE.ActionRequested -= LE_ActionRequested;
+    }
+
     private void LoadEntry(ReferenceValueEntry? entry)
     {
         titleTB.Text = entry?.Title;
@@ -60,50 +71,18 @@ public sealed partial class ReferenceValueEntryControl : UserControl
         }
     }
 
-    private void HandleListEditors()
-    {
-        qtLE.ItemsSource = _quantities;
-        qtLE.AddItemRequested += (s, e) => _quantities.Add(new ListEditorItemWrapper<Quantity>(new()));
-        qtLE.ClearItemsRequested += (s, e) => _quantities.Clear();
-        qtLE.RemoveItemRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<Quantity> data)
-                _quantities.Remove(data);
-        };
-        qtLE.DuplicateItemRequested += (s, e) =>
-        {
-            //if (e is ListEditorItemWrapper<Quantity> data)
-            //    _quantities.Add(new() { Value = data.Value });
-        };
-        qtLE.MoveItemUpRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<Quantity> data)
-            {
-                int oldIndex = _quantities.IndexOf(data);
-                int newIndex = Math.Max(oldIndex - 1, 0);
-                _quantities.Move(oldIndex, newIndex);
-            }
-        };
-        qtLE.MoveItemDownRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<Quantity> data)
-            {
-                int oldIndex = _quantities.IndexOf(data);
-                int newIndex = Math.Min(oldIndex + 1, _quantities.Count - 1);
-                _quantities.Move(oldIndex, newIndex);
-            }
-        };
-    }
-
-    private void okButton_Click(object sender, RoutedEventArgs e)
+    private void OkButton_Click(object sender, RoutedEventArgs e)
     {
         UpdateEntry();
         expander.IsExpanded = false;
     }
 
-    private void cancelButton_Click(object sender, RoutedEventArgs e)
+    private void CancelButton_Click(object sender, RoutedEventArgs e)
     {
         LoadEntry(Entry);
         expander.IsExpanded = false;
     }
+
+    private void LE_ActionRequested(object? s, ListEditorItemActionRequestedEventArgs e) =>
+        ListEditorControl.HandleActionRequired(_quantities, e, () => new());
 }

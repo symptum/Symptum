@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using Symptum.Editor.Common;
 
 namespace Symptum.Editor.Controls;
@@ -153,17 +154,7 @@ public sealed partial class ListEditorControl : UserControl
 
     #endregion
 
-    public event EventHandler<Type?> AddItemRequested;
-
-    public event EventHandler ClearItemsRequested;
-
-    public event EventHandler<object?> RemoveItemRequested;
-
-    public event EventHandler<object?> DuplicateItemRequested;
-
-    public event EventHandler<object?> MoveItemUpRequested;
-
-    public event EventHandler<object?> MoveItemDownRequested;
+    public event EventHandler<ListEditorItemActionRequestedEventArgs> ActionRequested;
 
     private void HandleTemplateChange()
     {
@@ -178,32 +169,34 @@ public sealed partial class ListEditorControl : UserControl
             return;
         }
 
-        AddItemRequested?.Invoke(this, type);
+        ActionRequested?.Invoke(this, new(ListEditorItemActionType.Add, type));
     }
 
     private void OnClearItems()
     {
-        ClearItemsRequested?.Invoke(this, null);
+        ActionRequested?.Invoke(this, new(ListEditorItemActionType.Clear));
     }
 
     private void OnRemoveItem(object? wrapper)
     {
-        RemoveItemRequested?.Invoke(this, wrapper);
+        ActionRequested?.Invoke(this, new(ListEditorItemActionType.Remove, wrapper));
     }
 
     private void OnDuplicateItem(object? wrapper)
     {
-        DuplicateItemRequested?.Invoke(this, wrapper);
+        ActionRequested?.Invoke(this, new(ListEditorItemActionType.Duplicate, wrapper));
     }
 
     private void OnMoveItemUp(object? wrapper)
     {
-        MoveItemUpRequested?.Invoke(this, wrapper);
+        ActionRequested?.Invoke(this, new(ListEditorItemActionType.MoveUp, wrapper));
+
     }
 
     private void OnMoveItemDown(object? wrapper)
     {
-        MoveItemDownRequested?.Invoke(this, wrapper);
+        ActionRequested?.Invoke(this, new(ListEditorItemActionType.MoveDown, wrapper));
+
     }
 
     private void Button_Click(object sender, RoutedEventArgs e)
@@ -212,6 +205,37 @@ public sealed partial class ListEditorControl : UserControl
         {
             itemTypePicker.Hide();
             OnAddItem(type.Type);
+        }
+    }
+
+    public static void HandleActionRequired<T>(ObservableCollection<ListEditorItemWrapper<T>> source,
+        ListEditorItemActionRequestedEventArgs e, Func<T> createNew, Func<T>? duplicate = null)
+    {
+        switch (e.ActionType)
+        {
+            case ListEditorItemActionType.Add:
+                {
+                    ArgumentNullException.ThrowIfNull(createNew);
+                    source.Add(new(createNew()));
+                }
+                break;
+            case ListEditorItemActionType.Clear:
+                source.ClearWrapperListSafe();
+                break;
+            case ListEditorItemActionType.Remove:
+                source.RemoveWrapperSafe(e.Arguments as ListEditorItemWrapper<T>);
+                break;
+            case ListEditorItemActionType.MoveUp:
+                source.MoveWrapperUp(e.Arguments as ListEditorItemWrapper<T>);
+                break;
+            case ListEditorItemActionType.MoveDown:
+                source.MoveWrapperDown(e.Arguments as ListEditorItemWrapper<T>);
+                break;
+            case ListEditorItemActionType.Duplicate:
+                if (duplicate != null)
+                    source.Add(new(duplicate()));
+                break;
+            default: break;
         }
     }
 }

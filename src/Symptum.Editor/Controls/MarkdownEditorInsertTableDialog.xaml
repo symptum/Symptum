@@ -29,7 +29,7 @@
         <ItemsRepeater.ItemTemplate>
           <DataTemplate x:DataType="local:MarkdownEditorTableColumn">
             <StackPanel MinWidth="100" MaxWidth="150">
-              <controls:Segmented Margin="12" SelectedIndex="{x:Bind Alignment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+              <controls:Segmented Orientation="Horizontal" Margin="12" SelectedIndex="{x:Bind Alignment, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                 <controls:SegmentedItem ToolTipService.ToolTip="Align Left" Icon="AlignLeft" />
                 <controls:SegmentedItem ToolTipService.ToolTip="Align Center" Icon="AlignCenter" />
                 <controls:SegmentedItem ToolTipService.ToolTip="Align Right" Icon="AlignRight" />

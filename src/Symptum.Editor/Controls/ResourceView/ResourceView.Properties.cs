@@ -10,9 +10,11 @@ public sealed partial class ResourceView
         set => SetValue(SourceProperty, value);
     }
 
-    public static readonly DependencyProperty SourceProperty =
-        DependencyProperty.Register(nameof(Source), typeof(IReadOnlyList<IResource>), typeof(ResourceView),
-            new PropertyMetadata(null, OnSourceChanged));
+    public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
+        nameof(Source),
+        typeof(IReadOnlyList<IResource>),
+        typeof(ResourceView),
+        new PropertyMetadata(null, OnSourceChanged));
 
     private static void OnSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
@@ -28,9 +30,11 @@ public sealed partial class ResourceView
         set => SetValue(SelectedResourceProperty, value);
     }
 
-    public static readonly DependencyProperty SelectedResourceProperty =
-        DependencyProperty.Register(nameof(SelectedResource), typeof(IResource), typeof(ResourceView),
-            new PropertyMetadata(null));
+    public static readonly DependencyProperty SelectedResourceProperty = DependencyProperty.Register(
+        nameof(SelectedResource),
+        typeof(IResource),
+        typeof(ResourceView),
+        new PropertyMetadata(null));
 
     public IList<IResource> SelectedResources
     {
@@ -38,9 +42,11 @@ public sealed partial class ResourceView
         set => SetValue(SelectedResourcesProperty, value);
     }
 
-    public static readonly DependencyProperty SelectedResourcesProperty =
-        DependencyProperty.Register(nameof(SelectedResources), typeof(IList<IResource>), typeof(ResourceView),
-            new PropertyMetadata(null));
+    public static readonly DependencyProperty SelectedResourcesProperty = DependencyProperty.Register(
+        nameof(SelectedResources),
+        typeof(IList<IResource>),
+        typeof(ResourceView),
+        new PropertyMetadata(null));
 
     public ResourceViewSelectionMode SelectionMode
     {
@@ -48,9 +54,11 @@ public sealed partial class ResourceView
         set => SetValue(SelectionModeProperty, value);
     }
 
-    public static readonly DependencyProperty SelectionModeProperty =
-        DependencyProperty.Register(nameof(SelectionMode), typeof(ResourceViewSelectionMode), typeof(ResourceView),
-            new PropertyMetadata(ResourceViewSelectionMode.Single, OnSelectionModeChanged));
+    public static readonly DependencyProperty SelectionModeProperty = DependencyProperty.Register(
+        nameof(SelectionMode),
+        typeof(ResourceViewSelectionMode),
+        typeof(ResourceView),
+        new PropertyMetadata(ResourceViewSelectionMode.Single, OnSelectionModeChanged));
 
     private static void OnSelectionModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {

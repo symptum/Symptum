@@ -53,6 +53,6 @@ public class ReferenceValueGroup : CsvFileResource
 
         using StringReader reader = new(csv);
         using CsvReader csvReader = new(reader, CultureInfo.InvariantCulture);
-        Parameters = new(csvReader.GetRecords<ReferenceValueParameter>().ToList());
+        Parameters = [.. csvReader.GetRecords<ReferenceValueParameter>()];
     }
 }

@@ -112,6 +112,11 @@
             <KeyboardAccelerator Modifiers="Control,Shift" Key="W" />
           </MenuFlyoutItem.KeyboardAccelerators>
         </MenuFlyoutItem>
+         <MenuFlyoutItem Text="Close Saved Tabs" Command="{x:Bind ViewModel.CloseSavedEditorsCommand}">
+          <MenuFlyoutItem.KeyboardAccelerators>
+            <KeyboardAccelerator Modifiers="Control,Shift" Key="U" />
+          </MenuFlyoutItem.KeyboardAccelerators>
+        </MenuFlyoutItem>
       </MenuBarItem>
     </MenuBar>
     <SplitView x:Name="splitView" Grid.Row="2" PaneBackground="Transparent"

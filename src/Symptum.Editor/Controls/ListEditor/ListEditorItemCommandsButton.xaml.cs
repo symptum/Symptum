@@ -94,9 +94,9 @@ public sealed partial class ListEditorItemCommandsButton : UserControl
 
     private void ListEditorItemCommandsButton_Loaded(object sender, RoutedEventArgs e)
     {
-        var ir = VisualTreeHelper.GetParent(this);
-        var gr = VisualTreeHelper.GetParent(ir);
-        var le = VisualTreeHelper.GetParent(gr);
+        var ir = VisualTreeHelper.GetParent(this); // ItemsRepeater
+        var gr = VisualTreeHelper.GetParent(ir); // Grid
+        var le = VisualTreeHelper.GetParent(gr); // ListEditor
         ListEditor = le as ListEditorControl;
     }
 

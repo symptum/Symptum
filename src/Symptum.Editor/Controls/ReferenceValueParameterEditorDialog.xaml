@@ -5,7 +5,11 @@
   xmlns:local="using:Symptum.Editor.Controls"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   Style="{ThemeResource DefaultContentDialogStyle}"
-  CloseButtonText="Cancel" PrimaryButtonStyle="{ThemeResource AccentButtonStyle}">
+  CloseButtonText="Cancel" PrimaryButtonStyle="{ThemeResource AccentButtonStyle}"
+  Opened="ReferenceValueParameterEditor_Opened"
+  PrimaryButtonClick="ReferenceValueParameterEditor_PrimaryButtonClick"
+  CloseButtonClick="ReferenceValueParameterEditor_CloseButtonClick"
+  Closing="ReferenceValueParameterEditor_Closing">
   <ScrollViewer>
     <StackPanel Spacing="16">
       <TextBox x:Name="titleTB" Header="Title" TextWrapping="Wrap"

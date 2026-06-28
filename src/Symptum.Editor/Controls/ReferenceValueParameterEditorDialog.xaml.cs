@@ -14,11 +14,6 @@ public sealed partial class ReferenceValueParameterEditorDialog : ContentDialog,
     public ReferenceValueParameterEditorDialog()
     {
         InitializeComponent();
-        Opened += ReferenceValueParameterEditor_Opened;
-        PrimaryButtonClick += ReferenceValueParameterEditor_PrimaryButtonClick;
-        CloseButtonClick += ReferenceValueParameterEditor_CloseButtonClick;
-
-        HandleListEditors();
     }
 
     private void ReferenceValueParameterEditor_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
@@ -37,6 +32,15 @@ public sealed partial class ReferenceValueParameterEditorDialog : ContentDialog,
     private void ReferenceValueParameterEditor_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
     {
         LoadParameter();
+        enLE.ItemsSource = entries;
+        enLE.ActionRequested += LE_ActionRequested;
+    }
+
+    private void ReferenceValueParameterEditor_Closing(ContentDialog sender, ContentDialogClosingEventArgs e)
+    {
+        enLE.ItemsSource = null;
+        entries.ClearWrapperListSafe();
+        enLE.ActionRequested -= LE_ActionRequested;
     }
 
     private bool _isCreate = false;
@@ -82,38 +86,6 @@ public sealed partial class ReferenceValueParameterEditorDialog : ContentDialog,
         entries.Clear();
     }
 
-    private void HandleListEditors()
-    {
-        enLE.ItemsSource = entries;
-        enLE.AddItemRequested += (s, e) => entries.Add(new ListEditorItemWrapper<ReferenceValueEntry>(new()));
-        enLE.ClearItemsRequested += (s, e) => entries.Clear();
-        enLE.RemoveItemRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<ReferenceValueEntry> entry)
-                entries.Remove(entry);
-        };
-        enLE.DuplicateItemRequested += (s, e) =>
-        {
-            //if (e is ListEditorItemWrapper<ReferenceValueEntry> entry)
-            //    entries.Add(new() { Value = entry.Value });
-        };
-        enLE.MoveItemUpRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<ReferenceValueEntry> entry)
-            {
-                int oldIndex = entries.IndexOf(entry);
-                int newIndex = Math.Max(oldIndex - 1, 0);
-                entries.Move(oldIndex, newIndex);
-            }
-        };
-        enLE.MoveItemDownRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<ReferenceValueEntry> entry)
-            {
-                int oldIndex = entries.IndexOf(entry);
-                int newIndex = Math.Min(oldIndex + 1, entries.Count - 1);
-                entries.Move(oldIndex, newIndex);
-            }
-        };
-    }
+    private void LE_ActionRequested(object? s, ListEditorItemActionRequestedEventArgs e) =>
+        ListEditorControl.HandleActionRequired(entries, e, () => new());
 }

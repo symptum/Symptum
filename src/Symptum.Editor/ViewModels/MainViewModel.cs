@@ -54,6 +54,8 @@ public partial class MainViewModel : ObservableObject
     public partial bool DeleteButtonEnabled { get; set; } = false;
 
     public ICommand CloseAllEditorsCommand { get; } = new RelayCommand(EditorPagesManager.ResetEditors);
+    
+    public ICommand CloseSavedEditorsCommand { get; } = new RelayCommand(EditorPagesManager.CloseSavedEditors);
 
     public ICommand ExitApplicationCommand { get; } = new RelayCommand(Application.Current.Exit);
 

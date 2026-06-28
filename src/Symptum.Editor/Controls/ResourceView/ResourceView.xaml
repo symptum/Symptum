@@ -6,177 +6,177 @@
                     xmlns:common="using:Symptum.Editor.Common"
                     xmlns:vm="using:Symptum.Editor.ViewModels"
                     xmlns:local="using:Symptum.Editor.Controls">
-    <local:DepthToWidthConverter x:Key="DepthToWidthConverter" />
-    <local:BooleanToRotationConverter x:Key="BooleanToRotationConverter"/>
-    <Style TargetType="local:ResourceView">
-        <Setter Property="IsTabStop"
-                Value="True"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="local:ResourceView">
-                    <ScrollViewer x:Name="scrollViewer">
-                        <ItemsRepeater x:Name="itemsRepeater">
-                            <ItemsRepeater.Layout>
-                                <StackLayout Orientation="Vertical"
-                                             Spacing="2"/>
-                            </ItemsRepeater.Layout>
-                            <ItemsRepeater.ItemTemplate>
-                                <DataTemplate x:DataType="local:ResourceViewNode">
-                                    <local:ResourceViewItem
-                                        HorizontalContentAlignment="Stretch"
-                                        VerticalContentAlignment="Stretch">
-                                        <local:ResourceViewItem.ContextFlyout>
-                                            <MenuFlyout>
-                                                <MenuFlyoutItem Icon="Document"
-                                                        Text="Add New Item"
-                                                                Command="{x:Bind vm:MainViewModel.Instance.AddNewItemCommand}"
-                                                                CommandParameter="{Binding Resource}"
-                                                                Visibility="{Binding CanHandleChildren, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                                                <MenuFlyoutItem Icon="Delete"
-                                                        Text="Delete"
-                                                                Command="{x:Bind vm:MainViewModel.Instance.DeleteResourceCommand}"
-                                                                CommandParameter="{Binding Resource}"/>
-                                            </MenuFlyout>
-                                        </local:ResourceViewItem.ContextFlyout>
-                                    </local:ResourceViewItem>
-                                </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
-                    </ScrollViewer>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+  <local:DepthToWidthConverter x:Key="DepthToWidthConverter"/>
+  <local:BooleanToRotationConverter x:Key="BooleanToRotationConverter"/>
+  <Style TargetType="local:ResourceView">
+    <Setter Property="IsTabStop"
+            Value="True"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="local:ResourceView">
+          <ScrollViewer x:Name="scrollViewer">
+            <ItemsRepeater x:Name="itemsRepeater">
+              <ItemsRepeater.Layout>
+                <StackLayout Orientation="Vertical"
+                             Spacing="2"/>
+              </ItemsRepeater.Layout>
+              <ItemsRepeater.ItemTemplate>
+                <DataTemplate x:DataType="local:ResourceViewNode">
+                  <local:ResourceViewItem
+                    HorizontalContentAlignment="Stretch"
+                    VerticalContentAlignment="Stretch">
+                    <local:ResourceViewItem.ContextFlyout>
+                      <MenuFlyout>
+                        <MenuFlyoutItem Icon="Document"
+                                        Text="Add New Item"
+                                        Command="{x:Bind vm:MainViewModel.Instance.AddNewItemCommand}"
+                                        CommandParameter="{Binding Resource}"
+                                        Visibility="{Binding CanHandleChildren, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        <MenuFlyoutItem Icon="Delete"
+                                        Text="Delete"
+                                        Command="{x:Bind vm:MainViewModel.Instance.DeleteResourceCommand}"
+                                        CommandParameter="{Binding Resource}"/>
+                      </MenuFlyout>
+                    </local:ResourceViewItem.ContextFlyout>
+                  </local:ResourceViewItem>
+                </DataTemplate>
+              </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
-    <Style TargetType="local:ResourceViewItem">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="local:ResourceViewItem">
-                    <Grid x:Name="RootGrid"
-                          CornerRadius="{ThemeResource ControlCornerRadius}"
-                          Height="36"
-                          ColumnSpacing="4"
-                          ColumnDefinitions="Auto,*,Auto">
+  <Style TargetType="local:ResourceViewItem">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="local:ResourceViewItem">
+          <Grid x:Name="RootGrid"
+                CornerRadius="{ThemeResource ControlCornerRadius}"
+                Height="36"
+                ColumnSpacing="4"
+                ColumnDefinitions="Auto,*,Auto">
 
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup x:Name="CommonStates">
-                                <VisualState x:Name="Normal"/>
-                                <VisualState x:Name="PointerOver">
-                                    <VisualState.Setters>
-                                        <Setter Target="RootGrid.Background"
-                                                Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
-                                    </VisualState.Setters>
-                                </VisualState>
-                                <VisualState x:Name="Pressed">
-                                    <VisualState.Setters>
-                                        <Setter Target="RootGrid.Background"
-                                                Value="{ThemeResource CardBackgroundTertiaryBrush}"/>
-                                    </VisualState.Setters>
-                                </VisualState>
-                                <VisualState x:Name="Selected">
-                                    <VisualState.Setters>
-                                        <Setter Target="RootGrid.Background"
-                                                Value="{ThemeResource ControlFillColorDefaultBrush}"/>
-                                    </VisualState.Setters>
-                                </VisualState>
-                                <VisualState x:Name="PointerOverSelected">
-                                    <VisualState.Setters>
-                                        <Setter Target="RootGrid.Background"
-                                                Value="{ThemeResource ControlFillColorSecondaryBrush}"/>
-                                    </VisualState.Setters>
-                                </VisualState>
-                                <VisualState x:Name="PressedSelected">
-                                    <VisualState.Setters>
-                                        <Setter Target="RootGrid.Background"
-                                                Value="{ThemeResource ControlFillColorTertiaryBrush}"/>
-                                    </VisualState.Setters>
-                                </VisualState>
-                            </VisualStateGroup>
-                            <VisualStateGroup x:Name="FocusStates">
-                                <VisualState x:Name="Focused">
-                                    <VisualState.Setters>
-                                        <Setter Target="FocusIndicator.Visibility"
-                                                Value="Visible"/>
-                                        <Setter Target="FocusVisual.Visibility"
-                                                Value="Visible"/>
-                                    </VisualState.Setters>
-                                </VisualState>
-                                <VisualState x:Name="Unfocused">
-                                    <VisualState.Setters>
-                                        <Setter Target="FocusIndicator.Visibility"
-                                                Value="Collapsed"/>
-                                        <Setter Target="FocusVisual.Visibility"
-                                                Value="Collapsed"/>
-                                    </VisualState.Setters>
-                                </VisualState>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
+            <VisualStateManager.VisualStateGroups>
+              <VisualStateGroup x:Name="CommonStates">
+                <VisualState x:Name="Normal"/>
+                <VisualState x:Name="PointerOver">
+                  <VisualState.Setters>
+                    <Setter Target="RootGrid.Background"
+                            Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+                  </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Pressed">
+                  <VisualState.Setters>
+                    <Setter Target="RootGrid.Background"
+                            Value="{ThemeResource CardBackgroundTertiaryBrush}"/>
+                  </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Selected">
+                  <VisualState.Setters>
+                    <Setter Target="RootGrid.Background"
+                            Value="{ThemeResource ControlFillColorDefaultBrush}"/>
+                  </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="PointerOverSelected">
+                  <VisualState.Setters>
+                    <Setter Target="RootGrid.Background"
+                            Value="{ThemeResource ControlFillColorSecondaryBrush}"/>
+                  </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="PressedSelected">
+                  <VisualState.Setters>
+                    <Setter Target="RootGrid.Background"
+                            Value="{ThemeResource ControlFillColorTertiaryBrush}"/>
+                  </VisualState.Setters>
+                </VisualState>
+              </VisualStateGroup>
+              <VisualStateGroup x:Name="FocusStates">
+                <VisualState x:Name="Focused">
+                  <VisualState.Setters>
+                    <Setter Target="FocusIndicator.Visibility"
+                            Value="Visible"/>
+                    <Setter Target="FocusVisual.Visibility"
+                            Value="Visible"/>
+                  </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Unfocused">
+                  <VisualState.Setters>
+                    <Setter Target="FocusIndicator.Visibility"
+                            Value="Collapsed"/>
+                    <Setter Target="FocusVisual.Visibility"
+                            Value="Collapsed"/>
+                  </VisualState.Setters>
+                </VisualState>
+              </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
 
-                        <Border x:Name="ExpandCollapseZone"
-                                Width="{Binding Depth, Converter={StaticResource DepthToWidthConverter}}"
-                                HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                                Background="Transparent"
-                                IsTabStop="False">
-                            <FontIcon Glyph="&#xE76C;"
-                                      FontFamily="{ThemeResource SymbolThemeFontFamily}"
-                                      FontSize="12"
-                                      HorizontalAlignment="Right"
-                                      VerticalAlignment="Center"
-                                      Visibility="{Binding HasChildren, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                      RenderTransformOrigin="0.5,0.5">
-                                <FontIcon.RenderTransform>
-                                    <RotateTransform Angle="{Binding IsExpanded, Converter={StaticResource BooleanToRotationConverter}}"/>
-                                </FontIcon.RenderTransform>
-                            </FontIcon>
-                        </Border>
+            <Border x:Name="ExpandCollapseZone"
+                    Width="{Binding Depth, Converter={StaticResource DepthToWidthConverter}}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Background="Transparent"
+                    IsTabStop="False">
+              <FontIcon Glyph="&#xE76C;"
+                        FontFamily="{ThemeResource SymbolThemeFontFamily}"
+                        FontSize="12"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Visibility="{Binding HasChildren, Converter={StaticResource BooleanToVisibilityConverter}}"
+                        RenderTransformOrigin="0.5,0.5">
+                <FontIcon.RenderTransform>
+                  <RotateTransform Angle="{Binding IsExpanded, Converter={StaticResource BooleanToRotationConverter}}"/>
+                </FontIcon.RenderTransform>
+              </FontIcon>
+            </Border>
 
-                        <Grid x:Name="ContentZone"
-                              Grid.Column="1"
-                              ColumnDefinitions="Auto,*"
-                              ColumnSpacing="8"
-                              VerticalAlignment="Stretch"
-                              HorizontalAlignment="Stretch"
-                              Background="Transparent"
-                              IsTabStop="False">
-                            <IconSourceElement common:ResourceBaseToIconSourceExtension.Resource="{Binding Resource}"/>
-                            <TextBlock Text="{Binding Resource.Title}"
-                                       Grid.Column="1"
-                                       VerticalAlignment="Center"
-                                       TextTrimming="CharacterEllipsis"
-                                       IsTabStop="False"/>
-                        </Grid>
+            <Grid x:Name="ContentZone"
+                  Grid.Column="1"
+                  ColumnDefinitions="Auto,*"
+                  ColumnSpacing="8"
+                  VerticalAlignment="Stretch"
+                  HorizontalAlignment="Stretch"
+                  Background="Transparent"
+                  IsTabStop="False">
+              <IconSourceElement common:ResourceBaseToIconSourceExtension.Resource="{Binding Resource}"/>
+              <TextBlock Text="{Binding Resource.Title}"
+                         Grid.Column="1"
+                         VerticalAlignment="Center"
+                         TextTrimming="CharacterEllipsis"
+                         IsTabStop="False"/>
+            </Grid>
 
-                        <CheckBox x:Name="SelectionCheckBox"
-                                  Grid.Column="2"
-                                  IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                  MinWidth="0"
-                                  Content=""
-                                  IsTabStop="False"
-                                  Visibility="Collapsed"/>
+            <CheckBox x:Name="SelectionCheckBox"
+                      Grid.Column="2"
+                      IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                      MinWidth="0"
+                      Content=""
+                      IsTabStop="False"
+                      Visibility="Collapsed"/>
 
-                        <Rectangle x:Name="FocusIndicator"
-                                   Fill="{ThemeResource AccentFillColorDefaultBrush}"
-                                   Width="3"
-                                   Height="16"
-                                   RadiusX="2"
-                                   RadiusY="2"
-                                   Margin="4,0,0,0"
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Left"
-                                   IsHitTestVisible="False"
-                                   Visibility="Collapsed"/>
+            <Rectangle x:Name="FocusIndicator"
+                       Fill="{ThemeResource AccentFillColorDefaultBrush}"
+                       Width="3"
+                       Height="16"
+                       RadiusX="2"
+                       RadiusY="2"
+                       Margin="4,0,0,0"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Left"
+                       IsHitTestVisible="False"
+                       Visibility="Collapsed"/>
 
-                        <Border x:Name="FocusVisual"
-                                Grid.ColumnSpan="3"
-                                BorderBrush="{ThemeResource FocusStrokeColorOuterBrush}"
-                                BorderThickness="2"
-                                CornerRadius="{ThemeResource ControlCornerRadius}"
-                                IsHitTestVisible="False"
-                                Visibility="Collapsed"/>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+            <Border x:Name="FocusVisual"
+                    Grid.ColumnSpan="3"
+                    BorderBrush="{ThemeResource FocusStrokeColorOuterBrush}"
+                    BorderThickness="2"
+                    CornerRadius="{ThemeResource ControlCornerRadius}"
+                    IsHitTestVisible="False"
+                    Visibility="Collapsed"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 </ResourceDictionary>

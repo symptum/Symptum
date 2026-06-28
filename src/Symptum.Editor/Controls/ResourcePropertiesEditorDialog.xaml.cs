@@ -11,10 +11,6 @@ public sealed partial class ResourcePropertiesEditorDialog : ContentDialog, IEdi
     public ResourcePropertiesEditorDialog()
     {
         InitializeComponent();
-
-        Opened += ResourcePropertiesEditorDialog_Opened;
-        PrimaryButtonClick += ResourcePropertiesEditorDialog_PrimaryButtonClick;
-        CloseButtonClick += ResourcePropertiesEditorDialog_CloseButtonClick;
     }
 
     private void ResourcePropertiesEditorDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

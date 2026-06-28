@@ -98,6 +98,15 @@ public class EditorPagesManager
         EditorPages.Clear();
     }
 
+    public static void CloseSavedEditors()
+    {
+        var savedEditors = EditorPages.Where(e => !e.HasUnsavedChanges);
+        foreach (var e in savedEditors)
+        {
+            EditorPages.Remove(e);
+        }
+    }
+
     public static void UpdateEditors()
     {
         foreach (var editor in EditorPages)
