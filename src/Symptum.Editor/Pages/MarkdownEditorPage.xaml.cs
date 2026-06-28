@@ -15,9 +15,9 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     private ResourcePropertiesEditorDialog? propertyEditorDialog;
     private MarkdownEditorInsertTableDialog? insertTableDialog;
     private MarkdownEditorInsertLinkDialog? insertLinkDialog;
-    private static readonly string m_CurrentDocument = "Current Document";
-    private static readonly string m_Selection = "Selection";
-    private static readonly string m_Indentation = "    "; // NOTE: Should this support switching between Tabs ("\t") vs 4 Spaces ("    ")?
+    private static readonly string _currentDocument = "Current Document";
+    private static readonly string _selection = "Selection";
+    private static readonly string _indentation = "    "; // NOTE: Should this support switching between Tabs ("\t") vs 4 Spaces ("    ")?
     private static readonly char newLine = Environment.NewLine[0];
 
     public MarkdownEditorPage()
@@ -309,8 +309,8 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     {
         List<string> columns =
         [
-            m_CurrentDocument,
-            m_Selection
+            _currentDocument,
+            _selection
         ];
 
         findControl.FindContexts = columns;
@@ -351,7 +351,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         string text = mdText.Text;
         int start = 0;
         int end = text.Length;
-        if (context == m_Selection)
+        if (context == _selection)
         {
             start = mdText.SelectionStart;
             end = start + mdText.SelectionLength;
@@ -725,9 +725,9 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     private void ToggleItalic() => ToggleWrap('*');
 
-    private void IncreaseIndent() => InsertInFrontOfLines(m_Indentation);
+    private void IncreaseIndent() => InsertInFrontOfLines(_indentation);
 
-    private void DecreaseIndent() => RemoveFromFrontOfLines(m_Indentation);
+    private void DecreaseIndent() => RemoveFromFrontOfLines(_indentation);
 
     private void BoldButton_Click(object sender, RoutedEventArgs e) => ToggleWrap('*', 2);
 

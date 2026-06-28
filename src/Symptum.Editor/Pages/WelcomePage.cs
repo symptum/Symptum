@@ -1,5 +1,6 @@
 using Microsoft.UI.Text;
 using Symptum.Editor.ViewModels;
+using static Symptum.Editor.Common.DefaultIconSources;
 
 namespace Symptum.Editor.Pages;
 
@@ -14,10 +15,6 @@ public sealed partial class WelcomePage : EditorPageBase
                           .HorizontalAlignment(HorizontalAlignment.Center)
                           .VerticalAlignment(VerticalAlignment.Center)
                           .Children(
-                            new Image()
-                                .Width(32)
-                                .Height(32)
-                                .Source("ms-appx:///Assets/Images/Symptum Editor.png"),
                             new TextBlock()
                                 .Text(App.AppTitle)
                                 .FontWeight(FontWeights.Bold)
@@ -29,21 +26,30 @@ public sealed partial class WelcomePage : EditorPageBase
                                 .Orientation(Orientation.Vertical)
                                 .Spacing(12)
                                 .Children(
-                                    new Button().Content("New")
-                                        .Command(MainViewModel.Instance.AddNewItemCommand)
-                                        .HorizontalAlignment(HorizontalAlignment.Stretch),
-                                    new Button().Content("Open File(s)")
-                                        .Command(MainViewModel.Instance.OpenFileCommand)
-                                        .HorizontalAlignment(HorizontalAlignment.Stretch),
-                                    new Button().Content("Open Folder")
-                                        .Command(MainViewModel.Instance.OpenWorkFolderCommand)
-                                        .HorizontalAlignment(HorizontalAlignment.Stretch)
+                                    IconButton(DocumentIconSource, "New", MainViewModel.Instance.AddNewItemCommand),
+                                    IconButton(OpenFileIconSource, "Open File(s)", MainViewModel.Instance.OpenFileCommand),
+                                    IconButton(OpenFolderIconSource, "Open Folder", MainViewModel.Instance.OpenWorkFolderCommand)
                                 )
                           ));
 
         IconSource = new BitmapIconSource()
         {
-            UriSource = new Uri("ms-appx:///Assets/Images/Symptum Editor.png")
+            UriSource = new("ms-appx:///Assets/Images/Symptum_Editor_Monochrome.png")
         };
     }
+
+    private Button IconButton(IconSource icon, string content, ICommand command) =>
+        new Button().HorizontalAlignment(HorizontalAlignment.Stretch)
+            .Command(command)
+            .HorizontalContentAlignment(HorizontalAlignment.Stretch)
+            .Content(
+            new Grid().ColumnDefinitions("Auto,*")
+                .HorizontalAlignment(HorizontalAlignment.Stretch)
+                .ColumnSpacing(8)
+                .Children(
+                    new IconSourceElement().IconSource(icon),
+                    new TextBlock().Text(content).Grid(column: 1)
+                        .HorizontalAlignment(HorizontalAlignment.Left)
+                )
+        );
 }

@@ -19,27 +19,7 @@
     </Grid.RowDefinitions>
     <Grid.Resources>
       <PathIconSource x:Key="EditorIconSource" Data="M12.6,4.3L9.7,1.4C9.4,1.2,9,1,8.6,1H5C3.9,1,3,1.9,3,3v0.7c0.3-0.1,0.7-0.2,1-0.2V3c0-0.5,0.5-1,1-1h3v2.5  C8,5.3,8.7,6,9.5,6H12v7c0,0.5-0.5,1-1,1H7.3c-0.2,0.4-0.5,0.7-0.8,1H11c1.1,0,2-0.9,2-2V5.4C13,5,12.8,4.6,12.6,4.3z M9.5,5  C9.2,5,9,4.8,9,4.5V2.2L11.8,5H9.5z M5.4,9.7c-0.1,0-0.2-0.1-0.3-0.1C4.8,9.4,4.4,9.3,4,9.3C3.6,9.3,3.3,9,3.3,8.7C3.3,8.3,3.6,8,4,8c0,0,0,0,0,0  c0.5,0,0.9-0.2,1.3-0.5c0.4-0.4,0.6-1,0.4-1.6C5.6,5.2,5,4.7,4.4,4.6C3.3,4.3,2.3,5.2,2.3,6.2c0,0.3,0.1,0.7,0.3,0.9  c0.1,0.2,0.1,0.4,0,0.5C2.4,8,2.3,8.3,2.3,8.6c0,0.4,0.1,0.7,0.3,1c0.3,0.4,0.8,0.7,1.4,0.7c0,0,0,0,0,0c0,0,0,0,0,0c0,0,0,0,0,0  c1.1,0,1.9,1,1.6,2.1c-0.1,0.6-0.6,1.1-1.3,1.3c-1,0.2-1.9-0.4-2.1-1.3c-0.1-0.2-0.3-0.4-0.5-0.4H1.2c0,1.5,1.2,2.8,2.8,2.8  c0,0,0,0,0,0s0,0,0,0c1.5,0,2.8-1.3,2.8-2.8C6.8,11.1,6.2,10.2,5.4,9.7z M4,5.2c0.6,0,1.1,0.5,1.1,1.1c0,0.3-0.1,0.6-0.4,0.8  C4.5,7.2,4.3,7.3,4,7.3S3.5,7.2,3.3,7.1C3.1,6.9,2.9,6.6,2.9,6.2C2.9,5.6,3.4,5.2,4,5.2z" />
-      <DataTemplate x:Key="DefaultResourceDataTemplate" x:DataType="res:ResourceBase">
-        <TreeViewItem ItemsSource="{x:Bind ChildrenResources}">
-          <TreeViewItem.Content>
-            <StackPanel Orientation="Horizontal" Spacing="8">
-              <IconSourceElement common:ResourceBaseToIconSourceExtension.Resource="{x:Bind }" />
-              <TextBlock Text="{x:Bind Title, Mode=OneWay}" />
-            </StackPanel>
-          </TreeViewItem.Content>
-          <TreeViewItem.ContextFlyout>
-            <MenuFlyout>
-              <MenuFlyoutItem Icon="Document" Text="Add New Item"
-                              Command="{x:Bind vm:MainViewModel.Instance.AddNewItemCommand}"
-                              CommandParameter="{Binding }"
-                              Visibility="{Binding CanHandleChildren, Converter={StaticResource BooleanToVisibilityConverter}}" />
-              <MenuFlyoutItem Icon="Delete" Text="Delete"
-                Command="{x:Bind vm:MainViewModel.Instance.DeleteResourceCommand}"
-                CommandParameter="{Binding }" />
-            </MenuFlyout>
-          </TreeViewItem.ContextFlyout>
-        </TreeViewItem>
-      </DataTemplate>
+      <secontrols:BooleanToResourceViewSelectionModeConverter x:Key="BooleanToResourceViewSelectionModeConverter" />
     </Grid.Resources>
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup>
@@ -137,12 +117,9 @@
     <SplitView x:Name="splitView" Grid.Row="2" PaneBackground="Transparent"
                IsPaneOpen="True" OpenPaneLength="301" CompactPaneLength="48" DisplayMode="Inline">
       <SplitView.Pane>
-        <Grid x:Name="paneGrid" BorderThickness="0,1,1,1" CornerRadius="0,8,8,0" Width="300" RowSpacing="12">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-          </Grid.RowDefinitions>
+        <Grid x:Name="paneGrid" BorderThickness="0,1,1,1"
+          RowDefinitions="Auto,Auto,*"
+          CornerRadius="0,8,8,0" Width="300" RowSpacing="12">
           <CommandBar x:Name="cmdbar" IsOpen="False" DefaultLabelPosition="Collapsed">
             <AppBarElementContainer VerticalAlignment="Center">
               <Button x:Name="workFolderButton"
@@ -155,13 +132,13 @@
             </AppBarElementContainer>
             <AppBarToggleButton x:Name="multiSelectButton"
                                 ToolTipService.ToolTip="Multi Select"
-                                IsChecked="{x:Bind ViewModel.TreeViewMultiSelectionEnabled, Mode=TwoWay}">
+                                IsChecked="{x:Bind ViewModel.ResourceViewMultiSelectionEnabled, Mode=TwoWay}">
               <AppBarToggleButton.Icon>
                 <FontIcon Glyph="&#xE762;" />
               </AppBarToggleButton.Icon>
             </AppBarToggleButton>
             <AppBarButton x:Name="deleteResourcesButton" Icon="Delete"
-                          IsEnabled="{x:Bind ViewModel.DeleteButtonEnabled}"
+                          IsEnabled="{x:Bind ViewModel.DeleteButtonEnabled, Mode=OneWay}"
                           ToolTipService.ToolTip="Delete"
                           Command="{x:Bind ViewModel.DeleteResourcesCommand}">
               <AppBarButton.KeyboardAccelerators>
@@ -178,15 +155,12 @@
           <TextBlock x:Name="resourcesTB" Margin="12,0" Grid.Row="1"
                      FontWeight="SemiBold" Text="{x:Bind ViewModel.ResourcePaneTitle}"
                      TextTrimming="CharacterEllipsis" />
-          <ScrollViewer x:Name="sideStackPanel" Grid.Row="2" HorizontalScrollBarVisibility="Auto">
-            <TreeView x:Name="treeView"
-              SelectionMode="{x:Bind ViewModel.TreeViewMultiSelectionEnabled, Mode=TwoWay, Converter={StaticResource BooleanToTreeViewSelectionModeConverter}}"
-              ItemsSource="{x:Bind res:ResourceManager.Resources}"
-              SelectionChanged="{x:Bind ViewModel.TreeView_SelectionChanged}"
-              ItemInvoked="{x:Bind ViewModel.TreeView_ItemInvoked}"
-              CanReorderItems="False" CanDragItems="False" CanDrag="False"
-              ItemTemplate="{StaticResource DefaultResourceDataTemplate}" />
-          </ScrollViewer>
+          <secontrols:ResourceView x:Name="resourceView"
+            Grid.Row="2"
+            Source="{x:Bind res:ResourceManager.Resources}"
+            SelectionMode="{x:Bind ViewModel.ResourceViewMultiSelectionEnabled, Mode=OneWay, Converter={StaticResource BooleanToResourceViewSelectionModeConverter}}"
+            ResourcesSelected="{x:Bind ViewModel.ResourceView_ResourcesSelected}"
+            ResourceOpenRequested="{x:Bind ViewModel.ResourceView_ResourceOpenRequested}" />
         </Grid>
       </SplitView.Pane>
       <Grid x:Name="contentGrid"

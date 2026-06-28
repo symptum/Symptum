@@ -21,4 +21,8 @@ public static class DefaultIconSources
     public static IconSource FolderIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.Folder };
 
     public static IconSource PackageIconSource { get; } = new FontIconSource() { Glyph = "\uE7B8" };
+
+    public static IconSource OpenFileIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.OpenFile };
+
+    public static IconSource OpenFolderIconSource { get; } = new FontIconSource() { Glyph = "\uE8DA" }; 
 }

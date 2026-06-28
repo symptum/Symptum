@@ -12,8 +12,8 @@ namespace Symptum.Editor.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
-    private const string m_resourcePaneTitle = "Resources";
-    private const string m_resourcePaneTitleFormat = "Resources - {0}";
+    private const string _resourcePaneTitle = "Resources";
+    private const string _resourcePaneTitleFormat = "Resources - {0}";
 
     private readonly FileOpenPicker fileOpenPicker = new();
     private readonly AddNewItemDialog addNewItemDialog = new();
@@ -25,7 +25,7 @@ public partial class MainViewModel : ObservableObject
 
     private XamlRoot? xamlRoot;
     private bool _isBeingSaved = false;
-    private IList<object>? _selectedItems;
+    private IList<IResource>? _selectedResources;
 
     #region Properties
 
@@ -48,7 +48,7 @@ public partial class MainViewModel : ObservableObject
     public partial IResource? SelectedResource { get; set; }
 
     [ObservableProperty]
-    public partial bool TreeViewMultiSelectionEnabled { get; set; } = false;
+    public partial bool ResourceViewMultiSelectionEnabled { get; set; } = false;
 
     [ObservableProperty]
     public partial bool DeleteButtonEnabled { get; set; } = false;
@@ -67,6 +67,7 @@ public partial class MainViewModel : ObservableObject
 
     public void Initialize()
     {
+        // GenerateResources();
         xamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
         ResourceHelper.WorkFolderChanged += WorkFolderChanged;
         ProjectSystemManager.CurrentProjectChanged += ProjectChanged;
@@ -78,33 +79,60 @@ public partial class MainViewModel : ObservableObject
         fileOpenPicker.FileTypeFilter.AddRange(AudioFileExtensions);
     }
 
-    #region Tree View
+    // private static void GenerateResources()
+    // {
+    //     for (int i = 0; i < 50; i++)
+    //     {
+    //         int catNum = i + 1;
+    //         var category = new CategoryResource
+    //         {
+    //             Title = $"Category {catNum}",
+    //         };
 
-    public void TreeView_SelectionChanged(TreeView s, TreeViewSelectionChangedEventArgs e)
+    //         for (int j = 0; j < 10; j++)
+    //         {
+    //             int subNum = j + 1;
+    //             var sub = new MarkdownCategoryResource
+    //             {
+    //                 Title = $"MD Category {catNum}.{subNum}"
+    //             };
+
+    //             for (int k = 0; k < 20; k++)
+    //             {
+    //                 int itemNum = k + 1;
+    //                 sub.AddChildResource(new MarkdownFileResource
+    //                 {
+    //                     Title = $"MD {catNum}.{subNum}.{itemNum}",
+    //                 });
+    //             }
+
+    //             category.AddChildResource(sub);
+    //         }
+    //         ResourceManager.Resources.Add(category);
+    //     }
+    // }
+
+    #region Resource View
+
+    public void ResourceView_ResourcesSelected(object? s, IList<IResource>? selected)
     {
-        _selectedItems = s.SelectedItems;
-        if (_selectedItems.Count > 0)
-        {
-            UpdateDeleteButtonEnabled();
-            SelectedResource = _selectedItems[0] as IResource;
-        }
+        _selectedResources = selected;
+        UpdateDeleteButtonEnabled();
+        if (_selectedResources?.Count > 0)
+            SelectedResource = _selectedResources[0];
     }
-
     private void UpdateDeleteButtonEnabled() =>
-        DeleteButtonEnabled = TreeViewMultiSelectionEnabled && _selectedItems?.Count > 0;
+        DeleteButtonEnabled = ResourceViewMultiSelectionEnabled && _selectedResources?.Count > 0;
 
-    partial void OnTreeViewMultiSelectionEnabledChanged(bool value)
+    partial void OnResourceViewMultiSelectionEnabledChanged(bool value)
     {
         UpdateDeleteButtonEnabled();
     }
 
-    public void TreeView_ItemInvoked(TreeView s, TreeViewItemInvokedEventArgs e)
+    public void ResourceView_ResourceOpenRequested(object? s, IResource? resource)
     {
-        if (e.InvokedItem is IResource resource)
-        {
-            SelectedResource = resource;
-            EditorPagesManager.CreateOrOpenEditor(e.InvokedItem as IResource);
-        }
+        SelectedResource = resource;
+        EditorPagesManager.CreateOrOpenEditor(resource);
     }
 
     #endregion
@@ -163,6 +191,8 @@ public partial class MainViewModel : ObservableObject
 #if WINDOWS && !HAS_UNO
         WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, WindowHelper.WindowHandle);
 #endif
+        // NOTE: Skia/X11: Picked files have URL encoded path and names.
+        // It makes file names with " " unuseable.
         var pickedFiles = await fileOpenPicker.PickMultipleFilesAsync();
         if (pickedFiles.Count > 0)
         {
@@ -226,9 +256,9 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand]
     public async Task DeleteResourcesAsync()
     {
-        if (_selectedItems == null || _selectedItems.Count == 0) return;
+        if (_selectedResources == null || _selectedResources.Count == 0) return;
 
-        List<object> toDelete = [.. _selectedItems];
+        List<object> toDelete = [.. _selectedResources];
         if (toDelete.Count > 0)
         {
             deleteResourcesDialog.XamlRoot = xamlRoot;
@@ -245,7 +275,7 @@ public partial class MainViewModel : ObservableObject
             }
         }
 
-        _selectedItems.Clear();
+        _selectedResources.Clear();
     }
 
     [RelayCommand]
@@ -276,9 +306,9 @@ public partial class MainViewModel : ObservableObject
     private void ProjectChanged(object? s, Project? project)
     {
         if (project == null || string.IsNullOrEmpty(project.Name))
-            ResourcePaneTitle = m_resourcePaneTitle;
+            ResourcePaneTitle = _resourcePaneTitle;
         else
-            ResourcePaneTitle = string.Format(m_resourcePaneTitleFormat, project.Name);
+            ResourcePaneTitle = string.Format(_resourcePaneTitleFormat, project.Name);
     }
 
     private void SelectEditorRequested(object? s, IEditorPage? e) =>

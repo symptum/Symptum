@@ -1,5 +1,4 @@
 ﻿using Symptum.Common.Helpers;
-using Symptum.Core.Management.Resources;
 
 namespace Symptum.Common.Tests;
 

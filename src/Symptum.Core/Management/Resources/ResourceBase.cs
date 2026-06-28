@@ -92,6 +92,8 @@ public abstract class ResourceBase : ObservableObject, IResource
 
     void IResource.InitializeResource(IResource? parent)
     {
+        if (hasInitialized) return;
+        
         ParentResource = parent;
         SetProperty(ref childrenResources, CanHandleChildren ? [] : null, nameof(ChildrenResources));
         OnInitializeResource(parent);
