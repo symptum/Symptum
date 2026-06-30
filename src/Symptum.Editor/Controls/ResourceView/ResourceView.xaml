@@ -6,6 +6,7 @@
                     xmlns:common="using:Symptum.Editor.Common"
                     xmlns:vm="using:Symptum.Editor.ViewModels"
                     xmlns:local="using:Symptum.Editor.Controls">
+  <x:String x:Key="ChevronRightGlyph">&#xE76C;</x:String>
   <local:DepthToWidthConverter x:Key="DepthToWidthConverter"/>
   <local:BooleanToRotationConverter x:Key="BooleanToRotationConverter"/>
   <Style TargetType="local:ResourceView">
@@ -118,7 +119,7 @@
                     VerticalAlignment="Stretch"
                     Background="Transparent"
                     IsTabStop="False">
-              <FontIcon Glyph="&#xE76C;"
+              <FontIcon Glyph="{StaticResource ChevronRightGlyph}"
                         FontFamily="{ThemeResource SymbolThemeFontFamily}"
                         FontSize="12"
                         HorizontalAlignment="Right"

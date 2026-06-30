@@ -76,11 +76,6 @@ public sealed partial class MainPage : Page
         }
     }
 
-    private void EditorsTabView_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
-    {
-        EditorPagesManager.TryCloseEditor(args.Item as IEditorPage);
-    }
-
     private void ShowOrHideResourcesPane(bool showResourcesPane)
     {
         ToolTipService.SetToolTip(showResourcesPaneButton, showResourcesPane ? "Unpin" : "Pin");

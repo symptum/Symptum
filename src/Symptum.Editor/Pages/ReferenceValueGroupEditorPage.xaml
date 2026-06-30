@@ -4,6 +4,7 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:local="using:Symptum.Editor.Pages"
   xmlns:secontrols="using:Symptum.Editor.Controls"
+  xmlns:common="using:Symptum.Editor.Common"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
@@ -51,22 +52,22 @@
       </AppBarButton>
       <AppBarButton x:Name="moveToTopButton" IsEnabled="False" Label="Move To Top" Click="MoveToTopButton_Click">
         <AppBarButton.Icon>
-          <FontIcon Glyph="&#xE74A;" />
+          <FontIcon Glyph="{x:Bind common:CommonGlyphs.MoveToTop}" />
         </AppBarButton.Icon>
       </AppBarButton>
       <AppBarButton x:Name="moveToBottomButton" IsEnabled="False" Label="Move To Bottom" Click="MoveToBottomButton_Click">
         <AppBarButton.Icon>
-          <FontIcon Glyph="&#xE74B;" />
+          <FontIcon Glyph="{x:Bind common:CommonGlyphs.MoveToBottom}" />
         </AppBarButton.Icon>
       </AppBarButton>
       <AppBarButton x:Name="moveUpButton" IsEnabled="False" Label="Move Up" Click="MoveUpButton_Click">
         <AppBarButton.Icon>
-          <FontIcon Glyph="&#xE70E;" />
+          <FontIcon Glyph="{x:Bind common:CommonGlyphs.MoveUp}" />
         </AppBarButton.Icon>
       </AppBarButton>
       <AppBarButton x:Name="moveDownButton" IsEnabled="False" Label="Move Down" Click="MoveDownButton_Click">
         <AppBarButton.Icon>
-          <FontIcon Glyph="&#xE70D;" />
+          <FontIcon Glyph="{x:Bind common:CommonGlyphs.MoveDown}" />
         </AppBarButton.Icon>
       </AppBarButton>
     </CommandBar>

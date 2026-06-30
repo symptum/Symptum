@@ -5,6 +5,7 @@ using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
 using Symptum.Editor.Pages;
+using Symptum.Editor.ViewModels;
 using static Symptum.Core.Helpers.FileHelper;
 
 namespace Symptum.Editor.Controls;
@@ -252,5 +253,5 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
     }
 
     private void LE_ActionRequested(object? s, ListEditorItemActionRequestedEventArgs e) =>
-        ListEditorControl.HandleActionRequired(_authors, e, () => new());
+        ListEditorControl.HandleActionRequired(_authors, e, () => MainViewModel.Instance.CurrentAuthor);
 }

@@ -25,10 +25,7 @@ public class EditorPagesManager
         IEditorPage? welcomePage = EditorPages.FirstOrDefault(x => x is WelcomePage);
         if (welcomePage == null)
         {
-            welcomePage = new WelcomePage
-            {
-                EditableContent = new CategoryResource() { Title = "Welcome" }
-            };
+            welcomePage = new WelcomePage();
             EditorPages.Add(welcomePage);
         }
 
@@ -76,6 +73,10 @@ public class EditorPagesManager
 
         return false;
     }
+
+    public static bool TryCloseEditorForResource(IResource? resource) =>
+        EditorPages.FirstOrDefault(x => x.EditableContent == resource) is IEditorPage editor && TryCloseEditor(editor);
+
 
     public static void MarkAllOpenEditorsAsSaved()
     {

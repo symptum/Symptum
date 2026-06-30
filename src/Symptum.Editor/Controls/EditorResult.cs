@@ -5,6 +5,6 @@ public enum EditorResult
     None,
     Create,
     Update,
-    Save,
+    Delete,
     Cancel
 }

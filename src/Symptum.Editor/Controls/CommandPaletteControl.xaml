@@ -4,6 +4,7 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:local="using:Symptum.Editor.Controls"
   xmlns:cmd="using:Symptum.Editor.Commands"
+  xmlns:common="using:Symptum.Editor.Common"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   Margin="0,40,0,0"
   VerticalAlignment="Top" HorizontalAlignment="Center">
@@ -25,7 +26,7 @@
             Style="{ThemeResource AlternateCloseButtonStyle}"
             Grid.Column="1" Click="CloseButton_Click"
             HorizontalAlignment="Right" ToolTipService.ToolTip="Close">
-      <FontIcon Glyph="&#xE711;" FontSize="12" />
+      <FontIcon Glyph="{x:Bind common:CommonGlyphs.Close}" FontSize="12" />
     </Button>
     <AutoSuggestBox x:Name="commandBox" Grid.Row="1" Grid.ColumnSpan="2" Margin="8"
                     QueryIcon="Forward" DisplayMemberPath="Key"

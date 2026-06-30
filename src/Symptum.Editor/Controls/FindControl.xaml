@@ -3,6 +3,7 @@
   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:local="using:Symptum.Editor.Controls"
+  xmlns:common="using:Symptum.Editor.Common"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
   mc:Ignorable="d" AllowFocusOnInteraction="True">
@@ -27,24 +28,24 @@
             Grid.Column="1" Margin="4" VerticalAlignment="Stretch"
             Click="FPrevButton_Click"
             HorizontalAlignment="Stretch" ToolTipService.ToolTip="Find Previous">
-      <FontIcon Glyph="&#xE72B;" FontSize="16" />
+      <FontIcon Glyph="{x:Bind common:CommonGlyphs.FindPrevious}" FontSize="16" />
     </Button>
     <Button x:Name="fNextButton" Visibility="{x:Bind FindNextEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
             Grid.Column="2" Margin="4" VerticalAlignment="Stretch"
             Click="FNextButton_Click"
             HorizontalAlignment="Stretch" ToolTipService.ToolTip="Find Next">
-      <FontIcon Glyph="&#xE72A;" FontSize="16" />
+      <FontIcon Glyph="{x:Bind common:CommonGlyphs.FindNext}" FontSize="16" />
     </Button>
     <Button x:Name="fAllButton" Visibility="{x:Bind FindAllEnabled, Converter={StaticResource BooleanToVisibilityConverter}}"
             Grid.Column="3" Margin="4" VerticalAlignment="Stretch"
             Click="FAllButton_Click"
             HorizontalAlignment="Stretch" ToolTipService.ToolTip="Find All">
-      <FontIcon Glyph="&#xE71E;" FontSize="16" />
+      <FontIcon Glyph="{x:Bind common:CommonGlyphs.FindAll}" FontSize="16" />
     </Button>
     <Button x:Name="fClearButton" Grid.Column="4" Margin="4" VerticalAlignment="Stretch"
             Click="FClearButton_Click"
             HorizontalAlignment="Stretch" ToolTipService.ToolTip="Clear">
-      <FontIcon Glyph="&#xE711;" FontSize="16" />
+      <FontIcon Glyph="{x:Bind common:CommonGlyphs.Close}" FontSize="16" />
     </Button>
     <ComboBox x:Name="fContextComboBox" ItemsSource="{x:Bind FindContexts}" SelectedItem="{x:Bind SelectedContext, Mode=TwoWay}"
                 Grid.Row="1" Grid.ColumnSpan="2" Margin="4" HorizontalAlignment="Stretch" />

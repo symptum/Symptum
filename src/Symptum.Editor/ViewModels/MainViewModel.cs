@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Symptum.Common.Helpers;
 using Symptum.Common.ProjectSystem;
+using Symptum.Core.Data;
 using Symptum.Core.Management.Deployment;
 using Symptum.Core.Management.Resources;
 using Symptum.Editor.Controls;
@@ -17,11 +18,9 @@ public partial class MainViewModel : ObservableObject
 
     private readonly FileOpenPicker fileOpenPicker = new();
     private readonly AddNewItemDialog addNewItemDialog = new();
-    private readonly DeleteItemsDialog deleteResourcesDialog = new()
-    {
-        Title = "Delete Resource(s)?",
-        Content = "Do you want to delete the resources(s)?\nOnce you delete you won't be able to restore."
-    };
+
+    private ConfirmationDialog? confirmationDialog;
+    private EditAuthorInfoDialog? editAuthorInfoDialog;
 
     private XamlRoot? xamlRoot;
     private bool _isBeingSaved = false;
@@ -41,7 +40,7 @@ public partial class MainViewModel : ObservableObject
     public partial string? WorkFolderPath { get; private set; }
 
     [ObservableProperty]
-    public partial string? ResourcePaneTitle { get; private set; }
+    public partial string? ResourcePaneTitle { get; private set; } = _resourcePaneTitle;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(ExportPackageCommand))]
@@ -54,13 +53,18 @@ public partial class MainViewModel : ObservableObject
     public partial bool DeleteButtonEnabled { get; set; } = false;
 
     public ICommand CloseAllEditorsCommand { get; } = new RelayCommand(EditorPagesManager.ResetEditors);
-    
+
     public ICommand CloseSavedEditorsCommand { get; } = new RelayCommand(EditorPagesManager.CloseSavedEditors);
+
+    public ICommand ShowWelcomePageCommand { get; } = new RelayCommand(EditorPagesManager.ShowWelcomePage);
 
     public ICommand ExitApplicationCommand { get; } = new RelayCommand(Application.Current.Exit);
 
     [ObservableProperty]
     public partial IEditorPage? CurrentEditor { get; set; }
+
+    [ObservableProperty]
+    public partial AuthorInfo CurrentAuthor { get; set; }
 
     #endregion
 
@@ -139,6 +143,29 @@ public partial class MainViewModel : ObservableObject
 
     #endregion
 
+    #region Editors Tab View
+
+    public async void EditorsTabView_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
+    {
+        if (args.Item is IEditorPage editor)
+        {
+            if (editor.HasUnsavedChanges && editor.EditableContent is IResource resource)
+            {
+                confirmationDialog ??= EditorPagesManager.CreateOrGetDialog<ConfirmationDialog>();
+                confirmationDialog?.XamlRoot = xamlRoot;
+                var result = await confirmationDialog.ConfirmClosingUnsavedAsync(resource.Title);
+                if (result == EditorResult.Cancel)
+                    return;
+                if (result == EditorResult.Update)
+                    await ProjectSystemManager.SaveResourceAndAncestorAsync(editor.EditableContent);
+            }
+
+            EditorPagesManager.TryCloseEditor(editor);
+        }
+    }
+
+    #endregion
+
     #region Commands
 
     [RelayCommand]
@@ -170,6 +197,7 @@ public partial class MainViewModel : ObservableObject
                         ResourceManager.Resources.Add(instance);
                         instance.InitializeResource(null);
                     }
+                    EditorPagesManager.CreateOrOpenEditor(instance);
                 }
             }
         }
@@ -263,15 +291,17 @@ public partial class MainViewModel : ObservableObject
         List<object> toDelete = [.. _selectedResources];
         if (toDelete.Count > 0)
         {
-            deleteResourcesDialog.XamlRoot = xamlRoot;
-            var result = await deleteResourcesDialog.ShowAsync();
-            if (result == ContentDialogResult.Primary)
+            confirmationDialog ??= EditorPagesManager.CreateOrGetDialog<ConfirmationDialog>();
+            confirmationDialog?.XamlRoot = xamlRoot;
+            var result = await confirmationDialog?.ConfirmDeletionAsync("Resource(s)");
+            if (result == EditorResult.Delete)
             {
                 foreach (var item in toDelete)
                 {
                     if (item is IResource resource)
                     {
                         await ResourceHelper.RemoveResourceAsync(resource, true);
+                        EditorPagesManager.TryCloseEditorForResource(resource);
                     }
                 }
             }
@@ -285,11 +315,13 @@ public partial class MainViewModel : ObservableObject
     {
         if (resource != null)
         {
-            deleteResourcesDialog.XamlRoot = xamlRoot;
-            var result = await deleteResourcesDialog.ShowAsync();
-            if (result == ContentDialogResult.Primary)
+            confirmationDialog ??= EditorPagesManager.CreateOrGetDialog<ConfirmationDialog>();
+            confirmationDialog?.XamlRoot = xamlRoot;
+            var result = await confirmationDialog.ConfirmDeletionAsync("Resource");
+            if (result == EditorResult.Delete)
             {
                 await ResourceHelper.RemoveResourceAsync(resource, true);
+                EditorPagesManager.TryCloseEditorForResource(resource);
             }
         }
     }
@@ -315,6 +347,19 @@ public partial class MainViewModel : ObservableObject
 
     private void SelectEditorRequested(object? s, IEditorPage? e) =>
         CurrentEditor = e;
+
+    [RelayCommand]
+    public async Task EditAuthorInfoAsync()
+    {
+        editAuthorInfoDialog ??= new();
+        editAuthorInfoDialog.XamlRoot = xamlRoot;
+
+        var result = await editAuthorInfoDialog.EditAsync(CurrentAuthor);
+        if (result == EditorResult.Update)
+        {
+            CurrentAuthor = editAuthorInfoDialog.Author;
+        }
+    }
 
     #endregion
 }

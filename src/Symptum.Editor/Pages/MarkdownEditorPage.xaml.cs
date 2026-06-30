@@ -23,7 +23,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     public MarkdownEditorPage()
     {
         InitializeComponent();
-
+        IconSource = DefaultIconSources.DocumentIconSource;
         Loaded += Page_Loaded;
     }
 
@@ -31,7 +31,6 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     private void Page_Loaded(object sender, RoutedEventArgs e)
     {
-        IconSource = DefaultIconSources.DocumentIconSource;
         mdText.TextChanged += MdText_TextChanged;
         mdText.SelectionChanged += MdText_SelectionChanged;
 

@@ -6,6 +6,8 @@ public interface IEditorPage : IDisposable
 {
     public IconSource? IconSource { get; }
 
+    public string? Title { get; set; }
+
     public IResource? EditableContent { get; set; }
 
     public bool HasUnsavedChanges { get; set; }

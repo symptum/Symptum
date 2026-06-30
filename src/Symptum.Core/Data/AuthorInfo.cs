@@ -11,6 +11,14 @@ public struct AuthorInfo
 
     public string? Email { get; set; }
 
+    public AuthorInfo() {}
+
+    public AuthorInfo(string name, string email)
+    {
+        Name = name;
+        Email = email; 
+    }
+
     public override string ToString()
     {
         if (Name == null && Email == null)

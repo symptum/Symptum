@@ -13,25 +13,20 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     private ReferenceValueGroup? currentGroup;
     private ReferenceValueParameterEditorDialog? parameterEditorDialog;
     private ResourcePropertiesEditorDialog? propertyEditorDialog;
-
-    private static readonly DeleteItemsDialog deleteEntriesDialog = new()
-    {
-        Title = "Delete Parameter(s)?",
-        Content = "Do you want to delete the parameter(s)?\nOnce you delete you won't be able to restore."
-    };
+    private ConfirmationDialog? confirmationDialog;
 
     private bool _isFiltered = false;
 
     public ReferenceValueGroupEditorPage()
     {
         InitializeComponent();
+        IconSource = DefaultIconSources.TableViewIconSource;
         Loaded += ReferenceValueGroupEditorPage_Loaded;
         Unloaded += ReferenceValueGroupEditorPage_Unloaded;
     }
 
     private void ReferenceValueGroupEditorPage_Loaded(object sender, RoutedEventArgs e)
     {
-        IconSource = DefaultIconSources.TableViewIconSource;
         parameterEditorDialog = EditorPagesManager.CreateOrGetDialog<ReferenceValueParameterEditorDialog>();
         propertyEditorDialog = EditorPagesManager.CreateOrGetDialog<ResourcePropertiesEditorDialog>();
         SetupFindControl();
@@ -42,6 +37,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         currentGroup = null;
         parameterEditorDialog = null;
         propertyEditorDialog = null;
+        confirmationDialog = null;
     }
 
     protected override void OnSetEditableContent(IResource? resource)
@@ -149,7 +145,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         {
             parameterEditorDialog.XamlRoot = XamlRoot;
             var result = await parameterEditorDialog.EditAsync(parameter);
-            if (result == EditorResult.Update || result == EditorResult.Save)
+            if (result == EditorResult.Update)
                 HasUnsavedChanges = true;
         }
     }
@@ -177,9 +173,10 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         if (tableView.SelectedItems.Count == 0
             || currentGroup?.Parameters == null) return;
 
-        deleteEntriesDialog.XamlRoot = XamlRoot;
-        var result = await deleteEntriesDialog.ShowAsync();
-        if (result == ContentDialogResult.Primary)
+        confirmationDialog ??= EditorPagesManager.CreateOrGetDialog<ConfirmationDialog>();
+        confirmationDialog?.XamlRoot = XamlRoot;
+        var result = await confirmationDialog?.ConfirmDeletionAsync("Parameter(s)");
+        if (result == EditorResult.Delete)
         {
             List<ReferenceValueParameter> toDelete = [];
 

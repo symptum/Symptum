@@ -1,4 +1,5 @@
 using Microsoft.UI.Text;
+using Symptum.Core.Management.Resources;
 using Symptum.Editor.ViewModels;
 using static Symptum.Editor.Common.DefaultIconSources;
 
@@ -8,6 +9,7 @@ public sealed partial class WelcomePage : EditorPageBase
 {
     public WelcomePage()
     {
+        Title = "Welcome";
         this.Content(new Grid()
                           .RowDefinitions("*,*")
                           .Padding(12)
