@@ -85,6 +85,7 @@
               <IconSourceElement IconSource="{StaticResource EditorIconSource}"/>
             </MenuFlyoutItem.Icon>
           </MenuFlyoutItem>
+          <MenuFlyoutSeparator/>
           <MenuFlyoutItem Text="Open File(s)"
                           Icon="OpenFile"
                           Command="{x:Bind ViewModel.OpenFileCommand}">
@@ -93,6 +94,9 @@
                                    Key="O"/>
             </MenuFlyoutItem.KeyboardAccelerators>
           </MenuFlyoutItem>
+          <MenuFlyoutItem Text="Open Project"
+                          Icon="OpenFile"
+                          Command="{x:Bind ViewModel.OpenProjectCommand}"/>
           <MenuFlyoutItem Text="Open Folder"
                           Command="{x:Bind ViewModel.OpenWorkFolderCommand}">
             <MenuFlyoutItem.Icon>
@@ -103,6 +107,11 @@
                                    Key="O"/>
             </MenuFlyoutItem.KeyboardAccelerators>
           </MenuFlyoutItem>
+          <MenuFlyoutSubItem x:Name="openRecentMenuItem"
+                             Text="Open Recent"
+                             Visibility="Collapsed">
+          </MenuFlyoutSubItem>
+          <MenuFlyoutSeparator/>
           <MenuFlyoutItem Text="Save All"
                           Icon="Save"
                           Command="{x:Bind ViewModel.SaveAllCommand}">
@@ -113,6 +122,7 @@
           </MenuFlyoutItem>
           <MenuFlyoutItem Text="Close Folder"
                           Command="{x:Bind ViewModel.CloseWorkFolderCommand}"/>
+          <MenuFlyoutSeparator/>
           <MenuFlyoutItem Text="Import Package"
                           Command="{x:Bind ViewModel.ImportPackageCommand}">
             <MenuFlyoutItem.Icon>
@@ -136,26 +146,37 @@
                                    Key="P"/>
             </MenuFlyoutItem.KeyboardAccelerators>
           </MenuFlyoutItem>
-          <MenuFlyoutSubItem Text="Toolbars">
+          <MenuFlyoutSubItem Text="Appearance">
             <ToggleMenuFlyoutItem x:Name="showResourcesPaneMenuItem"
-                                  Text="Resources Pane">
+                                  Text="Resources Pane"
+                                  IsChecked="{x:Bind ViewModel.ShowResourcesPane, Mode=TwoWay}">
               <ToggleMenuFlyoutItem.KeyboardAccelerators>
                 <KeyboardAccelerator Modifiers="Control,Shift"
                                      Key="R"/>
               </ToggleMenuFlyoutItem.KeyboardAccelerators>
             </ToggleMenuFlyoutItem>
-            <ToggleMenuFlyoutItem Text="Status Bar"
-                                  IsChecked="True">
+            <ToggleMenuFlyoutItem x:Name="showStatusBarMenuItem"
+                                  Text="Status Bar"
+                                  IsChecked="{x:Bind ViewModel.ShowStatusBar, Mode=TwoWay}">
               <ToggleMenuFlyoutItem.KeyboardAccelerators>
                 <KeyboardAccelerator Modifiers="Control,Shift"
-                                     Key="S"/>
+                                     Key="B"/>
+              </ToggleMenuFlyoutItem.KeyboardAccelerators>
+            </ToggleMenuFlyoutItem>
+            <ToggleMenuFlyoutItem x:Name="showOutputPanelMenuItem"
+                                  Text="Output Panel"
+                                  IsChecked="{x:Bind ViewModel.ShowOutputPanel, Mode=TwoWay}">
+              <ToggleMenuFlyoutItem.KeyboardAccelerators>
+                <KeyboardAccelerator Modifiers="Control,Shift"
+                                     Key="O"/>
               </ToggleMenuFlyoutItem.KeyboardAccelerators>
             </ToggleMenuFlyoutItem>
           </MenuFlyoutSubItem>
         </MenuBarItem>
         <MenuBarItem Title="Help">
-          <MenuFlyoutItem Text="Welcome Page" Command="{x:Bind ViewModel.ShowWelcomePageCommand}" />
-          <MenuFlyoutItem Text="About" />
+          <MenuFlyoutItem Text="Welcome Page"
+                          Command="{x:Bind ViewModel.ShowWelcomePageCommand}"/>
+          <MenuFlyoutItem Text="About"/>
         </MenuBarItem>
       </MenuBar>
       <StackPanel Grid.Column="1"
@@ -245,7 +266,8 @@
             BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}"
             BorderThickness="{ThemeResource NavigationViewContentGridBorderThickness}"
             Background="{ThemeResource NavigationViewContentBackground}"
-            CornerRadius="{ThemeResource NavigationViewContentGridCornerRadius}">
+            CornerRadius="{ThemeResource NavigationViewContentGridCornerRadius}"
+            RowDefinitions="*,Auto,Auto">
         <TabView x:Name="editorsTabView"
                  VerticalAlignment="Stretch"
                  IsAddTabButtonVisible="False"
@@ -347,6 +369,14 @@
                                  Invoked="NavigateToNumberedTabKeyboardAccelerator_Invoked"/>
           </TabView.KeyboardAccelerators>
         </TabView>
+        <controls:ContentSizer x:Name="sizer"
+                               Grid.Row="1"
+                               Orientation="Horizontal"
+                               Visibility="{x:Bind ViewModel.ShowOutputPanel, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
+                               TargetControl="{x:Bind outputPanel}"/>
+        <secontrols:OutputControl x:Name="outputPanel"
+                                  Grid.Row="2"
+                                  Visibility="{x:Bind ViewModel.ShowOutputPanel, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
       </Grid>
     </SplitView>
     <secontrols:CommandPaletteControl x:Name="commandPalette"

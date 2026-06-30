@@ -1,5 +1,4 @@
 using Microsoft.UI.Text;
-using Symptum.Core.Management.Resources;
 using Symptum.Editor.ViewModels;
 using static Symptum.Editor.Common.DefaultIconSources;
 
@@ -11,28 +10,28 @@ public sealed partial class WelcomePage : EditorPageBase
     {
         Title = "Welcome";
         this.Content(new Grid()
-                          .RowDefinitions("*,*")
-                          .Padding(12)
-                          .RowSpacing(24)
-                          .HorizontalAlignment(HorizontalAlignment.Center)
-                          .VerticalAlignment(VerticalAlignment.Center)
-                          .Children(
-                            new TextBlock()
-                                .Text(App.AppTitle)
-                                .FontWeight(FontWeights.Bold)
-                                .HorizontalAlignment(HorizontalAlignment.Stretch)
-                                .Style(ThemeResource.Get<Style>("TitleTextBlockStyle")),
-                            new StackPanel()
-                                .Grid(row: 1)
-                                .HorizontalAlignment(HorizontalAlignment.Stretch)
-                                .Orientation(Orientation.Vertical)
-                                .Spacing(12)
-                                .Children(
-                                    IconButton(DocumentIconSource, "New", MainViewModel.Instance.AddNewItemCommand),
-                                    IconButton(OpenFileIconSource, "Open File(s)", MainViewModel.Instance.OpenFileCommand),
-                                    IconButton(OpenFolderIconSource, "Open Folder", MainViewModel.Instance.OpenWorkFolderCommand)
-                                )
-                          ));
+                        .RowDefinitions("*,*")
+                        .Padding(12)
+                        .RowSpacing(24)
+                        .HorizontalAlignment(HorizontalAlignment.Center)
+                        .VerticalAlignment(VerticalAlignment.Center)
+                        .Children(
+                          new TextBlock()
+                              .Text(App.AppTitle)
+                              .FontWeight(FontWeights.Bold)
+                              .HorizontalAlignment(HorizontalAlignment.Stretch)
+                              .Style(ThemeResource.Get<Style>("TitleTextBlockStyle")),
+                          new StackPanel()
+                              .Grid(row: 1)
+                              .HorizontalAlignment(HorizontalAlignment.Stretch)
+                              .Orientation(Orientation.Vertical)
+                              .Spacing(12)
+                              .Children(
+                                  IconButton(DocumentIconSource, "New", MainViewModel.Instance.AddNewItemCommand),
+                                  IconButton(OpenFileIconSource, "Open File(s)", MainViewModel.Instance.OpenFileCommand),
+                                  IconButton(OpenFolderIconSource, "Open Folder", MainViewModel.Instance.OpenWorkFolderCommand)
+                              )
+                        ));
 
         IconSource = new BitmapIconSource()
         {

@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Symptum.Editor.Pages;
 using Symptum.Editor.ViewModels;
 using Windows.System;
@@ -33,33 +34,14 @@ public sealed partial class MainPage : Page
         Loaded += (s, e) =>
         {
             ViewModel.Initialize();
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+            ViewModel.RecentItemsChanged += PopulateRecentMenus;
+            PopulateRecentMenus();
             EditorPagesManager.ShowWelcomePage();
         };
     }
 
-    #region Properties
-
-    public static DependencyProperty ShowResourcesPaneProperty = DependencyProperty.Register(
-        nameof(ShowResourcesPane),
-        typeof(bool),
-        typeof(MainPage),
-        new(true, OnShowResourcesPaneProperty));
-
-    private static void OnShowResourcesPaneProperty(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (d is MainPage page)
-            page.ShowOrHideResourcesPane((bool)e.NewValue);
-    }
-
-    public bool ShowResourcesPane
-    {
-        get => (bool)GetValue(ShowResourcesPaneProperty);
-        set => SetValue(ShowResourcesPaneProperty, value);
-    }
-
     public MainViewModel ViewModel { get => MainViewModel.Instance; }
-
-    #endregion
 
     private void MainPage_SizeChanged(object sender, SizeChangedEventArgs args)
     {
@@ -72,12 +54,21 @@ public sealed partial class MainPage : Page
         if (collapsed != _collapsed)
         {
             _collapsed = collapsed;
-            VisualStateManager.GoToState(this, collapsed || !ShowResourcesPane ? "MinimalState" : "DefaultState", true);
+            VisualStateManager.GoToState(this, collapsed || !ViewModel.ShowResourcesPane ? "MinimalState" : "DefaultState", true);
         }
     }
 
-    private void ShowOrHideResourcesPane(bool showResourcesPane)
+    private void ViewModel_PropertyChanged(object? s, PropertyChangedEventArgs e)
     {
+        if (e.PropertyName == nameof(ViewModel.ShowResourcesPane))
+        {
+            ShowOrHideResourcesPane();
+        }
+    }
+
+    private void ShowOrHideResourcesPane()
+    {
+        bool showResourcesPane = ViewModel.ShowResourcesPane;
         ToolTipService.SetToolTip(showResourcesPaneButton, showResourcesPane ? "Unpin" : "Pin");
         resourcesPaneButtonSymbolIcon.Symbol = showResourcesPane ? Symbol.UnPin : Symbol.Pin;
         showResourcesPaneMenuItem.IsChecked = showResourcesPane;
@@ -86,7 +77,38 @@ public sealed partial class MainPage : Page
 
     private void ShowResourcesPaneButton_Click(object sender, RoutedEventArgs e)
     {
-        ShowResourcesPane = !ShowResourcesPane;
+        ViewModel.ShowResourcesPane = !ViewModel.ShowResourcesPane;
+    }
+
+    private void PopulateRecentMenus()
+    {
+        openRecentMenuItem.Items.Clear();
+
+        var items = ViewModel.RecentItems;
+        if (items.Count == 0)
+        {
+            openRecentMenuItem.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        for (int i = 0; i < items.Count; i++)
+        {
+            string path = items[i];
+            var menuItem = new MenuFlyoutItem
+            {
+                Text = path,
+                Command = ViewModel.OpenRecentItemCommand,
+                CommandParameter = path
+            };
+            ToolTipService.SetToolTip(menuItem, path);
+            openRecentMenuItem.Items.Add(menuItem);
+        }
+
+        openRecentMenuItem.Items.Add(new MenuFlyoutSeparator());
+        openRecentMenuItem.Items.Add(new MenuFlyoutItem()
+                                         .Text("Clear Recent Items")
+                                         .Command(ViewModel.ClearRecentItemsCommand));
+        openRecentMenuItem.Visibility = Visibility.Visible;
     }
 
     private void CloseSelectedTabKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)

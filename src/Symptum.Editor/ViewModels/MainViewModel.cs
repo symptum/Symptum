@@ -1,9 +1,13 @@
+using System.Collections.ObjectModel;
+using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Symptum.Common.Helpers;
 using Symptum.Common.ProjectSystem;
 using Symptum.Core.Data;
+using Symptum.Core.Extensions;
 using Symptum.Core.Management.Deployment;
 using Symptum.Core.Management.Resources;
+using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
 using Symptum.Editor.Pages;
 using Windows.Storage.Pickers;
@@ -15,6 +19,8 @@ public partial class MainViewModel : ObservableObject
 {
     private const string _resourcePaneTitle = "Resources";
     private const string _resourcePaneTitleFormat = "Resources - {0}";
+
+    private static StringBuilder _output = new();
 
     private readonly FileOpenPicker fileOpenPicker = new();
     private readonly AddNewItemDialog addNewItemDialog = new();
@@ -66,6 +72,28 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     public partial AuthorInfo CurrentAuthor { get; set; }
 
+    [ObservableProperty]
+    public partial bool ShowResourcesPane { get; set; } = true;
+
+    [ObservableProperty]
+    public partial bool ShowStatusBar { get; set; } = true;
+
+    [ObservableProperty]
+    public partial bool ShowOutputPanel { get; set; } = true;
+
+    [ObservableProperty]
+    public partial string? OutputText { get; set; }
+
+    public ObservableCollection<string> RecentItems { get; } = [];
+
+    public bool HasRecentItems => RecentItems.Count > 0;
+
+    #endregion
+
+    #region Events
+
+    public event Action? RecentItemsChanged;
+
     #endregion
 
     private MainViewModel()
@@ -83,7 +111,107 @@ public partial class MainViewModel : ObservableObject
         fileOpenPicker.FileTypeFilter.Add(JsonFileExtension);
         fileOpenPicker.FileTypeFilter.AddRange(ImageFileExtensions);
         fileOpenPicker.FileTypeFilter.AddRange(AudioFileExtensions);
+
+        LoadSettings();
+        AddOutputEntry("Session started");
     }
+
+    public static void AddOutputEntry(string message, string? sender = null)
+    {
+
+        if (string.IsNullOrWhiteSpace(sender))
+            _output.AppendLine($"[{DateTime.Now:hh:mm:ss}] - {message}");
+        else
+            _output.AppendLine($"[{sender} @ {DateTime.Now:hh:mm:ss}] - {message}");
+
+        Instance.OutputText = _output.ToString();
+    }
+
+    #region Settings
+
+    private void LoadSettings()
+    {
+        CurrentAuthor = AuthorInfo.TryParse(EditorSettings.Author, out AuthorInfo author) ? author : new();
+        ShowResourcesPane = EditorSettings.ShowResourcesPane;
+        ShowStatusBar = EditorSettings.ShowStatusBar;
+        ShowOutputPanel = EditorSettings.ShowOutputPanel;
+        EditorSettings.LoadRecentItems(RecentItems);
+        OnPropertyChanged(nameof(HasRecentItems));
+        RecentItemsChanged?.Invoke();
+    }
+
+    partial void OnShowResourcesPaneChanged(bool value)
+    {
+        EditorSettings.ShowResourcesPane = value;
+    }
+
+    partial void OnShowStatusBarChanged(bool value)
+    {
+        EditorSettings.ShowStatusBar = value;
+    }
+
+    partial void OnShowOutputPanelChanged(bool value)
+    {
+        EditorSettings.ShowOutputPanel = value;
+    }
+
+    #endregion
+
+    #region Recent Items
+
+    private void AddRecentItem(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return;
+
+        RecentItems.RemoveItemFromListIfExists(path);
+        RecentItems.Add(path);
+
+        int count = RecentItems.Count;
+        if (count > 10)
+        {
+            for (int i = 10; i < count; i++)
+                RecentItems.RemoveAt(i);
+        }
+
+        EditorSettings.SaveRecentItems(RecentItems);
+        RecentItemsChanged?.Invoke();
+    }
+
+    private void AddRecentItems(IReadOnlyList<StorageFile>? files)
+    {
+        if (files == null) return;
+        var paths = files.Select(file => file.Path);
+        RecentItems.AddRange(paths);
+
+        int count = RecentItems.Count;
+        if (count > 10)
+        {
+            for (int i = 10; i < count; i++)
+                RecentItems.RemoveAt(i);
+        }
+
+        EditorSettings.SaveRecentItems(RecentItems);
+        RecentItemsChanged?.Invoke();
+    }
+
+    private void RemoveRecentItem(string? path)
+    {
+        if (string.IsNullOrWhiteSpace(path)) return;
+
+        RecentItems.RemoveItemFromListIfExists(path);
+        EditorSettings.SaveRecentItems(RecentItems);
+        RecentItemsChanged?.Invoke();
+    }
+
+    [RelayCommand]
+    public void ClearRecentItems()
+    {
+        RecentItems.Clear();
+        EditorSettings.SaveRecentItems(RecentItems);
+        RecentItemsChanged?.Invoke();
+    }
+
+    #endregion
 
     // private static void GenerateResources()
     // {
@@ -198,6 +326,7 @@ public partial class MainViewModel : ObservableObject
                         instance.InitializeResource(null);
                     }
                     EditorPagesManager.CreateOrOpenEditor(instance);
+                    AddOutputEntry($"Created new {selectedType.Name}: {instance.Title}");
                 }
             }
         }
@@ -212,6 +341,7 @@ public partial class MainViewModel : ObservableObject
         {
             ProjectSystemManager.CurrentProject = new() { Name = addNewItemDialog.ItemTitle, Entries = [] };
             ProjectSystemManager.UseProjectManager = true;
+            AddOutputEntry($"Created new project: {addNewItemDialog.ItemTitle}");
         }
     }
 
@@ -227,6 +357,9 @@ public partial class MainViewModel : ObservableObject
         if (pickedFiles.Count > 0)
         {
             await ResourceHelper.LoadResourcesFromFilesAsync(pickedFiles, SelectedResource);
+
+            AddRecentItems(pickedFiles);
+            AddOutputEntry($"Opened {pickedFiles.Count} file(s)");
         }
     }
 
@@ -237,6 +370,69 @@ public partial class MainViewModel : ObservableObject
         if (result)
         {
             EditorPagesManager.ResetEditors();
+            if (ResourceHelper.WorkFolder != null)
+            {
+                AddRecentItem(ResourceHelper.WorkFolder.Path);
+                AddOutputEntry($"Opened folder: {ResourceHelper.WorkFolder.Path}");
+            }
+        }
+    }
+
+    [RelayCommand]
+    public async Task OpenProjectAsync()
+    {
+        FileOpenPicker projectPicker = new();
+        projectPicker.FileTypeFilter.Add(ProjectFileExtension);
+
+#if WINDOWS && !HAS_UNO
+        WinRT.Interop.InitializeWithWindow.Initialize(projectPicker, WindowHelper.WindowHandle);
+#endif
+        var file = await projectPicker.PickSingleFileAsync();
+        if (file != null)
+        {
+            StorageFolder? folder = await file.GetParentAsync();
+            if (folder != null)
+            {
+                bool result = await ProjectSystemManager.OpenWorkFolderAsync(folder);
+                if (result)
+                {
+                    EditorPagesManager.ResetEditors();
+                    AddRecentItem(file.Path);
+                    AddOutputEntry($"Opened project: {file.Path}");
+                }
+            }
+        }
+    }
+
+    [RelayCommand]
+    public async Task OpenRecentItemAsync(string? path)
+    {
+        if (string.IsNullOrEmpty(path)) return;
+
+        try
+        {
+            if (File.Exists(path))
+            {
+                StorageFile? file = await StorageFile.GetFileFromPathAsync(path);
+                if (file != null)
+                {
+                    await ResourceHelper.LoadResourceFromFileAsync(file, SelectedResource);
+                    AddOutputEntry($"Opened: {path}");
+                }
+            }
+            else if (Directory.Exists(path))
+            {
+                StorageFolder? folder = await StorageFolder.GetFolderFromPathAsync(path);
+                if (folder != null)
+                {
+                    await ProjectSystemManager.OpenWorkFolderAsync(folder);
+                    AddOutputEntry($"Opened: {path}");
+                }
+            }
+        }
+        catch
+        {
+            RemoveRecentItem(path);
         }
     }
 
@@ -249,7 +445,11 @@ public partial class MainViewModel : ObservableObject
 
         EditorPagesManager.UpdateEditors();
         bool allSaved = await ProjectSystemManager.SaveAllResourcesAsync();
-        if (allSaved) EditorPagesManager.MarkAllOpenEditorsAsSaved();
+        if (allSaved)
+        {
+            EditorPagesManager.MarkAllOpenEditorsAsSaved();
+            AddOutputEntry("Saved all resources");
+        }
 
         _isBeingSaved = false;
     }
@@ -260,6 +460,7 @@ public partial class MainViewModel : ObservableObject
         ProjectSystemManager.CurrentProject = null;
         EditorPagesManager.ResetEditors();
         ResourceHelper.CloseWorkFolder();
+        AddOutputEntry("Closed work folder");
     }
 
     [RelayCommand]
@@ -275,11 +476,19 @@ public partial class MainViewModel : ObservableObject
         foreach (var file in pickedFiles)
         {
             await PackageHelper.ImportPackageAsync(file);
+            AddOutputEntry($"Imported package: {file.Name}");
         }
     }
 
     [RelayCommand(CanExecute = nameof(CanExportResourceasPackage))]
-    public async Task ExportPackageAsync() => await PackageHelper.ExportPackageAsync(SelectedResource as IPackageResource);
+    public async Task ExportPackageAsync()
+    {
+        if (SelectedResource is IPackageResource package)
+        {
+            await PackageHelper.ExportPackageAsync(package);
+            AddOutputEntry($"Exported package: {package.Title}");
+        }
+    }
 
     private bool CanExportResourceasPackage() => SelectedResource is IPackageResource;
 
@@ -304,6 +513,7 @@ public partial class MainViewModel : ObservableObject
                         EditorPagesManager.TryCloseEditorForResource(resource);
                     }
                 }
+                AddOutputEntry($"Deleted {toDelete.Count} resource(s)");
             }
         }
 
@@ -322,6 +532,7 @@ public partial class MainViewModel : ObservableObject
             {
                 await ResourceHelper.RemoveResourceAsync(resource, true);
                 EditorPagesManager.TryCloseEditorForResource(resource);
+                AddOutputEntry($"Deleted: {resource.Title}");
             }
         }
     }
@@ -335,6 +546,9 @@ public partial class MainViewModel : ObservableObject
         WorkFolderAvailable = dir != null;
         WorkFolderName = dir?.DisplayName;
         WorkFolderPath = dir?.Path;
+
+        if (dir?.Path != null)
+            EditorSettings.LastWorkFolderPath = dir.Path;
     }
 
     private void ProjectChanged(object? s, Project? project)
@@ -358,6 +572,7 @@ public partial class MainViewModel : ObservableObject
         if (result == EditorResult.Update)
         {
             CurrentAuthor = editAuthorInfoDialog.Author;
+            EditorSettings.Author = CurrentAuthor.ToString();
         }
     }
 
