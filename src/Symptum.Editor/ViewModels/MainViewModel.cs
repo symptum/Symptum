@@ -122,7 +122,7 @@ public partial class MainViewModel : ObservableObject
         if (string.IsNullOrWhiteSpace(sender))
             _output.AppendLine($"[{DateTime.Now:hh:mm:ss}] - {message}");
         else
-            _output.AppendLine($"[{sender} @ {DateTime.Now:hh:mm:ss}] - {message}");
+            _output.AppendLine($"[{DateTime.Now:hh:mm:ss}] - {sender}: {message}");
 
         Instance.OutputText = _output.ToString();
     }

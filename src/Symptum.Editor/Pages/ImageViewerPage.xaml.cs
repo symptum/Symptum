@@ -4,6 +4,7 @@ using Symptum.Common.Helpers;
 using Symptum.Core.Management.Resources;
 using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
+using Symptum.Editor.ViewModels;
 using static Symptum.Core.Helpers.FileHelper;
 
 namespace Symptum.Editor.Pages;
@@ -32,6 +33,7 @@ public sealed partial class ImageViewerPage : EditorPageBase
     public ImageViewerPage()
     {
         InitializeComponent();
+        PageName = "Image Viewer";
         IconSource = DefaultIconSources.PhotoIconSource;
         zoomCB.ItemsSource = zoomLevels;
         Loaded += ImageViewerPage_Loaded;
@@ -44,7 +46,10 @@ public sealed partial class ImageViewerPage : EditorPageBase
             propertyEditorDialog.XamlRoot = XamlRoot;
             var result = await propertyEditorDialog.EditAsync(_imageFileResource);
             if (result == EditorResult.Update)
+            {
                 HasUnsavedChanges = true;
+                WriteToOutput($"Updated properties: {_imageFileResource.Title}");
+            }
         }
     }
 
@@ -93,6 +98,7 @@ public sealed partial class ImageViewerPage : EditorPageBase
         scrollViewer.ScrollToHorizontalOffset(_imageSize.X);
         scrollViewer.ScrollToVerticalOffset(_imageSize.Y);
         _loaded = true;
+        WriteToOutput($"Loaded image: {imageFileResource.Title}");
     }
 
     private Vector2 _imageSize;

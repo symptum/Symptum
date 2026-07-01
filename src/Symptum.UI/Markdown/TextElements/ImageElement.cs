@@ -22,7 +22,8 @@ public class ImageElement : IAddChild
 
     private TextBlock _altText;
     private static readonly Dictionary<Uri, ImageSource> _imageCache = [];
-    private static readonly HttpClient client = new();
+    private static readonly HttpClient _client = new();
+    private static readonly DefaultSVGRenderer _defaultSVGRenderer = new();
 
     public STextElement TextElement => _container;
 
@@ -31,7 +32,7 @@ public class ImageElement : IAddChild
         _linkInline = linkInline;
         _uri = uri;
         _imageProvider = config.ImageProvider;
-        _svgRenderer = config.SVGRenderer ?? new DefaultSVGRenderer();
+        _svgRenderer = config.SVGRenderer ?? _defaultSVGRenderer;
         Init(linkInline.Label, config);
         Size size = Helper.GetMarkdownImageSize(linkInline);
         if (size.Width != 0)
@@ -92,6 +93,7 @@ public class ImageElement : IAddChild
 
     private async void LoadImage(object sender, RoutedEventArgs e)
     {
+        _image.Loaded -= LoadImage;
         if (_loaded) return;
 
         void imageLoaded(ImageSource source)
@@ -138,7 +140,7 @@ public class ImageElement : IAddChild
 //                    client.DefaultRequestHeaders.Add("Access-Control-Allow-Headers", "*");
 //                    client.DefaultRequestHeaders.Add("Access-Control-Max-Age", "86400");
 //#endif
-                    HttpResponseMessage response = await client.GetAsync(_uri);
+                    HttpResponseMessage response = await _client.GetAsync(_uri);
                     if (response != null)
                     {
                         string? contentType = response.Content.Headers?.ContentType?.MediaType;

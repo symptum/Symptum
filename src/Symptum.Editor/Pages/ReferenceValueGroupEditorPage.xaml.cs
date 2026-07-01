@@ -2,6 +2,7 @@ using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
 using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
+using Symptum.Editor.ViewModels;
 using Symptum.Core.Extensions;
 using Symptum.Common.ProjectSystem;
 using Uno.Extensions.Specialized;
@@ -20,6 +21,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     public ReferenceValueGroupEditorPage()
     {
         InitializeComponent();
+        PageName = "Reference Value Group Editor";
         IconSource = DefaultIconSources.TableViewIconSource;
         Loaded += ReferenceValueGroupEditorPage_Loaded;
         Unloaded += ReferenceValueGroupEditorPage_Unloaded;
@@ -91,7 +93,12 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         _isBeingSaved = true;
 
         if (currentGroup != null)
-            HasUnsavedChanges = !await ProjectSystemManager.SaveResourceAndAncestorAsync(currentGroup);
+        {
+            bool saved = await ProjectSystemManager.SaveResourceAndAncestorAsync(currentGroup);
+            HasUnsavedChanges = !saved;
+            if (saved)
+                WriteToOutput($"Saved: {currentGroup.Title}");
+        }
         _isBeingSaved = false;
     }
 
@@ -102,7 +109,10 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
             propertyEditorDialog.XamlRoot = XamlRoot;
             var result = await propertyEditorDialog.EditAsync(currentGroup);
             if (result == EditorResult.Update)
+            {
                 HasUnsavedChanges = true;
+                WriteToOutput($"Updated properties: {currentGroup.Title}");
+            }
         }
     }
 
@@ -118,6 +128,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
                 tableView.SelectedItem = parameter;
                 HasUnsavedChanges = true;
                 SetCountsText();
+                WriteToOutput($"Added parameter: {parameter.Title}");
             }
         }
     }
@@ -146,7 +157,10 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
             parameterEditorDialog.XamlRoot = XamlRoot;
             var result = await parameterEditorDialog.EditAsync(parameter);
             if (result == EditorResult.Update)
+            {
                 HasUnsavedChanges = true;
+                WriteToOutput($"Edited parameter: {parameter.Title}");
+            }
         }
     }
 
@@ -187,6 +201,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
             }
             tableView.SelectedItems.Clear();
             toDelete.ForEach(x => currentGroup?.Parameters?.Remove(x));
+            WriteToOutput($"Deleted {toDelete.Count} parameter(s)");
             toDelete.Clear();
             HasUnsavedChanges = true;
             SetCountsText();
@@ -261,6 +276,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         moveUpButton.IsEnabled = moveToTopButton.IsEnabled = CanMoveUp();
         moveDownButton.IsEnabled = moveToBottomButton.IsEnabled = CanMoveDown();
         HasUnsavedChanges = true;
+        WriteToOutput($"Moved parameter: {currentGroup?.Parameters?[newIndex]?.Title}");
         tableView.ScrollIntoView(tableView.SelectedItem, ScrollIntoViewAlignment.Default);
     }
 

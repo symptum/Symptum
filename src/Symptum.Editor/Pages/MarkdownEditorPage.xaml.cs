@@ -4,6 +4,7 @@ using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
 using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
+using Symptum.Editor.ViewModels;
 using Symptum.UI.Markdown;
 using Windows.System;
 
@@ -23,6 +24,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     public MarkdownEditorPage()
     {
         InitializeComponent();
+        PageName = "Markdown Editor";
         IconSource = DefaultIconSources.DocumentIconSource;
         Loaded += Page_Loaded;
     }
@@ -273,7 +275,10 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         if (_markdownResource != null)
         {
             _markdownResource.Markdown = mdText.Text;
-            HasUnsavedChanges = !await ProjectSystemManager.SaveResourceAndAncestorAsync(_markdownResource);
+            bool saved = await ProjectSystemManager.SaveResourceAndAncestorAsync(_markdownResource);
+            HasUnsavedChanges = !saved;
+            if (saved)
+                WriteToOutput($"Saved: {_markdownResource.Title}");
         }
 
         _isBeingSaved = false;
@@ -286,7 +291,10 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
             propertyEditorDialog.XamlRoot = XamlRoot;
             var result = await propertyEditorDialog.EditAsync(_markdownResource);
             if (result == EditorResult.Update)
+            {
                 HasUnsavedChanges = true;
+                WriteToOutput($"Updated properties: {_markdownResource.Title}");
+            }
         }
     }
 

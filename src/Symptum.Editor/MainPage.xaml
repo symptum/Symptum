@@ -374,9 +374,38 @@
                                Orientation="Horizontal"
                                Visibility="{x:Bind ViewModel.ShowOutputPanel, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
                                TargetControl="{x:Bind outputPanel}"/>
-        <secontrols:OutputControl x:Name="outputPanel"
-                                  Grid.Row="2"
-                                  Visibility="{x:Bind ViewModel.ShowOutputPanel, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        <Grid  x:Name="outputPanel"
+               Grid.Row="2"
+               MinHeight="100"
+               RowDefinitions="Auto,*"
+               RowSpacing="4"
+               BorderThickness="0,1,0,0"
+               BorderBrush="{ThemeResource AccentFillColorDefaultBrush}"
+               Visibility="{x:Bind ViewModel.ShowOutputPanel, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}">
+          <Grid Padding="8,2,2,2"
+                ColumnDefinitions="*,Auto"
+                ColumnSpacing="4">
+            <TextBlock Text="Output"
+                       Style="{ThemeResource CaptionTextBlockStyle}"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"/>
+            <Button Style="{ThemeResource IconButtonStyle}"
+                    Grid.Column="1"
+                    ToolTipService.ToolTip="Close Panel">
+              <FontIcon FontSize="12"
+                        Glyph="{x:Bind common:CommonGlyphs.Close}"/>
+            </Button>
+          </Grid>
+          <ScrollViewer Grid.Row="1"
+                        Padding="4"
+                        VerticalScrollBarVisibility="Auto">
+            <TextBlock Text="{x:Bind ViewModel.OutputText, Mode=OneWay}"
+                       TextWrapping="Wrap"
+                       IsTextSelectionEnabled="True"
+                       Style="{ThemeResource CaptionTextBlockStyle}"
+                       FontFamily="{ThemeResource DefaultCodeFontFamily}"/>
+          </ScrollViewer>
+        </Grid>
       </Grid>
     </SplitView>
     <secontrols:CommandPaletteControl x:Name="commandPalette"

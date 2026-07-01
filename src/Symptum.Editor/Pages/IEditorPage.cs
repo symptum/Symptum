@@ -4,6 +4,8 @@ namespace Symptum.Editor.Pages;
 
 public interface IEditorPage : IDisposable
 {
+    public string? PageName { get; }
+
     public IconSource? IconSource { get; }
 
     public string? Title { get; set; }

@@ -1,11 +1,14 @@
 using System.ComponentModel;
 using Symptum.Core.Management.Resources;
+using Symptum.Editor.ViewModels;
 
 namespace Symptum.Editor.Pages;
 
 public partial class EditorPageBase : Page, IEditorPage
 {
     #region Properties
+
+    public string? PageName { get; protected set; }
 
     public IconSource? IconSource { get; protected set; }
 
@@ -84,5 +87,10 @@ public partial class EditorPageBase : Page, IEditorPage
     public new void Dispose()
     {
         OnCleanupPage();
+    }
+
+    protected void WriteToOutput(string message)
+    {
+        MainViewModel.AddOutputEntry(message, PageName);
     }
 }
