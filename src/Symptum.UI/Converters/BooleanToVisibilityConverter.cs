@@ -1,4 +1,6 @@
-namespace Symptum.Editor.Converters;
+using Microsoft.UI.Xaml.Data;
+
+namespace Symptum.UI.Converters;
 
 public class BooleanToVisibilityConverter : IValueConverter
 {

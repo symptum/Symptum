@@ -4,7 +4,6 @@ using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
 using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
-using Symptum.Editor.ViewModels;
 using Symptum.UI.Markdown;
 using Windows.System;
 

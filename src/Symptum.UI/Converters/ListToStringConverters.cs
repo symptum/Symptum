@@ -1,8 +1,10 @@
+using Microsoft.UI.Xaml.Data;
+using Symptum.Core.Data;
 using Symptum.Core.Data.Bibliography;
 using Symptum.Core.Data.ReferenceValues;
 using static Symptum.Core.TypeConversion.ListToStringConversion;
 
-namespace Symptum.Editor.Converters;
+namespace Symptum.UI.Converters;
 
 public class DateOnlyListToStringConverter : IValueConverter
 {
@@ -48,6 +50,19 @@ public class ReferenceValueEntryListToStringConverter : IValueConverter
     public object? Convert(object value, Type targetType, object parameter, string language)
     {
         return ConvertToString<ReferenceValueEntry>(value, x => x?.GetPreviewText() ?? string.Empty, "\n");
+    }
+
+    public object? ConvertBack(object value, Type targetType, object parameter, string language)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+public class QuantityListToStringConverter : IValueConverter
+{
+    public object? Convert(object value, Type targetType, object parameter, string language)
+    {
+        return ConvertToString<Quantity>(value, x => x?.ToString() ?? string.Empty, ", ");
     }
 
     public object? ConvertBack(object value, Type targetType, object parameter, string language)

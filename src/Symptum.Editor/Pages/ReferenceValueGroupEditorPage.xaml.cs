@@ -2,7 +2,6 @@ using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
 using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
-using Symptum.Editor.ViewModels;
 using Symptum.Core.Extensions;
 using Symptum.Common.ProjectSystem;
 using Uno.Extensions.Specialized;

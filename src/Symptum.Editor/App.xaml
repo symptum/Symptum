@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:wasm="http://platform.uno/wasm"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:converters="using:Symptum.Editor.Converters"
+             xmlns:converters="using:Symptum.UI.Converters"
              mc:Ignorable="wasm">
   <Application.Resources>
     <ResourceDictionary>

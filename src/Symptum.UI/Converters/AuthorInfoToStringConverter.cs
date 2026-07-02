@@ -1,6 +1,7 @@
+using Microsoft.UI.Xaml.Data;
 using Symptum.Core.Data;
 
-namespace Symptum.Editor.Converters;
+namespace Symptum.UI.Converters;
 
 public class AuthorInfoToStringConverter : IValueConverter
 {

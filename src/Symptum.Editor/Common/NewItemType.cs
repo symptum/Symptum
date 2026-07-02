@@ -5,23 +5,13 @@ using Symptum.Core.Subjects;
 
 namespace Symptum.Editor.Common;
 
-public class NewItemType
+public class NewItemType(string displayName, Type type, string? groupName = null)
 {
-    public string? DisplayName { get; set; }
+    public string DisplayName { get; set; } = displayName;
 
-    public Type? Type { get; set; }
+    public Type Type { get; set; } = type;
 
-    public string? GroupName { get; set; }
-
-    public NewItemType()
-    { }
-
-    public NewItemType(string displayName, Type type, string? groupName = null)
-    {
-        DisplayName = displayName;
-        Type = type;
-        GroupName = groupName;
-    }
+    public string? GroupName { get; set; } = groupName;
 
     public static List<NewItemType> KnownTypes { get; } =
     [

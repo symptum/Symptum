@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>
       <!-- net10.0-android; -->
-      net10.0-windows10.0.22621;
+      <!-- net10.0-windows10.0.22621; -->
       net10.0-desktop;
       <!-- net10.0-browserwasm; -->
     </TargetFrameworks>
@@ -46,6 +46,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Symptum.Common\Symptum.Common.csproj" />
     <ProjectReference Include="..\Symptum.Core\Symptum.Core.csproj" />
+    <ProjectReference Include="..\Symptum.UI\Symptum.UI.csproj" />
   </ItemGroup>
 
   <ItemGroup>

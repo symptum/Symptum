@@ -312,10 +312,10 @@ public partial class MainViewModel : ObservableObject
         var result = await addNewItemDialog.CreateAsync(parent);
         if (result == EditorResult.Create)
         {
-            var selectedType = addNewItemDialog.SelectedItemType;
-            if (selectedType != null)
+            var selected = addNewItemDialog.SelectedItemType;
+            if (selected != null)
             {
-                if (Activator.CreateInstance(selectedType) is IResource instance)
+                if (Activator.CreateInstance(selected.Type) is IResource instance)
                 {
                     instance.Title = addNewItemDialog.ItemTitle;
                     if (parent != null)
@@ -326,7 +326,7 @@ public partial class MainViewModel : ObservableObject
                         instance.InitializeResource(null);
                     }
                     EditorPagesManager.CreateOrOpenEditor(instance);
-                    AddOutputEntry($"Created new {selectedType.Name}: {instance.Title}");
+                    AddOutputEntry($"Created new {selected.DisplayName}: {instance.Title}");
                 }
             }
         }

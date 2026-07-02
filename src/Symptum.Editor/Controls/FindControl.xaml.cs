@@ -1,5 +1,5 @@
 using System.Collections.ObjectModel;
-using Symptum.Editor.Converters;
+using Symptum.UI.Converters;
 
 namespace Symptum.Editor.Controls;
 

@@ -1,57 +1,101 @@
-﻿<ResourceDictionary
-  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-  xmlns:md="using:Symptum.UI.Markdown">
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:md="using:Symptum.UI.Markdown">
+
   <ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="ms-appx:///Symptum.UI/Markdown/QuoteControl.xaml" />
   </ResourceDictionary.MergedDictionaries>
 
-  <FontFamily x:Key="DefaultCodeFontFamily">ms-appx:///Symptum.UI/Fonts/CascadiaCode-Regular.ttf#Cascadia Code</FontFamily>
+  <StaticResource x:Key="MarkdownBackgroundBrush" ResourceKey="SolidBackgroundFillColorBaseBrush" />
+  <StaticResource x:Key="MarkdownForegroundBrush" ResourceKey="TextFillColorPrimaryBrush" />
+  <StaticResource x:Key="MarkdownAccentBrush" ResourceKey="AccentTextFillColorPrimaryBrush" />
+  <StaticResource x:Key="MarkdownH1Foreground" ResourceKey="AccentTextFillColorPrimaryBrush" />
 
-  <Style x:Key="DefaultBodyTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
+  <StaticResource x:Key="MarkdownCodeBackground" ResourceKey="SolidBackgroundFillColorSecondaryBrush" />
+  <StaticResource x:Key="MarkdownCodeBorderBrush" ResourceKey="ControlStrongStrokeColorDefaultBrush" />
+
+  <StaticResource x:Key="MarkdownTableHeaderBackground" ResourceKey="AccentFillColorDefaultBrush" />
+  <StaticResource x:Key="MarkdownTableHeaderForeground" ResourceKey="TextOnAccentFillColorPrimaryBrush" />
+  <StaticResource x:Key="MarkdownTableBorderBrush" ResourceKey="ControlStrongStrokeColorDefaultBrush" />
+  <StaticResource x:Key="MarkdownTableAltBackground" ResourceKey="ControlAltFillColorQuarternaryBrush" />
+
+  <StaticResource x:Key="MarkdownThematicBreakBrush" ResourceKey="ControlStrongStrokeColorDefaultBrush" />
+
+  <StaticResource x:Key="MarkdownBodyFontFamily" ResourceKey="ContentControlThemeFontFamily" />
+  <FontFamily x:Key="MarkdownCodeFontFamily">ms-appx:///Symptum.UI/Fonts/CascadiaCode-Regular.ttf#Cascadia Code</FontFamily>
+  <x:Double x:Key="MarkdownBodyFontSize">16</x:Double>
+  <x:Double x:Key="MarkdownH1FontSize">28</x:Double>
+  <x:Double x:Key="MarkdownH2FontSize">24</x:Double>
+  <x:Double x:Key="MarkdownH3FontSize">22</x:Double>
+  <x:Double x:Key="MarkdownH4FontSize">20</x:Double>
+  <x:Double x:Key="MarkdownH5FontSize">18</x:Double>
+  <x:Double x:Key="MarkdownH6FontSize">16</x:Double>
+
+  <Style x:Key="DefaultBodyTextBlockStyle"
+         BasedOn="{StaticResource BodyTextBlockStyle}"
+         TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{ThemeResource MarkdownBodyFontFamily}" />
+    <Setter Property="FontSize" Value="{ThemeResource MarkdownBodyFontSize}" />
+    <Setter Property="Foreground" Value="{ThemeResource MarkdownForegroundBrush}" />
     <Setter Property="HorizontalAlignment" Value="Stretch" />
     <Setter Property="HorizontalTextAlignment" Value="Left" />
     <Setter Property="TextAlignment" Value="Left" />
-    <Setter Property="TextWrapping" Value="NoWrap" />
   </Style>
 
-  <!--Heading-->
-  <Style x:Key="DefaultH1TextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource DefaultBodyTextBlockStyle}">
-    <Setter Property="FontSize" Value="28" />
+  <Style x:Key="DefaultH1TextBlockStyle"
+         BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
+         TargetType="TextBlock">
+    <Setter Property="FontSize" Value="{ThemeResource MarkdownH1FontSize}" />
     <Setter Property="FontWeight" Value="Bold" />
-    <Setter Property="Foreground" Value="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+    <Setter Property="Foreground" Value="{ThemeResource MarkdownH1Foreground}" />
   </Style>
-  <Style x:Key="DefaultH2TextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource DefaultBodyTextBlockStyle}">
-    <Setter Property="FontSize" Value="24" />
-    <Setter Property="FontWeight" Value="Normal" />
-  </Style>
-  <Style x:Key="DefaultH3TextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource DefaultBodyTextBlockStyle}">
-    <Setter Property="FontSize" Value="22" />
-    <Setter Property="FontWeight" Value="Bold" />
-  </Style>
-  <Style x:Key="DefaultH4TextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource DefaultBodyTextBlockStyle}">
-    <Setter Property="FontSize" Value="20" />
-    <Setter Property="FontWeight" Value="Normal" />
-  </Style>
-  <Style x:Key="DefaultH5TextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource DefaultBodyTextBlockStyle}">
-    <Setter Property="FontSize" Value="18" />
-    <Setter Property="FontWeight" Value="Bold" />
-  </Style>
-  <Style x:Key="DefaultH6TextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource DefaultBodyTextBlockStyle}">
-    <Setter Property="FontSize" Value="16" />
+
+  <Style x:Key="DefaultH2TextBlockStyle"
+         BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
+         TargetType="TextBlock">
+    <Setter Property="FontSize" Value="{ThemeResource MarkdownH2FontSize}" />
     <Setter Property="FontWeight" Value="Normal" />
   </Style>
 
-  <!--Code-->
-  <Style x:Key="DefaultCodeTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource DefaultBodyTextBlockStyle}">
-    <Setter Property="FontFamily" Value="{StaticResource DefaultCodeFontFamily}" />
+  <Style x:Key="DefaultH3TextBlockStyle"
+         BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
+         TargetType="TextBlock">
+    <Setter Property="FontSize" Value="{ThemeResource MarkdownH3FontSize}" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+
+  <Style x:Key="DefaultH4TextBlockStyle"
+         BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
+         TargetType="TextBlock">
+    <Setter Property="FontSize" Value="{ThemeResource MarkdownH4FontSize}" />
+    <Setter Property="FontWeight" Value="Normal" />
+  </Style>
+
+  <Style x:Key="DefaultH5TextBlockStyle"
+         BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
+         TargetType="TextBlock">
+    <Setter Property="FontSize" Value="{ThemeResource MarkdownH5FontSize}" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+
+  <Style x:Key="DefaultH6TextBlockStyle"
+         BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
+         TargetType="TextBlock">
+    <Setter Property="FontSize" Value="{ThemeResource MarkdownH6FontSize}" />
+    <Setter Property="FontWeight" Value="Normal" />
+  </Style>
+
+  <Style x:Key="DefaultCodeTextBlockStyle"
+         BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
+         TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{ThemeResource MarkdownCodeFontFamily}" />
     <Setter Property="FontWeight" Value="Normal" />
     <Setter Property="VerticalAlignment" Value="Center" />
   </Style>
 
   <Style x:Key="DefaultCodeInlineBorderStyle" TargetType="Border">
-    <Setter Property="Background" Value="{ThemeResource SolidBackgroundFillColorSecondaryBrush}" />
-    <Setter Property="BorderBrush" Value="{ThemeResource ControlStrongStrokeColorDefaultBrush}" />
+    <Setter Property="Background" Value="{ThemeResource MarkdownCodeBackground}" />
+    <Setter Property="BorderBrush" Value="{ThemeResource MarkdownCodeBorderBrush}" />
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
     <Setter Property="Padding" Value="4,0,4,0" />
@@ -59,35 +103,39 @@
   </Style>
 
   <Style x:Key="DefaultCodeBlockBorderStyle" TargetType="Border">
-    <Setter Property="Background" Value="{ThemeResource SolidBackgroundFillColorSecondaryBrush}" />
+    <Setter Property="Background" Value="{ThemeResource MarkdownCodeBackground}" />
     <Setter Property="BorderThickness" Value="0" />
     <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
     <Setter Property="Margin" Value="16,8,8,8" />
     <Setter Property="Padding" Value="12" />
   </Style>
 
-  <!--Table-->
-  <Style x:Key="DefaultTableHeaderTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource DefaultBodyTextBlockStyle}">
+  <Style x:Key="DefaultTableHeaderTextBlockStyle"
+         BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
+         TargetType="TextBlock">
     <Setter Property="FontWeight" Value="Bold" />
-    <Setter Property="Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+    <Setter Property="Foreground" Value="{ThemeResource MarkdownTableHeaderForeground}" />
   </Style>
 
   <Style x:Key="DefaultTableCellGridStyle" TargetType="Grid">
-    <Setter Property="BorderBrush" Value="{ThemeResource ControlStrongStrokeColorDefaultBrush}" />
-    <Setter Property="Padding" Value="12, 8" />
+    <Setter Property="BorderBrush" Value="{ThemeResource MarkdownTableBorderBrush}" />
+    <Setter Property="Padding" Value="12,8" />
   </Style>
 
-  <Style x:Key="DefaultTableHeaderCellGridStyle" TargetType="Grid" BasedOn="{StaticResource DefaultTableCellGridStyle}">
-    <Setter Property="Background" Value="{ThemeResource AccentFillColorDefaultBrush}" />
+  <Style x:Key="DefaultTableHeaderCellGridStyle"
+         BasedOn="{StaticResource DefaultTableCellGridStyle}"
+         TargetType="Grid">
+    <Setter Property="Background" Value="{ThemeResource MarkdownTableHeaderBackground}" />
   </Style>
 
-  <Style x:Key="AltTableCellGridStyle" TargetType="Grid" BasedOn="{StaticResource DefaultTableCellGridStyle}">
-    <Setter Property="Background" Value="{ThemeResource ControlAltFillColorQuarternaryBrush}" />
+  <Style x:Key="AltTableCellGridStyle"
+         BasedOn="{StaticResource DefaultTableCellGridStyle}"
+         TargetType="Grid">
+    <Setter Property="Background" Value="{ThemeResource MarkdownTableAltBackground}" />
   </Style>
 
-  <!--ThematicBreak-->
   <Style x:Key="DefaultThematicBreakBorderStyle" TargetType="Border">
-    <Setter Property="Background" Value="{ThemeResource ControlStrongStrokeColorDefaultBrush}" />
+    <Setter Property="Background" Value="{ThemeResource MarkdownThematicBreakBrush}" />
     <Setter Property="CornerRadius" Value="1" />
     <Setter Property="Height" Value="2" />
     <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -95,8 +143,9 @@
     <Setter Property="Width" Value="500" />
   </Style>
 
-  <!--Address Block-->
-  <Style x:Key="DefaultAddressBlockTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource DefaultBodyTextBlockStyle}">
+  <Style x:Key="DefaultAddressBlockTextBlockStyle"
+         BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
+         TargetType="TextBlock">
     <Setter Property="FontStyle" Value="Italic" />
   </Style>
 

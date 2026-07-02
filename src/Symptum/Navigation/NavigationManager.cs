@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Extensions;
 using Symptum.Core.Management.Navigation;
 using Symptum.Core.Management.Resources;
@@ -9,26 +10,26 @@ namespace Symptum.Navigation;
 
 public class NavigationManager
 {
+    private static readonly Dictionary<Uri, NavigationInfo> _navInfoMap = [];
+
     public static readonly NavigationInfo HomeNavInfo = new(HomeUri, "Home", typeof(HomePage), new SymbolIconSource() { Symbol = Symbol.Home });
 
     public static readonly Uri HomeUri = ResourceManager.GetAbsoluteUri("home");
 
+    public static readonly Uri SubjectsUri = ResourceManager.GetAbsoluteUri("subjects");
+
     public static INavigable? CurrentNavigable { get; set; }
 
-    public static event EventHandler<INavigable> NavigationRequested;
+    public static event EventHandler<INavigable>? NavigationRequested;
 
-    public static ObservableCollection<NavigationInfo> NavigationInfos { get; } = [ HomeNavInfo ];
+    public static ObservableCollection<NavigationInfo> NavigationInfos { get; } = [];
 
     static NavigationManager()
+    { }
+
+    public static void Initialize()
     {
-        NavigationInfo subjectNavInfo = new(ResourceManager.GetAbsoluteUri("subjects"), "Subjects", typeof(SubjectsPage), new SymbolIconSource() { Symbol = Symbol.Library });
-
-        foreach (var sub in SubjectsManager.Subjects)
-        {
-            subjectNavInfo.Children.AddItemToListIfNotExists(CreateNavigationInfoForNavigable(sub));
-        }
-
-        NavigationInfos.Add(subjectNavInfo);
+        LoadNavigationInfosFromResources();
     }
 
     public static void Navigate(Uri? uri = null) => Navigate(GetNavigableForUri(uri));
@@ -36,7 +37,7 @@ public class NavigationManager
     public static void Navigate(INavigable? navigable)
     {
         navigable ??= HomeNavInfo;
-        NavigationRequested?.Invoke(null, navigable);
+        NavigationRequested?.Invoke(null, navigable!);
     }
 
     public static INavigable? GetNavigableForUri(Uri? uri)
@@ -53,26 +54,8 @@ public class NavigationManager
 
     public static NavigationInfo? GetNavigationInfoForUri(Uri? uri)
     {
-        if (uri == null) return null;
-
-        return FindNavigationInfo(navInfo => uri.Equals(navInfo.Uri));
-    }
-
-    private static NavigationInfo? FindNavigationInfo(Func<NavigationInfo, bool> predicate, IList<NavigationInfo>? collection = null)
-    {
-        collection ??= NavigationInfos;
-        NavigationInfo? navInfo = null;
-
-        foreach (var _navInfo in collection)
-        {
-            if (predicate(_navInfo))
-            {
-                navInfo = _navInfo;
-            }
-            else
-                navInfo = FindNavigationInfo(predicate, _navInfo.Children);
-            if (navInfo != null) return navInfo;
-        }
+        if (uri != null && _navInfoMap.TryGetValue(uri, out NavigationInfo? navInfo))
+            return navInfo;
 
         return null;
     }
@@ -86,20 +69,78 @@ public class NavigationManager
 
     public static Type? GetPageTypeForNavigable(INavigable? navigable)
     {
-        if (navigable is NavigationInfo navInfo)
-            return navInfo.PageType;
-        else if (navigable is NavigableResource)
-            return typeof(DefaultPage);
-        else
-            return null;
+        return navigable switch
+        {
+            NavigationInfo n => n.PageType,
+            ReferenceValueGroup => typeof(ReferenceValueGroupPage),
+            MarkdownFileResource => typeof(MarkdownPage),
+            ImageFileResource => typeof(ImagePage),
+            NavigableResource => typeof(DefaultPage),
+            _ => null,
+        };
     }
 
     public static NavigationInfo? CreateNavigationInfoForNavigable(INavigable? navigable)
     {
         return navigable switch
         {
-            Subject => new(navigable.Uri, navigable.Title, typeof(SubjectViewPage), new FontIconSource() { Glyph = "\uE82D" }, navigable),
+            Subject s => new(s, typeof(DefaultPage), new FontIconSource() { Glyph = "\uE82D" }),
             _ => null,
         };
+    }
+
+    public static void LoadNavigationInfosFromResources()
+    {
+        AddNavInfo(HomeNavInfo);
+        NavigationInfo? navInfo;
+        foreach (var resource in ResourceManager.Resources)
+        {
+            if (resource is Subject)
+            {
+                continue;
+            }
+            else if (resource is PackageResource package)
+            {
+                navInfo = new NavigationInfo(package.Uri, package.Title,
+                    GetPageTypeForNavigable(package),
+                    new FontIconSource() { Glyph = "\uE823" }, package);
+                AddNavInfo(navInfo);
+            }
+        }
+
+        navInfo = new NavigationInfo(SubjectsUri, "Subjects", typeof(DefaultPage), new SymbolIconSource() { Symbol = Symbol.Library });
+
+        foreach (var sub in SubjectsManager.Subjects)
+        {
+            AddNavInfo(CreateNavigationInfoForNavigable(sub), navInfo.Children);
+        }
+
+        AddNavInfo(navInfo);
+    }
+
+    private static void AddNavInfo(NavigationInfo? navInfo, ObservableCollection<NavigationInfo>? destination = null)
+    {
+        if (navInfo != null && navInfo.Uri != null)
+        {
+            _navInfoMap[navInfo.Uri] = navInfo;
+            if (destination == null) NavigationInfos.Add(navInfo);
+            else destination.Add(navInfo);
+        }
+    }
+
+    public static INavigable? GetRealNavigable(INavigable? navigable)
+    {
+        switch (navigable)
+        {
+            case NavigableResource resource:
+                return resource;
+            case NavigationInfo navInfo:
+                {
+                    return navInfo.BackingNavigable is NavigableResource res ? res : navInfo;
+                }
+
+            default:
+                return null;
+        }
     }
 }

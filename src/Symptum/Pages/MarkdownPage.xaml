@@ -1,0 +1,63 @@
+<local:NavigablePage x:Class="Symptum.Pages.MarkdownPage"
+                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                     xmlns:local="using:Symptum.Pages"
+                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                     xmlns:md="using:Symptum.UI.Markdown"
+                     mc:Ignorable="d">
+  <Grid Margin="0,24,0,0">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
+    </Grid.RowDefinitions>
+
+    <Border Grid.Row="0"
+            Padding="12,8"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            CornerRadius="0">
+      <StackPanel Orientation="Horizontal" Spacing="12">
+        <ComboBox x:Name="fontCombo"
+                  MinWidth="130"
+                  SelectedIndex="0"
+                  SelectionChanged="OnSettingChanged">
+          <ComboBoxItem Content="System" />
+          <ComboBoxItem Content="Serif" />
+          <ComboBoxItem Content="Sans Serif" />
+          <ComboBoxItem Content="Monospace" />
+        </ComboBox>
+        <ComboBox x:Name="sizeCombo"
+                  MinWidth="80"
+                  SelectedIndex="2"
+                  SelectionChanged="OnSettingChanged">
+          <ComboBoxItem Content="10" Tag="10" />
+          <ComboBoxItem Content="12" Tag="12" />
+          <ComboBoxItem Content="14" Tag="14" />
+          <ComboBoxItem Content="16" Tag="16" />
+          <ComboBoxItem Content="18" Tag="18" />
+          <ComboBoxItem Content="20" Tag="20" />
+        </ComboBox>
+        <ComboBox x:Name="themeCombo"
+                  MinWidth="120"
+                  SelectedIndex="0"
+                  SelectionChanged="OnThemeChanged">
+          <ComboBoxItem Content="System" />
+          <ComboBoxItem Content="Light" />
+          <ComboBoxItem Content="Sepia" />
+          <ComboBoxItem Content="Warm Light" />
+          <ComboBoxItem Content="Dark" />
+          <ComboBoxItem Content="Nord" />
+          <ComboBoxItem Content="Dracula" />
+          <ComboBoxItem Content="OLED Dark" />
+        </ComboBox>
+      </StackPanel>
+    </Border>
+
+    <ScrollViewer x:Name="contentScroll"
+                  Grid.Row="1"
+                  Background="{ThemeResource MarkdownBackgroundBrush}">
+      <md:MarkdownTextBlock x:Name="markdownView"
+                            Margin="24" />
+    </ScrollViewer>
+  </Grid>
+</local:NavigablePage>

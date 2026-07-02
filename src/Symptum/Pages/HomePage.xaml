@@ -1,25 +1,84 @@
 ﻿<local:NavigablePage x:Class="Symptum.Pages.HomePage"
-  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-  xmlns:local="using:Symptum.Pages"
-  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  mc:Ignorable="d">
-  <StackPanel Margin="10" Spacing="16">
-    <TextBlock Text="Suggestions" />
-    <FlipView Height="200">
-      <FlipView.Items>
-        <FlipViewItem>
-          <Button VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Content="Hello1" Click="Button_Click" />
-        </FlipViewItem>
-        <FlipViewItem>
-          <Border Margin="10" CornerRadius="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Red" />
-        </FlipViewItem>
-        <FlipViewItem Content="Hello3" />
-        <FlipViewItem Content="Hello4" />
-      </FlipView.Items>
-    </FlipView>
-    <TextBlock Text="Shortcuts" />
-    <Border Margin="10" CornerRadius="10" HorizontalAlignment="Stretch" Background="{ThemeResource SystemAltLowColor}" Height="300" />
-  </StackPanel>
+                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                     xmlns:local="using:Symptum.Pages"
+                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                     xmlns:nav="using:Symptum.Core.Management.Navigation"
+                     xmlns:sub="using:Symptum.Core.Subjects"
+                     xmlns:vm="using:Symptum.ViewModels"
+                     mc:Ignorable="d">
+  <ScrollViewer>
+    <StackPanel Margin="{ThemeResource NavViewContentMargin}" Spacing="32">
+      <TextBlock FontWeight="Bold"
+                 Style="{ThemeResource TitleLargeTextBlockStyle}"
+                 Text="Welcome to Symptum" />
+
+      <StackPanel Spacing="12">
+        <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}" Text="Favorites" />
+        <ScrollViewer HorizontalScrollBarVisibility="Auto">
+          <ItemsRepeater x:Name="favorites">
+            <ItemsRepeater.Layout>
+              <StackLayout Orientation="Horizontal" Spacing="12" />
+            </ItemsRepeater.Layout>
+            <ItemsRepeater.ItemTemplate>
+              <DataTemplate x:DataType="nav:INavigable">
+                <Button Width="280"
+                        Height="100"
+                        Padding="20"
+                        Command="{x:Bind vm:MainViewModel.Instance.NavigateCommand}"
+                        CommandParameter="{x:Bind}"
+                        CornerRadius="16">
+                  <Grid>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="Auto" />
+                      <RowDefinition Height="*" />
+                      <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <FontIcon Grid.Row="0"
+                              FontSize="20"
+                              Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                              Glyph="&#xE838;" />
+                    <TextBlock Grid.Row="1"
+                               Margin="0,8,0,0"
+                               Style="{ThemeResource BodyStrongTextBlockStyle}"
+                               Text="{x:Bind Title}"
+                               TextWrapping="WrapWholeWords" />
+                  </Grid>
+                </Button>
+              </DataTemplate>
+            </ItemsRepeater.ItemTemplate>
+          </ItemsRepeater>
+        </ScrollViewer>
+      </StackPanel>
+
+      <!--  Subjects Grid  -->
+      <StackPanel Spacing="12">
+        <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}" Text="Subjects" />
+        <ItemsRepeater x:Name="subjectGrid" ItemsSource="{x:Bind sub:SubjectsManager.Subjects}">
+          <ItemsRepeater.Layout>
+            <UniformGridLayout ItemsStretch="Fill"
+                               MinColumnSpacing="12"
+                               MinItemHeight="100"
+                               MinItemWidth="200"
+                               MinRowSpacing="12" />
+          </ItemsRepeater.Layout>
+          <ItemsRepeater.ItemTemplate>
+            <DataTemplate x:DataType="sub:Subject">
+              <Button Padding="16"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch"
+                      Command="{x:Bind vm:MainViewModel.Instance.NavigateToUriCommand}"
+                      CommandParameter="{x:Bind Uri}"
+                      CornerRadius="12">
+                  <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}"
+                             Text="{x:Bind Title}"
+                             TextWrapping="WrapWholeWords" />
+              </Button>
+            </DataTemplate>
+          </ItemsRepeater.ItemTemplate>
+        </ItemsRepeater>
+      </StackPanel>
+    </StackPanel>
+  </ScrollViewer>
 </local:NavigablePage>

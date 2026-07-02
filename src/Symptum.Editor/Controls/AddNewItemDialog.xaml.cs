@@ -13,7 +13,7 @@ public sealed partial class AddNewItemDialog : ContentDialog
 
     public string ItemTitle { get; set; } = string.Empty;
 
-    public Type? SelectedItemType { get; set; } = null;
+    public NewItemType? SelectedItemType { get; set; } = null;
 
     public EditorResult Result { get; private set; } = EditorResult.None;
 
@@ -65,7 +65,7 @@ public sealed partial class AddNewItemDialog : ContentDialog
         if (valid)
         {
             Result = EditorResult.Create;
-            if (!_newProject) SelectedItemType = (newItemsLV.SelectedItem as NewItemType)?.Type;
+            if (!_newProject) SelectedItemType = newItemsLV.SelectedItem as NewItemType;
             ItemTitle = titleTextBox.Text;
         }
     }

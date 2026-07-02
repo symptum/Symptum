@@ -41,7 +41,7 @@ public sealed partial class MainPage : Page
         };
     }
 
-    public MainViewModel ViewModel { get => MainViewModel.Instance; }
+    public MainViewModel ViewModel { get; } = MainViewModel.Instance;
 
     private void MainPage_SizeChanged(object sender, SizeChangedEventArgs args)
     {

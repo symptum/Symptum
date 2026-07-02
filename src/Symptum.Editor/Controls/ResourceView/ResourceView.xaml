@@ -2,7 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:wasm="http://platform.uno/wasm"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                    xmlns:converters="using:Symptum.Editor.Converters"
+                    xmlns:converters="using:Symptum.UI.Converters"
                     xmlns:common="using:Symptum.Editor.Common"
                     xmlns:vm="using:Symptum.Editor.ViewModels"
                     xmlns:local="using:Symptum.Editor.Controls">
