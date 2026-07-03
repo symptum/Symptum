@@ -106,21 +106,7 @@ public sealed partial class ResourceView
     public int FocusedIndex
     {
         get => _focusedIndex;
-        set
-        {
-            var oldIndex = _focusedIndex;
-            _focusedIndex = Math.Clamp(value, -1, FlattenedItems.Count - 1);
-            if (oldIndex >= 0 && oldIndex < FlattenedItems.Count)
-            {
-                FlattenedItems[oldIndex].IsFocused = false;
-                UpdateItemFocusVisual(oldIndex);
-            }
-            if (_focusedIndex >= 0 && _focusedIndex < FlattenedItems.Count)
-            {
-                FlattenedItems[_focusedIndex].IsFocused = true;
-                UpdateItemFocusVisual(_focusedIndex);
-            }
-        }
+        set => _focusedIndex = Math.Clamp(value, -1, FlattenedItems.Count - 1);
     }
 
     public ResourceViewNode? FocusedItem => _focusedIndex >= 0 && _focusedIndex < FlattenedItems.Count
@@ -223,14 +209,9 @@ public sealed partial class ResourceView
         if (_focusedIndex > node._flatIndex)
         {
             if (_focusedIndex <= node._flatIndex + removed)
-            {
                 _focusedIndex = node._flatIndex;
-                FlattenedItems[_focusedIndex].IsFocused = true;
-            }
             else
-            {
                 _focusedIndex -= removed;
-            }
         }
         Focus(FocusState.Keyboard);
     }
@@ -504,20 +485,18 @@ public sealed partial class ResourceView
         }
     }
 
-    private void UpdateItemFocusVisual(int index)
+    internal void FocusItem(int index)
     {
-        if (_itemsRepeater == null) return;
-        if (_itemsRepeater.TryGetElement(index) is ResourceViewItem item)
-            item.UpdateFocusVisual();
+        if (_itemsRepeater?.TryGetElement(index) is ResourceViewItem item && item.DataContext is ResourceViewNode node)
+        {
+            FocusedIndex = node._flatIndex;
+            item.Focus(FocusState.Keyboard);
+        }
     }
 
     internal void UpdateCheckBoxVisibility(ResourceViewItem item)
     {
-        if (item.GetTemplateChild("SelectionCheckBox") is CheckBox checkBox)
-        {
-            checkBox.Visibility = SelectionMode == ResourceViewSelectionMode.Multiple
-                ? Visibility.Visible : Visibility.Collapsed;
-        }
+        item.UpdateCheckBoxVisibility(SelectionMode);
     }
 
     private void UpdateAllItemVisuals()

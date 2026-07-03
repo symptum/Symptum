@@ -48,10 +48,7 @@ public partial class MarkdownTextBlock : Control
 
     private void ApplyConfig(MarkdownConfiguration config)
     {
-        if (_renderer != null)
-        {
-            _renderer.Configuration = config;
-        }
+        _renderer?.Configuration = config;
     }
 
     private void ApplyText(bool rerender)

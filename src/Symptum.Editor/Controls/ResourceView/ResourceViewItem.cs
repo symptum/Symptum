@@ -7,24 +7,54 @@ public class ResourceViewItem : ContentControl
     private bool _isPressed;
     private bool _isPointerOver;
     private bool _isSelected;
-    private bool _isFocused;
     private ResourceViewNode? _node;
+    private Border? _expandCollapseZone;
+    private Grid? _contentZone;
+    private FrameworkElement? _selectionIndicator;
+    private CheckBox? _selectionCheckBox;
+
+    internal event Action<ResourceViewItem>? ExpandCollapseRequested;
+    internal event Action<ResourceViewItem>? ContentTapped;
 
     public ResourceViewItem()
     {
-        IsTabStop = false;
+        UseSystemFocusVisuals = true;
         DataContextChanged += OnDataContextChanged;
     }
 
     protected override void OnApplyTemplate()
     {
         base.OnApplyTemplate();
+
+        _expandCollapseZone?.Tapped -= OnExpandCollapseTapped;
+        _expandCollapseZone = GetTemplateChild("ExpandCollapseZone") as Border;
+        _expandCollapseZone?.Tapped += OnExpandCollapseTapped;
+
+        _contentZone?.Tapped -= OnContentTapped;
+        _contentZone = GetTemplateChild("ContentZone") as Grid;
+        _contentZone?.Tapped += OnContentTapped;
+
+        _selectionIndicator = GetTemplateChild("SelectionIndicator") as FrameworkElement;
+        _selectionCheckBox = GetTemplateChild("SelectionCheckBox") as CheckBox;
+
         SubscribeToNode();
     }
 
     private void OnDataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
     {
         SubscribeToNode();
+    }
+
+    private void OnExpandCollapseTapped(object sender, TappedRoutedEventArgs e)
+    {
+        ExpandCollapseRequested?.Invoke(this);
+        e.Handled = true;
+    }
+
+    private void OnContentTapped(object sender, TappedRoutedEventArgs e)
+    {
+        ContentTapped?.Invoke(this);
+        e.Handled = true;
     }
 
     protected override void OnPointerEntered(PointerRoutedEventArgs e)
@@ -55,12 +85,15 @@ public class ResourceViewItem : ContentControl
         UpdateVisualStates();
     }
 
-    internal void UpdateFocusVisual()
+    internal void UpdateSelectionIndicator()
     {
-        if (_isFocused)
-            VisualStateManager.GoToState(this, "Focused", true);
-        else
-            VisualStateManager.GoToState(this, "Unfocused", true);
+        _selectionIndicator?.Visibility = _isSelected ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    internal void UpdateCheckBoxVisibility(ResourceViewSelectionMode mode)
+    {
+        _selectionCheckBox?.Visibility = mode == ResourceViewSelectionMode.Multiple
+                ? Visibility.Visible : Visibility.Collapsed;
     }
 
     private void UpdateVisualStates()
@@ -81,17 +114,15 @@ public class ResourceViewItem : ContentControl
 
     private void SubscribeToNode()
     {
-        if (_node != null)
-            _node.PropertyChanged -= OnNodePropertyChanged;
+        _node?.PropertyChanged -= OnNodePropertyChanged;
 
         _node = DataContext as ResourceViewNode;
 
         if (_node != null)
         {
             _isSelected = _node.IsSelected;
-            _isFocused = _node.IsFocused;
             _node.PropertyChanged += OnNodePropertyChanged;
-            UpdateFocusVisual();
+            UpdateSelectionIndicator();
             UpdateVisualStates();
         }
     }
@@ -103,12 +134,8 @@ public class ResourceViewItem : ContentControl
         if (e.PropertyName == nameof(ResourceViewNode.IsSelected))
         {
             _isSelected = _node.IsSelected;
+            UpdateSelectionIndicator();
             UpdateVisualStates();
-        }
-        else if (e.PropertyName == nameof(ResourceViewNode.IsFocused))
-        {
-            _isFocused = _node.IsFocused;
-            UpdateFocusVisual();
         }
     }
 }

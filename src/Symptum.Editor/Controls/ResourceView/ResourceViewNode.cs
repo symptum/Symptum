@@ -17,9 +17,6 @@ public partial class ResourceViewNode : ObservableObject
     public partial bool IsSelected { get; set; }
 
     [ObservableProperty]
-    public partial bool IsFocused { get; set; }
-
-    [ObservableProperty]
     public partial IResource Resource { get; private set; }
 
     [ObservableProperty]

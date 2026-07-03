@@ -79,6 +79,21 @@ public class NavigationManager
             _ => null,
         };
     }
+    public static INavigable? GetRealNavigable(INavigable? navigable)
+    {
+        switch (navigable)
+        {
+            case NavigableResource resource:
+                return resource;
+            case NavigationInfo navInfo:
+                {
+                    return navInfo.BackingNavigable is NavigableResource res ? res : navInfo;
+                }
+
+            default:
+                return null;
+        }
+    }
 
     public static NavigationInfo? CreateNavigationInfoForNavigable(INavigable? navigable)
     {
@@ -89,7 +104,7 @@ public class NavigationManager
         };
     }
 
-    public static void LoadNavigationInfosFromResources()
+    private static void LoadNavigationInfosFromResources()
     {
         AddNavInfo(HomeNavInfo);
         NavigationInfo? navInfo;
@@ -125,22 +140,6 @@ public class NavigationManager
             _navInfoMap[navInfo.Uri] = navInfo;
             if (destination == null) NavigationInfos.Add(navInfo);
             else destination.Add(navInfo);
-        }
-    }
-
-    public static INavigable? GetRealNavigable(INavigable? navigable)
-    {
-        switch (navigable)
-        {
-            case NavigableResource resource:
-                return resource;
-            case NavigationInfo navInfo:
-                {
-                    return navInfo.BackingNavigable is NavigableResource res ? res : navInfo;
-                }
-
-            default:
-                return null;
         }
     }
 }

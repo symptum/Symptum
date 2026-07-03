@@ -218,6 +218,9 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         {
             _markdownResource = markdownResource;
             mdText.Text = markdownResource.Markdown;
+            // Setting the Text triggers TextChanged event which set HasUnsavedChanges = true.
+            // Therefore manually clear this up here.
+            HasUnsavedChanges = false;
         }
     }
 
@@ -231,8 +234,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     protected override void OnUpdateContent()
     {
-        if (_markdownResource != null)
-            _markdownResource.Markdown = mdText.Text;
+        _markdownResource?.Markdown = mdText.Text;
     }
 
     protected override void OnCleanupPage()

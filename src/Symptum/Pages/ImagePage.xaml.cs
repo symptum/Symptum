@@ -1,3 +1,4 @@
+using Symptum.Common.Helpers;
 using Symptum.Core.Management.Navigation;
 using Symptum.Core.Management.Resources;
 
@@ -41,7 +42,8 @@ public sealed partial class ImagePage : NavigablePage
 
         try
         {
-            using var stream = await Symptum.Common.Helpers.ResourceHelper.OpenFileForReadAsync(_imageResource);
+            StorageFile file = await StorageFile.GetFileFromPathAsync(_imageResource.FilePath);
+            using var stream = await file.OpenStreamForReadAsync();
             if (stream != null)
             {
                 var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();

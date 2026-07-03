@@ -100,7 +100,7 @@ public sealed partial class MarkdownPage : NavigablePage
         };
 
         double fontSize = FontSizes[sizeCombo.SelectedIndex];
-        double scale = fontSize / 16.0;
+        double scale = fontSize / 14.0;
 
         if (fontFamily != null)
             Resources["MarkdownBodyFontFamily"] = new FontFamily(fontFamily);

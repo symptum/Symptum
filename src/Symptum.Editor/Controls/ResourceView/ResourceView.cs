@@ -34,7 +34,7 @@ public sealed partial class ResourceView : Control
         }
 
         IsTabStop = true;
-        KeyDown -= OnResourceViewKeyDown;
-        KeyDown += OnResourceViewKeyDown;
+        RemoveHandler(KeyDownEvent, new KeyEventHandler(OnResourceViewKeyDown));
+        AddHandler(KeyDownEvent, new KeyEventHandler(OnResourceViewKeyDown), true);
     }
 }

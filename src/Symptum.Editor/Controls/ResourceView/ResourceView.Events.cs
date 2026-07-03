@@ -8,64 +8,46 @@ public sealed partial class ResourceView
     {
         if (args.Element is not ResourceViewItem item) return;
 
-        if (item.GetTemplateChild("ExpandCollapseZone") is Border expandCollapse)
-        {
-            expandCollapse.Tapped -= OnExpandCollapseTapped;
-            expandCollapse.Tapped += OnExpandCollapseTapped;
-        }
+        item.ExpandCollapseRequested -= OnItemExpandCollapseRequested;
+        item.ExpandCollapseRequested += OnItemExpandCollapseRequested;
 
-        if (item.GetTemplateChild("ContentZone") is Grid contentZone)
-        {
-            contentZone.Tapped -= OnContentTapped;
-            contentZone.Tapped += OnContentTapped;
-        }
+        item.ContentTapped -= OnItemContentTapped;
+        item.ContentTapped += OnItemContentTapped;
 
         item.DoubleTapped -= OnDoubleTapped;
         item.DoubleTapped += OnDoubleTapped;
 
-        UpdateCheckBoxVisibility(item);
+        item.UpdateCheckBoxVisibility(SelectionMode);
     }
 
     private void OnElementClearing(ItemsRepeater sender, ItemsRepeaterElementClearingEventArgs args)
     {
         if (args.Element is not ResourceViewItem item) return;
 
-        if (item.GetTemplateChild("ExpandCollapseZone") is Border expandCollapse)
-        {
-            expandCollapse.Tapped -= OnExpandCollapseTapped;
-        }
-
-        if (item.GetTemplateChild("ContentZone") is Grid contentZone)
-        {
-            contentZone.Tapped -= OnContentTapped;
-        }
-
+        item.ExpandCollapseRequested -= OnItemExpandCollapseRequested;
+        item.ContentTapped -= OnItemContentTapped;
         item.DoubleTapped -= OnDoubleTapped;
-
-        UpdateCheckBoxVisibility(item);
     }
 
-    private void OnExpandCollapseTapped(object sender, TappedRoutedEventArgs e)
+    private void OnItemExpandCollapseRequested(ResourceViewItem item)
     {
-        if (sender is FrameworkElement element && element.DataContext is ResourceViewNode node)
+        if (item.DataContext is ResourceViewNode node)
         {
             FocusedIndex = node._flatIndex;
             ToggleExpansion(node);
-            Focus(FocusState.Keyboard);
-            e.Handled = true;
+            item.Focus(FocusState.Pointer);
         }
     }
 
-    private void OnContentTapped(object sender, TappedRoutedEventArgs e)
+    private void OnItemContentTapped(ResourceViewItem item)
     {
-        if (sender is FrameworkElement element && element.DataContext is ResourceViewNode node)
+        if (item.DataContext is ResourceViewNode node)
         {
             FocusedIndex = node._flatIndex;
             if (SelectionMode == ResourceViewSelectionMode.Single)
                 HandleSelectionChanged(node);
             HandleItemInvoked(node);
-            Focus(FocusState.Keyboard);
-            e.Handled = true;
+            item.Focus(FocusState.Pointer);
         }
     }
 
@@ -88,7 +70,7 @@ public sealed partial class ResourceView
                     BringFocusedIntoView();
                     if (SelectionMode == ResourceViewSelectionMode.Single && FocusedItem != null)
                         HandleSelectionChanged(FocusedItem);
-                    Focus(FocusState.Keyboard);
+                    FocusItem(_focusedIndex);
                 }
                 e.Handled = true;
                 break;
@@ -99,7 +81,7 @@ public sealed partial class ResourceView
                     BringFocusedIntoView();
                     if (SelectionMode == ResourceViewSelectionMode.Single && FocusedItem != null)
                         HandleSelectionChanged(FocusedItem);
-                    Focus(FocusState.Keyboard);
+                    FocusItem(_focusedIndex);
                 }
                 e.Handled = true;
                 break;
@@ -117,7 +99,7 @@ public sealed partial class ResourceView
                         if (SelectionMode == ResourceViewSelectionMode.Single && FocusedItem != null)
                             HandleSelectionChanged(FocusedItem);
                         BringFocusedIntoView();
-                        Focus(FocusState.Keyboard);
+                        FocusItem(_focusedIndex);
                     }
                     e.Handled = true;
                     break;
@@ -136,7 +118,7 @@ public sealed partial class ResourceView
                         if (SelectionMode == ResourceViewSelectionMode.Single && FocusedItem != null)
                             HandleSelectionChanged(FocusedItem);
                         BringFocusedIntoView();
-                        Focus(FocusState.Keyboard);
+                        FocusItem(_focusedIndex);
                     }
                     e.Handled = true;
                     break;

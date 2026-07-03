@@ -93,24 +93,6 @@
                   </VisualState.Setters>
                 </VisualState>
               </VisualStateGroup>
-              <VisualStateGroup x:Name="FocusStates">
-                <VisualState x:Name="Focused">
-                  <VisualState.Setters>
-                    <Setter Target="FocusIndicator.Visibility"
-                            Value="Visible"/>
-                    <Setter Target="FocusVisual.Visibility"
-                            Value="Visible"/>
-                  </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="Unfocused">
-                  <VisualState.Setters>
-                    <Setter Target="FocusIndicator.Visibility"
-                            Value="Collapsed"/>
-                    <Setter Target="FocusVisual.Visibility"
-                            Value="Collapsed"/>
-                  </VisualState.Setters>
-                </VisualState>
-              </VisualStateGroup>
             </VisualStateManager.VisualStateGroups>
 
             <Border x:Name="ExpandCollapseZone"
@@ -156,25 +138,18 @@
                       IsTabStop="False"
                       Visibility="Collapsed"/>
 
-            <Rectangle x:Name="FocusIndicator"
+            <Rectangle x:Name="SelectionIndicator"
                        Fill="{ThemeResource AccentFillColorDefaultBrush}"
                        Width="3"
                        Height="16"
                        RadiusX="2"
                        RadiusY="2"
-                       Margin="4,0,0,0"
+                       Margin="2,0,0,0"
                        VerticalAlignment="Center"
                        HorizontalAlignment="Left"
                        IsHitTestVisible="False"
                        Visibility="Collapsed"/>
 
-            <Border x:Name="FocusVisual"
-                    Grid.ColumnSpan="3"
-                    BorderBrush="{ThemeResource FocusStrokeColorOuterBrush}"
-                    BorderThickness="2"
-                    CornerRadius="{ThemeResource ControlCornerRadius}"
-                    IsHitTestVisible="False"
-                    Visibility="Collapsed"/>
           </Grid>
         </ControlTemplate>
       </Setter.Value>

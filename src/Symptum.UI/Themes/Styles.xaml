@@ -23,7 +23,7 @@
 
   <StaticResource x:Key="MarkdownBodyFontFamily" ResourceKey="ContentControlThemeFontFamily" />
   <FontFamily x:Key="MarkdownCodeFontFamily">ms-appx:///Symptum.UI/Fonts/CascadiaCode-Regular.ttf#Cascadia Code</FontFamily>
-  <x:Double x:Key="MarkdownBodyFontSize">16</x:Double>
+  <x:Double x:Key="MarkdownBodyFontSize">14</x:Double>
   <x:Double x:Key="MarkdownH1FontSize">28</x:Double>
   <x:Double x:Key="MarkdownH2FontSize">24</x:Double>
   <x:Double x:Key="MarkdownH3FontSize">22</x:Double>
