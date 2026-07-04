@@ -99,7 +99,8 @@ public sealed partial class MarkdownPage : NavigablePage
             _ => null
         };
 
-        double fontSize = FontSizes[sizeCombo.SelectedIndex];
+        int i = sizeCombo?.SelectedIndex ?? 2;
+        double fontSize = FontSizes[i];
         double scale = fontSize / 14.0;
 
         if (fontFamily != null)

@@ -4,9 +4,9 @@ using static Symptum.Core.Helpers.FileHelper;
 
 namespace Symptum.Common.Helpers;
 
-#if __WASM__
-using static Uno.Storage.Pickers.FileSystemAccessApiInformation;
-#endif
+//#if __WASM__
+//using static Uno.Storage.Pickers.FileSystemAccessApiInformation;
+//#endif
 
 public class StorageHelper
 {
@@ -28,12 +28,12 @@ public class StorageHelper
 
     public static void Initialize()
     {
-#if __WASM__
-        Uno.WinRTFeatureConfiguration.Storage.Pickers.WasmConfiguration = Uno.WasmPickerConfiguration.FileSystemAccessApiWithFallback;
-        isFileOpenPickerSupported = IsOpenPickerSupported;
-        isFileSavePickerSupported = IsSavePickerSupported;
-        isFolderPickerSupported = IsFolderPickerSupported;
-#endif
+//#if __WASM__
+//        Uno.WinRTFeatureConfiguration.Storage.Pickers.WasmConfiguration = Uno.WasmPickerConfiguration.FileSystemAccessApiWithFallback;
+//        isFileOpenPickerSupported = IsOpenPickerSupported;
+//        isFileSavePickerSupported = IsSavePickerSupported;
+//        isFolderPickerSupported = IsFolderPickerSupported;
+//#endif
     }
 
     #region Storage Methods

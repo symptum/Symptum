@@ -1,4 +1,5 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<ResourceDictionary x:Class="Symptum.Editor.Controls.ResourceViewStyles"
+                    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:wasm="http://platform.uno/wasm"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -6,7 +7,6 @@
                     xmlns:common="using:Symptum.Editor.Common"
                     xmlns:vm="using:Symptum.Editor.ViewModels"
                     xmlns:local="using:Symptum.Editor.Controls">
-  <x:String x:Key="ChevronRightGlyph">&#xE76C;</x:String>
   <local:DepthToWidthConverter x:Key="DepthToWidthConverter"/>
   <local:BooleanToRotationConverter x:Key="BooleanToRotationConverter"/>
   <Style TargetType="local:ResourceView">
@@ -30,9 +30,9 @@
                       <MenuFlyout>
                         <MenuFlyoutItem Icon="Document"
                                         Text="Add New Item"
-                                        Command="{x:Bind vm:MainViewModel.Instance.AddNewItemCommand}"
+                                        Command="{x:Bind vm:MainViewModel.Instance.CreateNewProjectCommand}"
                                         CommandParameter="{Binding Resource}"
-                                        Visibility="{Binding CanHandleChildren, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        Visibility="{Binding Resource.CanHandleChildren, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         <MenuFlyoutItem Icon="Delete"
                                         Text="Delete"
                                         Command="{x:Bind vm:MainViewModel.Instance.DeleteResourceCommand}"
@@ -65,13 +65,13 @@
                 <VisualState x:Name="PointerOver">
                   <VisualState.Setters>
                     <Setter Target="RootGrid.Background"
-                            Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+                            Value="{ThemeResource ControlFillColorDefaultBrush}"/>
                   </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="Pressed">
                   <VisualState.Setters>
                     <Setter Target="RootGrid.Background"
-                            Value="{ThemeResource CardBackgroundTertiaryBrush}"/>
+                            Value="{ThemeResource ControlFillColorTertiaryBrush}"/>
                   </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="Selected">
@@ -101,7 +101,7 @@
                     VerticalAlignment="Stretch"
                     Background="Transparent"
                     IsTabStop="False">
-              <FontIcon Glyph="{StaticResource ChevronRightGlyph}"
+              <FontIcon Glyph="&#xE76C;"
                         FontFamily="{ThemeResource SymbolThemeFontFamily}"
                         FontSize="12"
                         HorizontalAlignment="Right"
@@ -122,7 +122,6 @@
                   HorizontalAlignment="Stretch"
                   Background="Transparent"
                   IsTabStop="False">
-              <IconSourceElement common:ResourceBaseToIconSourceExtension.Resource="{Binding Resource}"/>
               <TextBlock Text="{Binding Resource.Title}"
                          Grid.Column="1"
                          VerticalAlignment="Center"

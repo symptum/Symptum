@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Symptum.Common.Helpers;
 using Symptum.Editor.Pages;
 using Symptum.Editor.ViewModels;
 using Windows.System;

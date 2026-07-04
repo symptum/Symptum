@@ -43,7 +43,7 @@ public sealed partial class ImagePage : NavigablePage
         try
         {
             StorageFile file = await StorageFile.GetFileFromPathAsync(_imageResource.FilePath);
-            using var stream = await file.OpenStreamForReadAsync();
+            using var stream = await file.OpenReadAsync();
             if (stream != null)
             {
                 var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
@@ -51,7 +51,7 @@ public sealed partial class ImagePage : NavigablePage
                 imagePreview.Source = bitmap;
                 placeholderView.Visibility = Visibility.Collapsed;
                 imagePreview.Visibility = Visibility.Visible;
-                _imageSize = new((float)bitmap.PixelWidth, (float)bitmap.PixelHeight);
+                _imageSize = new(bitmap.PixelWidth, bitmap.PixelHeight);
                 FitToView();
             }
         }

@@ -22,7 +22,7 @@
     <Grid.Resources>
       <PathIconSource x:Key="EditorIconSource"
                       Data="M12.6,4.3L9.7,1.4C9.4,1.2,9,1,8.6,1H5C3.9,1,3,1.9,3,3v0.7c0.3-0.1,0.7-0.2,1-0.2V3c0-0.5,0.5-1,1-1h3v2.5  C8,5.3,8.7,6,9.5,6H12v7c0,0.5-0.5,1-1,1H7.3c-0.2,0.4-0.5,0.7-0.8,1H11c1.1,0,2-0.9,2-2V5.4C13,5,12.8,4.6,12.6,4.3z M9.5,5  C9.2,5,9,4.8,9,4.5V2.2L11.8,5H9.5z M5.4,9.7c-0.1,0-0.2-0.1-0.3-0.1C4.8,9.4,4.4,9.3,4,9.3C3.6,9.3,3.3,9,3.3,8.7C3.3,8.3,3.6,8,4,8c0,0,0,0,0,0  c0.5,0,0.9-0.2,1.3-0.5c0.4-0.4,0.6-1,0.4-1.6C5.6,5.2,5,4.7,4.4,4.6C3.3,4.3,2.3,5.2,2.3,6.2c0,0.3,0.1,0.7,0.3,0.9  c0.1,0.2,0.1,0.4,0,0.5C2.4,8,2.3,8.3,2.3,8.6c0,0.4,0.1,0.7,0.3,1c0.3,0.4,0.8,0.7,1.4,0.7c0,0,0,0,0,0c0,0,0,0,0,0c0,0,0,0,0,0  c1.1,0,1.9,1,1.6,2.1c-0.1,0.6-0.6,1.1-1.3,1.3c-1,0.2-1.9-0.4-2.1-1.3c-0.1-0.2-0.3-0.4-0.5-0.4H1.2c0,1.5,1.2,2.8,2.8,2.8  c0,0,0,0,0,0s0,0,0,0c1.5,0,2.8-1.3,2.8-2.8C6.8,11.1,6.2,10.2,5.4,9.7z M4,5.2c0.6,0,1.1,0.5,1.1,1.1c0,0.3-0.1,0.6-0.4,0.8  C4.5,7.2,4.3,7.3,4,7.3S3.5,7.2,3.3,7.1C3.1,6.9,2.9,6.6,2.9,6.2C2.9,5.6,3.4,5.2,4,5.2z"/>
-      <secontrols:BooleanToResourceViewSelectionModeConverter x:Key="BooleanToResourceViewSelectionModeConverter"/>
+      <!--<secontrols:BooleanToResourceViewSelectionModeConverter x:Key="BooleanToResourceViewSelectionModeConverter"/>-->
     </Grid.Resources>
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup>
@@ -60,7 +60,7 @@
                   Spacing="8">
         <ImageIcon Height="16"
                    Width="16"
-                   Source="/Assets/Images/Symptum Editor.png"/>
+                   Source="/Assets/Images/Symptum_Editor.png"/>
         <TextBlock x:Name="titleTB"
                    VerticalAlignment="Center"
                    Style="{StaticResource CaptionTextBlockStyle}"/>
@@ -185,7 +185,7 @@
                   VerticalAlignment="Center"
                   Orientation="Horizontal">
         <Button Command="{x:Bind ViewModel.EditAuthorInfoCommand}"
-                Style="{ThemeResource IconButtonStyle}"
+                Style="{StaticResource IconButtonStyle}"
                 ToolTipService.ToolTip="Author">
           <FontIcon FontSize="16"
                     Glyph="{x:Bind common:CommonGlyphs.User}"/>
@@ -211,7 +211,6 @@
                       DefaultLabelPosition="Collapsed">
             <AppBarElementContainer VerticalAlignment="Center">
               <Button x:Name="workFolderButton"
-                      ToolTipService.Tooltip="{x:Bind ViewModel.WorkFolderPath, Mode=OneWay}"
                       Visibility="{x:Bind ViewModel.WorkFolderAvailable, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
                       MaxWidth="100"
                       Margin="5,0"
@@ -254,13 +253,12 @@
                      FontWeight="SemiBold"
                      Text="{x:Bind ViewModel.ResourcePaneTitle, Mode=OneWay}"
                      TextTrimming="CharacterEllipsis"/>
-          <secontrols:ResourceView x:Name="resourceView"
+                    <secontrols:ResourceView x:Name="resourceView"
                                    Grid.Row="2"
                                    Source="{x:Bind res:ResourceManager.Resources}"
-                                   SelectionMode="{x:Bind ViewModel.ResourceViewMultiSelectionEnabled, Mode=OneWay, Converter={StaticResource BooleanToResourceViewSelectionModeConverter}}"
                                    ResourcesSelected="{x:Bind ViewModel.ResourceView_ResourcesSelected}"
                                    ResourceOpenRequested="{x:Bind ViewModel.ResourceView_ResourceOpenRequested}"/>
-        </Grid>
+                </Grid>
       </SplitView.Pane>
       <Grid x:Name="contentGrid"
             BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}"
@@ -300,7 +298,7 @@
                     <InfoBadge Grid.Column="1"
                                Margin="5,0"
                                VerticalAlignment="Center"
-                               Style="{ThemeResource AttentionDotInfoBadgeStyle}"
+                               Style="{StaticResource AttentionDotInfoBadgeStyle}"
                                Visibility="{x:Bind HasUnsavedChanges, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                   </Grid>
                 </TabViewItem.Header>
@@ -386,10 +384,10 @@
                 ColumnDefinitions="*,Auto"
                 ColumnSpacing="4">
             <TextBlock Text="Output"
-                       Style="{ThemeResource CaptionTextBlockStyle}"
+                       Style="{StaticResource CaptionTextBlockStyle}"
                        FontWeight="SemiBold"
                        VerticalAlignment="Center"/>
-            <Button Style="{ThemeResource IconButtonStyle}"
+            <Button Style="{StaticResource IconButtonStyle}"
                     Grid.Column="1"
                     ToolTipService.ToolTip="Close Panel">
               <FontIcon FontSize="12"
@@ -402,7 +400,7 @@
             <TextBlock Text="{x:Bind ViewModel.OutputText, Mode=OneWay}"
                        TextWrapping="Wrap"
                        IsTextSelectionEnabled="True"
-                       Style="{ThemeResource CaptionTextBlockStyle}"
+                       Style="{StaticResource CaptionTextBlockStyle}"
                        FontFamily="{ThemeResource DefaultCodeFontFamily}"/>
           </ScrollViewer>
         </Grid>

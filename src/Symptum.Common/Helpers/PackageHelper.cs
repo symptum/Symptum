@@ -150,12 +150,12 @@ public class PackageHelper
             && PackageCacheFolder != null && PackagesFolder != null)
         {
             Stream zipStream;
-#if __WASM__
-            var buffer = await FileIO.ReadBufferAsync(zipFile); // NOTE: OpenStreamForReadAsync() crashes on WASM?
-            zipStream = new MemoryStream(buffer.ToArray());
-#else
+//#if __WASM__
+//            var buffer = await FileIO.ReadBufferAsync(zipFile); // NOTE: OpenStreamForReadAsync() crashes on WASM?
+//            zipStream = new MemoryStream(buffer.ToArray());
+//#else
             zipStream = await zipFile.OpenStreamForReadAsync();
-#endif
+//#endif
 
             ZipArchive archive = new(zipStream, ZipArchiveMode.Read);
 

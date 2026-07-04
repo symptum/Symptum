@@ -1,4 +1,4 @@
-<Application x:Class="Symptum.App"
+﻿<Application x:Class="Symptum.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:converters="using:Symptum.UI.Converters"
@@ -19,7 +19,7 @@
       <converters:QuantityListToStringConverter x:Key="QuantityListToStringConverter" />
 
       <Style x:Key="IconButtonStyle"
-             BasedOn="{ThemeResource DefaultButtonStyle}"
+             BasedOn="{StaticResource DefaultButtonStyle}"
              TargetType="Button">
         <Setter Property="Padding" Value="8" />
         <Setter Property="VerticalContentAlignment" Value="Center" />

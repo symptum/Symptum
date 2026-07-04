@@ -1,4 +1,4 @@
-<local:NavigablePage x:Class="Symptum.Pages.ReferenceValueGroupPage"
+﻿<local:NavigablePage x:Class="Symptum.Pages.ReferenceValueGroupPage"
                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -43,7 +43,7 @@
                         <Run FontWeight="SemiBold" Text="Inference: " />
                         <Run Text="{x:Bind Inference}" />
                       </TextBlock>
-                      <TextBlock Foreground="{ThemeResource CautionTextFillColorBrush}"
+                      <TextBlock Foreground="{ThemeResource ImportantQuoteForeground}"
                                  Style="{ThemeResource CaptionTextBlockStyle}"
                                  IsTextSelectionEnabled="True"
                                  Visibility="{x:Bind Remarks, Converter={StaticResource NullToVisibilityConverter}}">
