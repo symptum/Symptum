@@ -12,9 +12,9 @@ public class NavigationManager
 {
     private static readonly Dictionary<Uri, NavigationInfo> _navInfoMap = [];
 
-    public static readonly NavigationInfo HomeNavInfo = new(HomeUri, "Home", typeof(HomePage), new SymbolIconSource() { Symbol = Symbol.Home });
-
     public static readonly Uri HomeUri = ResourceManager.GetAbsoluteUri("home");
+
+    public static readonly NavigationInfo HomeNavInfo = new(HomeUri, "Home", typeof(HomePage), new SymbolIconSource() { Symbol = Symbol.Home });
 
     public static readonly Uri SubjectsUri = ResourceManager.GetAbsoluteUri("subjects");
 
@@ -131,6 +131,8 @@ public class NavigationManager
         }
 
         AddNavInfo(navInfo);
+
+        Navigate(HomeNavInfo);
     }
 
     private static void AddNavInfo(NavigationInfo? navInfo, ObservableCollection<NavigationInfo>? destination = null)
