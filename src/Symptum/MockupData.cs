@@ -502,7 +502,13 @@ The body is in the **anatomical position** when standing upright, feet together,
             Title = "Image Library",
             Id = "Subjects.Anatomy.Images",
             Uri = ResourceManager.GetAbsoluteUri("subjects/an/images"),
-            Items = []
+            Items = [
+                new ()
+                {
+                    Title = "Test Image",
+                    FilePath = "/home/shankarbus/Pictures/Logos/B Logo.png"
+                }
+            ]
         };
 
         subject.Contents = [studyMaterials, imageLibrary];

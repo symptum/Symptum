@@ -10,7 +10,7 @@
   d:DesignWidth="400"
   Loaded="ReferenceValueEntryControl_Loaded"
   Unloaded="ReferenceValueEntryControl_Unloaded">
-  <Expander x:Name="expander" Header="{x:Bind Entry.Title}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
+  <Expander x:Name="expander" Header="{x:Bind Entry.Title, Mode=OneWay}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
     <StackPanel Spacing="16">
       <TextBox x:Name="titleTB" Header="Title" />
       <local:ListEditorControl x:Name="qtLE" Header="Quantities">

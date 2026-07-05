@@ -141,4 +141,9 @@ public sealed partial class MainPage : Page
     {
         commandPalette.ShowPalette();
     }
+
+    private void CloseOutputPanel_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.ShowOutputPanel = false;
+    }
 }

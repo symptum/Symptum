@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using Symptum.Editor.Common;
 
 namespace Symptum.Editor.Controls;
 
@@ -10,6 +11,7 @@ public class ResourceViewItem : ContentControl
     private ResourceViewNode? _node;
     private Border? _expandCollapseZone;
     private Grid? _contentZone;
+    private IconSourceElement? _iconElement;
     private FrameworkElement? _selectionIndicator;
     private CheckBox? _selectionCheckBox;
 
@@ -33,6 +35,8 @@ public class ResourceViewItem : ContentControl
         _contentZone?.Tapped -= OnContentTapped;
         _contentZone = GetTemplateChild("ContentZone") as Grid;
         _contentZone?.Tapped += OnContentTapped;
+
+        _iconElement = GetTemplateChild("ResourceIconElement") as IconSourceElement;
 
         _selectionIndicator = GetTemplateChild("SelectionIndicator") as FrameworkElement;
         _selectionCheckBox = GetTemplateChild("SelectionCheckBox") as CheckBox;
@@ -120,6 +124,7 @@ public class ResourceViewItem : ContentControl
 
         if (_node != null)
         {
+            _iconElement?.IconSource = DefaultIconSources.GetIconSourceForResourceType(_node.Resource?.GetType());
             _isSelected = _node.IsSelected;
             _node.PropertyChanged += OnNodePropertyChanged;
             UpdateSelectionIndicator();

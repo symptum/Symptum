@@ -25,17 +25,11 @@ public sealed partial class MainPage : Page
         Background = null;
 #endif
 
-        Loaded += (s, e) =>
-        {
-            MockupData.Initialize();
-            NavigationManager.Initialize();
-        };
-
         ContentFrame.Navigated += ContentFrame_Navigated;
         NavigationManager.NavigationRequested += (s, e) => NavView_Navigate(e, new EntranceNavigationTransitionInfo());
         NavView.SelectionChanged += NavView_SelectionChanged;
         NavView.BackRequested += (s, e) => BackRequested();
-        NavView_Navigate(null, new EntranceNavigationTransitionInfo());
+        
 #if HAS_UNO
         SystemNavigationManager.GetForCurrentView().BackRequested += (s, e) => e.Handled = BackRequested();
 #endif

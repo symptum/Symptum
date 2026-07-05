@@ -389,6 +389,7 @@
                        VerticalAlignment="Center"/>
             <Button Style="{StaticResource IconButtonStyle}"
                     Grid.Column="1"
+                    Click="CloseOutputPanel_Click"
                     ToolTipService.ToolTip="Close Panel">
               <FontIcon FontSize="12"
                         Glyph="{x:Bind common:CommonGlyphs.Close}"/>

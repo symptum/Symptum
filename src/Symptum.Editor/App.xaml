@@ -14,7 +14,7 @@
         <ToolkitResources xmlns="using:Uno.Toolkit.UI"/>
         <ResourceDictionary Source="ms-appx:///Symptum.UI/Themes/Styles.xaml"/>
         <ResourceDictionary Source="ms-appx:///CommunityToolkit.WinUI.Controls.Ribbon/RibbonStyle.xaml"/>
-        <ResourceDictionary Source="ms-appx:///Controls/ResourceView/ResourceView.xaml"/>
+        <ResourceDictionary Source="ms-appx:///Controls/ResourceView/ResourceViewStyles.xaml"/>
       </ResourceDictionary.MergedDictionaries>
 
       <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>

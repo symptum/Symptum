@@ -21,6 +21,7 @@ public sealed partial class ReferenceValueEntryControl : UserControl
     {
         if (d is ReferenceValueEntryControl entryControl)
         {
+            entryControl._entryLoaded = false;
             entryControl.LoadEntry(e.NewValue as ReferenceValueEntry);
         }
     }
@@ -42,6 +43,7 @@ public sealed partial class ReferenceValueEntryControl : UserControl
     {
         qtLE.ItemsSource = _quantities;
         qtLE.ActionRequested += LE_ActionRequested;
+        if (!_entryLoaded) LoadEntry(Entry);
     }
 
     private void ReferenceValueEntryControl_Unloaded(object? s, RoutedEventArgs e)
@@ -49,15 +51,22 @@ public sealed partial class ReferenceValueEntryControl : UserControl
         qtLE.ItemsSource = null;
         _quantities.ClearWrapperListSafe();
         qtLE.ActionRequested -= LE_ActionRequested;
+        Entry = null;
     }
+
+    private bool _entryLoaded = false;
 
     private void LoadEntry(ReferenceValueEntry? entry)
     {
+        if (_entryLoaded) return;
+
         titleTB.Text = entry?.Title;
         _quantities.LoadFromList(entry?.Quantities);
         infTB.Text = entry?.Inference;
         remTB.Text = entry?.Remarks;
         expander.Header = entry?.Title;
+
+        _entryLoaded = true;
     }
 
     private void UpdateEntry()

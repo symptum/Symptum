@@ -26,7 +26,7 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
               </Grid.ColumnDefinitions>
-              <IconSourceElement common:ResourceBaseToIconSourceExtension.ResourceType="{x:Bind Type}" />
+              <IconSourceElement common:DefaultIconSources.ResourceType="{x:Bind Type}" />
               <TextBlock Text="{x:Bind DisplayName}" HorizontalAlignment="Stretch" Margin="0,0,5,0"
                          Grid.Column="1" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
               <TextBlock Grid.Column="2" Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind GroupName}"

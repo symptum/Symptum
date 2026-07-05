@@ -1,7 +1,9 @@
 using Symptum.Common;
 using Symptum.Common.Helpers;
+using Symptum.Navigation;
 
 namespace Symptum;
+
 public partial class App : Application
 {
     /// <summary>
@@ -31,10 +33,6 @@ public partial class App : Application
         MainWindow.UseStudio();
 #endif
 
-        await Bootstrapper.InitializeAsync();
-        // await ResourceHelper.SelectWorkFolderAsync(await StorageFolder.GetFolderFromPathAsync(""));
-        await ResourceHelper.LoadResourcesFromWorkPathAsync();
-
         // Do not repeat app initialization when the Window already has content,
         // just ensure that the window is active
         if (MainWindow.Content is not Frame rootFrame)
@@ -59,6 +57,11 @@ public partial class App : Application
         MainWindow.SetWindowIcon();
         // Ensure the current window is active
         MainWindow.Activate();
+
+        await Bootstrapper.InitializeAsync();
+        await ResourceHelper.LoadResourcesFromWorkPathAsync();
+        MockupData.Initialize();
+        NavigationManager.Initialize();
     }
 
     /// <summary>
