@@ -4,81 +4,138 @@
                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                      xmlns:local="using:Symptum.Pages"
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                     xmlns:media="using:Microsoft.UI.Xaml.Media"
                      xmlns:nav="using:Symptum.Core.Management.Navigation"
                      xmlns:sub="using:Symptum.Core.Subjects"
                      xmlns:vm="using:Symptum.ViewModels"
                      mc:Ignorable="d">
   <ScrollViewer>
-    <StackPanel Margin="{ThemeResource NavViewContentMargin}" Spacing="32">
-      <TextBlock FontWeight="Bold"
-                 Style="{ThemeResource TitleLargeTextBlockStyle}"
-                 Text="Welcome to Symptum" />
-
-      <StackPanel Spacing="12">
-        <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}" Text="Favorites" />
-        <ScrollViewer HorizontalScrollBarVisibility="Auto">
+    <Grid RowDefinitions="380,*">
+      <Grid x:Name="heroGrid">
+        <Rectangle x:Name="hero" />
+        <StackPanel Margin="36"
+                    VerticalAlignment="Bottom"
+                    Spacing="4">
+          <TextBlock FontWeight="Bold"
+                     Style="{ThemeResource TitleLargeTextBlockStyle}"
+                     Text="Symptum" />
+          <TextBlock Style="{ThemeResource BodyTextBlockStyle}"
+                     Text="The Open-Source Medical Learning Platform"
+                     TextTrimming="CharacterEllipsis"
+                     TextWrapping="Wrap" />
+        </StackPanel>
+      </Grid>
+      <StackPanel Grid.Row="1"
+                  Margin="{ThemeResource NavViewContentMargin}"
+                  Spacing="36">
+        <StackPanel Spacing="12">
+          <TextBlock FontWeight="SemiBold"
+                     Style="{ThemeResource SubtitleTextBlockStyle}"
+                     Text="Favorites" />
           <ItemsRepeater x:Name="favorites">
             <ItemsRepeater.Layout>
-              <StackLayout Orientation="Horizontal" Spacing="12" />
+              <UniformGridLayout ItemsStretch="Fill"
+                                 MinColumnSpacing="12"
+                                 MinItemWidth="200"
+                                 MinRowSpacing="12" />
             </ItemsRepeater.Layout>
             <ItemsRepeater.ItemTemplate>
               <DataTemplate x:DataType="nav:INavigable">
-                <Button Width="280"
-                        Height="100"
-                        Padding="20"
+                <Button Padding="16"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch"
                         Command="{x:Bind vm:MainViewModel.Instance.NavigateCommand}"
                         CommandParameter="{x:Bind}"
-                        CornerRadius="16">
-                  <Grid>
-                    <Grid.RowDefinitions>
-                      <RowDefinition Height="Auto" />
-                      <RowDefinition Height="*" />
-                      <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <FontIcon Grid.Row="0"
-                              FontSize="20"
-                              Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                              Glyph="&#xE838;" />
-                    <TextBlock Grid.Row="1"
-                               Margin="0,8,0,0"
+                        CornerRadius="12">
+                  <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                    <Border Width="36"
+                            Height="36"
+                            Background="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                            CornerRadius="8">
+                      <FontIcon HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontSize="16"
+                                Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                                Glyph="&#xE930;" />
+                    </Border>
+                    <TextBlock Grid.Column="1"
+                               VerticalAlignment="Center"
                                Style="{ThemeResource BodyStrongTextBlockStyle}"
                                Text="{x:Bind Title}"
+                               TextWrapping="Wrap" />
+                    <!-- <TextBlock Grid.Row="1"
+                               Grid.Column="1"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               MaxLines="2"
+                               Style="{ThemeResource CaptionTextBlockStyle}"
+                               Text="Open Resource"
+                               TextTrimming="WordEllipsis"
+                               TextWrapping="WrapWholeWords" />-->
+                  </Grid>
+                </Button>
+              </DataTemplate>
+            </ItemsRepeater.ItemTemplate>
+          </ItemsRepeater>
+        </StackPanel>
+
+        <StackPanel Spacing="12">
+          <TextBlock FontWeight="SemiBold"
+                     Style="{ThemeResource SubtitleTextBlockStyle}"
+                     Text="Subjects" />
+          <ItemsRepeater x:Name="subjectGrid" ItemsSource="{x:Bind sub:SubjectsManager.Subjects}">
+            <ItemsRepeater.Layout>
+              <UniformGridLayout ItemsStretch="Fill"
+                                 MinColumnSpacing="12"
+                                 MinItemWidth="200"
+                                 MinRowSpacing="12" />
+            </ItemsRepeater.Layout>
+            <ItemsRepeater.ItemTemplate>
+              <DataTemplate x:DataType="sub:Subject">
+                <Button Padding="16"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch"
+                        Command="{x:Bind vm:MainViewModel.Instance.NavigateToUriCommand}"
+                        CommandParameter="{x:Bind Uri}"
+                        CornerRadius="12">
+                  <Grid ColumnDefinitions="Auto,*"
+                        ColumnSpacing="12"
+                        RowDefinitions="Auto,*"
+                        RowSpacing="4">
+                    <Border Grid.RowSpan="2"
+                            Width="36"
+                            Height="36"
+                            Background="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                            CornerRadius="8">
+                      <FontIcon HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontSize="16"
+                                Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                                Glyph="&#xE930;" />
+                    </Border>
+                    <TextBlock Grid.Column="1"
+                               VerticalAlignment="Center"
+                               Style="{ThemeResource BodyStrongTextBlockStyle}"
+                               Text="{x:Bind Title}"
+                               TextWrapping="Wrap" />
+                    <TextBlock Grid.Row="1"
+                               Grid.Column="1"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               MaxLines="2"
+                               Style="{ThemeResource CaptionTextBlockStyle}"
+                               Text="{x:Bind Description}"
+                               TextTrimming="WordEllipsis"
                                TextWrapping="WrapWholeWords" />
                   </Grid>
                 </Button>
               </DataTemplate>
             </ItemsRepeater.ItemTemplate>
           </ItemsRepeater>
-        </ScrollViewer>
+        </StackPanel>
       </StackPanel>
-
-      <!--  Subjects Grid  -->
-      <StackPanel Spacing="12">
-        <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}" Text="Subjects" />
-        <ItemsRepeater x:Name="subjectGrid" ItemsSource="{x:Bind sub:SubjectsManager.Subjects}">
-          <ItemsRepeater.Layout>
-            <UniformGridLayout ItemsStretch="Fill"
-                               MinColumnSpacing="12"
-                               MinItemHeight="100"
-                               MinItemWidth="200"
-                               MinRowSpacing="12" />
-          </ItemsRepeater.Layout>
-          <ItemsRepeater.ItemTemplate>
-            <DataTemplate x:DataType="sub:Subject">
-              <Button Padding="16"
-                      HorizontalAlignment="Stretch"
-                      VerticalAlignment="Stretch"
-                      Command="{x:Bind vm:MainViewModel.Instance.NavigateToUriCommand}"
-                      CommandParameter="{x:Bind Uri}"
-                      CornerRadius="12">
-                  <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}"
-                             Text="{x:Bind Title}"
-                             TextWrapping="WrapWholeWords" />
-              </Button>
-            </DataTemplate>
-          </ItemsRepeater.ItemTemplate>
-        </ItemsRepeater>
-      </StackPanel>
-    </StackPanel>
+    </Grid>
   </ScrollViewer>
 </local:NavigablePage>

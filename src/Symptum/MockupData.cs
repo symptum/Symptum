@@ -403,6 +403,7 @@ public static class MockupData
             Title = "Anatomy",
             Id = "Subjects.Anatomy",
             Uri = ResourceManager.GetAbsoluteUri("subjects/an"),
+            Description = "Human Anatomy is the scientific study of the structure of the human body, including its systems, organs, tissues, and cells. It provides a foundation for understanding the relationships between different body parts and their functions."
         };
 
         var studyMaterials = new MarkdownCategoryResource
@@ -522,6 +523,7 @@ The body is in the **anatomical position** when standing upright, feet together,
             Title = "Physiology",
             Id = "Subjects.Physiology",
             Uri = ResourceManager.GetAbsoluteUri("subjects/phy"),
+            Description = "Human Physiology is the scientific study of the functions and mechanisms of the human body, including how organs, tissues, and cells work together to maintain homeostasis and respond to internal and external stimuli."
         };
 
         var cellPhys = new MarkdownFileResource
@@ -623,6 +625,7 @@ The cell membrane is a **phospholipid bilayer** with embedded proteins.
             Title = "Pathology",
             Id = "Subjects.Pathology",
             Uri = ResourceManager.GetAbsoluteUri("subjects/path"),
+            Description = "Pathology is the study of disease, including its causes, mechanisms, and effects on the body."
         };
 
         var intro = new MarkdownFileResource
@@ -686,6 +689,7 @@ The cell membrane is a **phospholipid bilayer** with embedded proteins.
             Title = "Pharmacology",
             Id = "Subjects.Pharmacology",
             Uri = ResourceManager.GetAbsoluteUri("subjects/pharm"),
+            Description = "Pharmacology is the study of drugs and their effects on the body, including their mechanisms of action, therapeutic uses, and potential side effects."
         };
 
         var aht = new MarkdownFileResource
