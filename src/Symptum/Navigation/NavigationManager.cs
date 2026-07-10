@@ -18,7 +18,7 @@ public class NavigationManager
 
     public static readonly Uri SubjectsUri = ResourceManager.GetAbsoluteUri("subjects");
 
-    public static INavigable? CurrentNavigable { get; set; }
+    public static Uri? CurrentUri { get; set; }
 
     public static event EventHandler<INavigable>? NavigationRequested;
 
