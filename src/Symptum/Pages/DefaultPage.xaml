@@ -7,29 +7,54 @@
                      xmlns:nav="using:Symptum.Core.Management.Navigation"
                      xmlns:vm="using:Symptum.ViewModels"
                      mc:Ignorable="d">
-  <ScrollViewer VerticalScrollBarVisibility="Auto">
-    <ItemsRepeater x:Name="repeater" Margin="{ThemeResource NavViewContentMargin}">
-      <ItemsRepeater.Layout>
-        <UniformGridLayout ItemsStretch="Fill"
-                           MinColumnSpacing="12"
-                           MinItemHeight="100"
-                           MinItemWidth="200"
-                           MinRowSpacing="12" />
-      </ItemsRepeater.Layout>
-      <ItemsRepeater.ItemTemplate>
-        <DataTemplate x:DataType="nav:INavigable">
-          <Button Padding="16"
-                  HorizontalAlignment="Stretch"
-                  VerticalAlignment="Stretch"
-                  Command="{x:Bind vm:MainViewModel.Instance.NavigateCommand}"
-                  CommandParameter="{x:Bind}"
-                  CornerRadius="12">
-            <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}"
-                       Text="{x:Bind Title}"
-                       TextWrapping="WrapWholeWords" />
-          </Button>
-        </DataTemplate>
-      </ItemsRepeater.ItemTemplate>
-    </ItemsRepeater>
-  </ScrollViewer>
+
+  <Grid RowDefinitions="Auto,*">
+    <TextBlock x:Name="titleTB"
+               Style="{ThemeResource PageTitleTextBlockStyle}"
+               Text="{x:Bind Navigable.Title}" />
+    <ScrollViewer Grid.Row="1">
+      <ItemsRepeater x:Name="repeater" Margin="{ThemeResource NavViewContentMargin}">
+        <ItemsRepeater.Layout>
+          <UniformGridLayout ItemsStretch="Fill"
+                             MinColumnSpacing="12"
+                             MinItemHeight="100"
+                             MinItemWidth="200"
+                             MinRowSpacing="12" />
+        </ItemsRepeater.Layout>
+        <ItemsRepeater.ItemTemplate>
+          <DataTemplate x:DataType="nav:INavigable">
+            <Button Padding="16"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Command="{x:Bind vm:MainViewModel.Instance.NavigateCommand}"
+                    CommandParameter="{x:Bind}"
+                    CornerRadius="12">
+              <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}"
+                         Text="{x:Bind Title}"
+                         TextWrapping="WrapWholeWords" />
+            </Button>
+          </DataTemplate>
+        </ItemsRepeater.ItemTemplate>
+      </ItemsRepeater>
+    </ScrollViewer>
+
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup x:Name="LayoutVisualStates">
+        <VisualState x:Name="WideLayout">
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="640" />
+          </VisualState.StateTriggers>
+        </VisualState>
+        <VisualState x:Name="NarrowLayout">
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="titleTB.Margin" Value="{ThemeResource PageTitleTextBlockNarrowMargin}" />
+            <Setter Target="repeater.Margin" Value="{ThemeResource NavViewContentNarrowMargin}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
 </local:NavigablePage>

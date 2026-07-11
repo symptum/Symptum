@@ -6,5 +6,29 @@
                      xmlns:controls="using:Symptum.UI.Controls"
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                      mc:Ignorable="d">
-    <controls:ImageViewer x:Name="imageViewer" ActionButtonGlyph="&#xE946;" />
+                      <Grid RowDefinitions="Auto,*">
+    <TextBlock x:Name="titleTB"
+               Style="{ThemeResource PageTitleTextBlockStyle}"
+               Text="{x:Bind Navigable.Title}" />
+
+    <controls:ImageViewer x:Name="imageViewer" Grid.Row="1" ActionButtonGlyph="&#xE946;" />
+
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup x:Name="LayoutVisualStates">
+        <VisualState x:Name="WideLayout">
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="640" />
+          </VisualState.StateTriggers>
+        </VisualState>
+        <VisualState x:Name="NarrowLayout">
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="titleTB.Margin" Value="{ThemeResource PageTitleTextBlockNarrowMargin}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
 </local:NavigablePage>
