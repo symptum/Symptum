@@ -1,4 +1,3 @@
-using CommunityToolkit.Mvvm.ComponentModel;
 using Symptum.Core.Management.Resources;
 
 namespace Symptum.Editor.Controls;

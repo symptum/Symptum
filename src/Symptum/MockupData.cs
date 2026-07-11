@@ -506,8 +506,7 @@ The body is in the **anatomical position** when standing upright, feet together,
             Items = [
                 new ()
                 {
-                    Title = "Test Image",
-                    FilePath = "/home/shankarbus/Pictures/Logos/B Logo.png"
+                    Title = "Test Image"
                 }
             ]
         };

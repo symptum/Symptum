@@ -6,6 +6,8 @@ namespace Symptum;
 
 public partial class App : Application
 {
+    public static string AppName = "Symptum";
+
     /// <summary>
     /// Initializes the singleton application object. This is the first line of authored code
     /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -24,7 +26,7 @@ public partial class App : Application
 #if WINDOWS && !HAS_UNO
         MainWindow.ExtendsContentIntoTitleBar = true;
         MainWindow.SystemBackdrop = new MicaBackdrop();
-        MainWindow.Title = "Symptum";
+        MainWindow.Title = AppName;
 #endif
 
         WindowHelper.Initialize(MainWindow);

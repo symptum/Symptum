@@ -1,4 +1,4 @@
-using Symptum.Common.Helpers;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Symptum.Core.Management.Navigation;
 using Symptum.Core.Management.Resources;
 
@@ -42,18 +42,16 @@ public sealed partial class ImagePage : NavigablePage
 
         try
         {
-            StorageFile file = await StorageFile.GetFileFromPathAsync(_imageResource.FilePath);
-            using var stream = await file.OpenReadAsync();
-            if (stream != null)
+            BitmapImage bitmap = new()
             {
-                var bitmap = new Microsoft.UI.Xaml.Media.Imaging.BitmapImage();
-                await bitmap.SetSourceAsync(stream);
-                imagePreview.Source = bitmap;
-                placeholderView.Visibility = Visibility.Collapsed;
-                imagePreview.Visibility = Visibility.Visible;
-                _imageSize = new(bitmap.PixelWidth, bitmap.PixelHeight);
-                FitToView();
-            }
+                UriSource = new Uri("ms-appx:///Assets/Images/Symptum.png")
+            };
+
+            imagePreview.Source = bitmap;
+            placeholderView.Visibility = Visibility.Collapsed;
+            imagePreview.Visibility = Visibility.Visible;
+            _imageSize = new(bitmap.PixelWidth, bitmap.PixelHeight);
+            FitToView();
         }
         catch
         {
@@ -81,10 +79,10 @@ public sealed partial class ImagePage : NavigablePage
     {
         _isZooming = true;
         _currentZoom = Math.Clamp(zoom, 0.1f, 4.0f);
-        imagePreview.Width = _imageSize.X * _currentZoom;
-        imagePreview.Height = _imageSize.Y * _currentZoom;
-        zoomSlider.Value = _currentZoom * 100;
-        zoomText.Text = $"{_currentZoom * 100:F0}%";
+        imagePreview?.Width = _imageSize.X * _currentZoom;
+        imagePreview?.Height = _imageSize.Y * _currentZoom;
+        zoomSlider?.Value = _currentZoom * 100;
+        zoomText?.Text = $"{_currentZoom * 100:F0}%";
         _isZooming = false;
     }
 

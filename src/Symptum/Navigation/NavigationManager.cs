@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using Symptum.Core.Data.ReferenceValues;
-using Symptum.Core.Extensions;
 using Symptum.Core.Management.Navigation;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;

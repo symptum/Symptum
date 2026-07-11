@@ -1,4 +1,3 @@
-using CommunityToolkit.Mvvm.Input;
 using Symptum.Core.Management.Navigation;
 using Symptum.Navigation;
 
