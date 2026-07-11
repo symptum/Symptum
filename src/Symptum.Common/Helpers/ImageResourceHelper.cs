@@ -7,23 +7,23 @@ namespace Symptum.Common.Helpers;
 
 public class ImageResourceHelper
 {
-    public static async Task<ImageSource?> GetImageFromResource(ImageFileResource imageFileResource)
+    public static async Task<(ImageSource?, ulong)> GetImageFromResource(ImageFileResource imageFileResource)
     {
         using IRandomAccessStream? stream = await ResourceHelper.OpenFileForReadAsync(imageFileResource);
-        if (stream == null) return null;
+        if (stream == null) return (null, 0);
 
         if (SvgFileExtension.Equals(imageFileResource.FileExtension, StringComparison.InvariantCultureIgnoreCase))
         {
             SvgImageSource svg = new();
             await svg.SetSourceAsync(stream);
-            return svg;
+            return (svg, stream.Size);
         }
         else
         {
             // NOTE: IRandomAccessStream doesn't seem to render in WASM?
             BitmapImage bitmap = new();
             await bitmap.SetSourceAsync(stream);
-            return bitmap;
+            return (bitmap, stream.Size);
         }
     }
 }
