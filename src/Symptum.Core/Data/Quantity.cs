@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Symptum.Core.Math;
@@ -20,9 +21,9 @@ public class Quantity : ObservableObject
 
     #region Properties
 
-    private NumericalValue? _value;
+    private NumericalValue _value;
 
-    public NumericalValue? Value
+    public NumericalValue Value
     {
         get => _value;
         set => SetProperty(ref _value, value);
@@ -76,4 +77,60 @@ public class Quantity : ObservableObject
     }
 
     public static implicit operator string(Quantity? quantity) => quantity?.ToString() ?? string.Empty;
+
+    private void AppendUnit(StringBuilder sb)
+    {
+        if (!string.IsNullOrWhiteSpace(Unit))
+            sb.Append(" ").Append(Unit);
+    }
+    
+    public string ToReadableString()
+    {
+        StringBuilder sb = new();
+
+        if (Value.IsInterval)
+        {
+            // Finite Interval including closed, open and half-open intervals.
+            // Assuming intervals will be finite and closed in most cases,
+            // we are ignoring the inclusion of the extremities.
+            if (double.IsFinite(Value.Minimum) && double.IsFinite(Value.Maximum))
+            {
+                // Format: Min - Max (unit)
+                sb.Append(Value.Minimum);
+                sb.Append(" - ");
+                sb.Append(Value.Maximum);
+                AppendUnit(sb);
+            }
+            else if (double.IsFinite(Value.Minimum))
+            {
+                // Format: ≥ or > Min (unit)
+                sb.Append(Value.IncludesMinimum ? "≥ " : "> ");
+                sb.Append(Value.Minimum);
+                AppendUnit(sb);
+            }
+            else if (double.IsFinite(Value.Maximum))
+            {
+                // Format: ≤ or < Max (unit)
+                sb.Append(Value.IncludesMaximum ? "≤ " : "< ");
+                sb.Append(Value.Maximum);
+                AppendUnit(sb);
+            }
+        }
+        else if (Value.IsErrorInterval)
+        {
+            // Format: Value ± Error (unit)
+            sb.Append(Value.Value);
+            sb.Append(" ± ");
+            sb.Append(Value.Error);
+            AppendUnit(sb);
+        }
+        else if (!double.IsNaN(Value.Value))
+        {
+            // Format: Value (unit)
+            sb.Append(Value.Value);
+            AppendUnit(sb);
+        }
+
+        return sb.ToString();
+    }
 }

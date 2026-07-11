@@ -12,18 +12,24 @@ public class ImageResourceHelper
         using IRandomAccessStream? stream = await ResourceHelper.OpenFileForReadAsync(imageFileResource);
         if (stream == null) return (null, 0);
 
-        if (SvgFileExtension.Equals(imageFileResource.FileExtension, StringComparison.InvariantCultureIgnoreCase))
+        try
         {
-            SvgImageSource svg = new();
-            await svg.SetSourceAsync(stream);
-            return (svg, stream.Size);
-        }
-        else
-        {
-            // NOTE: IRandomAccessStream doesn't seem to render in WASM?
-            BitmapImage bitmap = new();
-            await bitmap.SetSourceAsync(stream);
-            return (bitmap, stream.Size);
+            if (SvgFileExtension.Equals(imageFileResource.FileExtension, StringComparison.InvariantCultureIgnoreCase))
+            {
+                SvgImageSource svg = new();
+                await svg.SetSourceAsync(stream);
+                return (svg, stream.Size);
+            }
+            else
+            {
+                BitmapImage bitmap = new();
+                await bitmap.SetSourceAsync(stream);
+                return (bitmap, stream.Size);
+            }
+        } catch {
+            return (null, 0);
+        } finally {
+            stream.Dispose();
         }
     }
 }

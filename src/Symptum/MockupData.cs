@@ -66,21 +66,21 @@ public static class MockupData
         return new() { Value = value };
     }
 
-    private static NumericalValue Gt(double value)
+    private static NumericalValue GtEq(double value)
     {
         return new()
         {
             IsInterval = true,
             Minimum = value,
-            IncludesMinimum = false,
+            IncludesMinimum = true,
             Maximum = double.PositiveInfinity,
             IncludesMaximum = false
         };
     }
-
+    
     private static Quantity Q(double min, double max, string unit) => new(Interval(min, max), unit);
     private static Quantity Qs(double value, string unit) => new(Single(value), unit);
-    private static Quantity Qg(double value, string unit) => new(Gt(value), unit);
+    private static Quantity Qg(double value, string unit) => new(GtEq(value), unit);
 
     private static ReferenceValuesPackage CreateLabValuesPackage()
     {
@@ -279,7 +279,7 @@ public static class MockupData
                             [
                                 new() { Title = "Normal", Quantities = [Q(70, 100, "mg/dL")] },
                                 new() { Title = "Pre-diabetic", Quantities = [Q(100, 126, "mg/dL")], Inference = "Impaired fasting glucose" },
-                                new() { Title = "Diabetic", Quantities = [Qs(126, "mg/dL")], Remarks = "Diagnostic threshold ≥ 126 mg/dL" },
+                                new() { Title = "Diabetic", Quantities = [Qg(126, "mg/dL")], Remarks = "Diagnostic threshold ≥ 126 mg/dL" },
                             ]
                         },
                         new("HbA1c")

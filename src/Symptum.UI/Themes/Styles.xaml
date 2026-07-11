@@ -95,7 +95,7 @@
                         <ScrollViewer x:Name="PART_ScrollViewer"
                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                           HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-                            <Image x:Name="PART_Image" Stretch="None" />
+                            <Image x:Name="PART_Image" Stretch="Uniform" />
                         </ScrollViewer>
 
                         <Grid Grid.Row="1" ColumnSpacing="8" Height="32">
@@ -114,7 +114,7 @@
                             </Grid.ColumnDefinitions>
 
                             <Button x:Name="PART_ActionButton" VerticalAlignment="Stretch">
-                                <FontIcon x:Name="PART_ActionButtonIcon" Glyph="&#xE946;" FontSize="14" />
+                                <FontIcon x:Name="PART_ActionButtonIcon" FontSize="14" />
                             </Button>
                             <AppBarSeparator Grid.Column="1"/>
                             <TextBlock x:Name="PART_ResText" Grid.Column="2" Style="{ThemeResource StatusBarTextBlockStyle}" />

@@ -62,7 +62,7 @@ public class QuantityListToStringConverter : IValueConverter
 {
     public object? Convert(object value, Type targetType, object parameter, string language)
     {
-        return ConvertToString<Quantity>(value, x => x?.ToString() ?? string.Empty, ", ");
+        return ConvertToString<Quantity>(value, x => x?.ToReadableString() ?? string.Empty, ", ");
     }
 
     public object? ConvertBack(object value, Type targetType, object parameter, string language)

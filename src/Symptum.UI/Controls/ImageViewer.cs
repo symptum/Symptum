@@ -273,7 +273,6 @@ public partial class ImageViewer : Control
         {
             _image.Width = _realWidth * z;
             _image.Height = _realHeight * z;
-            _image.Stretch = Stretch.Uniform;
         }
         _zoomSlider?.Value = z * 100.0;
         _zoomCombo?.Text = $"{z * 100:0}%";
