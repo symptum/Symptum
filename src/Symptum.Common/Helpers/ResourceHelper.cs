@@ -69,13 +69,22 @@ public class ResourceHelper
 
     public static async Task<IRandomAccessStream?> OpenFileForReadAsync(FileResource fileResource)
     {
-        if (!string.IsNullOrEmpty(fileResource.FilePath) &&
-            fileMap.TryGetValue(fileResource, out StorageFile? file))
+        if (string.IsNullOrEmpty(fileResource.FilePath))
+            return null;
+
+        if (fileMap.TryGetValue(fileResource, out StorageFile? file))
+            return await file.OpenReadAsync();
+
+        try
         {
+            file = await StorageFile.GetFileFromPathAsync(fileResource.FilePath);
+            fileMap.TryAdd(fileResource, file);
             return await file.OpenReadAsync();
         }
-
-        return null;
+        catch
+        {
+            return null;
+        }
     }
 
     #endregion
