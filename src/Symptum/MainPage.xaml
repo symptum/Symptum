@@ -6,7 +6,7 @@
       xmlns:utu="using:Uno.Toolkit.UI"
       xmlns:win="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-    <Grid>
+    <Grid utu:SafeArea.Insets="All">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
