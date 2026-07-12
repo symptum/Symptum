@@ -29,16 +29,16 @@
       </Style>
 
       <Thickness x:Key="NavViewContentMargin">24,0,24,24</Thickness>
-      <Thickness x:Key="NavViewContentNarrowMargin">16,0,16,16</Thickness>
+      <Thickness x:Key="NavViewContentNarrowMargin">12,0,12,12</Thickness>
       <Thickness x:Key="PageTitleTextBlockMargin">36,24,16,24</Thickness>
-      <Thickness x:Key="PageTitleTextBlockNarrowMargin">24,48,16,24</Thickness>
+      <Thickness x:Key="PageTitleTextBlockNarrowMargin">24,48,12,24</Thickness>
 
       <Style x:Key="PageTitleTextBlockStyle"
              BasedOn="{StaticResource TitleTextBlockStyle}"
              TargetType="TextBlock">
         <Setter Property="Margin" Value="{ThemeResource PageTitleTextBlockMargin}" />
-        <Setter Property="TextTrimming" Value="WordEllipsis" />
-        <Setter Property="TextWrapping" Value="WrapWholeWords" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
       </Style>
     </ResourceDictionary>
   </Application.Resources>

@@ -36,12 +36,11 @@ public class ListElement : IAddChild
 
         _stackPanel = new()
         {
-            Orientation = Orientation.Vertical,
-            Spacing = config.Themes.Spacing,
+            Style = config.Themes.ListStackPanelStyle
         };
 
-        if (isTopLevel)
-            _stackPanel.Padding = config.Themes.ListMargin;
+        if (!isTopLevel)
+            _stackPanel.Padding = new();
 
         _container.UIElement = _stackPanel;
     }

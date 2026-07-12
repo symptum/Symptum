@@ -16,7 +16,7 @@ public sealed partial class MarkdownEditorInsertTableDialog : ContentDialog, IEd
         InitializeComponent();
         Opened += MarkdownEditorInsertTableDialog_Opened;
         PrimaryButtonClick += MarkdownEditorInsertTableDialog_PrimaryButtonClick;
-        SecondaryButtonClick += MarkdownEditorInsertTableDialog_SecondaryButtonClick;
+        CloseButtonClick += MarkdownEditorInsertTableDialog_CloseButtonClick;
     }
 
     private void MarkdownEditorInsertTableDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
@@ -32,7 +32,7 @@ public sealed partial class MarkdownEditorInsertTableDialog : ContentDialog, IEd
         Reset();
     }
 
-    private void MarkdownEditorInsertTableDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    private void MarkdownEditorInsertTableDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
         EditResult = EditorResult.Cancel;
         Reset();
@@ -50,7 +50,7 @@ public sealed partial class MarkdownEditorInsertTableDialog : ContentDialog, IEd
         _reset = false;
     }
 
-    public async Task<EditorResult> CreateAsync()
+    public async Task<EditorResult> InsertAsync()
     {
         await ShowAsync();
         return EditResult;

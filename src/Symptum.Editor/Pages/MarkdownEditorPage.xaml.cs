@@ -770,7 +770,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         if (insertTableDialog == null) return;
 
         insertTableDialog.XamlRoot = XamlRoot;
-        var result = await insertTableDialog.CreateAsync();
+        var result = await insertTableDialog.InsertAsync();
         if (result == EditorResult.Create)
         {
             HasUnsavedChanges = true;
@@ -783,7 +783,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         if (insertLinkDialog == null) return;
 
         insertLinkDialog.XamlRoot = XamlRoot;
-        var result = await insertLinkDialog.CreateAsync();
+        var result = await insertLinkDialog.InsertAsync();
         if (result == EditorResult.Create)
         {
             HasUnsavedChanges = true;

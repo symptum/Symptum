@@ -23,8 +23,7 @@ public class TableElement : IAddChild
 
         _grid = new()
         {
-            HorizontalAlignment = HorizontalAlignment.Left,
-            Margin = new(16, 8, 8, 8)
+            Style = config.Themes.TableGridStyle
         };
 
         for (int i = 0; i < _columnCount; i++)

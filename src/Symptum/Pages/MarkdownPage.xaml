@@ -52,11 +52,9 @@
       </StackPanel>
     </Border>
 
-    <ScrollViewer x:Name="contentScroll"
-                  Grid.Row="2"
-                  Background="{ThemeResource MarkdownBackgroundBrush}">
-      <md:MarkdownTextBlock x:Name="markdownView" Margin="24" />
-    </ScrollViewer>
+    <md:MarkdownTextBlock x:Name="markdownView"
+                          Grid.Row="2"
+                          Background="{ThemeResource MarkdownBackgroundBrush}" />
 
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup x:Name="LayoutVisualStates">
@@ -71,7 +69,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="titleTB.Margin" Value="{ThemeResource PageTitleTextBlockNarrowMargin}" />
-            <Setter Target="markdownView.Margin" Value="0" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

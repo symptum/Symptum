@@ -6,8 +6,8 @@
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:controls="using:CommunityToolkit.WinUI.Controls"
   Style="{ThemeResource DefaultContentDialogStyle}"
-  Title="Insert Table" PrimaryButtonStyle="{ThemeResource AccentButtonStyle}"
-  PrimaryButtonText="Insert" SecondaryButtonText="Cancel">
+  Title="Insert Table" DefaultButton="Primary"
+  PrimaryButtonText="Insert" CloseButtonText="Cancel">
   <Grid ColumnSpacing="8" RowSpacing="8">
     <Grid.ColumnDefinitions>
       <ColumnDefinition />

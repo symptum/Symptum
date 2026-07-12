@@ -13,7 +13,8 @@
     <Grid RowDefinitions="380,*">
       <Grid x:Name="heroGrid">
         <Rectangle x:Name="hero" />
-        <StackPanel Margin="36"
+        <StackPanel x:Name="heroTitles"
+                    Margin="36"
                     VerticalAlignment="Bottom"
                     Spacing="4">
           <TextBlock FontWeight="Bold"
@@ -25,7 +26,8 @@
                      TextWrapping="Wrap" />
         </StackPanel>
       </Grid>
-      <StackPanel Grid.Row="1"
+      <StackPanel x:Name="content"
+                  Grid.Row="1"
                   Margin="{ThemeResource NavViewContentMargin}"
                   Spacing="36">
         <StackPanel Spacing="12">
@@ -136,6 +138,25 @@
           </ItemsRepeater>
         </StackPanel>
       </StackPanel>
+
+      <VisualStateManager.VisualStateGroups>
+        <VisualStateGroup x:Name="LayoutVisualStates">
+          <VisualState x:Name="WideLayout">
+            <VisualState.StateTriggers>
+              <AdaptiveTrigger MinWindowWidth="640" />
+            </VisualState.StateTriggers>
+          </VisualState>
+          <VisualState x:Name="NarrowLayout">
+            <VisualState.StateTriggers>
+              <AdaptiveTrigger MinWindowWidth="0" />
+            </VisualState.StateTriggers>
+            <VisualState.Setters>
+              <Setter Target="heroTitles.Margin" Value="16" />
+              <Setter Target="content.Margin" Value="{ThemeResource NavViewContentNarrowMargin}" />
+            </VisualState.Setters>
+          </VisualState>
+        </VisualStateGroup>
+      </VisualStateManager.VisualStateGroups>
     </Grid>
   </ScrollViewer>
 </local:NavigablePage>

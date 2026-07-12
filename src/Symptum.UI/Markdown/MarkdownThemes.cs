@@ -6,15 +6,11 @@ public sealed partial class MarkdownThemes : DependencyObject
 
     #region Common
 
-    public Thickness Padding { get; set; } = new(36);
-
-    public double Spacing { get; set; } = 12.0;
-
-    public CornerRadius CornerRadius { get; set; } = new(4);
+    public Style? FlowDocumentStackPanelStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultFlowDocumentStackPanelStyle") ?
+        Application.Current.Resources["DefaultFlowDocumentStackPanelStyle"] as Style : null;
 
     public Style? BodyTextBlockStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultBodyTextBlockStyle") ?
         Application.Current.Resources["DefaultBodyTextBlockStyle"] as Style : null;
-
 
     #endregion
 
@@ -77,13 +73,17 @@ public sealed partial class MarkdownThemes : DependencyObject
 
     #region List
 
-    public Thickness ListMargin { get; set; } = new(16, 8, 0, 8);
+    public Style? ListStackPanelStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultListStackPanelStyle") ?
+        Application.Current.Resources["DefaultListStackPanelStyle"] as Style : null;
 
     public double ListBulletSpacing { get; set; } = 12;
 
     #endregion
 
     #region Table
+
+    public Style? TableGridStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultTableGridStyle") ?
+        Application.Current.Resources["DefaultTableGridStyle"] as Style : null;
 
     public Style? TableCellGridStyle { get; set; } = Application.Current.Resources.ContainsKey("DefaultTableCellGridStyle") ?
         Application.Current.Resources["DefaultTableCellGridStyle"] as Style : null;

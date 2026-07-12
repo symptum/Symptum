@@ -18,8 +18,8 @@ public class FlowDocumentElement : IAddChild
 
     public FlowDocumentElement(MarkdownConfiguration config, bool isTopLevel = true)
     {
-        _stackPanel.Spacing = config.Themes.Spacing;
-        if (isTopLevel) _stackPanel.Padding = config.Themes.Padding;
+        _stackPanel.Style = config.Themes.FlowDocumentStackPanelStyle;
+        if (!isTopLevel) _stackPanel.Padding = new();
         _config = config;
 
         _container.UIElement = _stackPanel;
