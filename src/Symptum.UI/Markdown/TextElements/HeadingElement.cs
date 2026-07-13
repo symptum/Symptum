@@ -76,6 +76,8 @@ public class HeadingElement : IAddChild
 
     public void AddChild(IAddChild child)
     {
+        if (child is ICascadeChild cascadeChild)
+            cascadeChild.InheritProperties(this);
         _paragraph.AddInline(child.TextElement);
     }
 }

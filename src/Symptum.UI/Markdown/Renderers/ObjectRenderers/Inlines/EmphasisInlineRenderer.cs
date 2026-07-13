@@ -16,15 +16,15 @@ public class EmphasisInlineRenderer : WinUIObjectRenderer<EmphasisInline>
         {
             case '*':
             case '_':
-                span = new EmphasisInlineElement(obj);
+                span = new EmphasisInlineElement(obj, renderer.Configuration);
                 if (obj.DelimiterCount == 2) { span.SetBold(); } else { span.SetItalic(); }
                 break;
             case '~':
-                span = new EmphasisInlineElement(obj);
+                span = new EmphasisInlineElement(obj, renderer.Configuration);
                 if (obj.DelimiterCount == 2) { span.SetStrikeThrough(); } else { span.SetSubscript(); }
                 break;
             case '^':
-                span = new EmphasisInlineElement(obj);
+                span = new EmphasisInlineElement(obj, renderer.Configuration);
                 span.SetSuperscript();
                 break;
         }

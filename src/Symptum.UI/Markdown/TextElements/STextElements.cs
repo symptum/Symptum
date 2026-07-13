@@ -23,6 +23,8 @@ public class SParagraph : SBlock
 
     public TextAlignment TextAlignment { get; set; } = TextAlignment.Left;
 
+    public bool IsTextSelectionEnabled { get; set; }
+
     #region Include UI
 
     // Indices of the inlines where the UIElements should be inserted.
@@ -100,7 +102,8 @@ public class SParagraph : SBlock
         {
             Style = TextBlockStyle,
             TextWrapping = TextWrapping.Wrap,
-            TextAlignment = TextAlignment
+            TextAlignment = TextAlignment,
+            IsTextSelectionEnabled = IsTextSelectionEnabled
         };
 
         foreach (Inline _inline in inlines)

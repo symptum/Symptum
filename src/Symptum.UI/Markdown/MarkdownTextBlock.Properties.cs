@@ -67,6 +67,30 @@ public partial class MarkdownTextBlock
 
     #endregion
 
+    #region IsTextSelectionEnabled
+
+    public static readonly DependencyProperty IsTextSelectionEnabledProperty = DependencyProperty.Register(
+        nameof(IsTextSelectionEnabled),
+        typeof(bool),
+        typeof(MarkdownTextBlock),
+        new PropertyMetadata(true, OnIsTextSelectionEnabledChanged));
+
+    public bool IsTextSelectionEnabled
+    {
+        get => (bool)GetValue(IsTextSelectionEnabledProperty);
+        set => SetValue(IsTextSelectionEnabledProperty, value);
+    }
+
+    private static void OnIsTextSelectionEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is MarkdownTextBlock self && e.NewValue is bool enabled && self.Configuration != null)
+        {
+            self.Configuration = self.Configuration with { IsTextSelectionEnabled = enabled };
+        }
+    }
+
+    #endregion
+
     public DocumentOutline DocumentOutline { get; }
 
     public ImportsHandler ImportsHandler { get; }

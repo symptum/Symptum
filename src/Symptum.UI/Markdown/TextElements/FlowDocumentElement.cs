@@ -27,6 +27,9 @@ public class FlowDocumentElement : IAddChild
 
     public void AddChild(IAddChild child)
     {
+        if (child is ICascadeChild cascadeChild)
+            cascadeChild.InheritProperties(this);
+
         STextElement element = child.TextElement;
         if (element != null)
         {
@@ -34,7 +37,8 @@ public class FlowDocumentElement : IAddChild
             {
                 TextBlock _textBlock = new()
                 {
-                    Style = TextBlockStyle ?? _config.Themes.BodyTextBlockStyle
+                    Style = TextBlockStyle ?? _config.Themes.BodyTextBlockStyle,
+                    IsTextSelectionEnabled = _config.IsTextSelectionEnabled
                 };
                 _textBlock.Inlines.Add(inline.Inline);
                 _stackPanel.Children.Add(_textBlock);
@@ -44,6 +48,7 @@ public class FlowDocumentElement : IAddChild
                 if (block is SParagraph paragraph)
                 {
                     if (TextBlockStyle != null) paragraph.TextBlockStyle = TextBlockStyle;
+                    paragraph.IsTextSelectionEnabled = _config.IsTextSelectionEnabled;
                     paragraph.CreateUIElement();
                 }
 

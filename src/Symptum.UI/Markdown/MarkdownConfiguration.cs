@@ -10,6 +10,8 @@ public record MarkdownConfiguration
 
     public MarkdownThemes Themes { get; set; }
 
+    public bool IsTextSelectionEnabled { get; set; } = true;
+
     public static MarkdownConfiguration Default = new();
 
     public MarkdownConfiguration()
