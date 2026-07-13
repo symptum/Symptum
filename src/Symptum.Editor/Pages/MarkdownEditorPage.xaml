@@ -269,7 +269,7 @@
           <AppBarButton x:Name="linkButton" Icon="Link" AccessKey="L" Grid.Column="1"
                         ToolTipService.ToolTip="Link" Label="Link" Click="LinkButton_Click" />
           <AppBarButton x:Name="imageButton" Icon="Pictures" AccessKey="I" Grid.Column="2"
-                        ToolTipService.ToolTip="Image" Label="Image" />
+                         ToolTipService.ToolTip="Image" Label="Image" Click="ImageButton_Click" />
           <AppBarButton x:Name="codeBlockButton" AccessKey="CB" Grid.Row="1"
                         ToolTipService.ToolTip="Code Block" Label="Code Block" Click="CodeBlockButton_Click">
             <AppBarButton.Icon>

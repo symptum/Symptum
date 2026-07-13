@@ -50,6 +50,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Symptum.Markdown\Symptum.Markdown.csproj" />
+    <ProjectReference Include="..\Symptum.Common\Symptum.Common.csproj" />
   </ItemGroup>
 
 </Project>

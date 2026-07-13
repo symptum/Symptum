@@ -15,6 +15,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     private ResourcePropertiesEditorDialog? propertyEditorDialog;
     private MarkdownEditorInsertTableDialog? insertTableDialog;
     private MarkdownEditorInsertLinkDialog? insertLinkDialog;
+    private MarkdownEditorInsertImageDialog? insertImageDialog;
     private static readonly string _currentDocument = "Current Document";
     private static readonly string _selection = "Selection";
     private static readonly string _indentation = "    "; // NOTE: Should this support switching between Tabs ("\t") vs 4 Spaces ("    ")?
@@ -50,6 +51,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         propertyEditorDialog = EditorPagesManager.CreateOrGetDialog<ResourcePropertiesEditorDialog>();
         insertTableDialog = EditorPagesManager.CreateOrGetDialog<MarkdownEditorInsertTableDialog>();
         insertLinkDialog = EditorPagesManager.CreateOrGetDialog<MarkdownEditorInsertLinkDialog>();
+        insertImageDialog = EditorPagesManager.CreateOrGetDialog<MarkdownEditorInsertImageDialog>();
         UpdateStatusBar();
         SetupFindControl();
     }
@@ -258,6 +260,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         propertyEditorDialog = null;
         insertTableDialog = null;
         insertLinkDialog = null;
+        insertImageDialog = null;
         _mdBinding = null;
         undoStack.Clear();
         redoStack.Clear();
@@ -788,6 +791,19 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         {
             HasUnsavedChanges = true;
             InsertBlock(insertLinkDialog.Markdown);
+        }
+    }
+
+    private async void ImageButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (insertImageDialog == null) return;
+
+        insertImageDialog.XamlRoot = XamlRoot;
+        var result = await insertImageDialog.InsertAsync();
+        if (result == EditorResult.Create)
+        {
+            HasUnsavedChanges = true;
+            InsertBlock(insertImageDialog.Markdown);
         }
     }
 

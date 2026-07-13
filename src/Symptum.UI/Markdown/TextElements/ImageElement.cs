@@ -1,9 +1,11 @@
-using Markdig.Syntax.Inlines;
-using Windows.Storage.Streams;
-using Microsoft.UI.Xaml.Media.Imaging;
-using Windows.Foundation;
-using HtmlAgilityPack;
 using System.Globalization;
+using HtmlAgilityPack;
+using Markdig.Syntax.Inlines;
+using Microsoft.UI.Xaml.Media.Imaging;
+using Symptum.Common.Helpers;
+using Symptum.Core.Management.Resources;
+using Windows.Foundation;
+using Windows.Storage.Streams;
 
 namespace Symptum.UI.Markdown.TextElements;
 
@@ -76,10 +78,16 @@ public class ImageElement : IAddChild
 
     private void Init(string? altText, MarkdownConfiguration config)
     {
+        _image.Stretch = Stretch.Uniform;
         _image.Loaded += LoadImage;
-        Grid _grid = new();
+        Grid _grid = new()
+        {
+            RowSpacing = 4
+        };
         _grid.RowDefinitions.Add(new() { Height = new(0, GridUnitType.Auto) });
         _grid.RowDefinitions.Add(new() { Height = new(0, GridUnitType.Auto) });
+        _grid.RowDefinitions.Add(new() { Height = new(0, GridUnitType.Auto) });
+
         _altText = new()
         {
             Text = altText,
@@ -89,6 +97,18 @@ public class ImageElement : IAddChild
         _grid.Children.Add(_altText);
         _grid.Children.Add(_image);
         _container.UIElement = _grid;
+        if (_linkInline != null && !string.IsNullOrWhiteSpace(_linkInline.Title))
+        {
+            ToolTipService.SetToolTip(_grid, _linkInline.Title);
+            TextBlock _titleTB = new()
+            {
+                Text = _linkInline.Title,
+                Style = config.Themes.BodyTextBlockStyle,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            _titleTB.SetValue(Grid.RowProperty, 2);
+            _grid.Children.Add(_titleTB);
+        }
     }
 
     private async void LoadImage(object sender, RoutedEventArgs e)
@@ -112,7 +132,18 @@ public class ImageElement : IAddChild
         {
             try
             {
-                if (_imageProvider != null && _imageProvider.ShouldUseThisProvider(_uri.AbsoluteUri))
+                if (_uri.Scheme == "symptum" && ResourceManager.TryGetResourceByUri(_uri, out IResource? resource) &&
+                    resource is ImageFileResource imgRes)
+                {
+                    var (src, _) = await ImageResourceHelper.GetImageFromResource(imgRes);
+                    if (src != null)
+                    {
+                        _image.Source = src;
+                        SetImageSize(src);
+                        imageLoaded(src);
+                    }
+                }
+                else if (_imageProvider != null && _imageProvider.ShouldUseThisProvider(_uri.AbsoluteUri))
                 {
                     var source = await _imageProvider.GetImageSource(_uri.AbsoluteUri);
                     _image.Source = source;
@@ -152,8 +183,7 @@ public class ImageElement : IAddChild
                             {
                                 _image.Source = resImage;
                                 Size size = Helper.GetSvgSize(svgString);
-                                if (size.Width > 0) _image.Width = size.Width;
-                                if (size.Height > 0) _image.Height = size.Height;
+                                SetImageSize(resImage, size);
                                 imageLoaded(resImage);
                             }
                         }
@@ -165,8 +195,7 @@ public class ImageElement : IAddChild
                             if (stream != null) await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
 
                             _image.Source = bitmap;
-                            _image.Width = bitmap.PixelWidth == 0 ? bitmap.DecodePixelWidth : bitmap.PixelWidth;
-                            _image.Height = bitmap.PixelHeight == 0 ? bitmap.DecodePixelHeight : bitmap.PixelHeight;
+                            SetImageSize(bitmap);
                             imageLoaded(bitmap);
                         }
                     }
@@ -182,6 +211,20 @@ public class ImageElement : IAddChild
         if (_precedentHeight != 0)
         {
             _image.Height = _precedentHeight;
+        }
+    }
+
+    private void SetImageSize(ImageSource src, Size size = default)
+    {
+        if (src is BitmapImage bitmap)
+        {
+            _image.Width = bitmap.PixelWidth == 0 ? bitmap.DecodePixelWidth : bitmap.PixelWidth;
+            _image.Height = bitmap.PixelHeight == 0 ? bitmap.DecodePixelHeight : bitmap.PixelHeight;
+        }
+        else if (src is SvgImageSource)
+        {
+            _image.Width = size.Width;
+            _image.Height = size.Height;
         }
     }
 
