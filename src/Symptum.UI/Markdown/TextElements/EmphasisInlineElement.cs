@@ -15,6 +15,9 @@ public class EmphasisInlineElement : IAddChild, ICascadeChild
     private TextBlock? _textBlock;
     private CommunityToolkit.WinUI.Controls.WrapPanel? _wrapPanel;
 
+    private bool _isBold;
+    private bool _isItalic;
+    private bool _isStrikeThrough;
     private bool _isSubscript;
     private bool _isSuperscript;
 
@@ -67,18 +70,21 @@ public class EmphasisInlineElement : IAddChild, ICascadeChild
 
     public void SetBold()
     {
+        _isBold = true;
         if (!_containsUI) _span?.FontWeight = FontWeights.Bold;
         else _textBlock?.FontWeight = FontWeights.Bold;
     }
 
     public void SetItalic()
     {
+        _isItalic = true;
         if (!_containsUI) _span?.FontStyle = FontStyle.Italic;
         else _textBlock?.FontStyle = FontStyle.Italic;
     }
 
     public void SetStrikeThrough()
     {
+        _isStrikeThrough = true;
         if (!_containsUI) _span?.TextDecorations = TextDecorations.Strikethrough;
         else _textBlock?.TextDecorations = TextDecorations.Strikethrough;
     }
@@ -131,6 +137,9 @@ public class EmphasisInlineElement : IAddChild, ICascadeChild
             Style = _config.Themes.BodyTextBlockStyle,
             IsTextSelectionEnabled = _config.IsTextSelectionEnabled
         };
+        if (_isBold) _textBlock.FontWeight = FontWeights.Bold;
+        if (_isItalic) _textBlock.FontStyle = FontStyle.Italic;
+        if (_isStrikeThrough) _textBlock.TextDecorations = TextDecorations.Strikethrough;
         EnsureWrapPanel().Children.Add(_textBlock);
     }
 
