@@ -17,6 +17,8 @@ public class NavigationManager
 
     public static readonly Uri SubjectsUri = ResourceManager.GetAbsoluteUri("subjects");
 
+    public static readonly NavigationInfo SettingsNavInfo = new(ResourceManager.GetAbsoluteUri("settings"), "Settings", typeof(SettingsPage), new SymbolIconSource() { Symbol = Symbol.Setting });
+
     public static Uri? CurrentUri { get; set; }
 
     public static event EventHandler<INavigable>? NavigationRequested;

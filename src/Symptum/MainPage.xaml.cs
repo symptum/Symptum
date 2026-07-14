@@ -43,7 +43,11 @@ public sealed partial class MainPage : Page
 
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
-        if (args.SelectedItem != null)
+        if (args.IsSettingsSelected)
+        {
+            NavView_Navigate(NavigationManager.SettingsNavInfo, args.RecommendedNavigationTransitionInfo, true);
+        }
+        else if (args.SelectedItem != null)
         {
             var navItem = args.SelectedItem as NavigationInfo;
             NavView_Navigate(navItem, args.RecommendedNavigationTransitionInfo, true);
@@ -95,7 +99,10 @@ public sealed partial class MainPage : Page
             INavigable? navigable = e.Parameter as INavigable;
             if (navigable is NavigationInfo navInfo && navInfo.PageType == e.SourcePageType)
             {
-                navView.SelectedItem = navInfo;
+                if (navigable is NavigationManager.SettingsNavInfo)
+                    navView.SelectedItem = navView.SettingsItem;
+                else
+                    navView.SelectedItem = navInfo;
             }
             else if (NavigationManager.GetNavigationInfoForUri(navigable.Uri) is NavigationInfo navInfo2 &&
                 navInfo2.PageType == e.SourcePageType)

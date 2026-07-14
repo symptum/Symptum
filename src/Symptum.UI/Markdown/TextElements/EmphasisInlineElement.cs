@@ -161,6 +161,16 @@ public class EmphasisInlineElement : IAddChild, ICascadeChild
         _container.UIElement = _textBlock;
     }
 
+    // Nesting Sub/Superscript with EmphasisInlineElement will result in improper style propagation.
+    // For example: **Base^Super *Italic ^xy^*^** will result render Base and Super properly.
+    // But Italic will not inherit from Super instead it uses base styles.
+    // That's because the `Italic` will return an EmphasisInlineElement with an SContainer as it has a Superscript (xy).
+    // There is no _textBlock since it will be set to null.
+    // It is not a sub/superscript. So this method will not run.  
+    // But **Base^Super *Italic*^** will render without issues.
+    // And since this type of nesting sub/superscripts will not happen in most cases,
+    // I am leaving this as it is.
+    // Not gonna spend time fixing this.
     public void InheritProperties(IAddChild parent)
     {
         if (!_isSubscript && !_isSuperscript || _textBlock == null)

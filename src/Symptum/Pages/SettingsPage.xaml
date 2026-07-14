@@ -1,0 +1,139 @@
+<local:NavigablePage x:Class="Symptum.Pages.SettingsPage"
+                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                     xmlns:local="using:Symptum.Pages"
+                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                     xmlns:ui="using:CommunityToolkit.WinUI"
+                     mc:Ignorable="d"
+                     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+  <Grid RowDefinitions="Auto,*">
+    <TextBlock x:Name="pageTitle"
+               Style="{ThemeResource PageTitleTextBlockStyle}"
+               Text="Settings" />
+
+    <ScrollViewer Grid.Row="1">
+      <StackPanel MaxWidth="1000"
+                  Margin="{ThemeResource NavViewContentMargin}"
+                  Spacing="4">
+
+        <!-- Appearance -->
+        <TextBlock Margin="1,30,0,6"
+                   Style="{ThemeResource BodyStrongTextBlockStyle}"
+                   Text="Appearance" />
+
+        <controls:SettingsCard Header="Theme"
+                               HeaderIcon="{ui:FontIcon Glyph=&#xE771;}"
+                               Description="Choose your app color theme">
+          <ComboBox x:Name="themeCombo"
+                    MinWidth="150"
+                    SelectionChanged="OnThemeSelectionChanged">
+            <ComboBoxItem Content="System" />
+            <ComboBoxItem Content="Light" />
+            <ComboBoxItem Content="Dark" />
+          </ComboBox>
+        </controls:SettingsCard>
+
+        <controls:SettingsExpander x:Name="accentExpander"
+                                   Header="Accent color"
+                                   HeaderIcon="{ui:FontIcon Glyph=&#xE790;}"
+                                   Description="Customize the app accent color">
+
+          <controls:SettingsExpander.Items>
+            <controls:SettingsCard Header="Use system accent color"
+                                   Description="Follow the operating system accent color">
+              <ToggleSwitch x:Name="systemAccentToggle"
+                            IsOn="True"
+                            Toggled="OnSystemAccentToggled" />
+            </controls:SettingsCard>
+            <controls:SettingsCard Header="Pick a custom color">
+          <controls:ColorPickerButton x:Name="accentColorButton" />
+            </controls:SettingsCard>
+          </controls:SettingsExpander.Items>
+        </controls:SettingsExpander>
+
+        <!-- Reader -->
+        <TextBlock Margin="1,30,0,6"
+                   Style="{ThemeResource BodyStrongTextBlockStyle}"
+                   Text="Reader" />
+
+        <controls:SettingsCard Header="Reader theme"
+                               HeaderIcon="{ui:FontIcon Glyph=&#xE790;}"
+                               Description="Choose a preset color theme for reading">
+          <ComboBox x:Name="readerThemeCombo"
+                    MinWidth="150"
+                    SelectionChanged="OnReaderThemeChanged">
+            <ComboBoxItem Content="Default" />
+            <ComboBoxItem Content="Sepia" />
+            <ComboBoxItem Content="Warm Light" />
+            <ComboBoxItem Content="Nord" />
+            <ComboBoxItem Content="Dracula" />
+            <ComboBoxItem Content="OLED Dark" />
+          </ComboBox>
+        </controls:SettingsCard>
+
+        <controls:SettingsCard Header="Reader font"
+                               HeaderIcon="{ui:FontIcon Glyph=&#xE8D2;}"
+                               Description="Choose the font for reading">
+          <ComboBox x:Name="fontCombo"
+                    MinWidth="150"
+                    SelectionChanged="OnFontChanged">
+            <ComboBoxItem Content="System default" />
+            <ComboBoxItem Content="Serif" />
+            <ComboBoxItem Content="Sans serif" />
+            <ComboBoxItem Content="Monospace" />
+          </ComboBox>
+        </controls:SettingsCard>
+
+        <controls:SettingsCard Header="Reader font size"
+                               HeaderIcon="{ui:FontIcon Glyph=&#xE8E7;}"
+                               Description="Adjust the font size for reading">
+          <ComboBox x:Name="sizeCombo"
+                    MinWidth="100"
+                    SelectionChanged="OnSizeChanged">
+            <ComboBoxItem Content="10" />
+            <ComboBoxItem Content="12" />
+            <ComboBoxItem Content="14" />
+            <ComboBoxItem Content="16" />
+            <ComboBoxItem Content="18" />
+            <ComboBoxItem Content="20" />
+          </ComboBox>
+        </controls:SettingsCard>
+
+        <!-- About -->
+        <TextBlock Margin="1,30,0,6"
+                   Style="{ThemeResource BodyStrongTextBlockStyle}"
+                   Text="About" />
+
+        <controls:SettingsCard Header="Symptum"
+                               HeaderIcon="{ui:FontIcon Glyph=&#xE946;}"
+                               Description="The Open-Source Medical Learning Platform">
+          <TextBlock Style="{ThemeResource CaptionTextBlockStyle}"
+                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                     Text="Version 1.0.0" />
+        </controls:SettingsCard>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup x:Name="LayoutVisualStates">
+        <VisualState x:Name="WideLayout">
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="640" />
+          </VisualState.StateTriggers>
+        </VisualState>
+        <VisualState x:Name="NarrowLayout">
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="pageTitle.Margin" Value="{ThemeResource PageTitleTextBlockNarrowMargin}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+</local:NavigablePage>
