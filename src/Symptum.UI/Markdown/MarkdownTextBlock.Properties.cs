@@ -1,6 +1,7 @@
 using Markdig.Syntax;
 
 namespace Symptum.UI.Markdown;
+
 public partial class MarkdownTextBlock
 {
     #region Config Properties
@@ -389,7 +390,10 @@ public partial class MarkdownTextBlock
     {
         if (d is MarkdownTextBlock self)
         {
-            self.ApplyText(true);
+            if (e.Property == FlowDocumentStackPanelStyleProperty)
+                self._document.StackPanel.Style = e.NewValue as Style;
+            else
+                self.ApplyText(true);
         }
     }
 

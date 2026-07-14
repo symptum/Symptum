@@ -6,13 +6,13 @@
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                      xmlns:md="using:Symptum.UI.Markdown"
                      mc:Ignorable="d">
-  <Grid RowDefinitions="Auto,*">
+  <Grid RowDefinitions="Auto,Auto,*">
     <TextBlock x:Name="titleTB"
                Style="{ThemeResource PageTitleTextBlockStyle}"
                Text="{x:Bind Navigable.Title}" />
 
-    <md:MarkdownTextBlock x:Name="markdownView"
-                          Grid.Row="1" />
+    <Button x:Name="button" Grid.Row="1" Content="Check" />
+    <md:MarkdownTextBlock x:Name="markdownView" Grid.Row="2" Background="{ThemeResource MarkdownBackground}" />
 
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup x:Name="LayoutVisualStates">
@@ -27,6 +27,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="titleTB.Margin" Value="{ThemeResource PageTitleTextBlockNarrowMargin}" />
+            <Setter Target="markdownView.FlowDocumentStackPanelStyle" Value="{ThemeResource NarrowFlowDocumentStackPanelStyle}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

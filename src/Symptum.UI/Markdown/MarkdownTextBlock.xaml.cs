@@ -76,10 +76,7 @@ public partial class MarkdownTextBlock : Control
 
     private void Build()
     {
-        if (_renderer == null)
-        {
-            _renderer = new WinUIRenderer(this, _document);
-        }
+        _renderer ??= new WinUIRenderer(this, _document);
         _pipeline.Setup(_renderer);
         ApplyText(false);
     }

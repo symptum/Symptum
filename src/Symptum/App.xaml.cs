@@ -1,5 +1,6 @@
 using Symptum.Common;
 using Symptum.Common.Helpers;
+using Symptum.Helpers;
 using Symptum.Navigation;
 
 namespace Symptum;
@@ -64,6 +65,8 @@ public partial class App : Application
         await ResourceHelper.LoadResourcesFromWorkPathAsync();
         MockupData.Initialize();
         NavigationManager.Initialize();
+
+        ReaderThemeHelper.Initialize(rootFrame.XamlRoot);
     }
 
     /// <summary>

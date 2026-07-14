@@ -47,7 +47,7 @@ public class WinUIRenderer : RendererBase
     {
         Write(markdownObject);
         ImportsHandler.ResolveImports(markdownObject?.Descendants<ExportBlock>(), this, MarkdownTextBlock._pipeline);
-        return FlowDocument ?? new FlowDocumentElement(MarkdownTextBlock);
+        return FlowDocument;
     }
 
     public void ReloadDocument()

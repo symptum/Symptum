@@ -14,19 +14,47 @@
                Text="Settings" />
 
     <ScrollViewer Grid.Row="1">
-      <StackPanel x:Name="content" HorizontalAlignment="Stretch"
+      <StackPanel x:Name="content"
                   Margin="{ThemeResource NavViewContentMargin}"
+                  HorizontalAlignment="Stretch"
                   Spacing="4">
-        <!-- About -->
+
+        <!--  Appearance  -->
+        <TextBlock Margin="1,30,0,6"
+                   Style="{ThemeResource BodyStrongTextBlockStyle}"
+                   Text="Appearance" />
+
+        <controls:SettingsCard Description="Choose your app color theme"
+                               Header="Theme"
+                               HeaderIcon="{ui:FontIcon Glyph=&#xE771;}">
+          <ComboBox x:Name="themeCombo" MinWidth="150">
+            <ComboBoxItem Content="System" />
+            <ComboBoxItem Content="Light" />
+            <ComboBoxItem Content="Dark" />
+          </ComboBox>
+        </controls:SettingsCard>
+
+        <!--  Reader  -->
+        <TextBlock Margin="1,30,0,6"
+                   Style="{ThemeResource BodyStrongTextBlockStyle}"
+                   Text="Reader" />
+
+        <controls:SettingsCard Description="Choose a preset color theme for reading"
+                               Header="Reader theme"
+                               HeaderIcon="{ui:FontIcon Glyph=&#xE790;}">
+          <ComboBox x:Name="readerThemeCombo" MinWidth="150" />
+        </controls:SettingsCard>
+
+        <!--  About  -->
         <TextBlock Margin="1,30,0,6"
                    Style="{ThemeResource BodyStrongTextBlockStyle}"
                    Text="About" />
 
-        <controls:SettingsCard Header="Symptum"
-                               HeaderIcon="{ui:FontIcon Glyph=&#xE946;}"
-                               Description="The Open-Source Medical Learning Platform">
-          <TextBlock Style="{ThemeResource CaptionTextBlockStyle}"
-                     Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+        <controls:SettingsCard Description="The Open-Source Medical Learning Platform"
+                               Header="Symptum"
+                               HeaderIcon="{ui:FontIcon Glyph=&#xE946;}">
+          <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                     Style="{ThemeResource CaptionTextBlockStyle}"
                      Text="Version 1.0.0" />
         </controls:SettingsCard>
 
