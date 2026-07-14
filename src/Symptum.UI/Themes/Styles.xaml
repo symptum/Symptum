@@ -3,308 +3,288 @@
                     xmlns:controls="using:Symptum.UI.Controls"
                     xmlns:md="using:Symptum.UI.Markdown">
 
-    <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="ms-appx:///Symptum.UI/Markdown/QuoteControl.xaml" />
-    </ResourceDictionary.MergedDictionaries>
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source="ms-appx:///Symptum.UI/Markdown/QuoteControl.xaml" />
+  </ResourceDictionary.MergedDictionaries>
 
-    <Style BasedOn="{StaticResource DefaultAppBarButtonStyle}" TargetType="AppBarButton">
-        <Setter Property="LabelPosition" Value="Collapsed" />
-        <Setter Property="Width" Value="48" />
-        <Setter Property="Height" Value="48" />
-    </Style>
-    <Style BasedOn="{StaticResource DefaultAppBarToggleButtonStyle}" TargetType="AppBarToggleButton">
-        <Setter Property="LabelPosition" Value="Collapsed" />
-        <Setter Property="Width" Value="48" />
-        <Setter Property="Height" Value="48" />
-    </Style>
-    <Style x:Key="StatusBarTextBlockStyle"
+  <Style BasedOn="{StaticResource DefaultAppBarButtonStyle}" TargetType="AppBarButton">
+    <Setter Property="LabelPosition" Value="Collapsed" />
+    <Setter Property="Width" Value="48" />
+    <Setter Property="Height" Value="48" />
+  </Style>
+  <Style BasedOn="{StaticResource DefaultAppBarToggleButtonStyle}" TargetType="AppBarToggleButton">
+    <Setter Property="LabelPosition" Value="Collapsed" />
+    <Setter Property="Width" Value="48" />
+    <Setter Property="Height" Value="48" />
+  </Style>
+  <Style x:Key="StatusBarTextBlockStyle"
            BasedOn="{StaticResource CaptionTextBlockStyle}"
            TargetType="TextBlock">
-        <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
-        <Setter Property="TextWrapping" Value="NoWrap" />
-        <Setter Property="VerticalAlignment" Value="Center" />
-    </Style>
-    <Style x:Key="IconButtonStyle"
+    <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+    <Setter Property="TextWrapping" Value="NoWrap" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style x:Key="IconButtonStyle"
            BasedOn="{StaticResource DefaultButtonStyle}"
            TargetType="Button">
-        <Setter Property="Padding" Value="4" />
-        <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="VerticalContentAlignment" Value="Center" />
-    </Style>
-    <Style x:Key="IconToggleButtonStyle"
+    <Setter Property="Padding" Value="4" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+  <Style x:Key="IconToggleButtonStyle"
            BasedOn="{StaticResource DefaultToggleButtonStyle}"
            TargetType="ToggleButton">
-        <Setter Property="Padding" Value="4" />
-        <Setter Property="VerticalContentAlignment" Value="Center" />
-        <Setter Property="VerticalContentAlignment" Value="Center" />
-    </Style>
+    <Setter Property="Padding" Value="4" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
 
 
-    <Style BasedOn="{StaticResource DefaultImageViewerStyle}" TargetType="controls:ImageViewer" />
+  <Style BasedOn="{StaticResource DefaultImageViewerStyle}" TargetType="controls:ImageViewer" />
 
-    <Style x:Key="DefaultImageViewerStyle" TargetType="controls:ImageViewer">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="controls:ImageViewer">
-                    <Grid RowDefinitions="*,Auto">
-                        <Grid.Resources>
-                            <x:Double x:Key="ControlContentThemeFontSize">12</x:Double>
-                        </Grid.Resources>
+  <Style x:Key="DefaultImageViewerStyle" TargetType="controls:ImageViewer">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="controls:ImageViewer">
+          <Grid RowDefinitions="*,Auto">
+            <Grid.Resources>
+              <x:Double x:Key="ControlContentThemeFontSize">12</x:Double>
+            </Grid.Resources>
 
-                        <ScrollViewer x:Name="PART_ScrollViewer"
+            <ScrollViewer x:Name="PART_ScrollViewer"
                                       HorizontalAlignment="Stretch"
                                       VerticalAlignment="Stretch"
                                       HorizontalScrollBarVisibility="Auto"
                                       VerticalScrollBarVisibility="Auto">
-                            <Image x:Name="PART_Image" Stretch="Uniform" />
-                        </ScrollViewer>
+              <Image x:Name="PART_Image" Stretch="Uniform" />
+            </ScrollViewer>
 
-                        <Grid Grid.Row="1"
+            <Grid Grid.Row="1"
                               Height="32"
                               ColumnSpacing="8">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+              </Grid.ColumnDefinitions>
 
-                            <Button x:Name="PART_ActionButton" VerticalAlignment="Stretch">
-                                <FontIcon x:Name="PART_ActionButtonIcon" FontSize="14" />
-                            </Button>
-                            <AppBarSeparator Grid.Column="1" />
-                            <TextBlock x:Name="PART_ResText"
+              <Button x:Name="PART_ActionButton" VerticalAlignment="Stretch">
+                <FontIcon x:Name="PART_ActionButtonIcon" FontSize="14" />
+              </Button>
+              <AppBarSeparator Grid.Column="1" />
+              <TextBlock x:Name="PART_ResText"
                                        Grid.Column="2"
                                        Style="{ThemeResource StatusBarTextBlockStyle}" />
-                            <AppBarSeparator Grid.Column="3" />
-                            <TextBlock x:Name="PART_SizeText"
+              <AppBarSeparator Grid.Column="3" />
+              <TextBlock x:Name="PART_SizeText"
                                        Grid.Column="4"
                                        Style="{ThemeResource StatusBarTextBlockStyle}" />
-                            <AppBarSeparator Grid.Column="5" />
-                            <Button x:Name="PART_ZoomToFitButton"
+              <AppBarSeparator Grid.Column="5" />
+              <Button x:Name="PART_ZoomToFitButton"
                                     Grid.Column="6"
                                     VerticalAlignment="Stretch"
                                     ToolTipService.ToolTip="Zoom To Fit">
-                                <FontIcon FontSize="14" Glyph="&#xE9A6;" />
-                            </Button>
-                            <ComboBox x:Name="PART_ZoomCombo"
+                <FontIcon FontSize="14" Glyph="&#xE9A6;" />
+              </Button>
+              <ComboBox x:Name="PART_ZoomCombo"
                                       Grid.Column="7"
                                       MinWidth="75"
                                       VerticalAlignment="Center"
                                       IsEditable="True" />
-                            <RepeatButton x:Name="PART_ZoomOutButton"
+              <RepeatButton x:Name="PART_ZoomOutButton"
                                           Grid.Column="8"
                                           VerticalAlignment="Stretch"
                                           ToolTipService.ToolTip="Zoom Out">
-                                <FontIcon FontSize="14" Glyph="&#xE71F;" />
-                            </RepeatButton>
-                            <Slider x:Name="PART_ZoomSlider"
+                <FontIcon FontSize="14" Glyph="&#xE71F;" />
+              </RepeatButton>
+              <Slider x:Name="PART_ZoomSlider"
                                     Grid.Column="9"
                                     MinWidth="130"
                                     VerticalAlignment="Center"
                                     Maximum="1000"
                                     Minimum="10" />
-                            <RepeatButton x:Name="PART_ZoomInButton"
+              <RepeatButton x:Name="PART_ZoomInButton"
                                           Grid.Column="10"
                                           VerticalAlignment="Stretch"
                                           ToolTipService.ToolTip="Zoom In">
-                                <FontIcon FontSize="14" Glyph="&#xE8A3;" />
-                            </RepeatButton>
-                        </Grid>
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup>
-                                <VisualState x:Name="DefaultState">
-                                    <VisualState.StateTriggers>
-                                        <AdaptiveTrigger MinWindowWidth="600" />
-                                    </VisualState.StateTriggers>
-                                </VisualState>
-                                <VisualState x:Name="MinimalState">
-                                    <VisualState.StateTriggers>
-                                        <AdaptiveTrigger MinWindowWidth="0" />
-                                    </VisualState.StateTriggers>
-                                    <VisualState.Setters>
-                                        <Setter Target="PART_ZoomCombo.Visibility" Value="Collapsed" />
-                                        <Setter Target="PART_ZoomSlider.Visibility" Value="Collapsed" />
-                                        <Setter Target="PART_ZoomOutButton.(Grid.Column)" Value="7" />
-                                        <Setter Target="PART_ZoomOutButton.(Grid.ColumnSpan)" Value="2" />
-                                        <Setter Target="PART_ZoomInButton.(Grid.Column)" Value="9" />
-                                        <Setter Target="PART_ZoomInButton.(Grid.ColumnSpan)" Value="8" />
-                                    </VisualState.Setters>
-                                </VisualState>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+                <FontIcon FontSize="14" Glyph="&#xE8A3;" />
+              </RepeatButton>
+            </Grid>
+            <VisualStateManager.VisualStateGroups>
+              <VisualStateGroup>
+                <VisualState x:Name="DefaultState">
+                  <VisualState.StateTriggers>
+                    <AdaptiveTrigger MinWindowWidth="600" />
+                  </VisualState.StateTriggers>
+                </VisualState>
+                <VisualState x:Name="MinimalState">
+                  <VisualState.StateTriggers>
+                    <AdaptiveTrigger MinWindowWidth="0" />
+                  </VisualState.StateTriggers>
+                  <VisualState.Setters>
+                    <Setter Target="PART_ZoomCombo.Visibility" Value="Collapsed" />
+                    <Setter Target="PART_ZoomSlider.Visibility" Value="Collapsed" />
+                    <Setter Target="PART_ZoomOutButton.(Grid.Column)" Value="7" />
+                    <Setter Target="PART_ZoomOutButton.(Grid.ColumnSpan)" Value="2" />
+                    <Setter Target="PART_ZoomInButton.(Grid.Column)" Value="9" />
+                    <Setter Target="PART_ZoomInButton.(Grid.ColumnSpan)" Value="8" />
+                  </VisualState.Setters>
+                </VisualState>
+              </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
-    <StaticResource x:Key="MarkdownBackgroundBrush" ResourceKey="SolidBackgroundFillColorBaseBrush" />
-    <StaticResource x:Key="MarkdownForegroundBrush" ResourceKey="TextFillColorPrimaryBrush" />
-    <StaticResource x:Key="MarkdownAccentBrush" ResourceKey="AccentTextFillColorPrimaryBrush" />
-    <StaticResource x:Key="MarkdownH1Foreground" ResourceKey="AccentTextFillColorPrimaryBrush" />
+  <FontFamily x:Key="MarkdownCodeFontFamily">ms-appx:///Symptum.UI/Fonts/CascadiaCode-Regular.ttf#Cascadia Code</FontFamily>
+  <x:Double x:Key="MarkdownH1FontSize">28</x:Double>
+  <x:Double x:Key="MarkdownH2FontSize">24</x:Double>
+  <x:Double x:Key="MarkdownH3FontSize">22</x:Double>
+  <x:Double x:Key="MarkdownH4FontSize">20</x:Double>
+  <x:Double x:Key="MarkdownH5FontSize">18</x:Double>
+  <x:Double x:Key="MarkdownH6FontSize">16</x:Double>
 
-    <StaticResource x:Key="MarkdownCodeBackground" ResourceKey="SolidBackgroundFillColorSecondaryBrush" />
-    <StaticResource x:Key="MarkdownCodeBorderBrush" ResourceKey="ControlStrongStrokeColorDefaultBrush" />
+  <Thickness x:Key="MarkdownPadding">36</Thickness>
+  <Thickness x:Key="MarkdownListMargin">16,8,0,8</Thickness>
 
-    <StaticResource x:Key="MarkdownTableHeaderBackground" ResourceKey="AccentFillColorDefaultBrush" />
-    <StaticResource x:Key="MarkdownTableHeaderForeground" ResourceKey="TextOnAccentFillColorPrimaryBrush" />
-    <StaticResource x:Key="MarkdownTableBorderBrush" ResourceKey="ControlStrongStrokeColorDefaultBrush" />
-    <StaticResource x:Key="MarkdownTableAltBackground" ResourceKey="ControlAltFillColorQuarternaryBrush" />
-
-    <StaticResource x:Key="MarkdownThematicBreakBrush" ResourceKey="ControlStrongStrokeColorDefaultBrush" />
-
-    <StaticResource x:Key="MarkdownBodyFontFamily" ResourceKey="ContentControlThemeFontFamily" />
-    <FontFamily x:Key="MarkdownCodeFontFamily">ms-appx:///Symptum.UI/Fonts/CascadiaCode-Regular.ttf#Cascadia Code</FontFamily>
-    <x:Double x:Key="MarkdownBodyFontSize">14</x:Double>
-    <x:Double x:Key="MarkdownH1FontSize">28</x:Double>
-    <x:Double x:Key="MarkdownH2FontSize">24</x:Double>
-    <x:Double x:Key="MarkdownH3FontSize">22</x:Double>
-    <x:Double x:Key="MarkdownH4FontSize">20</x:Double>
-    <x:Double x:Key="MarkdownH5FontSize">18</x:Double>
-    <x:Double x:Key="MarkdownH6FontSize">16</x:Double>
-
-    <Thickness x:Key="MarkdownPadding">36</Thickness>
-    <Thickness x:Key="MarkdownListMargin">16,8,0,8</Thickness>
-
-    <Style x:Key="DefaultBodyTextBlockStyle"
+  <Style x:Key="DefaultBodyTextBlockStyle"
            BasedOn="{StaticResource BodyTextBlockStyle}"
            TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="{ThemeResource MarkdownBodyFontFamily}" />
-        <Setter Property="FontSize" Value="{ThemeResource MarkdownBodyFontSize}" />
-        <Setter Property="Foreground" Value="{ThemeResource MarkdownForegroundBrush}" />
-        <Setter Property="HorizontalAlignment" Value="Stretch" />
-        <Setter Property="HorizontalTextAlignment" Value="Left" />
-        <Setter Property="TextAlignment" Value="Left" />
-    </Style>
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalTextAlignment" Value="Left" />
+    <Setter Property="TextAlignment" Value="Left" />
+  </Style>
 
-    <Style x:Key="DefaultH1TextBlockStyle"
+  <Style x:Key="DefaultH1TextBlockStyle"
            BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
            TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{ThemeResource MarkdownH1FontSize}" />
-        <Setter Property="FontWeight" Value="Bold" />
-        <Setter Property="Foreground" Value="{ThemeResource MarkdownH1Foreground}" />
-    </Style>
+    <Setter Property="FontSize" Value="{ThemeResource MarkdownH1FontSize}" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="Foreground" Value="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+  </Style>
 
-    <Style x:Key="DefaultH2TextBlockStyle"
+  <Style x:Key="DefaultH2TextBlockStyle"
            BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
            TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{ThemeResource MarkdownH2FontSize}" />
-        <Setter Property="FontWeight" Value="Normal" />
-    </Style>
+    <Setter Property="FontSize" Value="{ThemeResource MarkdownH2FontSize}" />
+    <Setter Property="FontWeight" Value="Normal" />
+  </Style>
 
-    <Style x:Key="DefaultH3TextBlockStyle"
+  <Style x:Key="DefaultH3TextBlockStyle"
            BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
            TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{ThemeResource MarkdownH3FontSize}" />
-        <Setter Property="FontWeight" Value="Bold" />
-    </Style>
+    <Setter Property="FontSize" Value="{ThemeResource MarkdownH3FontSize}" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
 
-    <Style x:Key="DefaultH4TextBlockStyle"
+  <Style x:Key="DefaultH4TextBlockStyle"
            BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
            TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{ThemeResource MarkdownH4FontSize}" />
-        <Setter Property="FontWeight" Value="Normal" />
-    </Style>
+    <Setter Property="FontSize" Value="{ThemeResource MarkdownH4FontSize}" />
+    <Setter Property="FontWeight" Value="Normal" />
+  </Style>
 
-    <Style x:Key="DefaultH5TextBlockStyle"
+  <Style x:Key="DefaultH5TextBlockStyle"
            BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
            TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{ThemeResource MarkdownH5FontSize}" />
-        <Setter Property="FontWeight" Value="Bold" />
-    </Style>
+    <Setter Property="FontSize" Value="{ThemeResource MarkdownH5FontSize}" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
 
-    <Style x:Key="DefaultH6TextBlockStyle"
+  <Style x:Key="DefaultH6TextBlockStyle"
            BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
            TargetType="TextBlock">
-        <Setter Property="FontSize" Value="{ThemeResource MarkdownH6FontSize}" />
-        <Setter Property="FontWeight" Value="Normal" />
-    </Style>
+    <Setter Property="FontSize" Value="{ThemeResource MarkdownH6FontSize}" />
+    <Setter Property="FontWeight" Value="Normal" />
+  </Style>
 
-    <Style x:Key="DefaultCodeTextBlockStyle"
+  <Style x:Key="DefaultCodeTextBlockStyle"
            BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
            TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="{ThemeResource MarkdownCodeFontFamily}" />
-        <Setter Property="FontWeight" Value="Normal" />
-        <Setter Property="VerticalAlignment" Value="Center" />
-    </Style>
+    <Setter Property="FontFamily" Value="{ThemeResource MarkdownCodeFontFamily}" />
+    <Setter Property="FontWeight" Value="Normal" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
 
-    <Style x:Key="DefaultCodeInlineBorderStyle" TargetType="Border">
-        <Setter Property="Background" Value="{ThemeResource MarkdownCodeBackground}" />
-        <Setter Property="BorderBrush" Value="{ThemeResource MarkdownCodeBorderBrush}" />
-        <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
-        <Setter Property="Padding" Value="4,0,4,0" />
-        <Setter Property="VerticalAlignment" Value="Center" />
-    </Style>
+  <Style x:Key="DefaultCodeInlineBorderStyle" TargetType="Border">
+    <Setter Property="Background" Value="{ThemeResource SolidBackgroundFillColorSecondaryBrush}" />
+    <Setter Property="BorderBrush" Value="{ThemeResource ControlStrongStrokeColorDefaultBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
+    <Setter Property="Padding" Value="4,0,4,0" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
 
-    <Style x:Key="DefaultCodeBlockBorderStyle" TargetType="Border">
-        <Setter Property="Background" Value="{ThemeResource MarkdownCodeBackground}" />
-        <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
-        <Setter Property="Margin" Value="16,8,8,8" />
-        <Setter Property="Padding" Value="12" />
-    </Style>
+  <Style x:Key="DefaultCodeBlockBorderStyle" TargetType="Border">
+    <Setter Property="Background" Value="{ThemeResource SolidBackgroundFillColorSecondaryBrush}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
+    <Setter Property="Margin" Value="16,8,8,8" />
+    <Setter Property="Padding" Value="12" />
+  </Style>
 
-    <Style x:Key="DefaultTableHeaderTextBlockStyle"
+  <Style x:Key="DefaultTableHeaderTextBlockStyle"
            BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
            TargetType="TextBlock">
-        <Setter Property="FontWeight" Value="Bold" />
-        <Setter Property="Foreground" Value="{ThemeResource MarkdownTableHeaderForeground}" />
-    </Style>
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="Foreground" Value="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+  </Style>
 
-    <Style x:Key="DefaultTableGridStyle" TargetType="Grid">
-        <Setter Property="HorizontalAlignment" Value="Left" />
-        <Setter Property="Margin" Value="16,8,8,8" />
-    </Style>
+  <Style x:Key="DefaultTableGridStyle" TargetType="Grid">
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="Margin" Value="16,8,8,8" />
+  </Style>
 
-    <Style x:Key="DefaultTableCellGridStyle" TargetType="Grid">
-        <Setter Property="BorderBrush" Value="{ThemeResource MarkdownTableBorderBrush}" />
-        <Setter Property="Padding" Value="12,8" />
-    </Style>
+  <Style x:Key="DefaultTableCellGridStyle" TargetType="Grid">
+    <Setter Property="BorderBrush" Value="{ThemeResource ControlStrongStrokeColorDefaultBrush}" />
+    <Setter Property="Padding" Value="12,8" />
+  </Style>
 
-    <Style x:Key="DefaultTableHeaderCellGridStyle"
+  <Style x:Key="DefaultTableHeaderCellGridStyle"
            BasedOn="{StaticResource DefaultTableCellGridStyle}"
            TargetType="Grid">
-        <Setter Property="Background" Value="{ThemeResource MarkdownTableHeaderBackground}" />
-    </Style>
+    <Setter Property="Background" Value="{ThemeResource AccentFillColorDefaultBrush}" />
+  </Style>
 
-    <Style x:Key="AltTableCellGridStyle"
+  <Style x:Key="AltTableCellGridStyle"
            BasedOn="{StaticResource DefaultTableCellGridStyle}"
            TargetType="Grid">
-        <Setter Property="Background" Value="{ThemeResource MarkdownTableAltBackground}" />
-    </Style>
+    <Setter Property="Background" Value="{ThemeResource ControlAltFillColorQuarternaryBrush}" />
+  </Style>
 
-    <Style x:Key="DefaultThematicBreakBorderStyle" TargetType="Border">
-        <Setter Property="Background" Value="{ThemeResource MarkdownThematicBreakBrush}" />
-        <Setter Property="CornerRadius" Value="1" />
-        <Setter Property="Height" Value="2" />
-        <Setter Property="HorizontalAlignment" Value="Stretch" />
-        <Setter Property="Margin" Value="8" />
-        <Setter Property="Width" Value="500" />
-    </Style>
+  <Style x:Key="DefaultThematicBreakBorderStyle" TargetType="Border">
+    <Setter Property="Background" Value="{ThemeResource ControlStrongStrokeColorDefaultBrush}" />
+    <Setter Property="CornerRadius" Value="1" />
+    <Setter Property="Height" Value="2" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="Margin" Value="8" />
+    <Setter Property="Width" Value="500" />
+  </Style>
 
-    <Style x:Key="DefaultAddressBlockTextBlockStyle"
+  <Style x:Key="DefaultAddressBlockTextBlockStyle"
            BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
            TargetType="TextBlock">
-        <Setter Property="FontStyle" Value="Italic" />
-    </Style>
+    <Setter Property="FontStyle" Value="Italic" />
+  </Style>
 
-    <Style x:Key="DefaultFlowDocumentStackPanelStyle" TargetType="StackPanel">
-        <Setter Property="Spacing" Value="12" />
-        <Setter Property="Padding" Value="{ThemeResource MarkdownPadding}" />
-    </Style>
+  <Style x:Key="DefaultFlowDocumentStackPanelStyle" TargetType="StackPanel">
+    <Setter Property="Spacing" Value="12" />
+    <Setter Property="Padding" Value="{ThemeResource MarkdownPadding}" />
+  </Style>
 
-    <Style x:Key="DefaultListStackPanelStyle" TargetType="StackPanel">
-        <Setter Property="Spacing" Value="12" />
-        <Setter Property="Padding" Value="{ThemeResource MarkdownListMargin}" />
-    </Style>
+  <Style x:Key="DefaultListStackPanelStyle" TargetType="StackPanel">
+    <Setter Property="Spacing" Value="12" />
+    <Setter Property="Padding" Value="{ThemeResource MarkdownListMargin}" />
+  </Style>
 
 </ResourceDictionary>

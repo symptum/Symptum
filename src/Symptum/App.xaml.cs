@@ -1,7 +1,6 @@
 using Symptum.Common;
 using Symptum.Common.Helpers;
 using Symptum.Navigation;
-using Symptum.Services;
 
 namespace Symptum;
 
@@ -65,10 +64,6 @@ public partial class App : Application
         await ResourceHelper.LoadResourcesFromWorkPathAsync();
         MockupData.Initialize();
         NavigationManager.Initialize();
-
-        // Initialize theme after frame is set up
-        ThemeService.Initialize(rootFrame);
-        ThemeService.LoadTheme();
     }
 
     /// <summary>

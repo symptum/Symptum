@@ -99,7 +99,7 @@ public sealed partial class MainPage : Page
             INavigable? navigable = e.Parameter as INavigable;
             if (navigable is NavigationInfo navInfo && navInfo.PageType == e.SourcePageType)
             {
-                if (navigable is NavigationManager.SettingsNavInfo)
+                if (navigable == NavigationManager.SettingsNavInfo)
                     navView.SelectedItem = navView.SettingsItem;
                 else
                     navView.SelectedItem = navInfo;
