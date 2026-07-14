@@ -9,18 +9,18 @@ public class HeadingElement : IAddChild
     private SParagraph _paragraph = new();
     private HeadingBlock? _headingBlock;
     private HtmlNode? _htmlNode;
-    private MarkdownConfiguration? _config;
+    private MarkdownTextBlock _control;
 
     public STextElement TextElement => _paragraph;
 
-    public HeadingElement(HeadingBlock headingBlock, MarkdownConfiguration config, DocumentOutline outline)
+    public HeadingElement(HeadingBlock headingBlock, MarkdownTextBlock control, DocumentOutline outline)
     {
         _headingBlock = headingBlock;
-        LoadHeadingElement(config, outline, headingBlock.Level,
+        LoadHeadingElement(control, outline, headingBlock.Level,
             headingBlock.GetAttributes().Id, headingBlock.Inline?.FirstChild?.ToString());
     }
 
-    public HeadingElement(HtmlNode htmlNode, MarkdownConfiguration config, DocumentOutline outline)
+    public HeadingElement(HtmlNode htmlNode, MarkdownTextBlock control, DocumentOutline outline)
     {
         _htmlNode = htmlNode;
         var align = _htmlNode.GetAttribute("align", "left");
@@ -34,20 +34,20 @@ public class HeadingElement : IAddChild
         };
 
         if (int.TryParse(htmlNode.Name.AsSpan(1), out int level))
-            LoadHeadingElement(config, outline, level, htmlNode.Id, htmlNode.InnerText);
+            LoadHeadingElement(control, outline, level, htmlNode.Id, htmlNode.InnerText);
     }
 
-    private void LoadHeadingElement(MarkdownConfiguration config, DocumentOutline outline, int level, string? id, string? title)
+    private void LoadHeadingElement(MarkdownTextBlock control, DocumentOutline outline, int level, string? id, string? title)
     {
-        _config = config;
+        _control = control;
         _paragraph.TextBlockStyle = level switch
         {
-            1 => _config.Themes.H1TextBlockStyle,
-            2 => _config.Themes.H2TextBlockStyle,
-            3 => _config.Themes.H3TextBlockStyle,
-            4 => _config.Themes.H4TextBlockStyle,
-            5 => _config.Themes.H5TextBlockStyle,
-            _ => _config.Themes.H6TextBlockStyle,
+            1 => _control.H1TextBlockStyle,
+            2 => _control.H2TextBlockStyle,
+            3 => _control.H3TextBlockStyle,
+            4 => _control.H4TextBlockStyle,
+            5 => _control.H5TextBlockStyle,
+            _ => _control.H6TextBlockStyle,
         };
 
         DocumentNode node = new()

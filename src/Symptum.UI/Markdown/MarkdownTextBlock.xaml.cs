@@ -19,7 +19,7 @@ public partial class MarkdownTextBlock : Control
     public MarkdownTextBlock()
     {
         DefaultStyleKey = typeof(MarkdownTextBlock);
-        _document = new FlowDocumentElement(Configuration);
+        _document = new FlowDocumentElement(this);
         _pipeline = new MarkdownPipelineBuilder()
             .UseAlertBlocks()
             .UseEmphasisExtras()
@@ -44,11 +44,6 @@ public partial class MarkdownTextBlock : Control
         _container.Children.Clear();
         _container.Children.Add(_document.StackPanel);
         Build();
-    }
-
-    private void ApplyConfig(MarkdownConfiguration config)
-    {
-        _renderer?.Configuration = config;
     }
 
     private void ApplyText(bool rerender)
@@ -81,15 +76,12 @@ public partial class MarkdownTextBlock : Control
 
     private void Build()
     {
-        if (Configuration != null)
+        if (_renderer == null)
         {
-            if (_renderer == null)
-            {
-                _renderer = new WinUIRenderer(this, _document);
-            }
-            _pipeline.Setup(_renderer);
-            ApplyText(false);
+            _renderer = new WinUIRenderer(this, _document);
         }
+        _pipeline.Setup(_renderer);
+        ApplyText(false);
     }
 
     public event EventHandler<MarkdownParsedEventArgs>? MarkdownParsed;

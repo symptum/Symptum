@@ -9,21 +9,21 @@ public class TableElement : IAddChild
     private Grid _grid;
     private int _columnCount;
     private int _rowCount;
-    private MarkdownConfiguration _config;
+    private MarkdownTextBlock _control;
 
     public STextElement TextElement => _container;
 
-    public TableElement(Table table, MarkdownConfiguration config)
+    public TableElement(Table table, MarkdownTextBlock control)
     {
         _table = table;
-        _config = config;
+        _control = control;
         _container = new();
         _columnCount = table.FirstOrDefault() is TableRow row ? row.Select(x => x is TableCell cell ? cell.ColumnSpan : 1).Sum() : 0;
         _rowCount = table.Count;
 
         _grid = new()
         {
-            Style = config.Themes.TableGridStyle
+            Style = control.TableGridStyle
         };
 
         for (int i = 0; i < _columnCount; i++)
@@ -51,7 +51,7 @@ public class TableElement : IAddChild
             cell.CornerRadius = GetCornerRadius(cellChild.RowIndex, cellChild.ColumnIndex, cellChild.RowSpan, cellChild.ColumnSpan);
             if (!cellChild.IsHeader && cellChild.RowIndex % 2 == 0)
             {
-                cell.Style = _config.Themes.AltTableCellGridStyle;
+                cell.Style = _control.AltTableCellGridStyle;
             }
 
             _grid.Children.Add(cell);

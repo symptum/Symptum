@@ -7,7 +7,7 @@ public class CodeBlockRenderer : WinUIObjectRenderer<CodeBlock>
 {
     protected override void Write(WinUIRenderer renderer, CodeBlock obj)
     {
-        CodeBlockElement code = new(obj, renderer.Configuration);
+        CodeBlockElement code = new(obj, renderer.MarkdownTextBlock);
         renderer.Push(code);
         renderer.Pop();
     }

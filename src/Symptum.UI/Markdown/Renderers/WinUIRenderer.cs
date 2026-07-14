@@ -14,17 +14,10 @@ public class WinUIRenderer : RendererBase
 {
     private readonly Stack<IAddChild> _stack = new();
     private char[] _buffer;
-    private MarkdownConfiguration _config = MarkdownConfiguration.Default;
 
     public FlowDocumentElement FlowDocument { get; private set; }
 
     public DocumentOutline DocumentOutline { get; private set; }
-
-    public MarkdownConfiguration Configuration
-    {
-        get => _config;
-        set => _config = value;
-    }
 
     public MarkdownTextBlock MarkdownTextBlock { get; private set; }
 
@@ -36,8 +29,8 @@ public class WinUIRenderer : RendererBase
     {
         MarkdownTextBlock = markdownTextBlock;
         _buffer = new char[1024];
-        Configuration = markdownTextBlock.Configuration;
         FlowDocument = document;
+        document.StackPanel.Style = markdownTextBlock.FlowDocumentStackPanelStyle;
         DocumentOutline = markdownTextBlock.DocumentOutline;
         LinkHandler = new DefaultLinkHandler(DocumentOutline);
         ImportsHandler = markdownTextBlock.ImportsHandler;
@@ -54,7 +47,7 @@ public class WinUIRenderer : RendererBase
     {
         Write(markdownObject);
         ImportsHandler.ResolveImports(markdownObject?.Descendants<ExportBlock>(), this, MarkdownTextBlock._pipeline);
-        return FlowDocument ?? new(Configuration);
+        return FlowDocument ?? new FlowDocumentElement(MarkdownTextBlock);
     }
 
     public void ReloadDocument()

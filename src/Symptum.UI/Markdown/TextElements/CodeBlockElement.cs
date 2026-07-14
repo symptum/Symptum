@@ -9,21 +9,19 @@ public class CodeBlockElement : IAddChild
 {
     private CodeBlock _codeBlock;
     private SContainer _container = new();
-    private MarkdownConfiguration _config;
 
     public STextElement TextElement => _container;
 
-    public CodeBlockElement(CodeBlock codeBlock, MarkdownConfiguration config)
+    public CodeBlockElement(CodeBlock codeBlock, MarkdownTextBlock control)
     {
         _codeBlock = codeBlock;
-        _config = config;
         Border border = new()
         {
-            Style = _config.Themes.CodeBlockBorderStyle
+            Style = control.CodeBlockBorderStyle
         };
         TextBlock textBlock = new()
         {
-            Style = config.Themes.CodeTextBlockStyle
+            Style = control.CodeTextBlockStyle
         };
 
         StringBuilder stringBuilder = new();
@@ -32,9 +30,8 @@ public class CodeBlockElement : IAddChild
         {
             var formatter = new RichTextBlockFormatter(ElementTheme.Dark);
 
-            // go through all the lines backwards and only add the lines if we have encountered the first non-empty line
             StringLine[] lines = fencedCodeBlock.Lines.Lines;
-            
+
             bool encounteredFirstNonEmptyLine = false;
             if (lines != null)
             {

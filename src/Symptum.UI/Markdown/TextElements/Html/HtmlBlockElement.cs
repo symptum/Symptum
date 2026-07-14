@@ -6,14 +6,14 @@ internal class HtmlBlockElement : IAddChild
 {
     private HtmlNode _htmlNode;
     private SParagraph _paragraph;
-    private MarkdownConfiguration _config;
+    private MarkdownTextBlock _control;
 
     public STextElement TextElement => _paragraph;
 
-    public HtmlBlockElement(HtmlNode node, MarkdownConfiguration config)
+    public HtmlBlockElement(HtmlNode node, MarkdownTextBlock control)
     {
         _htmlNode = node;
-        _config = config;
+        _control = control;
         var align = _htmlNode.GetAttribute("align", "left");
         _paragraph = new()
         {
@@ -35,7 +35,7 @@ internal class HtmlBlockElement : IAddChild
     {
         if (string.Equals(_htmlNode.Name, "address", StringComparison.OrdinalIgnoreCase))
         {
-            _paragraph.TextBlockStyle = _config.Themes.AddressBlockTextBlockStyle;
+            _paragraph.TextBlockStyle = _control.AddressBlockTextBlockStyle;
         }
     }
 }

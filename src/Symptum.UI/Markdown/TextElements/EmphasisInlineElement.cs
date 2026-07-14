@@ -11,7 +11,7 @@ public class EmphasisInlineElement : IAddChild, ICascadeChild
     private SInline inline;
     private SContainer _container;
     private EmphasisInline _markdownObject;
-    private MarkdownConfiguration _config;
+    private MarkdownTextBlock _control;
     private TextBlock? _textBlock;
     private CommunityToolkit.WinUI.Controls.WrapPanel? _wrapPanel;
 
@@ -27,11 +27,11 @@ public class EmphasisInlineElement : IAddChild, ICascadeChild
     // Else we use an Inline which will get added to the parent Paragraph's Inlines.
     public STextElement TextElement => _containsUI ? _container : inline;
 
-    public EmphasisInlineElement(EmphasisInline emphasisInline, MarkdownConfiguration config)
+    public EmphasisInlineElement(EmphasisInline emphasisInline, MarkdownTextBlock control)
     {
         _span = new Span();
         _markdownObject = emphasisInline;
-        _config = config;
+        _control = control;
         inline = new() { Inline = _span };
         _container = new();
     }
@@ -134,8 +134,8 @@ public class EmphasisInlineElement : IAddChild, ICascadeChild
     {
         _textBlock = new TextBlock()
         {
-            Style = _config.Themes.BodyTextBlockStyle,
-            IsTextSelectionEnabled = _config.IsTextSelectionEnabled
+            Style = _control.BodyTextBlockStyle,
+            IsTextSelectionEnabled = _control.IsTextSelectionEnabled
         };
         if (_isBold) _textBlock.FontWeight = FontWeights.Bold;
         if (_isItalic) _textBlock.FontStyle = FontStyle.Italic;
@@ -151,7 +151,7 @@ public class EmphasisInlineElement : IAddChild, ICascadeChild
             TextWrapping = TextWrapping.NoWrap,
             VerticalAlignment = VerticalAlignment.Center,
             FontSize = GetBaseFontSize() * 0.7,
-            IsTextSelectionEnabled = _config.IsTextSelectionEnabled
+            IsTextSelectionEnabled = _control.IsTextSelectionEnabled
         };
 
         double offset = _isSuperscript ? -0.45 : 0.15;
@@ -212,7 +212,7 @@ public class EmphasisInlineElement : IAddChild, ICascadeChild
 
     private double GetBaseFontSize()
     {
-        if (_config?.Themes.BodyTextBlockStyle?.Setters.FirstOrDefault(
+        if (_control?.BodyTextBlockStyle?.Setters.FirstOrDefault(
             s => s is Setter sizeSetter && sizeSetter.Property == TextBlock.FontSizeProperty) is Setter { Value: double size })
         {
             return size;

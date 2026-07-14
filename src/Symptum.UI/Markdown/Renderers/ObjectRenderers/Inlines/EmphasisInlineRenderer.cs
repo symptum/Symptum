@@ -12,19 +12,21 @@ public class EmphasisInlineRenderer : WinUIObjectRenderer<EmphasisInline>
 
         EmphasisInlineElement? span = null;
 
+        var control = renderer.MarkdownTextBlock;
+
         switch (obj.DelimiterChar)
         {
             case '*':
             case '_':
-                span = new EmphasisInlineElement(obj, renderer.Configuration);
+                span = new EmphasisInlineElement(obj, control);
                 if (obj.DelimiterCount == 2) { span.SetBold(); } else { span.SetItalic(); }
                 break;
             case '~':
-                span = new EmphasisInlineElement(obj, renderer.Configuration);
+                span = new EmphasisInlineElement(obj, control);
                 if (obj.DelimiterCount == 2) { span.SetStrikeThrough(); } else { span.SetSubscript(); }
                 break;
             case '^':
-                span = new EmphasisInlineElement(obj, renderer.Configuration);
+                span = new EmphasisInlineElement(obj, control);
                 span.SetSuperscript();
                 break;
         }

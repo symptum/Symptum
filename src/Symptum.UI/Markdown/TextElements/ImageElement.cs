@@ -29,13 +29,13 @@ public class ImageElement : IAddChild
 
     public STextElement TextElement => _container;
 
-    public ImageElement(LinkInline linkInline, Uri uri, MarkdownConfiguration config)
+    public ImageElement(LinkInline linkInline, Uri uri, MarkdownTextBlock control)
     {
         _linkInline = linkInline;
         _uri = uri;
-        _imageProvider = config.ImageProvider;
-        _svgRenderer = config.SVGRenderer ?? _defaultSVGRenderer;
-        Init(linkInline.Label, config);
+        _imageProvider = control.ImageProvider;
+        _svgRenderer = control.SVGRenderer ?? _defaultSVGRenderer;
+        Init(linkInline.Label, control);
         Size size = Helper.GetMarkdownImageSize(linkInline);
         if (size.Width != 0)
         {
@@ -47,15 +47,15 @@ public class ImageElement : IAddChild
         }
     }
 
-    public ImageElement(HtmlNode htmlNode, MarkdownConfiguration config)
+    public ImageElement(HtmlNode htmlNode, MarkdownTextBlock control)
     {
         if (Uri.TryCreate(htmlNode.GetAttribute("src", "#"), UriKind.RelativeOrAbsolute, out Uri? uri))
             _uri = uri;
 
         _htmlNode = htmlNode;
-        _imageProvider = config.ImageProvider;
-        _svgRenderer = config.SVGRenderer ?? new DefaultSVGRenderer();
-        Init(htmlNode.GetAttribute("alt", string.Empty), config);
+        _imageProvider = control.ImageProvider;
+        _svgRenderer = control.SVGRenderer ?? _defaultSVGRenderer;
+        Init(htmlNode.GetAttribute("alt", string.Empty), control);
         int.TryParse(htmlNode.GetAttribute("width", "0"),
             NumberStyles.Integer,
             CultureInfo.InvariantCulture,
@@ -76,7 +76,7 @@ public class ImageElement : IAddChild
         }
     }
 
-    private void Init(string? altText, MarkdownConfiguration config)
+    private void Init(string? altText, MarkdownTextBlock control)
     {
         _image.Stretch = Stretch.Uniform;
         _image.Loaded += LoadImage;
@@ -91,7 +91,7 @@ public class ImageElement : IAddChild
         _altText = new()
         {
             Text = altText,
-            Style = config.Themes.BodyTextBlockStyle
+            Style = control.BodyTextBlockStyle
         };
         _altText.SetValue(Grid.RowProperty, 1);
         _grid.Children.Add(_altText);
@@ -103,7 +103,7 @@ public class ImageElement : IAddChild
             TextBlock _titleTB = new()
             {
                 Text = _linkInline.Title,
-                Style = config.Themes.BodyTextBlockStyle,
+                Style = control.BodyTextBlockStyle,
                 HorizontalAlignment = HorizontalAlignment.Center
             };
             _titleTB.SetValue(Grid.RowProperty, 2);
@@ -165,12 +165,6 @@ public class ImageElement : IAddChild
                 }
                 else
                 {
-//#if __WASM__
-//                    client.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
-//                    client.DefaultRequestHeaders.Add("Access-Control-Allow-Methods", "*");
-//                    client.DefaultRequestHeaders.Add("Access-Control-Allow-Headers", "*");
-//                    client.DefaultRequestHeaders.Add("Access-Control-Max-Age", "86400");
-//#endif
                     HttpResponseMessage response = await _client.GetAsync(_uri);
                     if (response != null)
                     {

@@ -4,7 +4,7 @@ public class FlowDocumentElement : IAddChild
 {
     private StackPanel _stackPanel = new();
     private SContainer _container = new();
-    private MarkdownConfiguration _config;
+    private MarkdownTextBlock _control;
 
     public STextElement TextElement => _container;
 
@@ -16,11 +16,11 @@ public class FlowDocumentElement : IAddChild
 
     public Style? TextBlockStyle { get; set; }
 
-    public FlowDocumentElement(MarkdownConfiguration config, bool isTopLevel = true)
+    public FlowDocumentElement(MarkdownTextBlock control, bool isTopLevel = true)
     {
-        _stackPanel.Style = config.Themes.FlowDocumentStackPanelStyle;
+        _stackPanel.Style = control.FlowDocumentStackPanelStyle;
         if (!isTopLevel) _stackPanel.Padding = new();
-        _config = config;
+        _control = control;
 
         _container.UIElement = _stackPanel;
     }
@@ -37,8 +37,8 @@ public class FlowDocumentElement : IAddChild
             {
                 TextBlock _textBlock = new()
                 {
-                    Style = TextBlockStyle ?? _config.Themes.BodyTextBlockStyle,
-                    IsTextSelectionEnabled = _config.IsTextSelectionEnabled
+                    Style = TextBlockStyle ?? _control.BodyTextBlockStyle,
+                    IsTextSelectionEnabled = _control.IsTextSelectionEnabled
                 };
                 _textBlock.Inlines.Add(inline.Inline);
                 _stackPanel.Children.Add(_textBlock);
@@ -48,7 +48,7 @@ public class FlowDocumentElement : IAddChild
                 if (block is SParagraph paragraph)
                 {
                     if (TextBlockStyle != null) paragraph.TextBlockStyle = TextBlockStyle;
-                    paragraph.IsTextSelectionEnabled = _config.IsTextSelectionEnabled;
+                    paragraph.IsTextSelectionEnabled = _control.IsTextSelectionEnabled;
                     paragraph.CreateUIElement();
                 }
 

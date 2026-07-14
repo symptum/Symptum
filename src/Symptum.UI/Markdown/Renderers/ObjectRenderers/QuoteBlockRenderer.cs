@@ -11,7 +11,7 @@ public class QuoteBlockRenderer : WinUIObjectRenderer<QuoteBlock>
         ArgumentNullException.ThrowIfNull(renderer);
         ArgumentNullException.ThrowIfNull(obj);
 
-        QuoteElement quote = new(obj, renderer.Configuration, (obj as AlertBlock)?.Kind);
+        QuoteElement quote = new(obj, renderer.MarkdownTextBlock, (obj as AlertBlock)?.Kind);
 
         renderer.Push(quote);
         renderer.WriteChildren(obj);

@@ -6,22 +6,20 @@ public class CodeInlineElement : IAddChild
 {
     private CodeInline _codeInline;
     private SContainer _container = new();
-    private MarkdownConfiguration _config;
 
     public STextElement TextElement => _container;
 
-    public CodeInlineElement(CodeInline codeInline, MarkdownConfiguration config)
+    public CodeInlineElement(CodeInline codeInline, MarkdownTextBlock control)
     {
         _codeInline = codeInline;
-        _config = config;
         Border border = new()
         {
-            Style = config.Themes.CodeInlineBorderStyle,
+            Style = control.CodeInlineBorderStyle,
         };
         TextBlock textBlock = new()
         {
             Text = codeInline.Content,
-            Style = config.Themes.CodeTextBlockStyle,
+            Style = control.CodeTextBlockStyle,
         };
         border.Child = textBlock;
         _container.UIElement = border;

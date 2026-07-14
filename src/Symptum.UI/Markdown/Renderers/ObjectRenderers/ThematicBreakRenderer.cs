@@ -10,7 +10,7 @@ public class ThematicBreakRenderer : WinUIObjectRenderer<ThematicBreakBlock>
         ArgumentNullException.ThrowIfNull(renderer);
         ArgumentNullException.ThrowIfNull(obj);
 
-        ThematicBreakElement thematicBreak = new(obj, renderer.Configuration);
+        ThematicBreakElement thematicBreak = new(obj, renderer.MarkdownTextBlock);
 
         renderer.WriteBlock(thematicBreak);
     }

@@ -10,10 +10,10 @@ public class ExportBlockElement : IAddChild
 
     public STextElement TextElement => _container;
 
-    public ExportBlockElement(ExportBlock exportBlock, MarkdownConfiguration config)
+    public ExportBlockElement(ExportBlock exportBlock, MarkdownTextBlock control)
     {
         _exportBlock = exportBlock;
-        _flowDocument = new FlowDocumentElement(config, false);
+        _flowDocument = new FlowDocumentElement(control, false);
         _container.UIElement = _flowDocument.StackPanel;
     }
 
