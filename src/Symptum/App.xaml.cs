@@ -66,7 +66,7 @@ public partial class App : Application
         MockupData.Initialize();
         NavigationManager.Initialize();
 
-        ReaderThemeHelper.Initialize(rootFrame.XamlRoot);
+        ThemeHelper.Initialize(rootFrame.XamlRoot);
     }
 
     /// <summary>

@@ -24,10 +24,10 @@
                    Style="{ThemeResource BodyStrongTextBlockStyle}"
                    Text="Appearance" />
 
-        <controls:SettingsCard Description="Choose your app color theme"
-                               Header="Theme"
+        <controls:SettingsCard Description="Choose your application theme"
+                               Header="Application Theme"
                                HeaderIcon="{ui:FontIcon Glyph=&#xE771;}">
-          <ComboBox x:Name="themeCombo" MinWidth="150">
+          <ComboBox x:Name="themeCB" MinWidth="150">
             <ComboBoxItem Content="System" />
             <ComboBoxItem Content="Light" />
             <ComboBoxItem Content="Dark" />
@@ -40,10 +40,23 @@
                    Text="Reader" />
 
         <controls:SettingsCard Description="Choose a preset color theme for reading"
-                               Header="Reader theme"
+                               Header="Reader Theme"
                                HeaderIcon="{ui:FontIcon Glyph=&#xE790;}">
-          <ComboBox x:Name="readerThemeCombo" MinWidth="150" />
+          <ComboBox x:Name="readerThemeCB" MinWidth="150" />
         </controls:SettingsCard>
+
+        <controls:SettingsExpander Description="Choose the reader's font preferences"
+                                   Header="Font Preferences"
+                                   HeaderIcon="{ui:FontIcon Glyph=&#xE8D2;}">
+          <controls:SettingsExpander.Items>
+              <controls:SettingsCard Header="Font Type">
+                <ComboBox x:Name="fontFamilyCB" MinWidth="150" />
+              </controls:SettingsCard>
+            <controls:SettingsCard Header="Font Size">
+              <Slider x:Name="fontSizeSlider" Minimum="10" Maximum="20" />
+            </controls:SettingsCard>
+          </controls:SettingsExpander.Items>
+        </controls:SettingsExpander>
 
         <!--  About  -->
         <TextBlock Margin="1,30,0,6"
@@ -51,8 +64,10 @@
                    Text="About" />
 
         <controls:SettingsCard Description="The Open-Source Medical Learning Platform"
-                               Header="Symptum"
-                               HeaderIcon="{ui:FontIcon Glyph=&#xE946;}">
+                               Header="Symptum">
+          <controls:SettingsCard.HeaderIcon>
+            <ImageIcon Source="/Assets/Images/Symptum.png" />
+          </controls:SettingsCard.HeaderIcon>
           <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                      Style="{ThemeResource CaptionTextBlockStyle}"
                      Text="Version 1.0.0" />

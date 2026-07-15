@@ -7,6 +7,7 @@
 
   <Style x:Key="DefaultMarkdownTextBlockStyle"
          TargetType="md:MarkdownTextBlock">
+    <Setter Property="Background" Value="{ThemeResource MarkdownBackground}" />
     <!-- Common -->
     <Setter Property="FlowDocumentStackPanelStyle" Value="{StaticResource DefaultFlowDocumentStackPanelStyle}" />
     <Setter Property="BodyTextBlockStyle" Value="{StaticResource DefaultBodyTextBlockStyle}" />

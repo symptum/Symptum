@@ -11,10 +11,6 @@ public sealed partial class MarkdownPage : NavigablePage
     public MarkdownPage()
     {
         InitializeComponent();
-        button.Click += (s, e) =>
-        {
-            ReaderThemeHelper.ApplyTheme("Forest");
-        };
     }
 
     protected override void OnNavigableChanged(INavigable? navigable)
@@ -23,6 +19,10 @@ public sealed partial class MarkdownPage : NavigablePage
         {
             resource = md;
             markdownView.Text = md.Markdown;
+
+            // Re-apply to fix resolution.
+            ThemeHelper.ApplyFontFamily(ThemeHelper.FontName);
+            ThemeHelper.ApplyFontSize(ThemeHelper.FontSize);
         }
     }
 }

@@ -39,7 +39,6 @@
     <Setter Property="VerticalContentAlignment" Value="Center" />
   </Style>
 
-
   <Style BasedOn="{StaticResource DefaultImageViewerStyle}" TargetType="controls:ImageViewer" />
 
   <Style x:Key="DefaultImageViewerStyle" TargetType="controls:ImageViewer">
@@ -146,6 +145,7 @@
     </Setter>
   </Style>
 
+  <StaticResource x:Key="MarkdownBodyFontFamily" ResourceKey="ContentControlThemeFontFamily" />
   <FontFamily x:Key="MarkdownCodeFontFamily">ms-appx:///Symptum.UI/Fonts/CascadiaCode-Regular.ttf#Cascadia Code</FontFamily>
   <x:Double x:Key="MarkdownH1FontSize">28</x:Double>
   <x:Double x:Key="MarkdownH2FontSize">24</x:Double>
@@ -153,15 +153,18 @@
   <x:Double x:Key="MarkdownH4FontSize">20</x:Double>
   <x:Double x:Key="MarkdownH5FontSize">18</x:Double>
   <x:Double x:Key="MarkdownH6FontSize">16</x:Double>
-
+  <x:Double x:Key="MarkdownBodyFontSize">14</x:Double>
   <Thickness x:Key="MarkdownPadding">36</Thickness>
   <Thickness x:Key="MarkdownListMargin">16,8,0,8</Thickness>
 
   <SolidColorBrush x:Key="MarkdownBackground" Color="Transparent" />
   <SolidColorBrush x:Key="MarkdownForeground" Color="{ThemeResource TextFillColorPrimary}" />
+  
   <Style x:Key="DefaultBodyTextBlockStyle"
          BasedOn="{StaticResource BodyTextBlockStyle}"
          TargetType="TextBlock">
+    <Setter Property="FontFamily" Value="{ThemeResource MarkdownBodyFontFamily}" />
+    <Setter Property="FontSize" Value="{ThemeResource MarkdownBodyFontSize}" />
     <Setter Property="Foreground" Value="{ThemeResource MarkdownForeground}" />
     <Setter Property="HorizontalAlignment" Value="Stretch" />
     <Setter Property="HorizontalTextAlignment" Value="Left" />
