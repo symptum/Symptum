@@ -25,7 +25,7 @@
             <AdaptiveTrigger MinWindowWidth="0" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="titleTB.Margin" Value="{ThemeResource PageTitleTextBlockNarrowMargin}" />
+            <Setter Target="titleTB.Visibility" Value="Collapsed" />
             <Setter Target="markdownView.FlowDocumentStackPanelStyle" Value="{ThemeResource NarrowFlowDocumentStackPanelStyle}" />
           </VisualState.Setters>
         </VisualState>

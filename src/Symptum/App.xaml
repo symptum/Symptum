@@ -40,11 +40,10 @@
         <Setter Property="MinHeight" Value="32" />
       </Style>
 
+      <Thickness x:Key="NavigationViewMinimalHeaderMargin">0,4,0,4</Thickness>
       <Thickness x:Key="NavViewContentMargin">24,0,24,24</Thickness>
       <Thickness x:Key="NavViewContentNarrowMargin">12,0,12,12</Thickness>
       <Thickness x:Key="PageTitleTextBlockMargin">36,24,16,24</Thickness>
-      <win:Thickness x:Key="PageTitleTextBlockNarrowMargin">24,12</win:Thickness>
-      <not_win:Thickness x:Key="PageTitleTextBlockNarrowMargin">24,48,12,24</not_win:Thickness>
 
       <Style x:Key="PageTitleTextBlockStyle"
              BasedOn="{StaticResource TitleTextBlockStyle}"
@@ -54,6 +53,15 @@
         <Setter Property="TextWrapping" Value="NoWrap" />
       </Style>
 
+      <Style x:Key="NarrowPageTitleTextBlockStyle"
+             BasedOn="{StaticResource BodyStrongTextBlockStyle}"
+             TargetType="TextBlock">
+        <Setter Property="Margin" Value="16,2,16,0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+      </Style>
+      
       <Style x:Key="NarrowFlowDocumentStackPanelStyle" TargetType="StackPanel">
         <Setter Property="Spacing" Value="12" />
         <Setter Property="Padding" Value="16" />

@@ -9,7 +9,7 @@
                      mc:Ignorable="d">
 
   <Grid RowDefinitions="Auto,*">
-    <TextBlock x:Name="pageTitle"
+    <TextBlock x:Name="titleTB"
                Style="{ThemeResource PageTitleTextBlockStyle}"
                Text="Settings" />
 
@@ -88,7 +88,7 @@
             <AdaptiveTrigger MinWindowWidth="0" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="pageTitle.Margin" Value="{ThemeResource PageTitleTextBlockNarrowMargin}" />
+            <Setter Target="titleTB.Visibility" Value="Collapsed" />
             <Setter Target="content.Margin" Value="{ThemeResource NavViewContentNarrowMargin}" />
           </VisualState.Setters>
         </VisualState>

@@ -124,7 +124,7 @@ public sealed partial class MainPage : Page
             if (e.Content is NavigablePage page)
                 page.Navigable = NavigationManager.GetRealNavigable(navigable);
 
-            // navView.Header = navigable?.Title;
+            navViewTitleTB.Text = navigable?.Title;
         }
     }
 }

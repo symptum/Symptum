@@ -6,36 +6,39 @@
       xmlns:utu="using:Uno.Toolkit.UI"
       xmlns:win="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-    <Grid utu:SafeArea.Insets="All">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition />
-        </Grid.RowDefinitions>
-        <win:TitleBar x:Name="titleBar"
-                  IsPaneToggleButtonVisible="True"
-                  IsBackButtonVisible="{x:Bind contentFrame.CanGoBack, Mode=OneWay}">
-            <win:TitleBar.IconSource>
-                <ImageIconSource ImageSource="/Assets/Images/Symptum.png" />
-            </win:TitleBar.IconSource>
-        </win:TitleBar>
-        <NavigationView x:Name="navView"
+  <Grid utu:SafeArea.Insets="All">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="Auto" />
+      <RowDefinition />
+    </Grid.RowDefinitions>
+    <win:TitleBar x:Name="titleBar"
+                  IsBackButtonVisible="{x:Bind contentFrame.CanGoBack, Mode=OneWay}"
+                  IsPaneToggleButtonVisible="True">
+      <win:TitleBar.IconSource>
+        <ImageIconSource ImageSource="/Assets/Images/Symptum.png" />
+      </win:TitleBar.IconSource>
+    </win:TitleBar>
+    <NavigationView x:Name="navView"
                     Grid.Row="1"
+                    AlwaysShowHeader="False"
                     IsBackButtonVisible="Visible"
                     IsTabStop="False"
                     MenuItemsSource="{x:Bind nav:NavigationManager.NavigationInfos}">
-            <NavigationView.MenuItemTemplate>
-                <DataTemplate x:DataType="nav:NavigationInfo">
-                    <NavigationViewItem Content="{x:Bind Title}"
+      <NavigationView.MenuItemTemplate>
+        <DataTemplate x:DataType="nav:NavigationInfo">
+          <NavigationViewItem Content="{x:Bind Title}"
                               MenuItemsSource="{Binding Children}"
                               Tag="{x:Bind}">
-                        <NavigationViewItem.Icon>
-                            <IconSourceElement IconSource="{x:Bind IconSource}" />
-                        </NavigationViewItem.Icon>
-                    </NavigationViewItem>
-                </DataTemplate>
-            </NavigationView.MenuItemTemplate>
-            <Frame x:Name="contentFrame"
-                   IsTabStop="True" />
-        </NavigationView>
-    </Grid>
+            <NavigationViewItem.Icon>
+              <IconSourceElement IconSource="{x:Bind IconSource}" />
+            </NavigationViewItem.Icon>
+          </NavigationViewItem>
+        </DataTemplate>
+      </NavigationView.MenuItemTemplate>
+      <NavigationView.Header>
+        <TextBlock x:Name="navViewTitleTB" Style="{ThemeResource NarrowPageTitleTextBlockStyle}" />
+      </NavigationView.Header>
+      <Frame x:Name="contentFrame" IsTabStop="True" />
+    </NavigationView>
+  </Grid>
 </Page>
