@@ -334,7 +334,7 @@ public partial class ImageViewer : Control
     {
         if (_scrollViewer == null) return;
 
-        var point = e.GetCurrentPoint((UIElement)sender);
+        var point = e.GetCurrentPoint(_scrollViewer);
 
         if (point.Properties.IsLeftButtonPressed || point.Properties.IsMiddleButtonPressed ||
             e.Pointer.PointerDeviceType == PointerDeviceType.Touch)
@@ -352,7 +352,7 @@ public partial class ImageViewer : Control
     {
         if (!_isPanning || _scrollViewer == null || _image == null) return;
 
-        var point = e.GetCurrentPoint((UIElement)sender);
+        var point = e.GetCurrentPoint(_scrollViewer);
         double deltaX = _panStartX - point.Position.X;
         double deltaY = _panStartY - point.Position.Y;
 
