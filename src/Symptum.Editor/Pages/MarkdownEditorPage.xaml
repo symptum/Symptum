@@ -290,6 +290,30 @@
           </AppBarButton>
         </Grid>
       </controls:RibbonCollapsibleGroup>
+      <controls:RibbonCollapsibleGroup CollapsedAccessKey="ZE" Priority="6" Label="Embedding"
+                                  Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
+        <controls:RibbonCollapsibleGroup.IconSource>
+          <SymbolIconSource Symbol="Attach" />
+        </controls:RibbonCollapsibleGroup.IconSource>
+        <StackPanel Orientation="Vertical" Spacing="8">
+          <AppBarButton x:Name="exportBlockButton"
+                        AccessKey="E" Label="Export Block"
+                        ToolTipService.ToolTip="Export Block"
+                        Click="ExportBlockButton_Click">
+            <AppBarButton.Icon>
+              <FontIcon Glyph="{x:Bind common:CommonGlyphs.Export}" />
+            </AppBarButton.Icon>
+          </AppBarButton>
+          <AppBarButton x:Name="importBlockButton"
+                        AccessKey="I" Label="Import Block"
+                        ToolTipService.ToolTip="Import Block"
+                        Click="ImportBlockButton_Click">
+            <AppBarButton.Icon>
+              <FontIcon Glyph="{x:Bind common:CommonGlyphs.Import}" />
+            </AppBarButton.Icon>
+          </AppBarButton>
+        </StackPanel>
+      </controls:RibbonCollapsibleGroup>
     </controls:Ribbon>
 
     <secontrols:FindControl x:Name="findControl" Grid.Row="1" Grid.ColumnSpan="4" Visibility="Collapsed"

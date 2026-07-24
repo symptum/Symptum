@@ -65,6 +65,11 @@ public sealed partial class MainPage : Page
         {
             ShowOrHideResourcesPane();
         }
+        else if (e.PropertyName == nameof(ViewModel.ResourceViewMultiSelectionEnabled))
+        {
+            resourceView.SelectionMode = ViewModel.ResourceViewMultiSelectionEnabled ?
+                Controls.ResourceViewSelectionMode.Multiple : Controls.ResourceViewSelectionMode.Single;
+        }
     }
 
     private void ShowOrHideResourcesPane()

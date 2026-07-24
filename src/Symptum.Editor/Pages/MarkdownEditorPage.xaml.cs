@@ -683,9 +683,9 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     #region Wrapping
 
     private void ToggleWrap(char decor, int count = 1, bool onlyWrap = false, bool shouldWrap = true) =>
-        ToggleWrap(new string(decor, count), onlyWrap, shouldWrap);
+        ToggleWrap(new string(decor, count), null, onlyWrap, shouldWrap);
 
-    private void ToggleWrap(string decor, bool onlyWrap = false, bool shouldWrap = true)
+    private void ToggleWrap(string decor, string? endDecor = null, bool onlyWrap = false, bool shouldWrap = true)
     {
         int start = mdText.SelectionStart;
         int len = mdText.SelectionLength;
@@ -710,7 +710,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
             if (shouldWrap)
             {
                 // Wrapping the selection.
-                result.Append(before).Append(decorSpan).Append(slice).Append(decorSpan).Append(after);
+                result.Append(before).Append(decorSpan).Append(slice).Append(endDecor ?? decorSpan).Append(after);
                 start += decorLen;
             }
         }
@@ -726,11 +726,11 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     private void WrapWith(char decor, int count = 1) => WrapWith(new(decor, count));
 
-    private void WrapWith(string decor) => ToggleWrap(decor, true);
+    private void WrapWith(string decor) => ToggleWrap(decor, null, true);
 
     private void UnWrap(char decor, int count = 1) => UnWrap(new(decor, count));
 
-    private void UnWrap(string decor) => ToggleWrap(decor, false, false);
+    private void UnWrap(string decor) => ToggleWrap(decor, null, false, false);
 
     #endregion
 
@@ -806,6 +806,10 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
             InsertBlock(insertImageDialog.Markdown);
         }
     }
+
+    private void ExportBlockButton_Click(object sender, RoutedEventArgs e) => ToggleWrap(newLine + "<= {Id}" + newLine, newLine + "<=" + newLine, true, true);
+
+    private void ImportBlockButton_Click(object sender, RoutedEventArgs e) => InsertBlock("=> {ResourceId}?{BlockId}");
 
     private void GridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {

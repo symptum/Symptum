@@ -29,12 +29,12 @@
                       <MenuFlyout>
                         <MenuFlyoutItem Icon="Document"
                                         Text="Add New Item"
-                                        Command="{x:Bind vm:MainViewModel.Instance.AddNewItemCommand}"
+                                        Command="{common:GetRelayCommand Name=AddNewItemCommand}"
                                         CommandParameter="{Binding Resource}"
                                         Visibility="{Binding Resource.CanHandleChildren, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                         <MenuFlyoutItem Icon="Delete"
                                         Text="Delete"
-                                        Command="{x:Bind vm:MainViewModel.Instance.DeleteResourceCommand}"
+                                        Command="{common:GetRelayCommand Name=DeleteResourceCommand}"
                                         CommandParameter="{Binding Resource}"/>
                       </MenuFlyout>
                     </local:ResourceViewItem.ContextFlyout>

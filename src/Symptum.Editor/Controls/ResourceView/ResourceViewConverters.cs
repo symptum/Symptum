@@ -11,22 +11,6 @@ public class DepthToWidthConverter : IValueConverter
         throw new NotImplementedException();
 }
 
-public class BooleanToResourceViewSelectionModeConverter : IValueConverter
-{
-    public object Convert(object value, Type targetType, object parameter, string language)
-    {
-        return value switch
-        {
-            true => ResourceViewSelectionMode.Multiple,
-            false => ResourceViewSelectionMode.Single,
-            _ => ResourceViewSelectionMode.None,
-        };
-    }
-
-    public object ConvertBack(object value, Type targetType, object parameter, string language) =>
-        throw new NotImplementedException();
-}
-
 public class BooleanToRotationConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language) =>

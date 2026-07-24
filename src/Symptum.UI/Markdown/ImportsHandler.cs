@@ -25,8 +25,10 @@ public class ImportsHandler
             if (id.StartsWith(nameof(Symptum)))
             {
                 var ids = id.Split('?');
+                if (ids.Length != 2) return;
                 string resId = ids[0];
                 string impId = ids[1];
+
                 if (ResourceManager.TryGetResourceById(resId, out IResource? resource)
                     && resource is MarkdownFileResource markdownFileResource
                     && !string.IsNullOrEmpty(markdownFileResource.Markdown))
