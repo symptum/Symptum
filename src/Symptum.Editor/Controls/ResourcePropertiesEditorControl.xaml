@@ -58,9 +58,11 @@
         <local:ListEditorControl x:Name="authorsLE" Header="Authors">
           <local:ListEditorControl.ItemTemplate>
             <DataTemplate>
-              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
-                <TextBox PlaceholderText="Name &lt;Email&gt;"
-                         Text="{Binding Value, Mode=TwoWay, Converter={StaticResource AuthorInfoToStringConverter}}" />
+              <local:ListEditorItemCommandsButton>
+                <DataTemplate>
+                  <TextBox PlaceholderText="Name &lt;Email&gt;"
+                           Text="{Binding Value, Mode=TwoWay, Converter={StaticResource AuthorInfoToStringConverter}}" />
+                </DataTemplate>
               </local:ListEditorItemCommandsButton>
             </DataTemplate>
           </local:ListEditorControl.ItemTemplate>

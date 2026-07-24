@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.ObjectModel;
 using Symptum.Editor.Common;
 
@@ -9,6 +10,8 @@ public sealed partial class ListEditorControl : UserControl
     {
         InitializeComponent();
         HandleTemplateChange();
+        itemsRepeater.ElementPrepared += ItemsRepeater_ElementPrepared;
+        itemsRepeater.ElementClearing += ItemsRepeater_ElementClearing;
         AddItemCommand = new RelayCommand<Type>(OnAddItem);
         ClearItemsCommand = new RelayCommand(OnClearItems);
         RemoveItemCommand = new RelayCommand<object>(OnRemoveItem);
@@ -164,6 +167,18 @@ public sealed partial class ListEditorControl : UserControl
     private void HandleTemplateChange()
     {
         itemsRepeater.ItemTemplate = HasMixedItems ? ItemTemplateSelector : ItemTemplate;
+    }
+
+    private void ItemsRepeater_ElementPrepared(ItemsRepeater sender, ItemsRepeaterElementPreparedEventArgs args)
+    {
+        if (args.Index > -1 && args.Element is ListEditorItemCommandsButton button &&
+            ItemsSource is IList list && args.Index < list.Count)
+            button.ItemWrapper = list[args.Index];
+    }
+
+    private void ItemsRepeater_ElementClearing(ItemsRepeater sender, ItemsRepeaterElementClearingEventArgs args)
+    {
+        (args.Element as ListEditorItemCommandsButton)?.ItemWrapper = null;
     }
 
     private void OnAddItem(Type? type)

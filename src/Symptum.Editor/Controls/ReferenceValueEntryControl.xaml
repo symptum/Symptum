@@ -16,15 +16,17 @@
       <local:ListEditorControl x:Name="qtLE" Header="Quantities">
         <local:ListEditorControl.ItemTemplate>
           <DataTemplate>
-            <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
-              <Grid>
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition />
-                  <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <TextBox Header="Value" Text="{Binding Value.Value, Mode=TwoWay, Converter={StaticResource NumericalValueToStringConverter}}" Margin="0,0,5,0" />
-                <TextBox Grid.Column="1" Text="{Binding Value.Unit, Mode=TwoWay}" Header="Unit" Margin="5,0,0,0" />
-              </Grid>
+            <local:ListEditorItemCommandsButton>
+              <DataTemplate>
+                <Grid>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                  </Grid.ColumnDefinitions>
+                  <TextBox Header="Value" Text="{Binding Value.Value, Mode=TwoWay, Converter={StaticResource NumericalValueToStringConverter}}" Margin="0,0,5,0" />
+                  <TextBox Grid.Column="1" Text="{Binding Value.Unit, Mode=TwoWay}" Header="Unit" Margin="5,0,0,0" />
+                </Grid>
+              </DataTemplate>
             </local:ListEditorItemCommandsButton>
           </DataTemplate>
         </local:ListEditorControl.ItemTemplate>

@@ -11,7 +11,6 @@ public sealed partial class WelcomePage : EditorPageBase
         Title = "Welcome";
         this.Content(new Grid()
                         .RowDefinitions("*,*")
-                        .Padding(12)
                         .RowSpacing(24)
                         .HorizontalAlignment(HorizontalAlignment.Center)
                         .VerticalAlignment(VerticalAlignment.Center)

@@ -17,8 +17,10 @@
       <local:ListEditorControl x:Name="enLE" Header="Entries">
         <local:ListEditorControl.ItemTemplate>
           <DataTemplate>
-            <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
-              <local:ReferenceValueEntryControl Entry="{Binding Value}" />
+            <local:ListEditorItemCommandsButton>
+              <DataTemplate>
+                <local:ReferenceValueEntryControl />
+              </DataTemplate>
             </local:ListEditorItemCommandsButton>
           </DataTemplate>
         </local:ListEditorControl.ItemTemplate>

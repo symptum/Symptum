@@ -2,7 +2,7 @@ using Microsoft.UI.Xaml.Markup;
 
 namespace Symptum.Editor.Controls;
 
-[ContentProperty(Name = nameof(ItemContent))]
+[ContentProperty(Name = nameof(ItemContentTemplate))]
 public sealed partial class ListEditorItemCommandsButton : UserControl
 {
     #region Properties
@@ -19,6 +19,7 @@ public sealed partial class ListEditorItemCommandsButton : UserControl
         if (d is ListEditorItemCommandsButton button)
         {
             button.SetUpCommandParams(e.NewValue);
+            button.contentPresenter.Content = e.NewValue;
         }
     }
 
@@ -49,10 +50,10 @@ public sealed partial class ListEditorItemCommandsButton : UserControl
         set => SetValue(ListEditorProperty, value);
     }
 
-    public static readonly DependencyProperty ItemContentProperty =
+    public static readonly DependencyProperty ItemContentTemplateProperty =
         DependencyProperty.Register(
-            nameof(ItemContent),
-            typeof(FrameworkElement),
+            nameof(ItemContentTemplate),
+            typeof(DataTemplate),
             typeof(ListEditorItemCommandsButton),
             new(null, OnItemContentChanged));
 
@@ -60,14 +61,14 @@ public sealed partial class ListEditorItemCommandsButton : UserControl
     {
         if (d is ListEditorItemCommandsButton button)
         {
-            button.contentPresenter.Content = (FrameworkElement)e.NewValue;
+            button.contentPresenter.ContentTemplate = (DataTemplate)e.NewValue;
         }
     }
 
-    public FrameworkElement ItemContent
+    public DataTemplate ItemContentTemplate
     {
-        get => (FrameworkElement)GetValue(ItemContentProperty);
-        set => SetValue(ItemContentProperty, value);
+        get => (DataTemplate)GetValue(ItemContentTemplateProperty);
+        set => SetValue(ItemContentTemplateProperty, value);
     }
 
     #endregion

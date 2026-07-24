@@ -37,6 +37,12 @@ public sealed partial class ReferenceValueEntryControl : UserControl
     public ReferenceValueEntryControl()
     {
         InitializeComponent();
+        DataContextChanged += ReferenceValueEntryControl_DataContextChanged;
+    }
+
+    private void ReferenceValueEntryControl_DataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
+    {
+        Entry = (args.NewValue as ListEditorItemWrapper<ReferenceValueEntry>)?.Value;
     }
 
     private void ReferenceValueEntryControl_Loaded(object? s, RoutedEventArgs e)

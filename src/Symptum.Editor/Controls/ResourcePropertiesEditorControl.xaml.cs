@@ -50,6 +50,7 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
 
     private void ResourcePropertiesEditorControl_Loaded(object? s, RoutedEventArgs e)
     {
+        LoadResource(Resource);
         authorsLE.ItemsSource = _authors;
         authorsLE.ActionRequested += LE_ActionRequested;
     }
