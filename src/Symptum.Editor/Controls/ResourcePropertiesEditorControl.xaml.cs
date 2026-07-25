@@ -228,9 +228,9 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
         uriTB.Text = GenerateUriFromAncestors(Resource, ResourceManager.DefaultUriScheme);
     }
 
-    private string? ConvertResourceTitleToId(string? title) => RemoveIllegalCharacters(title, ch => ch != ' ');
+    private string ConvertResourceTitleToId(string? title) => RemoveIllegalCharacters(title, ch => ch != ' ');
 
-    private string? ConvertResourceTitleToUri(string? title) => ConvertResourceTitleToId(title)?.ToLowerInvariant();
+    private string ConvertResourceTitleToUri(string? title) => ConvertResourceTitleToId(title).ToLowerInvariant();
 
     private string? GenerateIdFromAncestors(IResource? resource, string? prefix = null)
     {
@@ -246,7 +246,7 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
     {
         string? id = prefix;
         if (resource != null)
-            id = (resource.ParentResource?.Uri?.ToString() ?? prefix + GenerateUriFromAncestors(resource.ParentResource))
+            id = (resource.ParentResource?.Uri?.ToString().TrimEnd('/') ?? prefix + GenerateUriFromAncestors(resource.ParentResource))
                 + (resource.ParentResource != null ? "/" : string.Empty)
                 + ConvertResourceTitleToUri(resource.Title);
 
@@ -254,5 +254,5 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
     }
 
     private void LE_ActionRequested(object? s, ListEditorItemActionRequestedEventArgs e) =>
-        ListEditorControl.HandleActionRequired(_authors, e, () => MainViewModel.Instance.CurrentAuthor);
+        ListEditorControl.HandleActionRequired(_authors, e, () => MainViewModel.Instance.CurrentAuthor, a => new() { Email = a.Email, Name = a.Name });
 }

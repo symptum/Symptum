@@ -9,44 +9,24 @@ namespace Symptum.Core.Management.Resources;
 
 // This is the base implementation of IResource, it doesn't implement INavigable.
 // This class contains all the properties, logic for loading, adding and removing children resources.
-public abstract class ResourceBase : ObservableObject, IResource
+public abstract partial class ResourceBase : ObservableObject, IResource
 {
     #region Properties
 
     #region IResource
 
-    private string? _title;
+    [ObservableProperty]
+    public partial string? Title { get; set; }
 
-    public string? Title
-    {
-        get => _title;
-        set => SetProperty(ref _title, value);
-    }
+    [ObservableProperty]
+    public partial string? Id { get; set; }
 
-    private string? id;
-
-    public string? Id
-    {
-        get => id;
-        set => SetProperty(ref id, value);
-    }
-
-    private Uri? uri;
-
-    public Uri? Uri
-    {
-        get => uri;
-        set => SetProperty(ref uri, value);
-    }
-
-    private IResource? parentResource;
+    [ObservableProperty]
+    public partial Uri? Uri {  get; set; }
 
     [JsonIgnore]
-    public IResource? ParentResource
-    {
-        get => parentResource;
-        private set => SetProperty(ref parentResource, value);
-    }
+    [ObservableProperty]
+    public partial IResource? ParentResource {  get; private set; }
 
     private ObservableCollection<IResource>? childrenResources;
 
@@ -56,49 +36,26 @@ public abstract class ResourceBase : ObservableObject, IResource
         get => childrenResources;
     }
 
-    //private IList<IResource>? dependencies;
-
-    //[JsonIgnore]
-    //public IList<IResource>? Dependencies
-    //{
-    //    get => dependencies;
-    //    set => SetProperty(ref dependencies, value);
-    //}
-
-    //private IList<string>? dependencyIds;
-
-    //[JsonPropertyName(nameof(Dependencies))]
-    //public IList<string>? DependencyIds
-    //{
-    //    get => dependencyIds;
-    //    set => SetProperty(ref dependencyIds, value);
-    //}
-
     [JsonIgnore]
     public virtual bool CanHandleChildren { get; } = true;
 
     #endregion
 
-    private bool hasInitialized = false;
-
     [JsonIgnore]
-    public bool HasInitialized
-    {
-        get => hasInitialized;
-        private set => SetProperty(ref hasInitialized, value);
-    }
+    [ObservableProperty]
+    public partial bool HasInitialized { get; private set; }
 
     #endregion
 
     void IResource.InitializeResource(IResource? parent)
     {
-        if (hasInitialized) return;
+        if (HasInitialized) return;
         
         ParentResource = parent;
         SetProperty(ref childrenResources, CanHandleChildren ? [] : null, nameof(ChildrenResources));
         OnInitializeResource(parent);
 
-        hasInitialized = true;
+        HasInitialized = true;
     }
 
     protected abstract void OnInitializeResource(IResource? parent);
@@ -110,7 +67,7 @@ public abstract class ResourceBase : ObservableObject, IResource
     public void AddChildResource(IResource? childResource)
     {
         OnAddChildResource(childResource);
-        if (hasInitialized)
+        if (HasInitialized)
             childResource?.InitializeResource(this); // Temporary
     }
 
@@ -162,7 +119,7 @@ public abstract class ResourceBase : ObservableObject, IResource
 
     protected void UnobserveCollection<T>(ObservableCollection<T>? collection) where T : IResource
     {
-        if (hasInitialized)
+        if (HasInitialized)
             childrenResources?.Clear();
         if (collection != null)
         {
@@ -180,7 +137,7 @@ public abstract class ResourceBase : ObservableObject, IResource
 
     private void Collection_Changed(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        if (!hasInitialized || childrenResources == null) return;
+        if (!HasInitialized || childrenResources == null) return;
 
         switch (e.Action)
         {

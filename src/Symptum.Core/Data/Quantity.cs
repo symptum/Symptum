@@ -8,7 +8,7 @@ using Symptum.Core.Serialization;
 namespace Symptum.Core.Data;
 
 [JsonConverter(typeof(QuantityJsonConverter))]
-public class Quantity : ObservableObject
+public partial class Quantity : ObservableObject
 {
     public Quantity()
     { }
@@ -21,21 +21,11 @@ public class Quantity : ObservableObject
 
     #region Properties
 
-    private NumericalValue _value;
+    [ObservableProperty]
+    public partial NumericalValue Value { get; set; }
 
-    public NumericalValue Value
-    {
-        get => _value;
-        set => SetProperty(ref _value, value);
-    }
-
-    private string? _unit;
-
-    public string? Unit
-    {
-        get => _unit;
-        set => SetProperty(ref _unit, value);
-    }
+    [ObservableProperty]
+    public partial string? Unit { get; set; }
 
     #endregion
 
@@ -66,7 +56,7 @@ public class Quantity : ObservableObject
         return false;
     }
 
-    public override string ToString() => _value + (!string.IsNullOrWhiteSpace(_unit) ? " " + _unit : string.Empty);
+    public override string ToString() => Value + (!string.IsNullOrWhiteSpace(Unit) ? " " + Unit : string.Empty);
 
     public static implicit operator Quantity?(string? value)
     {
@@ -133,4 +123,6 @@ public class Quantity : ObservableObject
 
         return sb.ToString();
     }
+
+    public Quantity Clone() => new() { Value = Value, Unit = Unit };
 }

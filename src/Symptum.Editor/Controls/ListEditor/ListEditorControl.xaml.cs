@@ -229,7 +229,7 @@ public sealed partial class ListEditorControl : UserControl
     }
 
     public static void HandleActionRequired<T>(ObservableCollection<ListEditorItemWrapper<T>> source,
-        ListEditorItemActionRequestedEventArgs e, Func<T> createNew, Func<T>? duplicate = null)
+        ListEditorItemActionRequestedEventArgs e, Func<T> createNew, Func<T, T>? duplicate = null)
     {
         switch (e.ActionType)
         {
@@ -252,8 +252,8 @@ public sealed partial class ListEditorControl : UserControl
                 source.MoveWrapperDown(e.Arguments as ListEditorItemWrapper<T>);
                 break;
             case ListEditorItemActionType.Duplicate:
-                if (duplicate != null)
-                    source.Add(new(duplicate()));
+                if (duplicate != null && e.Arguments is ListEditorItemWrapper<T> wrapper)
+                    source.Add(new(duplicate(wrapper.Value)));
                 break;
             default: break;
         }

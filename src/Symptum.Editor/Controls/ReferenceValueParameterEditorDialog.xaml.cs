@@ -87,5 +87,5 @@ public sealed partial class ReferenceValueParameterEditorDialog : ContentDialog,
     }
 
     private void LE_ActionRequested(object? s, ListEditorItemActionRequestedEventArgs e) =>
-        ListEditorControl.HandleActionRequired(entries, e, () => new());
+        ListEditorControl.HandleActionRequired(entries, e, () => new(), e => e.Clone());
 }

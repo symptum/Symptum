@@ -52,7 +52,7 @@
       <StackPanel Spacing="16">
         <TextBlock x:Name="fileTypeTB" Visibility="Collapsed" />
         <TextBlock x:Name="filePathTB" Visibility="Collapsed" />
-        <TextBox x:Name="descriptionTB" Header="Description" />
+        <TextBox x:Name="descriptionTB" Header="Description" AcceptsReturn="True" TextWrapping="Wrap" />
         <TextBox x:Name="packageVersionTB" Header="Version" PlaceholderText="Major.Minor[.Build[.Revision]]"
           Visibility="Collapsed" />
         <local:ListEditorControl x:Name="authorsLE" Header="Authors">

@@ -409,6 +409,7 @@ public sealed partial class ResourceView
 
     private void SubscribeEvents(ResourceViewNode node)
     {
+        node.PropertyChanged -= OnNodePropertyChanged;
         node.PropertyChanged += OnNodePropertyChanged;
     }
 

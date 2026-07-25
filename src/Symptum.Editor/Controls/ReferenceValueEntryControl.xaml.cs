@@ -99,5 +99,5 @@ public sealed partial class ReferenceValueEntryControl : UserControl
     }
 
     private void LE_ActionRequested(object? s, ListEditorItemActionRequestedEventArgs e) =>
-        ListEditorControl.HandleActionRequired(_quantities, e, () => new());
+        ListEditorControl.HandleActionRequired(_quantities, e, () => new(), q => q.Clone());
 }
