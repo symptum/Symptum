@@ -1,6 +1,6 @@
-using Markdig;
 using Markdig.Syntax;
 using Symptum.Core.Management.Resources;
+using Symptum.Markdown;
 using Symptum.Markdown.Embedding;
 using Symptum.UI.Markdown.Renderers;
 using Symptum.UI.Markdown.TextElements;
@@ -16,7 +16,7 @@ public class ImportsHandler
         importBlocks.TryAdd(importId, importBlockElement);
     }
 
-    internal void ResolveImports(IEnumerable<ExportBlock>? availableExports, WinUIRenderer renderer, MarkdownPipeline pipeline)
+    internal void ResolveImports(IEnumerable<ExportBlock>? availableExports, WinUIRenderer renderer)
     {
         foreach (var kvp in importBlocks)
         {
@@ -33,7 +33,7 @@ public class ImportsHandler
                     && resource is MarkdownFileResource markdownFileResource
                     && !string.IsNullOrEmpty(markdownFileResource.Markdown))
                 {
-                    MarkdownDocument doc = Markdig.Markdown.Parse(markdownFileResource.Markdown, pipeline);
+                    MarkdownDocument doc = Markdig.Markdown.Parse(markdownFileResource.Markdown, MarkdownManager.Pipeline);
                     match = doc.Descendants<ExportBlock>().FirstOrDefault(e => impId.Equals(e.Id.ToString(), StringComparison.InvariantCulture));
                 }
             }

@@ -46,7 +46,7 @@ public class WinUIRenderer : RendererBase
     public override object Render(MarkdownObject markdownObject)
     {
         Write(markdownObject);
-        ImportsHandler.ResolveImports(markdownObject?.Descendants<ExportBlock>(), this, MarkdownTextBlock._pipeline);
+        ImportsHandler.ResolveImports(markdownObject?.Descendants<ExportBlock>(), this);
         return FlowDocument;
     }
 

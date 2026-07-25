@@ -1,7 +1,6 @@
 using Markdig;
 using Markdig.Syntax;
-using Symptum.Markdown.Embedding;
-using Symptum.Markdown.Reference;
+using Symptum.Markdown;
 using Symptum.UI.Markdown.Renderers;
 using Symptum.UI.Markdown.TextElements;
 
@@ -20,19 +19,7 @@ public partial class MarkdownTextBlock : Control
     {
         DefaultStyleKey = typeof(MarkdownTextBlock);
         _document = new FlowDocumentElement(this);
-        _pipeline = new MarkdownPipelineBuilder()
-            .UseAlertBlocks()
-            .UseEmphasisExtras()
-            .UseAutoLinks()
-            .UseListExtras()
-            .UseTaskLists()
-            .UsePipeTables()
-            .UseGridTables()
-            .UseAutoIdentifiers(Markdig.Extensions.AutoIdentifiers.AutoIdentifierOptions.GitHub)
-            .Use<ReferenceInlineExtension>()
-            .Use<ExportBlockExtension>()
-            .Use<ImportBlockExtension>()
-            .Build();
+        _pipeline = MarkdownManager.Pipeline;
         DocumentOutline = new();
         ImportsHandler = new();
     }

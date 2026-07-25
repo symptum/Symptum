@@ -1,8 +1,6 @@
 using Microsoft.UI.Xaml.Media.Imaging;
 using Symptum.Core.Management.Navigation;
 using Symptum.Core.Management.Resources;
-using Symptum.Common.Helpers;
-using static Symptum.Core.Helpers.FileHelper;
 
 namespace Symptum.Pages;
 

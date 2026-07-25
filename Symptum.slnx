@@ -32,5 +32,6 @@
   <Folder Name="/tests/">
     <Project Path="tests/Symptum.Common.Tests/Symptum.Common.Tests.csproj" />
     <Project Path="tests/Symptum.Core.Tests/Symptum.Core.Tests.csproj" />
+    <Project Path="tests/Symptum.Markdown.Tests/Symptum.Markdown.Tests.csproj" />
   </Folder>
 </Solution>

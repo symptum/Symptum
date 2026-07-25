@@ -1,9 +1,7 @@
-using Microsoft.UI.Xaml.Media.Imaging;
 using Symptum.Common.Helpers;
 using Symptum.Core.Management.Resources;
 using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
-using static Symptum.Core.Helpers.FileHelper;
 
 namespace Symptum.Editor.Pages;
 
