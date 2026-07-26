@@ -11,7 +11,7 @@ namespace Symptum.Core.Management.Resources;
 
 public class ResourceManager
 {
-    public static readonly string DefaultUriScheme = "symptum://";
+    public const string DefaultUriScheme = "symptum://";
 
     public static readonly Uri DefaultUri = new(DefaultUriScheme);
 
@@ -202,7 +202,9 @@ public class ResourceManager
     /// <param name="resource">The resource if found.</param>
     /// <returns>True if the exact resource was found, false otherwise.</returns>
     public static bool TryGetAvailableChildResourceById(string? id, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource) =>
-        TryGetAvailableChildResourceByProperty(id, IdEquals, IdContains, resources, out resource);
+        TryGetAvailableChildResourceByProperty(id, IdEquals, IdContains, GetIdOffset, resources, out resource);
+
+    private static int GetIdOffset(IResource resource) => resource.Id?.Length ?? 0;
 
     private static bool IdEquals(string? id, IResource resource) => id?.Equals(resource.Id) ?? false;
 
@@ -264,7 +266,9 @@ public class ResourceManager
     /// <param name="resource">The resource if found.</param>
     /// <returns>True if the exact resource was found, false otherwise.</returns>
     public static bool TryGetAvailableChildResourceByUri(Uri? uri, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource) =>
-        TryGetAvailableChildResourceByProperty(uri, UriEquals, UriContains, resources, out resource);
+        TryGetAvailableChildResourceByProperty(uri, UriEquals, UriContains, GetUriOffset, resources, out resource);
+
+    private static int GetUriOffset(IResource resource) => resource.Uri?.OriginalString.Length ?? 0;
 
     private static bool UriEquals(Uri? uri, IResource resource) => uri?.Equals(resource.Uri) ?? false;
 
@@ -277,7 +281,7 @@ public class ResourceManager
 
     #endregion
 
-    private static bool TryGetAvailableChildResourceByProperty<T>(T? value, Func<T?, IResource, bool> comparer, Func<T?, IResource, int, bool> contains, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource)
+    private static bool TryGetAvailableChildResourceByProperty<T>(T? value, Func<T?, IResource, bool> comparer, Func<T?, IResource, int, bool> contains, Func<IResource, int> getOffset, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource)
     {
         resource = null;
         if (value == null || resources == null)
@@ -315,7 +319,7 @@ public class ResourceManager
                     matchedParent = currentResource;
                     if (currentResource.ChildrenResources is { Count: > 0 })
                     {
-                        frames.Push((currentResource.ChildrenResources, currentResource.Uri?.ToString().Length ?? 0));
+                        frames.Push((currentResource.ChildrenResources, getOffset(currentResource)));
                     }
                     break;
                 }
@@ -348,6 +352,80 @@ public class ResourceManager
         {
             SubjectsManager.UnregisterSubject(subject);
         }
+    }
+
+    #endregion
+
+    #region Id / Uri Generation
+
+    private static string ConvertResourceTitleToId(string? title) => RemoveIllegalCharacters(title, ch => ch != ' ');
+
+    private static string ConvertResourceTitleToUri(string? title) => ConvertResourceTitleToId(title).ToLowerInvariant();
+
+    public static string? GenerateIdFromAncestors(IResource? resource, string? prefix = "Symptum")
+    {
+        if (resource == null)
+            return prefix;
+
+        List<IResource> tree = [];
+        IResource? current = resource;
+        while (current != null && current.ParentResource?.Id == null)
+        {
+            tree.Add(current);
+            current = current.ParentResource;
+        }
+
+        // Initialize StringBuilder with the highest available ID or fallback prefix
+        string baseId = current?.ParentResource?.Id ?? prefix ?? string.Empty;
+        var sb = new StringBuilder(baseId);
+
+        // Process from top-most ancestor down to the target resource
+        int i = tree.Count - 1;
+        while (i >= 0)
+        {
+            sb.Append('.');
+            sb.Append(ConvertResourceTitleToId(tree[i].Title));
+            i--;
+        }
+        tree.Clear();
+
+        return sb.ToString();
+    }
+
+    public static string? GenerateUriFromAncestors(IResource? resource, string? prefix = DefaultUriScheme)
+    {
+        if (resource == null)
+            return prefix;
+
+        List<IResource> tree = [];
+        IResource? current = resource;
+
+        while (current != null && current.ParentResource?.Uri == null)
+        {
+            tree.Add(current);
+            current = current.ParentResource;
+        }
+
+        // Initialize StringBuilder with the highest available URI or fallback prefix
+        string baseUri = current?.ParentResource?.Uri?.ToString().TrimEnd('/') ?? prefix ?? string.Empty;
+        var sb = new StringBuilder(baseUri);
+
+        bool isAtRoot = baseUri == prefix && current?.ParentResource == null;
+
+        // Process from top-most ancestor down to the target resource
+        int i = tree.Count - 1;
+        while (i >= 0)
+        {
+            if (!isAtRoot)
+                sb.Append('/');
+            else
+                isAtRoot = false; // Only skip the slash for the very first segment if it was at the root
+
+            sb.Append(ConvertResourceTitleToUri(tree[i].Title));
+            i--;
+        }
+
+        return sb.ToString();
     }
 
     #endregion

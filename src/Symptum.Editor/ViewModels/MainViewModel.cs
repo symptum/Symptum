@@ -373,6 +373,7 @@ public partial class MainViewModel : ObservableObject
             {
                 AddRecentItem(ResourceHelper.WorkFolder.Path);
                 AddOutputEntry($"Opened folder: {ResourceHelper.WorkFolder.Path}");
+                LoadOptimizationListAsync();
             }
         }
     }
@@ -398,6 +399,7 @@ public partial class MainViewModel : ObservableObject
                     EditorPagesManager.ResetEditors();
                     AddRecentItem(file.Path);
                     AddOutputEntry($"Opened project: {file.Path}");
+                    LoadOptimizationListAsync();
                 }
             }
         }
@@ -426,6 +428,7 @@ public partial class MainViewModel : ObservableObject
                 {
                     await ProjectSystemManager.OpenWorkFolderAsync(folder);
                     AddOutputEntry($"Opened: {path}");
+                    LoadOptimizationListAsync();
                 }
             }
         }
@@ -479,7 +482,7 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanExportResourceasPackage))]
+    [RelayCommand(CanExecute = nameof(CanExportResourceAsPackage))]
     public async Task ExportPackageAsync()
     {
         if (SelectedResource is IPackageResource package)
@@ -489,7 +492,7 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    private bool CanExportResourceasPackage() => SelectedResource is IPackageResource;
+    private bool CanExportResourceAsPackage() => SelectedResource is IPackageResource;
 
     [RelayCommand]
     public async Task DeleteResourcesAsync()
@@ -574,6 +577,54 @@ public partial class MainViewModel : ObservableObject
             EditorSettings.Author = CurrentAuthor.ToString();
         }
     }
+
+    #endregion
+
+    #region Resource Optimization
+
+    private static readonly string _optimizationListFileName = "optlist.txt";
+
+    private static StorageFile? optimizationListFile;
+
+    private static async void LoadOptimizationListAsync()
+    {
+        if (ResourceHelper.WorkFolder == null) return;
+
+        if (await ResourceHelper.WorkFolder.TryGetItemAsync(_optimizationListFileName) is StorageFile list)
+        {
+            optimizationListFile = list;
+            var lines = await FileIO.ReadLinesAsync(list);
+            if (lines != null)
+            {
+                ResourceHelper.ResourcesToOptimize.Clear();
+                foreach (var line in lines)
+                {
+                    ResourceHelper.ResourcesToOptimize.Add(line);
+                }
+            }
+        }
+        else optimizationListFile = await ResourceHelper.WorkFolder.CreateFileAsync(_optimizationListFileName);
+    }
+
+    private static bool _beingSaved = false;
+
+    [RelayCommand(CanExecute = nameof(CanMarkResourceForOptimization))]
+    public async Task MarkResourceForOptimizationAsync()
+    {
+        if (SelectedResource != null && !string.IsNullOrEmpty(SelectedResource.Id) &&
+            !ResourceHelper.ResourcesToOptimize.Contains(SelectedResource.Id))
+        {
+            ResourceHelper.ResourcesToOptimize.Add(SelectedResource.Id);
+            if (!_beingSaved && optimizationListFile != null)
+            {
+                _beingSaved = true;
+                await FileIO.WriteLinesAsync(optimizationListFile, ResourceHelper.ResourcesToOptimize);
+                _beingSaved = false;
+            }
+        }
+    }
+
+    private bool CanMarkResourceForOptimization() => SelectedResource != null;
 
     #endregion
 }

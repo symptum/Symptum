@@ -30,7 +30,7 @@ public static class MarkdownManager
     // Removes ExportBlock syntax and writes the content directly.
     // Replaces ImportBlock syntax with content of the referenced ExportBlock.
     // NOTE: It doesn't support nested ExportBlocks for now.
-    public static string GetOptimizedMarkdown(string markdown)
+    public static string? GetOptimizedMarkdown(string? markdown)
     {
         if (string.IsNullOrEmpty(markdown))
             return markdown;

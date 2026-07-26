@@ -109,6 +109,9 @@
           <MenuFlyoutSubItem x:Name="openRecentMenuItem"
                              Text="Open Recent"
                              Visibility="Collapsed">
+            <MenuFlyoutSubItem.Icon>
+              <FontIcon Glyph="{x:Bind common:CommonGlyphs.OpenRecent}"/>
+            </MenuFlyoutSubItem.Icon>
           </MenuFlyoutSubItem>
           <MenuFlyoutSeparator/>
           <MenuFlyoutItem Text="Save All"
@@ -122,20 +125,28 @@
           <MenuFlyoutItem Text="Close Folder"
                           Command="{x:Bind ViewModel.CloseWorkFolderCommand}"/>
           <MenuFlyoutSeparator/>
+          <win:MenuFlyoutItem Text="Exit"
+                              Command="{x:Bind ViewModel.ExitApplicationCommand}"/>
+        </MenuBarItem>
+        <MenuBarItem Title="Resource">
           <MenuFlyoutItem Text="Import Package"
-                          Command="{x:Bind ViewModel.ImportPackageCommand}">
+                Command="{x:Bind ViewModel.ImportPackageCommand}">
             <MenuFlyoutItem.Icon>
               <FontIcon Glyph="{x:Bind common:CommonGlyphs.Import}"/>
             </MenuFlyoutItem.Icon>
           </MenuFlyoutItem>
           <MenuFlyoutItem Text="Export Package"
-                          Command="{x:Bind ViewModel.ExportPackageCommand}">
+                Command="{x:Bind ViewModel.ExportPackageCommand}">
             <MenuFlyoutItem.Icon>
               <FontIcon Glyph="{x:Bind common:CommonGlyphs.Export}"/>
             </MenuFlyoutItem.Icon>
           </MenuFlyoutItem>
-          <win:MenuFlyoutItem Text="Exit"
-                              Command="{x:Bind ViewModel.ExitApplicationCommand}"/>
+          <MenuFlyoutItem Text="Optimize Resource for Export"
+                Command="{x:Bind ViewModel.MarkResourceForOptimizationCommand}">
+            <MenuFlyoutItem.Icon>
+              <FontIcon Glyph="{x:Bind common:CommonGlyphs.Optimize}"/>
+            </MenuFlyoutItem.Icon>
+          </MenuFlyoutItem>
         </MenuBarItem>
         <MenuBarItem Title="View">
           <MenuFlyoutItem Text="Command Palette"

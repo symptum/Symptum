@@ -6,7 +6,6 @@ using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
 using Symptum.Editor.Pages;
 using Symptum.Editor.ViewModels;
-using static Symptum.Core.Helpers.FileHelper;
 
 namespace Symptum.Editor.Controls;
 
@@ -224,33 +223,8 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
 
     private void GenerateIdAndUriFromAncestors()
     {
-        idTB.Text = GenerateIdFromAncestors(Resource, "Symptum");
-        uriTB.Text = GenerateUriFromAncestors(Resource, ResourceManager.DefaultUriScheme);
-    }
-
-    private string ConvertResourceTitleToId(string? title) => RemoveIllegalCharacters(title, ch => ch != ' ');
-
-    private string ConvertResourceTitleToUri(string? title) => ConvertResourceTitleToId(title).ToLowerInvariant();
-
-    private string? GenerateIdFromAncestors(IResource? resource, string? prefix = null)
-    {
-        string? id = prefix;
-        if (resource != null)
-            id = (resource.ParentResource?.Id ?? prefix + GenerateIdFromAncestors(resource.ParentResource))
-                + "." + ConvertResourceTitleToId(resource.Title);
-
-        return id;
-    }
-
-    private string? GenerateUriFromAncestors(IResource? resource, string? prefix = null)
-    {
-        string? id = prefix;
-        if (resource != null)
-            id = (resource.ParentResource?.Uri?.ToString().TrimEnd('/') ?? prefix + GenerateUriFromAncestors(resource.ParentResource))
-                + (resource.ParentResource != null ? "/" : string.Empty)
-                + ConvertResourceTitleToUri(resource.Title);
-
-        return id;
+        idTB.Text = ResourceManager.GenerateIdFromAncestors(Resource);
+        uriTB.Text = ResourceManager.GenerateUriFromAncestors(Resource);
     }
 
     private void LE_ActionRequested(object? s, ListEditorItemActionRequestedEventArgs e) =>

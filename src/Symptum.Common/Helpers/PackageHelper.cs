@@ -132,7 +132,7 @@ public class PackageHelper
         if (package != null && !string.IsNullOrWhiteSpace(package.Id) && await VerifyExportFolderAsync())
         {
             StorageFolder folder = await ExportFolder.CreateFolderAsync(package.Id, CreationCollisionOption.OpenIfExists); // Create a folder with the package's id as name
-            await ResourceHelper.SaveResourceAsync(package, folder); // Save all the files to this new folder
+            await ResourceHelper.SaveResourceAsync(package, folder, exporting: true); // Save all the files to this new folder
 
             // NOTE: Should the resources be saved to an export folder first then archived from that folder?
             // (This is the current method, let's keep it like this for simplicity)

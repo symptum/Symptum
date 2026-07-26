@@ -38,6 +38,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Symptum.Core\Symptum.Core.csproj" />
+    <ProjectReference Include="..\Symptum.Markdown\Symptum.Markdown.csproj" />
   </ItemGroup>
 
 </Project>
