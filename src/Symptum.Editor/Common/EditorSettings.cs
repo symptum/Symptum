@@ -1,46 +1,47 @@
 using System.Text.Json;
+using Symptum.Common.Helpers;
 
 namespace Symptum.Editor.Common;
 
 public static class EditorSettings
 {
     private static ApplicationDataContainer LocalSettings => ApplicationData.Current.LocalSettings;
-
-    private const string AuthorKey = nameof(Author);
-    private const string LastWorkFolderPathKey = nameof(LastWorkFolderPath);
-    private const string ShowResourcesPaneKey = nameof(ShowResourcesPane);
-    private const string ShowStatusBarKey = nameof(ShowStatusBar);
-    private const string ShowOutputPanelKey = nameof(ShowOutputPanel);
     private const string RecentItemsKey = "RecentItems";
 
     public static string? Author
     {
-        get => LocalSettings.Values[AuthorKey] as string;
-        set => LocalSettings.Values[AuthorKey] = value;
+        get => AppDataHelper.GetValue(string.Empty);
+        set => AppDataHelper.SetValue(value);
     }
 
-    public static string? LastWorkFolderPath
+    public static bool ReopenPreviousWorkFolder
     {
-        get => LocalSettings.Values[LastWorkFolderPathKey] as string;
-        set => LocalSettings.Values[LastWorkFolderPathKey] = value;
+        get => AppDataHelper.GetValue(true);
+        set => AppDataHelper.SetValue(value);
+    }
+
+    public static string? PreviousWorkFolderPath
+    {
+        get => AppDataHelper.GetValue(string.Empty);
+        set => AppDataHelper.SetValue(value);
     }
 
     public static bool ShowResourcesPane
     {
-        get => (bool)(LocalSettings.Values[ShowResourcesPaneKey] ?? true);
-        set => LocalSettings.Values[ShowResourcesPaneKey] = value;
+        get => AppDataHelper.GetValue(true);
+        set => AppDataHelper.SetValue(value);
     }
 
     public static bool ShowStatusBar
     {
-        get => (bool)(LocalSettings.Values[ShowStatusBarKey] ?? true);
-        set => LocalSettings.Values[ShowStatusBarKey] = value;
+        get => AppDataHelper.GetValue(true);
+        set => AppDataHelper.SetValue(value);
     }
 
     public static bool ShowOutputPanel
     {
-        get => (bool)(LocalSettings.Values[ShowOutputPanelKey] ?? true);
-        set => LocalSettings.Values[ShowOutputPanelKey] = value;
+        get => AppDataHelper.GetValue(true);
+        set => AppDataHelper.SetValue(value);
     }
 
     public static void LoadRecentItems(IList<string>? source)

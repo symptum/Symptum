@@ -10,7 +10,7 @@ public class Project
 
     public List<ProjectEntry>? Entries { get; set; }
 
-    private static XmlSerializer _serializer = new(typeof(Project));
+    private static readonly XmlSerializer _serializer = new(typeof(Project));
 
     public static string Serialize(Project project)
     {
@@ -27,7 +27,7 @@ public class Project
         return stringWriter.ToString();
     }
 
-    public static Project? DeserializeProject(string xml)
+    public static Project? Deserialize(string xml)
     {
         if (string.IsNullOrWhiteSpace(xml)) return null;
         try

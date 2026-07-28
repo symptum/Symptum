@@ -95,7 +95,7 @@ public class ProjectSystemManager
         if (file == null) return;
 
         string xml = await FileIO.ReadTextAsync(file);
-        Project? project = Project.DeserializeProject(xml);
+        Project? project = Project.Deserialize(xml);
         if (project != null && project.Entries != null)
         {
             project.Name = file.DisplayName;

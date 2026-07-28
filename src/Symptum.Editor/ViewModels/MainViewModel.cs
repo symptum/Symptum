@@ -45,6 +45,9 @@ public partial class MainViewModel : ObservableObject
     public partial string? WorkFolderPath { get; private set; }
 
     [ObservableProperty]
+    public partial bool ReopenPreviousWorkFolder { get; set; } = true;
+
+    [ObservableProperty]
     public partial string? ResourcePaneTitle { get; private set; } = _resourcePaneTitle;
 
     [ObservableProperty]
@@ -100,7 +103,6 @@ public partial class MainViewModel : ObservableObject
 
     public void Initialize()
     {
-        // GenerateResources();
         xamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
         ResourceHelper.WorkFolderChanged += WorkFolderChanged;
         ProjectSystemManager.CurrentProjectChanged += ProjectChanged;
@@ -113,6 +115,8 @@ public partial class MainViewModel : ObservableObject
 
         LoadSettings();
         AddOutputEntry("Session started");
+        if (ReopenPreviousWorkFolder)
+            _ = OpenRecentItemAsync(EditorSettings.PreviousWorkFolderPath);
     }
 
     public static void AddOutputEntry(string message, string? sender = null)
@@ -131,6 +135,7 @@ public partial class MainViewModel : ObservableObject
     private void LoadSettings()
     {
         CurrentAuthor = AuthorInfo.TryParse(EditorSettings.Author, out AuthorInfo author) ? author : new();
+        ReopenPreviousWorkFolder = EditorSettings.ReopenPreviousWorkFolder;
         ShowResourcesPane = EditorSettings.ShowResourcesPane;
         ShowStatusBar = EditorSettings.ShowStatusBar;
         ShowOutputPanel = EditorSettings.ShowOutputPanel;
@@ -139,20 +144,13 @@ public partial class MainViewModel : ObservableObject
         RecentItemsChanged?.Invoke();
     }
 
-    partial void OnShowResourcesPaneChanged(bool value)
-    {
-        EditorSettings.ShowResourcesPane = value;
-    }
+    partial void OnReopenPreviousWorkFolderChanged(bool value) => EditorSettings.ReopenPreviousWorkFolder = value;
 
-    partial void OnShowStatusBarChanged(bool value)
-    {
-        EditorSettings.ShowStatusBar = value;
-    }
+    partial void OnShowResourcesPaneChanged(bool value) => EditorSettings.ShowResourcesPane = value;
 
-    partial void OnShowOutputPanelChanged(bool value)
-    {
-        EditorSettings.ShowOutputPanel = value;
-    }
+    partial void OnShowStatusBarChanged(bool value) => EditorSettings.ShowStatusBar = value;
+
+    partial void OnShowOutputPanelChanged(bool value) => EditorSettings.ShowOutputPanel = value;
 
     #endregion
 
@@ -211,39 +209,6 @@ public partial class MainViewModel : ObservableObject
     }
 
     #endregion
-
-    // private static void GenerateResources()
-    // {
-    //     for (int i = 0; i < 50; i++)
-    //     {
-    //         int catNum = i + 1;
-    //         var category = new CategoryResource
-    //         {
-    //             Title = $"Category {catNum}",
-    //         };
-
-    //         for (int j = 0; j < 10; j++)
-    //         {
-    //             int subNum = j + 1;
-    //             var sub = new MarkdownCategoryResource
-    //             {
-    //                 Title = $"MD Category {catNum}.{subNum}"
-    //             };
-
-    //             for (int k = 0; k < 20; k++)
-    //             {
-    //                 int itemNum = k + 1;
-    //                 sub.AddChildResource(new MarkdownFileResource
-    //                 {
-    //                     Title = $"MD {catNum}.{subNum}.{itemNum}",
-    //                 });
-    //             }
-
-    //             category.AddChildResource(sub);
-    //         }
-    //         ResourceManager.Resources.Add(category);
-    //     }
-    // }
 
     #region Resource View
 
@@ -373,7 +338,7 @@ public partial class MainViewModel : ObservableObject
             {
                 AddRecentItem(ResourceHelper.WorkFolder.Path);
                 AddOutputEntry($"Opened folder: {ResourceHelper.WorkFolder.Path}");
-                LoadOptimizationListAsync();
+                LoadProjectConfigurationAsync();
             }
         }
     }
@@ -399,7 +364,7 @@ public partial class MainViewModel : ObservableObject
                     EditorPagesManager.ResetEditors();
                     AddRecentItem(file.Path);
                     AddOutputEntry($"Opened project: {file.Path}");
-                    LoadOptimizationListAsync();
+                    LoadProjectConfigurationAsync();
                 }
             }
         }
@@ -427,8 +392,8 @@ public partial class MainViewModel : ObservableObject
                 if (folder != null)
                 {
                     await ProjectSystemManager.OpenWorkFolderAsync(folder);
-                    AddOutputEntry($"Opened: {path}");
-                    LoadOptimizationListAsync();
+                    AddOutputEntry($"Opened folder: {path}");
+                    LoadProjectConfigurationAsync();
                 }
             }
         }
@@ -550,7 +515,7 @@ public partial class MainViewModel : ObservableObject
         WorkFolderPath = dir?.Path;
 
         if (dir?.Path != null)
-            EditorSettings.LastWorkFolderPath = dir.Path;
+            EditorSettings.PreviousWorkFolderPath = dir.Path;
     }
 
     private void ProjectChanged(object? s, Project? project)
@@ -580,30 +545,37 @@ public partial class MainViewModel : ObservableObject
 
     #endregion
 
-    #region Resource Optimization
+    #region Project Configuration
 
-    private static readonly string _optimizationListFileName = "optlist.txt";
+    private static readonly string _configFileName = "project.config";
 
-    private static StorageFile? optimizationListFile;
+    private static StorageFile? configFile;
 
-    private static async void LoadOptimizationListAsync()
+    private static ProjectConfiguration? _config;
+
+    private static async void LoadProjectConfigurationAsync()
     {
         if (ResourceHelper.WorkFolder == null) return;
-
-        if (await ResourceHelper.WorkFolder.TryGetItemAsync(_optimizationListFileName) is StorageFile list)
+        ResourceHelper.ResourcesToOptimize.Clear();
+        configFile = await ResourceHelper.WorkFolder.TryGetItemAsync(_configFileName) as StorageFile;
+        if (configFile != null)
         {
-            optimizationListFile = list;
-            var lines = await FileIO.ReadLinesAsync(list);
-            if (lines != null)
+            string? xml = await FileIO.ReadTextAsync(configFile);
+            _config = ProjectConfiguration.Deserialize(xml);
+            if (_config?.ResourcesToOptimize != null)
             {
-                ResourceHelper.ResourcesToOptimize.Clear();
-                foreach (var line in lines)
+                foreach (string id in _config.ResourcesToOptimize)
                 {
-                    ResourceHelper.ResourcesToOptimize.Add(line);
+                    ResourceHelper.ResourcesToOptimize.Add(id);
                 }
             }
         }
-        else optimizationListFile = await ResourceHelper.WorkFolder.CreateFileAsync(_optimizationListFileName);
+        else
+        {
+            configFile = await ResourceHelper.WorkFolder.CreateFileAsync(_configFileName);
+            _config = new();
+            await FileIO.WriteTextAsync(configFile, ProjectConfiguration.Serialize(_config));
+        }
     }
 
     private static bool _beingSaved = false;
@@ -611,14 +583,17 @@ public partial class MainViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanMarkResourceForOptimization))]
     public async Task MarkResourceForOptimizationAsync()
     {
+        if (_config == null) return;
+
         if (SelectedResource != null && !string.IsNullOrEmpty(SelectedResource.Id) &&
             !ResourceHelper.ResourcesToOptimize.Contains(SelectedResource.Id))
         {
             ResourceHelper.ResourcesToOptimize.Add(SelectedResource.Id);
-            if (!_beingSaved && optimizationListFile != null)
+            _config.ResourcesToOptimize.Add(SelectedResource.Id);
+            if (!_beingSaved && configFile != null)
             {
                 _beingSaved = true;
-                await FileIO.WriteLinesAsync(optimizationListFile, ResourceHelper.ResourcesToOptimize);
+                await FileIO.WriteTextAsync(configFile, ProjectConfiguration.Serialize(_config));
                 _beingSaved = false;
             }
         }
