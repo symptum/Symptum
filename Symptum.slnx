@@ -5,8 +5,9 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/Github Actions/">
-    <File Path=".github/workflows/web-editor-deploy.yml" />
-    <File Path=".github/workflows/windows-packaging.yml" />
+    <File Path=".github/workflows/editor-linux-packaging.yml" />
+    <File Path=".github/workflows/editor-web-deploy.yml" />
+    <File Path=".github/workflows/editor-windows-packaging.yml" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path="Directory.Build.props" />

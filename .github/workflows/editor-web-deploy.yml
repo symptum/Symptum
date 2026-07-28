@@ -1,19 +1,21 @@
-name: Symptum Web Editor Deployment
+name: Symptum Editor Web Deployment
+
 on:
   #push:
   #  branches: [ main ]
   workflow_dispatch:  # Allows workflow to be ran via a button
+
 jobs:
   deploy-to-github-pages:
     runs-on: windows-latest
     name: Deploy to GitHub Pages
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         path: main
     - name: Checkout Symptum.Data
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         repository: symptum/Symptum.Data
         path: Symptum.Data
@@ -22,9 +24,9 @@ jobs:
           cd ./main/src/Symptum.Editor/Platforms/WebAssembly/
           (Get-Content manifest.webmanifest) -Replace '/', '/editor/' | Set-Content manifest.webmanifest
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v6
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
     - name: Restore Dependencies
       run: dotnet restore ./main/src/Symptum.Editor/Symptum.Editor.csproj
     - name: Publish
