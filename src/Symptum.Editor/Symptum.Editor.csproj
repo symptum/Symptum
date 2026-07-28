@@ -10,7 +10,7 @@
     <!-- App Identifier -->
     <ApplicationId>com.symptum.editor.dev</ApplicationId>
     <!-- Versions -->
-    <ApplicationDisplayVersion>0.0.5</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>0.0.6</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
     <!-- Package Publisher -->
