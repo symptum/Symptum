@@ -11,12 +11,12 @@ public class QuoteElement : IAddChild
 
     public STextElement TextElement => _container;
 
-    public QuoteElement(QuoteBlock quoteBlock, MarkdownConfiguration config, StringSlice? kind = null)
+    public QuoteElement(QuoteBlock quoteBlock, MarkdownTextBlock control, StringSlice? kind = null)
     {
         _quoteBlock = quoteBlock;
         _container = new();
 
-        _flowDocument = new FlowDocumentElement(config, false);
+        _flowDocument = new FlowDocumentElement(control, false);
         AlertKind alertKind = AlertKind.None;
 
         if (kind != null && kind?.Length < 16)
@@ -44,12 +44,12 @@ public class QuoteElement : IAddChild
 
         quote.Style = alertKind switch
         {
-            AlertKind.Note => config.Themes.NoteQuoteControlStyle,
-            AlertKind.Tip => config.Themes.TipQuoteControlStyle,
-            AlertKind.Important => config.Themes.ImportantQuoteControlStyle,
-            AlertKind.Warning => config.Themes.WarningQuoteControlStyle,
-            AlertKind.Caution => config.Themes.CautionQuoteControlStyle,
-            _ => config.Themes.DefaultQuoteControlStyle
+            AlertKind.Note => control.NoteQuoteControlStyle,
+            AlertKind.Tip => control.TipQuoteControlStyle,
+            AlertKind.Important => control.ImportantQuoteControlStyle,
+            AlertKind.Warning => control.WarningQuoteControlStyle,
+            AlertKind.Caution => control.CautionQuoteControlStyle,
+            _ => control.DefaultQuoteControlStyle
         };
     }
 

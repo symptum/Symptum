@@ -4,26 +4,18 @@ using Symptum.Core.Data;
 using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
-using Symptum.Core.Subjects.QuestionBanks;
 using Symptum.Editor.Pages;
-using static Symptum.Core.Helpers.FileHelper;
+using Symptum.Editor.ViewModels;
 
 namespace Symptum.Editor.Controls;
 
 public sealed partial class ResourcePropertiesEditorControl : UserControl
 {
-    private readonly ObservableCollection<ListEditorItemWrapper<AuthorInfo>> _packageAuthors = [];
-    private readonly ObservableCollection<string> _packageTags = [];
+    private const string h_file = "File";
+    private const string h_package = "Package";
 
-    private readonly ObservableCollection<ListEditorItemWrapper<AuthorInfo>> _fileAuthors = [];
-    private readonly ObservableCollection<string> _fileTags = [];
-
-    public ResourcePropertiesEditorControl()
-    {
-        InitializeComponent();
-        parentResourceButton.Click += (s, e) => OpenParentResource();
-        HandleListEditors();
-    }
+    private readonly ObservableCollection<ListEditorItemWrapper<AuthorInfo>> _authors = [];
+    private readonly ObservableCollection<string> _tags = [];
 
     #region Properties
 
@@ -50,6 +42,25 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
 
     #endregion
 
+    public ResourcePropertiesEditorControl()
+    {
+        InitializeComponent();
+    }
+
+    private void ResourcePropertiesEditorControl_Loaded(object? s, RoutedEventArgs e)
+    {
+        LoadResource(Resource);
+        authorsLE.ItemsSource = _authors;
+        authorsLE.ActionRequested += LE_ActionRequested;
+    }
+
+    private void ResourcePropertiesEditorControl_Unloaded(object? s, RoutedEventArgs e)
+    {
+        authorsLE.ItemsSource = null;
+        _authors.ClearWrapperListSafe();
+        authorsLE.ActionRequested -= LE_ActionRequested;
+    }
+
     private void SetResource(IResource? resource)
     {
         if (resource != null)
@@ -74,20 +85,20 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
         scCB.Visibility = Visibility.Collapsed;
         resourceTreeExpander.Visibility = Visibility.Collapsed;
         childrenResIR.ItemsSource = null;
-        packageExpander.Visibility = Visibility.Collapsed;
-        packageDescriptionTB.Text = null;
+        filePkgExpander.Visibility = Visibility.Collapsed;
+        filePkgExpander.Header = null;
+        descriptionTB.Text = null;
         packageVersionTB.Text = null;
-        _packageAuthors.LoadFromList(null);
-        _packageTags.Clear();
+        packageVersionTB.Visibility = Visibility.Collapsed;
+        _authors.ClearWrapperListSafe();
+        _tags.Clear();
         metadataExpander.Visibility = Visibility.Collapsed;
         splitMDCB.IsChecked = null;
         mdPathTB.Text = null;
-        fileExpander.Visibility = Visibility.Collapsed;
         fileTypeTB.Text = null;
+        fileTypeTB.Visibility = Visibility.Collapsed;
         filePathTB.Text = null;
-        fileDescriptionTB.Text = null;
-        _fileAuthors.LoadFromList(null);
-        _fileTags.Clear();
+        filePathTB.Visibility = Visibility.Collapsed;
     }
 
     public void ResetResource() => LoadResource(Resource);
@@ -115,12 +126,14 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
 
         if (resource is PackageResource package)
         {
-            packageExpander.Visibility = Visibility.Visible;
-            packageDescriptionTB.Text = package.Description;
+            filePkgExpander.Visibility = Visibility.Visible;
+            filePkgExpander.Header = h_package;
+            descriptionTB.Text = package.Description;
             packageVersionTB.Text = package.Version?.ToString();
-            _packageAuthors.LoadFromList(package.Authors);
-            _packageTags.Clear();
-            _packageTags.AddRange(package.Tags);
+            packageVersionTB.Visibility = Visibility.Visible;
+            _authors.LoadFromList(package.Authors);
+            _tags.Clear();
+            _tags.AddRange(package.Tags);
         }
         else if (resource is MetadataResource metadataResource)
         {
@@ -130,13 +143,16 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
         }
         else if (resource is FileResource fileResource)
         {
-            fileExpander.Visibility = Visibility.Visible;
+            filePkgExpander.Visibility = Visibility.Visible;
+            filePkgExpander.Header = h_file;
             fileTypeTB.Text = "File Type: " + fileResource.FileType.ToString();
+            fileTypeTB.Visibility = Visibility.Visible;
             filePathTB.Text = "File Path: " + fileResource.FilePath;
-            fileDescriptionTB.Text = fileResource.Description;
-            _fileAuthors.LoadFromList(fileResource.Authors);
-            _fileTags.Clear();
-            _fileTags.AddRange(fileResource.Tags);
+            filePathTB.Visibility = Visibility.Visible;
+            descriptionTB.Text = fileResource.Description;
+            _authors.LoadFromList(fileResource.Authors);
+            _tags.Clear();
+            _tags.AddRange(fileResource.Tags);
         }
 
         if (resource is ProjectFolder)
@@ -147,13 +163,12 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
             metadataExpander.Visibility = Visibility.Collapsed;
         }
 
-        if (resource is Subject or QuestionBank)
+        if (resource is Subject)
         {
             scCB.Visibility = Visibility.Visible;
             scCB.SelectedItem = resource switch
             {
                 Subject sub => sub.SubjectCode,
-                QuestionBank qb => qb.SubjectCode,
                 _ => SubjectList.None
             };
         }
@@ -175,13 +190,13 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
 
         if (resource is PackageResource package)
         {
-            package.Description = packageDescriptionTB.Text.ToNullIfEmpty();
+            package.Description = descriptionTB.Text.ToNullIfEmpty();
             if (Version.TryParse(packageVersionTB.Text, out Version? version))
             {
                 package.Version = version;
             }
-            package.Authors = _packageAuthors.UnwrapToList();
-            package.Tags = _packageTags.ToList();
+            package.Authors = _authors.UnwrapToList();
+            package.Tags = [.. _tags];
         }
         else if (resource is MetadataResource metadataResource)
         {
@@ -189,18 +204,16 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
         }
         else if (resource is FileResource fileResource)
         {
-            fileResource.Description = fileDescriptionTB.Text.ToNullIfEmpty();
-            fileResource.Authors = _fileAuthors.UnwrapToList();
-            fileResource.Tags = _fileTags.ToList();
+            fileResource.Description = descriptionTB.Text.ToNullIfEmpty();
+            fileResource.Authors = _authors.UnwrapToList();
+            fileResource.Tags = [.. _tags];
         }
 
         if (resource is Subject sub)
             sub.SubjectCode = (SubjectList)scCB.SelectedItem;
-        else if (resource is QuestionBank qb)
-            qb.SubjectCode = (SubjectList)scCB.SelectedItem;
     }
 
-    private void OpenParentResource() => OpenResource(Resource?.ParentResource);
+    private void ParentResourceButton_Click(object s, RoutedEventArgs e) => OpenResource(Resource?.ParentResource);
 
     private static void OpenResource(IResource? resource) => EditorPagesManager.CreateOrOpenEditor(resource);
 
@@ -210,107 +223,10 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
 
     private void GenerateIdAndUriFromAncestors()
     {
-        idTB.Text = GenerateIdFromAncestors(Resource, "Symptum");
-        uriTB.Text = GenerateUriFromAncestors(Resource, ResourceManager.DefaultUriScheme);
+        idTB.Text = ResourceManager.GenerateIdFromAncestors(Resource);
+        uriTB.Text = ResourceManager.GenerateUriFromAncestors(Resource);
     }
 
-    private string? ConvertResourceTitleToId(string? title) => RemoveIllegalCharacters(title, ch => ch != ' ');
-
-    private string? ConvertResourceTitleToUri(string? title) => ConvertResourceTitleToId(title)?.ToLowerInvariant();
-
-    private string? GenerateIdFromAncestors(IResource? resource, string? prefix = null)
-    {
-        string? id = prefix;
-        if (resource != null)
-            id = (resource.ParentResource?.Id ?? prefix + GenerateIdFromAncestors(resource.ParentResource))
-                + "." + ConvertResourceTitleToId(resource.Title);
-
-        return id;
-    }
-
-    private string? GenerateUriFromAncestors(IResource? resource, string? prefix = null)
-    {
-        string? id = prefix;
-        if (resource != null)
-            id = (resource.ParentResource?.Uri?.ToString() ?? prefix + GenerateUriFromAncestors(resource.ParentResource))
-                + (resource.ParentResource != null ? "/" : string.Empty)
-                + ConvertResourceTitleToUri(resource.Title);
-
-        return id;
-    }
-
-    private void HandleListEditors()
-    {
-        #region Package Authors
-
-        packageAuthorsLE.ItemsSource = _packageAuthors;
-        packageAuthorsLE.AddItemRequested += (s, e) => _packageAuthors.Add(new ListEditorItemWrapper<AuthorInfo>(new()));
-        packageAuthorsLE.ClearItemsRequested += (s, e) => _packageAuthors.Clear();
-        packageAuthorsLE.RemoveItemRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<AuthorInfo> author)
-                _packageAuthors.Remove(author);
-        };
-        packageAuthorsLE.DuplicateItemRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<AuthorInfo> author)
-                _packageAuthors.Add(new() { Value = new() { Name = author.Value.Name, Email = author.Value.Email } });
-        };
-        packageAuthorsLE.MoveItemUpRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<AuthorInfo> author)
-            {
-                int oldIndex = _packageAuthors.IndexOf(author);
-                int newIndex = Math.Max(oldIndex - 1, 0);
-                _packageAuthors.Move(oldIndex, newIndex);
-            }
-        };
-        packageAuthorsLE.MoveItemDownRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<AuthorInfo> author)
-            {
-                int oldIndex = _packageAuthors.IndexOf(author);
-                int newIndex = Math.Min(oldIndex + 1, _packageAuthors.Count - 1);
-                _packageAuthors.Move(oldIndex, newIndex);
-            }
-        };
-
-        #endregion
-
-        #region File Authors
-
-        fileAuthorsLE.ItemsSource = _fileAuthors;
-        fileAuthorsLE.AddItemRequested += (s, e) => _fileAuthors.Add(new ListEditorItemWrapper<AuthorInfo>(new()));
-        fileAuthorsLE.ClearItemsRequested += (s, e) => _fileAuthors.Clear();
-        fileAuthorsLE.RemoveItemRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<AuthorInfo> author)
-                _fileAuthors.Remove(author);
-        };
-        fileAuthorsLE.DuplicateItemRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<AuthorInfo> author)
-                _fileAuthors.Add(new() { Value = new() { Name = author.Value.Name, Email = author.Value.Email } });
-        };
-        fileAuthorsLE.MoveItemUpRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<AuthorInfo> author)
-            {
-                int oldIndex = _fileAuthors.IndexOf(author);
-                int newIndex = Math.Max(oldIndex - 1, 0);
-                _fileAuthors.Move(oldIndex, newIndex);
-            }
-        };
-        fileAuthorsLE.MoveItemDownRequested += (s, e) =>
-        {
-            if (e is ListEditorItemWrapper<AuthorInfo> author)
-            {
-                int oldIndex = _fileAuthors.IndexOf(author);
-                int newIndex = Math.Min(oldIndex + 1, _fileAuthors.Count - 1);
-                _fileAuthors.Move(oldIndex, newIndex);
-            }
-        };
-
-        #endregion
-    }
+    private void LE_ActionRequested(object? s, ListEditorItemActionRequestedEventArgs e) =>
+        ListEditorControl.HandleActionRequired(_authors, e, () => MainViewModel.Instance.CurrentAuthor, a => new() { Email = a.Email, Name = a.Name });
 }

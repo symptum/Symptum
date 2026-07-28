@@ -95,7 +95,7 @@ public class ProjectSystemManager
         if (file == null) return;
 
         string xml = await FileIO.ReadTextAsync(file);
-        Project? project = Project.DeserializeProject(xml);
+        Project? project = Project.Deserialize(xml);
         if (project != null && project.Entries != null)
         {
             project.Name = file.DisplayName;
@@ -171,7 +171,7 @@ public class ProjectSystemManager
                 _ => string.Empty
             };
 
-            // NOTE: To prevent adding the resources to the project file.
+            // NOTE: To prevent adding the resources which are int the root folder to the project file.
             // As they will be loaded regardless.
             if (resource.ParentResource is ProjectFolder)
                 CurrentProject?.Entries?.Add(new(subFolder ?? PathSeparator.ToString(), resource.Title + extension));

@@ -1,10 +1,6 @@
 <Project Sdk="Uno.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net10.0;
-    <!-- net10.0-android; -->
-    net10.0-windows10.0.26100;
-    <!-- net10.0-browserwasm; -->
-    net10.0-desktop</TargetFrameworks>
+    <TargetFrameworks>net10.0;net10.0-ios;net10.0-android;net10.0-windows10.0.26100;net10.0-browserwasm;net10.0-desktop</TargetFrameworks>
     <UnoSingleProject>true</UnoSingleProject>
     <OutputType>Library</OutputType>
     <!-- Ensures the .xr.xml files are generated in a proper layout folder -->
@@ -42,11 +38,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Symptum.Core\Symptum.Core.csproj" />
-    <ProjectReference Include="..\Symptum.UI\Symptum.UI.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="..\..\..\Symptum.Data\resources\Subjects\Books\*.csv" Link="Assets\Books\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <ProjectReference Include="..\Symptum.Markdown\Symptum.Markdown.csproj" />
   </ItemGroup>
 
 </Project>

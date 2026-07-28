@@ -1,4 +1,4 @@
-using Symptum.Editor.Pages;
+using Symptum.Editor.ViewModels;
 
 namespace Symptum.Editor.Commands;
 
@@ -8,7 +8,6 @@ public class EditorCommandsManager
 
     static EditorCommandsManager()
     {
-        Register(new CreateNewQuestionCommand());
     }
 
     public static IEditorCommand DefaultCommand { get => _defaultCommand; }
@@ -23,7 +22,7 @@ public class EditorCommandsManager
     public static IEnumerable<IEditorCommand>? GetCommandsByKey(string? key)
     {
         List<IEditorCommand>? matches = [];
-        Type? type = EditorPagesManager.CurrentEditor?.GetType();
+        Type? type = MainViewModel.Instance.CurrentEditor?.GetType();
         foreach (IEditorCommand cmd in RegisteredCommands)
         {
             // If the current editor is not null, we filter the commands based on the editor type

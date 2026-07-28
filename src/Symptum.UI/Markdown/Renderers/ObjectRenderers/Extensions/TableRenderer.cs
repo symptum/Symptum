@@ -10,7 +10,7 @@ public class TableRenderer : WinUIObjectRenderer<Table>
         ArgumentNullException.ThrowIfNull(renderer);
         ArgumentNullException.ThrowIfNull(table);
 
-        TableElement _table = new(table, renderer.Configuration);
+        TableElement _table = new(table, renderer.MarkdownTextBlock);
 
         renderer.Push(_table);
 
@@ -43,7 +43,7 @@ public class TableRenderer : WinUIObjectRenderer<Table>
                     };
                 }
 
-                TableCellElement _cell = new(cell, renderer.Configuration, textAlignment, row.IsHeader, columnIndex, rowIndex);
+                TableCellElement _cell = new(cell, renderer.MarkdownTextBlock, textAlignment, row.IsHeader, columnIndex, rowIndex);
 
                 renderer.Push(_cell);
                 renderer.Write(cell);

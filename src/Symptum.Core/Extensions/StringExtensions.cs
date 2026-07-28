@@ -53,17 +53,17 @@ public static class StringExtensions
         return false;
     }
 
-    public static int[] SearchTextAndFindAllMatches(this string? text, string? searchText, int searchStart = 0, int searchEnd = 0, bool matchCase = false, bool matchWholeWord = false)
+    public static void SearchTextAndFindAllMatches(this string? text, ref List<int> results, string? searchText, int searchStart = 0, int searchEnd = 0, bool matchCase = false, bool matchWholeWord = false)
     {
         if (string.IsNullOrWhiteSpace(text) || string.IsNullOrWhiteSpace(searchText) || searchText.Length > text.Length || searchStart < 0)
-            return [];
+            return;
 
         StringComparison comparisonType = matchCase ? StringComparison.InvariantCulture : StringComparison.InvariantCultureIgnoreCase;
 
         ReadOnlySpan<char> span = text.AsSpan();
         ReadOnlySpan<char> searchSpan = searchText.AsSpan();
 
-        List<int> results = [];
+        results.Clear();
 
         int searchLength = searchSpan.Length;
         int textLength = searchEnd > 0 ? searchEnd : span.Length;
@@ -74,8 +74,6 @@ public static class StringExtensions
                 && (!matchWholeWord || IsWholeWordMatch(span, _start, searchLength)))
                 results.Add(_start);
         }
-
-        return [.. results];
     }
 
     private static bool IsWholeWordMatch(ReadOnlySpan<char> span, int start, int length)

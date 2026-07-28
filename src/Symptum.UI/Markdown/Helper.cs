@@ -173,10 +173,11 @@ public static class Helper
         };
     }
 
+    private static HashSet<string> headings = ["h1", "h2", "h3", "h4", "h5", "h6"];
+
     public static bool IsHeading(this string tag)
     {
-        List<string> headings = ["h1", "h2", "h3", "h4", "h5", "h6"];
-        return headings.Contains(tag.ToLower());
+        return headings.Contains(tag, StringComparer.OrdinalIgnoreCase);
     }
 
     public static Size GetSvgSize(string svgString)

@@ -1,9 +1,11 @@
-using Markdig.Syntax.Inlines;
-using Windows.Storage.Streams;
-using Microsoft.UI.Xaml.Media.Imaging;
-using Windows.Foundation;
-using HtmlAgilityPack;
 using System.Globalization;
+using HtmlAgilityPack;
+using Markdig.Syntax.Inlines;
+using Microsoft.UI.Xaml.Media.Imaging;
+using Symptum.Common.Helpers;
+using Symptum.Core.Management.Resources;
+using Windows.Foundation;
+using Windows.Storage.Streams;
 
 namespace Symptum.UI.Markdown.TextElements;
 
@@ -22,16 +24,18 @@ public class ImageElement : IAddChild
 
     private TextBlock _altText;
     private static readonly Dictionary<Uri, ImageSource> _imageCache = [];
+    private static readonly HttpClient _client = new();
+    private static readonly DefaultSVGRenderer _defaultSVGRenderer = new();
 
     public STextElement TextElement => _container;
 
-    public ImageElement(LinkInline linkInline, Uri uri, MarkdownConfiguration config)
+    public ImageElement(LinkInline linkInline, Uri uri, MarkdownTextBlock control)
     {
         _linkInline = linkInline;
         _uri = uri;
-        _imageProvider = config.ImageProvider;
-        _svgRenderer = config.SVGRenderer ?? new DefaultSVGRenderer();
-        Init(linkInline.Label, config);
+        _imageProvider = control.ImageProvider;
+        _svgRenderer = control.SVGRenderer ?? _defaultSVGRenderer;
+        Init(linkInline.Label, control);
         Size size = Helper.GetMarkdownImageSize(linkInline);
         if (size.Width != 0)
         {
@@ -43,15 +47,15 @@ public class ImageElement : IAddChild
         }
     }
 
-    public ImageElement(HtmlNode htmlNode, MarkdownConfiguration config)
+    public ImageElement(HtmlNode htmlNode, MarkdownTextBlock control)
     {
         if (Uri.TryCreate(htmlNode.GetAttribute("src", "#"), UriKind.RelativeOrAbsolute, out Uri? uri))
             _uri = uri;
 
         _htmlNode = htmlNode;
-        _imageProvider = config.ImageProvider;
-        _svgRenderer = config.SVGRenderer ?? new DefaultSVGRenderer();
-        Init(htmlNode.GetAttribute("alt", string.Empty), config);
+        _imageProvider = control.ImageProvider;
+        _svgRenderer = control.SVGRenderer ?? _defaultSVGRenderer;
+        Init(htmlNode.GetAttribute("alt", string.Empty), control);
         int.TryParse(htmlNode.GetAttribute("width", "0"),
             NumberStyles.Integer,
             CultureInfo.InvariantCulture,
@@ -72,25 +76,44 @@ public class ImageElement : IAddChild
         }
     }
 
-    private void Init(string? altText, MarkdownConfiguration config)
+    private void Init(string? altText, MarkdownTextBlock control)
     {
+        _image.Stretch = Stretch.Uniform;
         _image.Loaded += LoadImage;
-        Grid _grid = new();
+        Grid _grid = new()
+        {
+            RowSpacing = 4
+        };
         _grid.RowDefinitions.Add(new() { Height = new(0, GridUnitType.Auto) });
         _grid.RowDefinitions.Add(new() { Height = new(0, GridUnitType.Auto) });
+        _grid.RowDefinitions.Add(new() { Height = new(0, GridUnitType.Auto) });
+
         _altText = new()
         {
             Text = altText,
-            Style = config.Themes.BodyTextBlockStyle
+            Style = control.BodyTextBlockStyle
         };
         _altText.SetValue(Grid.RowProperty, 1);
         _grid.Children.Add(_altText);
         _grid.Children.Add(_image);
         _container.UIElement = _grid;
+        if (_linkInline != null && !string.IsNullOrWhiteSpace(_linkInline.Title))
+        {
+            ToolTipService.SetToolTip(_grid, _linkInline.Title);
+            TextBlock _titleTB = new()
+            {
+                Text = _linkInline.Title,
+                Style = control.BodyTextBlockStyle,
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+            _titleTB.SetValue(Grid.RowProperty, 2);
+            _grid.Children.Add(_titleTB);
+        }
     }
 
     private async void LoadImage(object sender, RoutedEventArgs e)
     {
+        _image.Loaded -= LoadImage;
         if (_loaded) return;
 
         void imageLoaded(ImageSource source)
@@ -109,7 +132,18 @@ public class ImageElement : IAddChild
         {
             try
             {
-                if (_imageProvider != null && _imageProvider.ShouldUseThisProvider(_uri.AbsoluteUri))
+                if (_uri.Scheme == "symptum" && ResourceManager.TryGetResourceByUri(_uri, out IResource? resource) &&
+                    resource is ImageFileResource imgRes)
+                {
+                    var (src, _) = await ImageResourceHelper.GetImageFromResource(imgRes);
+                    if (src != null)
+                    {
+                        _image.Source = src;
+                        SetImageSize(src);
+                        imageLoaded(src);
+                    }
+                }
+                else if (_imageProvider != null && _imageProvider.ShouldUseThisProvider(_uri.AbsoluteUri))
                 {
                     var source = await _imageProvider.GetImageSource(_uri.AbsoluteUri);
                     _image.Source = source;
@@ -131,14 +165,7 @@ public class ImageElement : IAddChild
                 }
                 else
                 {
-                    HttpClient client = new();
-//#if __WASM__
-//                    client.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "*");
-//                    client.DefaultRequestHeaders.Add("Access-Control-Allow-Methods", "*");
-//                    client.DefaultRequestHeaders.Add("Access-Control-Allow-Headers", "*");
-//                    client.DefaultRequestHeaders.Add("Access-Control-Max-Age", "86400");
-//#endif
-                    HttpResponseMessage response = await client.GetAsync(_uri);
+                    HttpResponseMessage response = await _client.GetAsync(_uri);
                     if (response != null)
                     {
                         string? contentType = response.Content.Headers?.ContentType?.MediaType;
@@ -150,8 +177,7 @@ public class ImageElement : IAddChild
                             {
                                 _image.Source = resImage;
                                 Size size = Helper.GetSvgSize(svgString);
-                                if (size.Width > 0) _image.Width = size.Width;
-                                if (size.Height > 0) _image.Height = size.Height;
+                                SetImageSize(resImage, size);
                                 imageLoaded(resImage);
                             }
                         }
@@ -163,8 +189,7 @@ public class ImageElement : IAddChild
                             if (stream != null) await bitmap.SetSourceAsync(stream.AsRandomAccessStream());
 
                             _image.Source = bitmap;
-                            _image.Width = bitmap.PixelWidth == 0 ? bitmap.DecodePixelWidth : bitmap.PixelWidth;
-                            _image.Height = bitmap.PixelHeight == 0 ? bitmap.DecodePixelHeight : bitmap.PixelHeight;
+                            SetImageSize(bitmap);
                             imageLoaded(bitmap);
                         }
                     }
@@ -180,6 +205,20 @@ public class ImageElement : IAddChild
         if (_precedentHeight != 0)
         {
             _image.Height = _precedentHeight;
+        }
+    }
+
+    private void SetImageSize(ImageSource src, Size size = default)
+    {
+        if (src is BitmapImage bitmap)
+        {
+            _image.Width = bitmap.PixelWidth == 0 ? bitmap.DecodePixelWidth : bitmap.PixelWidth;
+            _image.Height = bitmap.PixelHeight == 0 ? bitmap.DecodePixelHeight : bitmap.PixelHeight;
+        }
+        else if (src is SvgImageSource)
+        {
+            _image.Width = size.Width;
+            _image.Height = size.Height;
         }
     }
 

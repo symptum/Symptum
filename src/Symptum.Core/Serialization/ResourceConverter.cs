@@ -170,8 +170,6 @@ internal static class MetadataSerializationHelper
 
     private static Dictionary<Type, string?> derivedTypeDiscriminators = [];
 
-    public static Dictionary<Type, string?> DerivedTypeDiscriminators { get => derivedTypeDiscriminators; }
-
     static MetadataSerializationHelper()
     {
         var attrs = typeof(MetadataResource).GetCustomAttributes<JsonDerivedTypeAttribute>();
@@ -186,7 +184,7 @@ internal static class MetadataSerializationHelper
         if (typeof(TResource) == typeof(MetadataResource)
             || typeof(TResource) == typeof(IMetadataResource)) // Not strongly typed
         {
-            if (DerivedTypeDiscriminators.TryGetValue(item.GetType(), out string? discriminator))
+            if (derivedTypeDiscriminators.TryGetValue(item.GetType(), out string? discriminator))
             {
                 return TypeDiscriminatorChar + discriminator + filePath;
             }
@@ -207,7 +205,7 @@ internal static class MetadataSerializationHelper
                     string typeDiscriminator = json[1..i];
                     string filePath = json[i..];
 
-                    return (DerivedTypeDiscriminators.FirstOrDefault(x => x.Value == typeDiscriminator).Key, filePath);
+                    return (derivedTypeDiscriminators.FirstOrDefault(x => x.Value == typeDiscriminator).Key, filePath);
                 }
             }
             else if (json.StartsWith(PathSeparator)) // Only filePath is present.

@@ -1,12 +1,6 @@
 <Project Sdk="Uno.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>
-      net10.0;
-      <!-- net10.0-android; -->
-      net10.0-windows10.0.22621;
-      <!-- net10.0-browserwasm; -->
-      net10.0-desktop
-    </TargetFrameworks>
+    <TargetFrameworks>net10.0;net10.0-ios;net10.0-android;net10.0-windows10.0.26100;net10.0-browserwasm;net10.0-desktop</TargetFrameworks>
     <UnoSingleProject>true</UnoSingleProject>
     <OutputType>Library</OutputType>
     <!-- Ensures the .xr.xml files are generated in a proper layout folder -->
@@ -21,11 +15,11 @@
       UnoFeatures let's you quickly add and manage implicit package references based on the features you want to use.
       https://aka.platform.uno/singleproject-features
     -->
-
+    
     <UnoFeatures>
+      SkiaRenderer;
       Svg;
     </UnoFeatures>
-
   </PropertyGroup>
 
   <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
@@ -56,6 +50,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Symptum.Markdown\Symptum.Markdown.csproj" />
+    <ProjectReference Include="..\Symptum.Common\Symptum.Common.csproj" />
   </ItemGroup>
 
 </Project>

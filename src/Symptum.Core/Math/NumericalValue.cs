@@ -67,18 +67,18 @@ public struct NumericalValue : IEquatable<NumericalValue>
     {
         if (!string.IsNullOrWhiteSpace(value))
         {
-            value = value.Trim();
-            char start = value[0];
+            ReadOnlySpan<char> _value = value.AsSpan().Trim();
+            char start = _value[0];
             if (start == OpeningSquareBracket || start == OpeningParenthesis) // It's an interval notation
             {
                 NumericalValue nv = new()
                 {
                     IsInterval = true
                 };
-                int commaIndex = value.IndexOf(',');
+                int commaIndex = _value.IndexOf(',');
                 if (commaIndex > 1)
                 {
-                    string minString = value[1..commaIndex].Trim();
+                    ReadOnlySpan<char> minString = _value[1..commaIndex].Trim();
                     if (minString == EmptyValue.ToString())
                     {
                         nv.Minimum = double.NegativeInfinity;
@@ -88,10 +88,10 @@ public struct NumericalValue : IEquatable<NumericalValue>
                         nv.Minimum = min;
                         nv.IncludesMinimum = start == OpeningSquareBracket;
                     }
-                    char end = value[^1];
+                    char end = _value[^1];
                     if (end == ClosingSquareBracket || end == ClosingParenthesis)
                     {
-                        string maxString = value[(commaIndex + 1)..^1].Trim();
+                        ReadOnlySpan<char> maxString = _value[(commaIndex + 1)..^1].Trim();
                         if (maxString == EmptyValue.ToString())
                         {
                             nv.Maximum = double.PositiveInfinity;
@@ -106,15 +106,15 @@ public struct NumericalValue : IEquatable<NumericalValue>
                     }
                 }
             }
-            else if (value.StartsWith(PlusOrMinus)) // It's an error interval
+            else if (_value.StartsWith(PlusOrMinus)) // It's an error interval
             {
                 // Error Interval can be converted to a normal interval with minimum and maximum values.
                 // But it's done this way to conserve the original string data from which it was parsed.
-                if (value[2] == OpeningParenthesis && value[^1] == ClosingParenthesis)
+                if (_value[2] == OpeningParenthesis && _value[^1] == ClosingParenthesis)
                 {
-                    int commaIndex = value.IndexOf(',');
-                    string val = value[3..commaIndex].Trim();
-                    string er = value[(commaIndex + 1)..^1].Trim();
+                    int commaIndex = _value.IndexOf(',');
+                    ReadOnlySpan<char> val = _value[3..commaIndex].Trim();
+                    ReadOnlySpan<char> er = _value[(commaIndex + 1)..^1].Trim();
                     if (double.TryParse(val, out double number)
                         && double.TryParse(er, out double error))
                     {
@@ -128,7 +128,7 @@ public struct NumericalValue : IEquatable<NumericalValue>
                     }
                 }
             }
-            else if (double.TryParse(value, out double number)) // It's a plain number
+            else if (double.TryParse(_value, out double number)) // It's a plain number
             {
                 numericalValue = new()
                 {

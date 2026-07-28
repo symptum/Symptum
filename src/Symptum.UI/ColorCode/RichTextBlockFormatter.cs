@@ -108,7 +108,6 @@ public class RichTextBlockFormatter : CodeColorizerBase
     private void StyleRun(Run Run, Scope Scope)
     {
         string? foreground = null;
-        string? background = null;
         bool italic = false;
         bool bold = false;
 
@@ -117,7 +116,6 @@ public class RichTextBlockFormatter : CodeColorizerBase
             Styling.Style style = Styles[Scope.Name];
 
             foreground = style.Foreground;
-            background = style.Background;
             italic = style.Italic;
             bold = style.Bold;
         }

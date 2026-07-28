@@ -37,20 +37,21 @@ internal class HtmlInlineElement : IAddChild
 
     private void StyleInline()
     {
-        switch (_htmlNode.Name.ToLower())
+        if (string.Equals(_htmlNode.Name, "em", StringComparison.OrdinalIgnoreCase))
         {
-            case "em":
-                _span.FontStyle = FontStyle.Italic;
-                break;
-            case "b":
-                _span.FontWeight = FontWeights.Bold;
-                break;
-            case "s":
-                _span.TextDecorations = TextDecorations.Strikethrough;
-                break;
-            case "u":
-                _span.TextDecorations = TextDecorations.Underline;
-                break;
+            _span.FontStyle = FontStyle.Italic;
+        }
+        else if (string.Equals(_htmlNode.Name, "b", StringComparison.OrdinalIgnoreCase))
+        {
+            _span.FontWeight = FontWeights.Bold;
+        }
+        else if (string.Equals(_htmlNode.Name, "s", StringComparison.OrdinalIgnoreCase))
+        {
+            _span.TextDecorations = TextDecorations.Strikethrough;
+        }
+        else if (string.Equals(_htmlNode.Name, "u", StringComparison.OrdinalIgnoreCase))
+        {
+            _span.TextDecorations = TextDecorations.Underline;
         }
     }
 }

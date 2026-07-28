@@ -10,7 +10,7 @@ public class ParagraphRenderer : WinUIObjectRenderer<ParagraphBlock>
         ArgumentNullException.ThrowIfNull(renderer);
         ArgumentNullException.ThrowIfNull(obj);
 
-        ParagraphElement paragraph = new(obj, renderer.Configuration);
+        ParagraphElement paragraph = new(obj, renderer.MarkdownTextBlock);
         // set style
         renderer.Push(paragraph);
         renderer.WriteLeafInline(obj);

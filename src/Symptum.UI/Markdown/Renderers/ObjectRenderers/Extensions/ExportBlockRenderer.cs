@@ -10,7 +10,7 @@ public class ExportBlockRenderer : WinUIObjectRenderer<ExportBlock>
         ArgumentNullException.ThrowIfNull(renderer);
         ArgumentNullException.ThrowIfNull(obj);
 
-        renderer.Push(new ExportBlockElement(obj, renderer.Configuration));
+        renderer.Push(new ExportBlockElement(obj, renderer.MarkdownTextBlock));
         renderer.WriteChildren(obj);
         renderer.Pop();
     }

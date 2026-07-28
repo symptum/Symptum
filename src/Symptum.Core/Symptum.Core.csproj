@@ -9,12 +9,4 @@
     <PackageReference Include="CsvHelper" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Symptum.Core.SourceGenerators\Symptum.Core.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Include="..\..\..\Symptum.Data\resources\Nutrition\NutrientIndex.txt" />
-  </ItemGroup>
-  
 </Project>

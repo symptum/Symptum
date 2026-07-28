@@ -1,0 +1,35 @@
+﻿<local:NavigablePage x:Class="Symptum.Pages.MarkdownPage"
+                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                     xmlns:local="using:Symptum.Pages"
+                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                     xmlns:md="using:Symptum.UI.Markdown"
+                     mc:Ignorable="d">
+  <Grid RowDefinitions="Auto,*">
+    <TextBlock x:Name="titleTB"
+               Style="{ThemeResource PageTitleTextBlockStyle}"
+               Text="{x:Bind Navigable.Title}" />
+
+    <md:MarkdownTextBlock x:Name="markdownView" Grid.Row="1" />
+
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup x:Name="LayoutVisualStates">
+        <VisualState x:Name="WideLayout">
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="640" />
+          </VisualState.StateTriggers>
+        </VisualState>
+        <VisualState x:Name="NarrowLayout">
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="titleTB.Visibility" Value="Collapsed" />
+            <Setter Target="markdownView.FlowDocumentStackPanelStyle" Value="{ThemeResource NarrowFlowDocumentStackPanelStyle}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+</local:NavigablePage>

@@ -17,19 +17,21 @@ public class LinkInlineRenderer : WinUIObjectRenderer<LinkInline>
             url = "#";
         }
 
+        var control = renderer.MarkdownTextBlock;
+
         if (link.IsImage)
         {
-            renderer.Push(new ImageElement(link, Markdown.Helper.GetUri(url, renderer.Configuration.BaseUrl), renderer.Configuration));
+            renderer.Push(new ImageElement(link, Helper.GetUri(url, control.BaseUrl), control));
         }
         else
         {
             if (link.FirstChild is LinkInline linkInlineChild && linkInlineChild.IsImage)
             {
-                renderer.Push(new HyperlinkButtonElement(link, renderer.Configuration.BaseUrl, renderer.Configuration, renderer.LinkHandler));
+                renderer.Push(new HyperlinkButtonElement(link, control.BaseUrl, control, renderer.LinkHandler));
             }
             else
             {
-                renderer.Push(new HyperlinkElement(link, renderer.Configuration.BaseUrl, renderer.LinkHandler));
+                renderer.Push(new HyperlinkElement(link, control.BaseUrl, renderer.LinkHandler));
             }
         }
 

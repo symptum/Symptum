@@ -17,7 +17,7 @@ public class ImportBlockElement : IAddChild
     {
         _importBlock = importBlock;
         _importId = importBlock.Id.ToString();
-        _flowDocument = new FlowDocumentElement(renderer.Configuration, false);
+        _flowDocument = new FlowDocumentElement(renderer.MarkdownTextBlock, false);
         _container.UIElement = _flowDocument.StackPanel;
         _renderer = renderer;
         _renderer.ImportsHandler.RegisterForImport(_importId, this);

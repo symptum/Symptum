@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO.Compression;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text.Json;
 using CsvHelper;
 using Symptum.Core.Management.Deployment;
@@ -133,7 +132,7 @@ public class PackageHelper
         if (package != null && !string.IsNullOrWhiteSpace(package.Id) && await VerifyExportFolderAsync())
         {
             StorageFolder folder = await ExportFolder.CreateFolderAsync(package.Id, CreationCollisionOption.OpenIfExists); // Create a folder with the package's id as name
-            await ResourceHelper.SaveResourceAsync(package, folder); // Save all the files to this new folder
+            await ResourceHelper.SaveResourceAsync(package, folder, exporting: true); // Save all the files to this new folder
 
             // NOTE: Should the resources be saved to an export folder first then archived from that folder?
             // (This is the current method, let's keep it like this for simplicity)
@@ -151,12 +150,12 @@ public class PackageHelper
             && PackageCacheFolder != null && PackagesFolder != null)
         {
             Stream zipStream;
-#if __WASM__
-            var buffer = await FileIO.ReadBufferAsync(zipFile); // NOTE: OpenStreamForReadAsync() crashes on WASM?
-            zipStream = new MemoryStream(buffer.ToArray());
-#else
+//#if __WASM__
+//            var buffer = await FileIO.ReadBufferAsync(zipFile); // NOTE: OpenStreamForReadAsync() crashes on WASM?
+//            zipStream = new MemoryStream(buffer.ToArray());
+//#else
             zipStream = await zipFile.OpenStreamForReadAsync();
-#endif
+//#endif
 
             ZipArchive archive = new(zipStream, ZipArchiveMode.Read);
 

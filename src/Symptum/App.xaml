@@ -1,22 +1,85 @@
-<Application x:Class="Symptum.App"
-       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-       xmlns:wasm="http://platform.uno/wasm"
-       xmlns:utum="using:Uno.Toolkit.UI.Material"
-       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-       mc:Ignorable="wasm">
+﻿<Application x:Class="Symptum.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="using:Symptum.UI.Converters"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:not_win="http://uno.ui/not_win"
+             xmlns:wasm="http://platform.uno/wasm"
+             xmlns:win="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             mc:Ignorable="wasm not_win">
 
   <Application.Resources>
     <ResourceDictionary>
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+          <SolidColorBrush x:Key="MarkdownAccentText" Color="{ThemeResource SystemAccentColorLight3}" />
+          <SolidColorBrush x:Key="MarkdownAccentFill" Color="{ThemeResource SystemAccentColorLight2}" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Light">
+          <SolidColorBrush x:Key="MarkdownAccentText" Color="{ThemeResource SystemAccentColorDark2}" />
+          <SolidColorBrush x:Key="MarkdownAccentFill" Color="{ThemeResource SystemAccentColorDark1}" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
       <ResourceDictionary.MergedDictionaries>
-        <!-- Load WinUI resources -->
         <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-        <!-- Load Uno.UI.Toolkit resources -->
         <ToolkitResources xmlns="using:Uno.Toolkit.UI" />
+        <ResourceDictionary Source="ms-appx:///Symptum.UI/Themes/Styles.xaml" />
       </ResourceDictionary.MergedDictionaries>
+
+      <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+      <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+      <converters:QuantityListToStringConverter x:Key="QuantityListToStringConverter" />
+
+      <Style x:Key="IconButtonStyle"
+             BasedOn="{StaticResource DefaultButtonStyle}"
+             TargetType="Button">
+        <Setter Property="Padding" Value="8" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="MinWidth" Value="32" />
+        <Setter Property="MinHeight" Value="32" />
+      </Style>
+
+      <Thickness x:Key="NavigationViewMinimalHeaderMargin">0,4,0,4</Thickness>
+      <Thickness x:Key="NavViewContentMargin">24,0,24,24</Thickness>
+      <Thickness x:Key="NavViewContentNarrowMargin">12,0,12,12</Thickness>
+      <Thickness x:Key="PageTitleTextBlockMargin">36,24,16,24</Thickness>
+
+      <Style x:Key="PageTitleTextBlockStyle"
+             BasedOn="{StaticResource TitleTextBlockStyle}"
+             TargetType="TextBlock">
+        <Setter Property="Margin" Value="{ThemeResource PageTitleTextBlockMargin}" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+      </Style>
+
+      <Style x:Key="NarrowPageTitleTextBlockStyle"
+             BasedOn="{StaticResource BodyStrongTextBlockStyle}"
+             TargetType="TextBlock">
+        <Setter Property="Margin" Value="16,2,16,0" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Setter Property="TextWrapping" Value="NoWrap" />
+      </Style>
+      
+      <Style x:Key="NarrowFlowDocumentStackPanelStyle" TargetType="StackPanel">
+        <Setter Property="Spacing" Value="12" />
+        <Setter Property="Padding" Value="16" />
+      </Style>
+
+      <Style x:Key="DefaultH1TextBlockStyle"
+         BasedOn="{StaticResource DefaultBodyTextBlockStyle}"
+         TargetType="TextBlock">
+        <Setter Property="FontSize" Value="{ThemeResource MarkdownH1FontSize}" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="{ThemeResource MarkdownAccentText}" />
+      </Style>
+
+      <Style x:Key="DefaultTableHeaderCellGridStyle"
+         BasedOn="{StaticResource DefaultTableCellGridStyle}"
+         TargetType="Grid">
+        <Setter Property="Background" Value="{ThemeResource MarkdownAccentFill}" />
+      </Style>
     </ResourceDictionary>
   </Application.Resources>
-
-  <!-- Add resources here -->
-
 </Application>

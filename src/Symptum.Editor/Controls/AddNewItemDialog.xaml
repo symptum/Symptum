@@ -6,11 +6,16 @@
   xmlns:common="using:Symptum.Editor.Common"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   Style="{ThemeResource DefaultContentDialogStyle}"
-  CloseButtonText="Cancel" DefaultButton="Primary">
+  CloseButtonText="Cancel" DefaultButton="Primary"
+  Opened="AddNewItemDialog_Opened" PrimaryButtonClick="AddNewItemDialog_PrimaryButtonClick"
+  CloseButtonClick="AddNewItemDialog_CloseButtonClick">
   <Grid RowDefinitions="Auto,Auto,Auto,*,Auto">
     <TextBox Name="titleTextBox" Header="Title" />
     <TextBlock x:Name="parentInfo" Margin="0,16,0,0" Grid.Row="1" TextWrapping="WrapWholeWords" />
-    <AutoSuggestBox x:Name="queryBox" Grid.Row="2" Margin="0,16,0,0" Header="Item Type" QueryIcon="Find" PlaceholderText="Search" />
+    <AutoSuggestBox x:Name="queryBox" Grid.Row="2" Margin="0,16,0,0" Header="Item Type"
+                    QueryIcon="Find" PlaceholderText="Search"
+                    TextChanged="QueryBox_TextChanged"
+                    QuerySubmitted="QueryBox_QuerySubmitted"/>
     <ListView x:Name="newItemsLV" Grid.Row="3" Margin="0,16,0,0" SelectionMode="Single" MaxHeight="200">
       <ListView.ItemTemplate>
         <DataTemplate x:DataType="common:NewItemType">
@@ -21,7 +26,7 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
               </Grid.ColumnDefinitions>
-              <IconSourceElement common:ResourceBaseToIconSourceExtension.ResourceType="{x:Bind Type}" />
+              <IconSourceElement common:DefaultIconSources.ResourceType="{x:Bind Type}" />
               <TextBlock Text="{x:Bind DisplayName}" HorizontalAlignment="Stretch" Margin="0,0,5,0"
                          Grid.Column="1" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
               <TextBlock Grid.Column="2" Style="{StaticResource CaptionTextBlockStyle}" Text="{x:Bind GroupName}"

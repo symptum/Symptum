@@ -2,7 +2,7 @@ using System.Text;
 
 namespace Symptum.Editor.Controls;
 
-public sealed partial class MarkdownEditorInsertLinkDialog : ContentDialog
+public sealed partial class MarkdownEditorInsertLinkDialog : ContentDialog, IEditorDialog
 {
     public EditorResult EditResult { get; private set; } = EditorResult.None;
 
@@ -13,7 +13,7 @@ public sealed partial class MarkdownEditorInsertLinkDialog : ContentDialog
         InitializeComponent();
         Opened += MarkdownEditorInsertLinkDialog_Opened;
         PrimaryButtonClick += MarkdownEditorInsertLinkDialog_PrimaryButtonClick;
-        SecondaryButtonClick += MarkdownEditorInsertLinkDialog_SecondaryButtonClick;
+        CloseButtonClick += MarkdownEditorInsertLinkDialog_CloseButtonClick;
     }
 
     private void MarkdownEditorInsertLinkDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
@@ -29,12 +29,12 @@ public sealed partial class MarkdownEditorInsertLinkDialog : ContentDialog
         EditResult = EditorResult.Create;
     }
 
-    private void MarkdownEditorInsertLinkDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    private void MarkdownEditorInsertLinkDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
         EditResult = EditorResult.Cancel;
     }
 
-    public async Task<EditorResult> CreateAsync()
+    public async Task<EditorResult> InsertAsync()
     {
         await ShowAsync();
         return EditResult;

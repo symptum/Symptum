@@ -2,7 +2,7 @@ using Symptum.Core.Management.Resources;
 
 namespace Symptum.Editor.Controls;
 
-public sealed partial class ResourcePropertiesEditorDialog : ContentDialog
+public sealed partial class ResourcePropertiesEditorDialog : ContentDialog, IEditorDialog
 {
     public IResource? Resource { get; private set; }
 
@@ -11,10 +11,6 @@ public sealed partial class ResourcePropertiesEditorDialog : ContentDialog
     public ResourcePropertiesEditorDialog()
     {
         InitializeComponent();
-
-        Opened += ResourcePropertiesEditorDialog_Opened;
-        PrimaryButtonClick += ResourcePropertiesEditorDialog_PrimaryButtonClick;
-        CloseButtonClick += ResourcePropertiesEditorDialog_CloseButtonClick;
     }
 
     private void ResourcePropertiesEditorDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)

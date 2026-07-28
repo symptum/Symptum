@@ -4,7 +4,7 @@ using Symptum.Core.TypeConversion;
 
 namespace Symptum.Core.Data.ReferenceValues;
 
-public class ReferenceValueParameter : ObservableObject
+public partial class ReferenceValueParameter : ObservableObject
 {
     public ReferenceValueParameter()
     { }
@@ -16,22 +16,12 @@ public class ReferenceValueParameter : ObservableObject
 
     #region Properties
 
-    private string? _title;
+    [ObservableProperty]
+    public partial string? Title { get; set; }
 
-    public string? Title
-    {
-        get => _title;
-        set => SetProperty(ref _title, value);
-    }
-
-    private List<ReferenceValueEntry>? entries;
-
+    [ObservableProperty]
     [TypeConverter(typeof(ReferenceValueEntryListConverter))]
-    public List<ReferenceValueEntry>? Entries
-    {
-        get => entries;
-        set => SetProperty(ref entries, value);
-    }
+    public partial List<ReferenceValueEntry>? Entries { get; set; }
 
     #endregion
 }

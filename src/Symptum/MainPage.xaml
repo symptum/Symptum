@@ -6,57 +6,39 @@
       xmlns:utu="using:Uno.Toolkit.UI"
       xmlns:win="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-  <Grid>
+  <Grid utu:SafeArea.Insets="All">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
       <RowDefinition />
     </Grid.RowDefinitions>
-    <win:Grid x:Name="AppTitleBar" Height="32" HorizontalAlignment="Stretch" VerticalAlignment="Top">
-      <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="8,0,0,0" Spacing="5">
-        <TextBlock x:Name="TitleTextBlock" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}" />
-      </StackPanel>
-    </win:Grid>
-    <NavigationView x:Name="NavView" PaneTitle="Symptum" IsTabStop="False" IsBackButtonVisible="Visible"
-                    SelectionChanged="NavView_SelectionChanged"
-                    MenuItemsSource="{x:Bind nav:NavigationManager.NavigationInfos}" Grid.Row="1">
-      <!--<NavigationView.AutoSuggestBox>
-      <AutoSuggestBox PlaceholderText="Search" QueryIcon="Find" />
-    </NavigationView.AutoSuggestBox>-->
-      <NavigationView.FooterMenuItems>
-        <NavigationViewItem Content="User Profile" Icon="Contact" Tag="user" />
-      </NavigationView.FooterMenuItems>
+    <win:TitleBar x:Name="titleBar"
+                  IsBackButtonVisible="{x:Bind contentFrame.CanGoBack, Mode=OneWay}"
+                  IsPaneToggleButtonVisible="True">
+      <win:TitleBar.IconSource>
+        <ImageIconSource ImageSource="/Assets/Images/Symptum.png" />
+      </win:TitleBar.IconSource>
+    </win:TitleBar>
+    <NavigationView x:Name="navView"
+                    Grid.Row="1"
+                    AlwaysShowHeader="False"
+                    IsBackButtonVisible="Visible"
+                    IsTabStop="False"
+                    MenuItemsSource="{x:Bind nav:NavigationManager.NavigationInfos}">
       <NavigationView.MenuItemTemplate>
         <DataTemplate x:DataType="nav:NavigationInfo">
-          <NavigationViewItem Content="{x:Bind Title}" Tag="{x:Bind }" MenuItemsSource="{Binding Children}">
+          <NavigationViewItem Content="{x:Bind Title}"
+                              MenuItemsSource="{Binding Children}"
+                              Tag="{x:Bind}">
             <NavigationViewItem.Icon>
               <IconSourceElement IconSource="{x:Bind IconSource}" />
             </NavigationViewItem.Icon>
           </NavigationViewItem>
         </DataTemplate>
       </NavigationView.MenuItemTemplate>
-      <!--<NavigationView.MenuItems>
-      <NavigationViewItem Content="Home" Icon="Home" Tag="symptum://home" />
-      <NavigationViewItem Content="Subjects" Icon="Library" Tag="symptum://subjects" />
-      <NavigationViewItem Content="Managements" Icon="Manage" Tag="symptum://managements" />
-      <NavigationViewItem Content="Reference Values" Icon="AllApps" Tag="symptum://reference" />
-      <NavigationViewItem Content="Differential Diagnosis" Tag="symptum://dd">
-        <NavigationViewItem.Icon>
-          <FontIcon Glyph="&#xEA3D;" />
-        </NavigationViewItem.Icon>
-      </NavigationViewItem>
-      <NavigationViewItem Content="Grading/Staging Scores" Icon="Sort" Tag="symptum://gs" />
-      <NavigationViewItem Content="Formulae" Icon="Calculator" Tag="symptum://formulae" />
-      <NavigationViewItem Content="Terminologies" Icon="Font" Tag="symptum://terms" />
-      <NavigationViewItem Content="To Do" Icon="Accept" Tag="symptum://todo" />
-      <NavigationViewItem Content="Quiz" Icon="Help" Tag="symptum://quiz" />
-      <NavigationViewItem Content="Bookmarks" Icon="Flag" Tag="symptum://bookmarks" />
-      <NavigationViewItem Content="Focus Sessions" Tag="symptum://focus" >
-        <NavigationViewItem.Icon>
-          <FontIcon Glyph="&#xF272;" />
-        </NavigationViewItem.Icon>
-      </NavigationViewItem>
-    </NavigationView.MenuItems>-->
-      <Frame x:Name="ContentFrame" IsTabStop="True" Navigated="ContentFrame_Navigated" />
+      <NavigationView.Header>
+        <TextBlock x:Name="navViewTitleTB" Style="{ThemeResource NarrowPageTitleTextBlockStyle}" />
+      </NavigationView.Header>
+      <Frame x:Name="contentFrame" IsTabStop="True" />
     </NavigationView>
   </Grid>
 </Page>

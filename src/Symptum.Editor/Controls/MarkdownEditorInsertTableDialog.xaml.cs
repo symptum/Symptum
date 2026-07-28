@@ -1,10 +1,9 @@
 using System.Collections.ObjectModel;
 using System.Text;
-using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Symptum.Editor.Controls;
 
-public sealed partial class MarkdownEditorInsertTableDialog : ContentDialog
+public sealed partial class MarkdownEditorInsertTableDialog : ContentDialog, IEditorDialog
 {
     public EditorResult EditResult { get; private set; } = EditorResult.None;
 
@@ -17,7 +16,7 @@ public sealed partial class MarkdownEditorInsertTableDialog : ContentDialog
         InitializeComponent();
         Opened += MarkdownEditorInsertTableDialog_Opened;
         PrimaryButtonClick += MarkdownEditorInsertTableDialog_PrimaryButtonClick;
-        SecondaryButtonClick += MarkdownEditorInsertTableDialog_SecondaryButtonClick;
+        CloseButtonClick += MarkdownEditorInsertTableDialog_CloseButtonClick;
     }
 
     private void MarkdownEditorInsertTableDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)
@@ -33,7 +32,7 @@ public sealed partial class MarkdownEditorInsertTableDialog : ContentDialog
         Reset();
     }
 
-    private void MarkdownEditorInsertTableDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    private void MarkdownEditorInsertTableDialog_CloseButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
         EditResult = EditorResult.Cancel;
         Reset();
@@ -51,7 +50,7 @@ public sealed partial class MarkdownEditorInsertTableDialog : ContentDialog
         _reset = false;
     }
 
-    public async Task<EditorResult> CreateAsync()
+    public async Task<EditorResult> InsertAsync()
     {
         await ShowAsync();
         return EditResult;

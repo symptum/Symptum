@@ -1,10 +1,14 @@
 using Symptum.Common;
 using Symptum.Common.Helpers;
-using Uno.Resizetizer;
+using Symptum.Helpers;
+using Symptum.Navigation;
 
 namespace Symptum;
+
 public partial class App : Application
 {
+    public static string AppName = "Symptum";
+
     /// <summary>
     /// Initializes the singleton application object. This is the first line of authored code
     /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -23,7 +27,7 @@ public partial class App : Application
 #if WINDOWS && !HAS_UNO
         MainWindow.ExtendsContentIntoTitleBar = true;
         MainWindow.SystemBackdrop = new MicaBackdrop();
-        MainWindow.Title = "Symptum";
+        MainWindow.Title = AppName;
 #endif
 
         WindowHelper.Initialize(MainWindow);
@@ -31,10 +35,6 @@ public partial class App : Application
 #if DEBUG
         MainWindow.UseStudio();
 #endif
-
-        await Bootstrapper.InitializeAsync();
-        // await ResourceHelper.SelectWorkFolderAsync(await StorageFolder.GetFolderFromPathAsync(""));
-        await ResourceHelper.LoadResourcesFromWorkPathAsync();
 
         // Do not repeat app initialization when the Window already has content,
         // just ensure that the window is active
@@ -60,6 +60,13 @@ public partial class App : Application
         MainWindow.SetWindowIcon();
         // Ensure the current window is active
         MainWindow.Activate();
+
+        await Bootstrapper.InitializeAsync();
+        await ResourceHelper.LoadResourcesFromWorkPathAsync();
+        MockupData.Initialize();
+        NavigationManager.Initialize();
+
+        ThemeHelper.Initialize(rootFrame.XamlRoot);
     }
 
     /// <summary>
@@ -89,8 +96,11 @@ public partial class App : Application
         {
 #if __WASM__
             builder.AddProvider(new global::Uno.Extensions.Logging.WebAssembly.WebAssemblyConsoleLoggerProvider());
-#elif __IOS__ || __MACCATALYST__
+#elif __IOS__
             builder.AddProvider(new global::Uno.Extensions.Logging.OSLogLoggerProvider());
+
+            // Log to the Visual Studio Debug console
+            builder.AddConsole();
 #else
             builder.AddConsole();
 #endif

@@ -4,6 +4,7 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:local="using:Symptum.Editor.Pages"
   xmlns:secontrols="using:Symptum.Editor.Controls"
+  xmlns:common="using:Symptum.Editor.Common"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:md="using:Symptum.UI.Markdown"
@@ -73,7 +74,7 @@
       <controls:RibbonCollapsibleGroup CollapsedAccessKey="RR" Priority="1" Label="Resource"
                                        Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
         <controls:RibbonCollapsibleGroup.IconSource>
-          <FontIconSource Glyph="&#xE7B8;" />
+          <FontIconSource Glyph="{x:Bind common:CommonGlyphs.Package}" />
         </controls:RibbonCollapsibleGroup.IconSource>
         <StackPanel Orientation="Vertical" Spacing="8">
           <AppBarButton x:Name="propsButton" Icon="Repair" AccessKey="P"
@@ -89,7 +90,7 @@
       <controls:RibbonCollapsibleGroup CollapsedAccessKey="E" Priority="2" Label="Edit"
                                  Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
         <controls:RibbonCollapsibleGroup.IconSource>
-          <FontIconSource Glyph="&#xE70F;" />
+          <FontIconSource Glyph="{x:Bind common:CommonGlyphs.Edit}" />
         </controls:RibbonCollapsibleGroup.IconSource>
         <Grid ColumnSpacing="8" RowSpacing="8">
           <Grid.RowDefinitions>
@@ -130,7 +131,7 @@
       <controls:RibbonCollapsibleGroup CollapsedAccessKey="ZF" Priority="0" Label="Text"
                                        Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
         <controls:RibbonCollapsibleGroup.IconSource>
-          <FontIconSource Glyph="&#xE97F;" />
+          <FontIconSource Glyph="{x:Bind common:CommonGlyphs.Text}" />
         </controls:RibbonCollapsibleGroup.IconSource>
         <Grid ColumnSpacing="8" RowSpacing="8">
           <Grid.RowDefinitions>
@@ -159,7 +160,7 @@
           <AppBarButton x:Name="strikeButton" AccessKey="3" Grid.Column="2"
                         ToolTipService.ToolTip="Strikethrough" Label="Strikethrough" Click="StrikeButton_Click">
             <AppBarButton.Icon>
-              <FontIcon Glyph="&#xEDE0;" />
+              <FontIcon Glyph="{x:Bind common:CommonGlyphs.Strikethrough}" />
             </AppBarButton.Icon>
           </AppBarButton>
           <AppBarButton x:Name="subscriptButton" AccessKey="4" Grid.Column="3"
@@ -198,7 +199,7 @@
       <controls:RibbonCollapsibleGroup CollapsedAccessKey="ZP" Priority="4" Label="Paragraph"
                                        Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
         <controls:RibbonCollapsibleGroup.IconSource>
-          <FontIconSource Glyph="&#xE7BC;" />
+          <FontIconSource Glyph="{x:Bind common:CommonGlyphs.Paragraph}" />
         </controls:RibbonCollapsibleGroup.IconSource>
         <Grid ColumnSpacing="8" RowSpacing="8">
           <Grid.RowDefinitions>
@@ -239,7 +240,7 @@
           <AppBarButton x:Name="tlButton" AccessKey="TL" Grid.Row="1" Grid.Column="2"
                         ToolTipService.ToolTip="Task List" Label="Task List" Click="TLButton_Click">
             <AppBarButton.Icon>
-              <FontIcon Glyph="&#xE9D5;" />
+              <FontIcon Glyph="{x:Bind common:CommonGlyphs.TaskList}" />
             </AppBarButton.Icon>
           </AppBarButton>
         </Grid>
@@ -268,7 +269,7 @@
           <AppBarButton x:Name="linkButton" Icon="Link" AccessKey="L" Grid.Column="1"
                         ToolTipService.ToolTip="Link" Label="Link" Click="LinkButton_Click" />
           <AppBarButton x:Name="imageButton" Icon="Pictures" AccessKey="I" Grid.Column="2"
-                        ToolTipService.ToolTip="Image" Label="Image" />
+                         ToolTipService.ToolTip="Image" Label="Image" Click="ImageButton_Click" />
           <AppBarButton x:Name="codeBlockButton" AccessKey="CB" Grid.Row="1"
                         ToolTipService.ToolTip="Code Block" Label="Code Block" Click="CodeBlockButton_Click">
             <AppBarButton.Icon>
@@ -288,6 +289,30 @@
             </AppBarButton.Icon>
           </AppBarButton>
         </Grid>
+      </controls:RibbonCollapsibleGroup>
+      <controls:RibbonCollapsibleGroup CollapsedAccessKey="ZE" Priority="6" Label="Embedding"
+                                  Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
+        <controls:RibbonCollapsibleGroup.IconSource>
+          <SymbolIconSource Symbol="Attach" />
+        </controls:RibbonCollapsibleGroup.IconSource>
+        <StackPanel Orientation="Vertical" Spacing="8">
+          <AppBarButton x:Name="exportBlockButton"
+                        AccessKey="E" Label="Export Block"
+                        ToolTipService.ToolTip="Export Block"
+                        Click="ExportBlockButton_Click">
+            <AppBarButton.Icon>
+              <FontIcon Glyph="{x:Bind common:CommonGlyphs.Export}" />
+            </AppBarButton.Icon>
+          </AppBarButton>
+          <AppBarButton x:Name="importBlockButton"
+                        AccessKey="I" Label="Import Block"
+                        ToolTipService.ToolTip="Import Block"
+                        Click="ImportBlockButton_Click">
+            <AppBarButton.Icon>
+              <FontIcon Glyph="{x:Bind common:CommonGlyphs.Import}" />
+            </AppBarButton.Icon>
+          </AppBarButton>
+        </StackPanel>
       </controls:RibbonCollapsibleGroup>
     </controls:Ribbon>
 
@@ -336,7 +361,7 @@
       <AppBarSeparator Grid.Column="3"/>
       <ToggleButton x:Name="previewButton" Grid.Column="4" CornerRadius="0,0,4,4" Margin="0,0,0,4" IsChecked="False"
                     Checked="PreviewButton_Checked" Unchecked="PreviewButton_Unchecked" ToolTipService.ToolTip="Preview Markdown">
-        <FontIcon Glyph="&#xE8FF;" FontSize="14" />
+        <FontIcon Glyph="{x:Bind common:CommonGlyphs.Preview}" FontSize="14" />
         <ToggleButton.KeyboardAccelerators>
           <KeyboardAccelerator Modifiers="Control" Key="P" />
         </ToggleButton.KeyboardAccelerators>
@@ -347,7 +372,7 @@
       </ToggleButton>
       <ToggleButton x:Name="docOutlineButton" Grid.Column="6" CornerRadius="0,0,4,4" Margin="0,0,0,4" IsChecked="False" IsEnabled="False"
                     Checked="DocOutlineButton_Checked" Unchecked="DocOutlineButton_Unchecked" ToolTipService.ToolTip="Document Outline">
-        <FontIcon Glyph="&#xE8A4;" FontSize="14" />
+        <FontIcon Glyph="{x:Bind common:CommonGlyphs.DocumentOutline}" FontSize="14" />
       </ToggleButton>
     </Grid>
   </Grid>

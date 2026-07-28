@@ -5,7 +5,6 @@
   xmlns:local="using:Symptum.Editor.Controls"
   xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:qb="using:Symptum.Core.Subjects.QuestionBanks"
   xmlns:res="using:Symptum.Core.Management.Resources"
   xmlns:data="using:Symptum.Core.Data"
   xmlns:ui="using:CommunityToolkit.WinUI"
@@ -13,10 +12,13 @@
   xmlns:sub="using:Symptum.Core.Subjects"
   mc:Ignorable="d"
   d:DesignHeight="300"
-  d:DesignWidth="400">
+  d:DesignWidth="400"
+  Loaded="ResourcePropertiesEditorControl_Loaded"
+  Unloaded="ResourcePropertiesEditorControl_Unloaded">
   <StackPanel x:Name="propertiesSP" Spacing="16" HorizontalAlignment="Stretch">
     <TextBlock x:Name="typeTB" />
-    <HyperlinkButton x:Name="parentResourceButton" Visibility="Collapsed" />
+    <HyperlinkButton x:Name="parentResourceButton" Visibility="Collapsed"
+      Click="ParentResourceButton_Click"/>
     <TextBox x:Name="titleTB" Header="Title" />
     <TextBox x:Name="idTB" Header="Id" />
     <TextBox x:Name="uriTB" Header="Uri" />
@@ -45,41 +47,27 @@
         <TextBlock x:Name="mdPathTB" />
       </StackPanel>
     </Expander>
-    <Expander x:Name="packageExpander" Header="Package" Visibility="Collapsed"
+    <Expander x:Name="filePkgExpander" Visibility="Collapsed"
               HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
       <StackPanel Spacing="16">
-        <TextBox x:Name="packageDescriptionTB" Header="Description" />
-        <TextBox x:Name="packageVersionTB" Header="Version" PlaceholderText="Major.Minor[.Build[.Revision]]" />
-        <local:ListEditorControl x:Name="packageAuthorsLE" Header="Authors">
+        <TextBlock x:Name="fileTypeTB" Visibility="Collapsed" />
+        <TextBlock x:Name="filePathTB" Visibility="Collapsed" />
+        <TextBox x:Name="descriptionTB" Header="Description" AcceptsReturn="True" TextWrapping="Wrap" />
+        <TextBox x:Name="packageVersionTB" Header="Version" PlaceholderText="Major.Minor[.Build[.Revision]]"
+          Visibility="Collapsed" />
+        <local:ListEditorControl x:Name="authorsLE" Header="Authors">
           <local:ListEditorControl.ItemTemplate>
             <DataTemplate>
-              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
-                <TextBox PlaceholderText="Name &lt;Email&gt;"
-                         Text="{Binding Value, Mode=TwoWay, Converter={StaticResource AuthorInfoToStringConverter}}" />
+              <local:ListEditorItemCommandsButton>
+                <DataTemplate>
+                  <TextBox PlaceholderText="Name &lt;Email&gt;"
+                           Text="{Binding Value, Mode=TwoWay, Converter={StaticResource AuthorInfoToStringConverter}}" />
+                </DataTemplate>
               </local:ListEditorItemCommandsButton>
             </DataTemplate>
           </local:ListEditorControl.ItemTemplate>
         </local:ListEditorControl>
-        <controls:TokenizingTextBox x:Name="packageTagsTTB" Header="Tags" ItemsSource="{x:Bind _packageTags}" TokenDelimiter=";" />
-      </StackPanel>
-    </Expander>
-    <Expander x:Name="fileExpander" Header="File" Visibility="Collapsed"
-              HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch">
-      <StackPanel Spacing="16">
-        <TextBlock x:Name="fileTypeTB" />
-        <TextBlock x:Name="filePathTB" />
-        <TextBox x:Name="fileDescriptionTB" Header="Description" />
-        <local:ListEditorControl x:Name="fileAuthorsLE" Header="Authors">
-          <local:ListEditorControl.ItemTemplate>
-            <DataTemplate>
-              <local:ListEditorItemCommandsButton ItemWrapper="{Binding }">
-                <TextBox PlaceholderText="Name &lt;Email&gt;"
-                     Text="{Binding Value, Mode=TwoWay, Converter={StaticResource AuthorInfoToStringConverter}}" />
-              </local:ListEditorItemCommandsButton>
-            </DataTemplate>
-          </local:ListEditorControl.ItemTemplate>
-        </local:ListEditorControl>
-        <controls:TokenizingTextBox x:Name="fileTagsTTB" Header="Tags" ItemsSource="{x:Bind _fileTags}" TokenDelimiter=";" />
+        <controls:TokenizingTextBox x:Name="tagsTTB" Header="Tags" ItemsSource="{x:Bind _tags}" TokenDelimiter=";" />
       </StackPanel>
     </Expander>
   </StackPanel>

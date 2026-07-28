@@ -10,10 +10,10 @@ public class BlockContainerElement : IAddChild
 
     public STextElement TextElement => _container;
 
-    public BlockContainerElement(ContainerBlock containerBlock, MarkdownConfiguration config)
+    public BlockContainerElement(ContainerBlock containerBlock, MarkdownTextBlock control)
     {
         _containerBlock = containerBlock;
-        _flowDocument = new FlowDocumentElement(config, false);
+        _flowDocument = new FlowDocumentElement(control, false);
         _container.UIElement = _flowDocument.StackPanel;
     }
 

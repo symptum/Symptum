@@ -9,21 +9,19 @@ public class CodeBlockElement : IAddChild
 {
     private CodeBlock _codeBlock;
     private SContainer _container = new();
-    private MarkdownConfiguration _config;
 
     public STextElement TextElement => _container;
 
-    public CodeBlockElement(CodeBlock codeBlock, MarkdownConfiguration config)
+    public CodeBlockElement(CodeBlock codeBlock, MarkdownTextBlock control)
     {
         _codeBlock = codeBlock;
-        _config = config;
         Border border = new()
         {
-            Style = _config.Themes.CodeBlockBorderStyle
+            Style = control.CodeBlockBorderStyle
         };
         TextBlock textBlock = new()
         {
-            Style = config.Themes.CodeTextBlockStyle
+            Style = control.CodeTextBlockStyle
         };
 
         StringBuilder stringBuilder = new();
@@ -32,28 +30,21 @@ public class CodeBlockElement : IAddChild
         {
             var formatter = new RichTextBlockFormatter(ElementTheme.Dark);
 
-            // go through all the lines backwards and only add the lines to a stack if we have encountered the first non-empty line
             StringLine[] lines = fencedCodeBlock.Lines.Lines;
-            Stack<string> stack = new();
+
             bool encounteredFirstNonEmptyLine = false;
             if (lines != null)
             {
                 for (int i = lines.Length - 1; i >= 0; i--)
                 {
-                    StringLine line = lines[i];
-                    if (string.IsNullOrWhiteSpace(line.ToString()) && !encounteredFirstNonEmptyLine)
+                    string line = lines[i].ToString();
+                    if (string.IsNullOrWhiteSpace(line) && !encounteredFirstNonEmptyLine)
                     {
                         continue;
                     }
 
                     encounteredFirstNonEmptyLine = true;
-                    stack.Push(line.ToString());
-                }
-
-                // append all the lines in the stack to the string builder
-                while (stack.Count > 0)
-                {
-                    stringBuilder.AppendLine(stack.Pop());
+                    stringBuilder.AppendLine(line);
                 }
             }
 
@@ -63,8 +54,8 @@ public class CodeBlockElement : IAddChild
         {
             for (int i = 0; i < codeBlock.Lines.Lines.Length; i++)
             {
-                StringLine line = codeBlock.Lines.Lines[i];
-                stringBuilder.Append(line.ToString());
+                string line = codeBlock.Lines.Lines[i].ToString();
+                stringBuilder.Append(line);
 
                 if (i < codeBlock.Lines.Lines.Length - 1) stringBuilder.AppendLine();
             }

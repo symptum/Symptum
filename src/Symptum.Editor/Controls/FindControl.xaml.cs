@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
-using Microsoft.UI.Xaml.Data;
-using Symptum.Editor.Converters;
+using Symptum.UI.Converters;
 
 namespace Symptum.Editor.Controls;
 
@@ -25,12 +24,6 @@ public sealed partial class FindControl : UserControl
     {
         InitializeComponent();
         queryBox.ItemsSource = _queries;
-        queryBox.QuerySubmitted += QueryBox_QuerySubmitted;
-        fNextButton.Click += (s, e) => Find(FindDirection.Next);
-        fPrevButton.Click += (s, e) => Find(FindDirection.Previous);
-        fAllButton.Click += (s, e) => Find(FindDirection.All);
-        fClearButton.Click += (s, e) => Clear();
-
         Binding binding = new() { Path = new(nameof(InfoBar.IsOpen)), Source = errorInfoBar, Converter = new BooleanToVisibilityConverter() };
         errorInfoBar.SetBinding(VisibilityProperty, binding);
     }
@@ -209,6 +202,14 @@ public sealed partial class FindControl : UserControl
         QueryText = args.QueryText;
         Find(FindDirection.All);
     }
+
+    private void FPrevButton_Click(object sender, RoutedEventArgs e) => Find(FindDirection.Previous);
+
+    private void FNextButton_Click(object sender, RoutedEventArgs e) => Find(FindDirection.Next);
+
+    private void FAllButton_Click(object sender, RoutedEventArgs e) => Find(FindDirection.All);
+
+    private void FClearButton_Click(object sender, RoutedEventArgs e) => Clear();
 
     private void Find(FindDirection findDirection)
     {

@@ -1,4 +1,5 @@
 using Symptum.Core.Management.Navigation;
+using Symptum.Core.Subjects;
 using Symptum.Navigation;
 
 namespace Symptum.Pages;
@@ -9,33 +10,18 @@ public sealed partial class DefaultPage : NavigablePage
     {
         InitializeComponent();
     }
-
-    #region Properties
-
-    public static readonly DependencyProperty NavigableResourceProperty = DependencyProperty.Register(
-        nameof(NavigableResource),
-        typeof(NavigableResource),
-        typeof(DefaultPage),
-        new(null));
-
-    public NavigableResource NavigableResource
-    {
-        get => (NavigableResource)GetValue(NavigableResourceProperty);
-        set => SetValue(NavigableResourceProperty, value);
-    }
-
-    #endregion
-
     protected override void OnNavigableChanged(INavigable? navigable)
     {
+        repeater.ItemsSource = null;
+        
         if (navigable is NavigableResource resource)
         {
-            NavigableResource = resource;
+            repeater.ItemsSource = resource.ChildrenResources;
         }
-    }
-
-    private void Button_Click(object sender, RoutedEventArgs e)
-    {
-        NavigationManager.Navigate((sender as Button).Tag as INavigable);
+        else if (navigable is NavigationInfo n &&
+            n.Uri == NavigationManager.SubjectsUri)
+        {
+            repeater.ItemsSource = SubjectsManager.Subjects;
+        }
     }
 }

@@ -11,7 +11,7 @@ internal class HtmlDetailsElement : IAddChild
 
     public STextElement TextElement => _container;
 
-    public HtmlDetailsElement(HtmlNode details, MarkdownConfiguration config)
+    public HtmlDetailsElement(HtmlNode details, MarkdownTextBlock control)
     {
         _htmlNode = details;
 
@@ -24,7 +24,7 @@ internal class HtmlDetailsElement : IAddChild
         {
             HorizontalAlignment = HorizontalAlignment.Stretch
         };
-        _flowDocument = new(config, false);
+        _flowDocument = new(control, false);
         _flowDocument.StackPanel.HorizontalAlignment = HorizontalAlignment.Stretch;
         _expander.Content = _flowDocument.StackPanel;
         var headerBlock = new TextBlock
@@ -41,4 +41,3 @@ internal class HtmlDetailsElement : IAddChild
         _flowDocument.AddChild(child);
     }
 }
-

@@ -1,12 +1,13 @@
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Text.Json.Serialization;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CsvHelper;
 using Symptum.Core.Management.Resources;
 
 namespace Symptum.Core.Data.ReferenceValues;
 
-public class ReferenceValueGroup : CsvFileResource
+public partial class ReferenceValueGroup : CsvFileResource
 {
     public ReferenceValueGroup()
     { }
@@ -18,14 +19,9 @@ public class ReferenceValueGroup : CsvFileResource
 
     #region Properties
 
-    private ObservableCollection<ReferenceValueParameter>? parameters;
-
     [JsonIgnore]
-    public ObservableCollection<ReferenceValueParameter>? Parameters
-    {
-        get => parameters;
-        set => SetProperty(ref parameters, value);
-    }
+    [ObservableProperty]
+    public partial ObservableCollection<ReferenceValueParameter>? Parameters { get; set; }
 
     #endregion
 
@@ -53,6 +49,6 @@ public class ReferenceValueGroup : CsvFileResource
 
         using StringReader reader = new(csv);
         using CsvReader csvReader = new(reader, CultureInfo.InvariantCulture);
-        Parameters = new(csvReader.GetRecords<ReferenceValueParameter>().ToList());
+        Parameters = [.. csvReader.GetRecords<ReferenceValueParameter>()];
     }
 }

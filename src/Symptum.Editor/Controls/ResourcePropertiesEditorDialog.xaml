@@ -9,7 +9,11 @@
   xmlns:android="http://uno.ui/android"
   mc:Ignorable="d android"
   Style="{ThemeResource DefaultContentDialogStyle}"
-  PrimaryButtonText="Update" CloseButtonText="Cancel" PrimaryButtonStyle="{ThemeResource AccentButtonStyle}">
+  PrimaryButtonText="Update" CloseButtonText="Cancel"
+  PrimaryButtonStyle="{ThemeResource AccentButtonStyle}"
+  Opened="ResourcePropertiesEditorDialog_Opened"
+  PrimaryButtonClick="ResourcePropertiesEditorDialog_PrimaryButtonClick"
+  CloseButtonClick="ResourcePropertiesEditorDialog_CloseButtonClick">
   <ScrollViewer>
     <local:ResourcePropertiesEditorControl x:Name="propertiesEditor" />
   </ScrollViewer>

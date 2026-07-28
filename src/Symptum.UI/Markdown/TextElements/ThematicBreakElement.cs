@@ -9,13 +9,13 @@ public class ThematicBreakElement : IAddChild
 
     public STextElement TextElement => _container;
 
-    public ThematicBreakElement(ThematicBreakBlock thematicBreakBlock, MarkdownConfiguration config)
+    public ThematicBreakElement(ThematicBreakBlock thematicBreakBlock, MarkdownTextBlock control)
     {
         _thematicBreakBlock = thematicBreakBlock;
 
         Border border = new()
         {
-            Style = config.Themes.ThematicBreakBorderStyle
+            Style = control.ThematicBreakBorderStyle
         };
         _container.UIElement = border;
     }

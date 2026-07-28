@@ -13,7 +13,7 @@ public sealed partial class AddNewItemDialog : ContentDialog
 
     public string ItemTitle { get; set; } = string.Empty;
 
-    public Type? SelectedItemType { get; set; } = null;
+    public NewItemType? SelectedItemType { get; set; } = null;
 
     public EditorResult Result { get; private set; } = EditorResult.None;
 
@@ -23,11 +23,6 @@ public sealed partial class AddNewItemDialog : ContentDialog
     {
         InitializeComponent();
         newItemsLV.ItemsSource = NewItemType.KnownTypes;
-        Opened += AddNewItemDialog_Opened;
-        PrimaryButtonClick += AddNewItemDialog_PrimaryButtonClick;
-        CloseButtonClick += AddNewItemDialog_CloseButtonClick;
-        queryBox.TextChanged += QueryBox_TextChanged;
-        queryBox.QuerySubmitted += QueryBox_QuerySubmitted;
     }
 
     private void QueryBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
@@ -70,7 +65,7 @@ public sealed partial class AddNewItemDialog : ContentDialog
         if (valid)
         {
             Result = EditorResult.Create;
-            if (!_newProject) SelectedItemType = (newItemsLV.SelectedItem as NewItemType)?.Type;
+            if (!_newProject) SelectedItemType = newItemsLV.SelectedItem as NewItemType;
             ItemTitle = titleTextBox.Text;
         }
     }
@@ -93,7 +88,7 @@ public sealed partial class AddNewItemDialog : ContentDialog
                     || ParentResource == null)
                     return true;
                 else
-                    errorInfoBar.Message = "Cannot add a new item to the parent item (" + ParentResource?.Title + ")";
+                    errorInfoBar.Message = $"Cannot add a new item to the parent item ({ParentResource?.Title})";
             }
             else
                 errorInfoBar.Message = "An item type must be selected";

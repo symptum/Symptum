@@ -11,9 +11,15 @@ namespace Symptum.Editor.Droid;
 )]
 public class Application : Microsoft.UI.Xaml.NativeApplication
 {
+    static Application()
+    {
+        App.InitializeLogging();
+    }
+
     public Application(IntPtr javaReference, JniHandleOwnership transfer)
         : base(() => new App(), javaReference, transfer)
     {
     }
+
 }
 

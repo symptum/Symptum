@@ -8,7 +8,7 @@ public class ListElement : IAddChild
 {
     private SContainer _container;
     private StackPanel _stackPanel;
-    private MarkdownConfiguration _config;
+    private MarkdownTextBlock _control;
     private BulletType _bulletType;
     private bool _isOrdered;
     private int _startIndex = 1;
@@ -17,10 +17,10 @@ public class ListElement : IAddChild
 
     public STextElement TextElement => _container;
 
-    public ListElement(ListBlock listBlock, MarkdownConfiguration config, bool isTopLevel = true)
+    public ListElement(ListBlock listBlock, MarkdownTextBlock control, bool isTopLevel = true)
     {
         _container = new SContainer();
-        _config = config;
+        _control = control;
 
         if (listBlock.IsOrdered)
         {
@@ -36,12 +36,11 @@ public class ListElement : IAddChild
 
         _stackPanel = new()
         {
-            Orientation = Orientation.Vertical,
-            Spacing = config.Themes.Spacing,
+            Style = control.ListStackPanelStyle
         };
 
-        if (isTopLevel)
-            _stackPanel.Padding = config.Themes.ListMargin;
+        if (!isTopLevel)
+            _stackPanel.Padding = new();
 
         _container.UIElement = _stackPanel;
     }
@@ -73,16 +72,16 @@ public class ListElement : IAddChild
         TextBlock textBlock = new()
         {
             Text = bullet,
-            Style = _config.Themes.BodyTextBlockStyle
+            Style = _control.BodyTextBlockStyle
         };
         textBlock.SetValue(Grid.ColumnProperty, 0);
         textBlock.VerticalAlignment = VerticalAlignment.Top;
         grid.Children.Add(textBlock);
-        FlowDocumentElement flowDoc = new(_config, false);
+        FlowDocumentElement flowDoc = new(_control, false);
         flowDoc.AddChild(child);
 
         flowDoc.StackPanel.SetValue(Grid.ColumnProperty, 1);
-        flowDoc.StackPanel.Padding = new(_config.Themes.ListBulletSpacing, 0, 0, 0);
+        flowDoc.StackPanel.Padding = new(_control.ListBulletSpacing, 0, 0, 0);
         flowDoc.StackPanel.VerticalAlignment = VerticalAlignment.Top;
         grid.Children.Add(flowDoc.StackPanel);
 
@@ -91,7 +90,6 @@ public class ListElement : IAddChild
 
     private static BulletType ToBulletType(char bullet)
     {
-        // Gets or sets the type of the bullet (e.g: '1', 'a', 'A', 'i', 'I').
         return bullet switch
         {
             '1' => BulletType.Number,

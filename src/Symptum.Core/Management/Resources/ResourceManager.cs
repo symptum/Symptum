@@ -1,16 +1,17 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using static Symptum.Core.Helpers.FileHelper;
 using Symptum.Core.Extensions;
-using System.Diagnostics.CodeAnalysis;
 using Symptum.Core.Subjects;
 
 namespace Symptum.Core.Management.Resources;
 
 public class ResourceManager
 {
-    public static readonly string DefaultUriScheme = "symptum://";
+    public const string DefaultUriScheme = "symptum://";
 
     public static readonly Uri DefaultUri = new(DefaultUriScheme);
 
@@ -34,30 +35,16 @@ public class ResourceManager
     /// </summary>
     /// <param name="resource">The resource to get the path from.</param>
     /// <returns>The absolute folder path of the resource including its path.</returns>
-    public static string GetAbsoluteFolderPath(IResource? resource)
-    {
-        string _path = PathSeparator.ToString();
-        if (resource != null)
-        {
-            _path = GetAbsoluteFolderPath(resource.ParentResource) + GetResourceFileName(resource) + PathSeparator;
-        }
-        return _path;
-    }
+    public static string GetAbsoluteFolderPath(IResource? resource) =>
+        BuildResourcePath(resource, includeSelf: true, stopAtPackage: false);
 
     /// <summary>
     /// Gets the absolute folder path of the resource.
     /// </summary>
     /// <param name="resource">The resource to get the path from.</param>
     /// <returns>The absolute folder path of the resource.</returns>
-    public static string GetAbsoluteResourceFolderPath(IResource? resource)
-    {
-        string _path = PathSeparator.ToString();
-        if (resource?.ParentResource is IResource parent)
-        {
-            _path = GetAbsoluteResourceFolderPath(parent) + GetResourceFileName(parent) + PathSeparator;
-        }
-        return _path;
-    }
+    public static string GetAbsoluteResourceFolderPath(IResource? resource) =>
+        BuildResourcePath(resource, includeSelf: false, stopAtPackage: false);
 
     /// <summary>
     /// Gets the folder path of the resource relative to its parent <see cref="PackageResource"/>.
@@ -66,12 +53,12 @@ public class ResourceManager
     /// <returns>The folder path of the resource relative to its parent <see cref="PackageResource"/></returns>
     public static string GetRelativeResourceFolderPath(IResource? resource)
     {
-        string _path = PathSeparator.ToString();
-        if (resource is not PackageResource && resource?.ParentResource is IResource parent)
+        if (resource is PackageResource)
         {
-            _path = GetRelativeResourceFolderPath(parent) + GetResourceFileName(parent) + PathSeparator;
+            return PathSeparator.ToString();
         }
-        return _path;
+
+        return BuildResourcePath(resource, includeSelf: false, stopAtPackage: true);
     }
 
     /// <summary>
@@ -84,6 +71,33 @@ public class ResourceManager
     {
         string path = GetRelativeResourceFolderPath(resource);
         return path + GetResourceFileName(resource) + extension;
+    }
+
+    private static string BuildResourcePath(IResource? resource, bool includeSelf, bool stopAtPackage)
+    {
+        var segments = new List<string?>();
+        IResource? current = includeSelf ? resource : resource?.ParentResource;
+
+        while (current != null)
+        {
+            if (stopAtPackage && current is PackageResource)
+            {
+                segments.Add(GetResourceFileName(current));
+                break;
+            }
+
+            segments.Add(GetResourceFileName(current));
+            current = current.ParentResource;
+        }
+
+        var path = new StringBuilder(PathSeparator.ToString());
+        for (int index = segments.Count - 1; index >= 0; index--)
+        {
+            path.Append(segments[index]);
+            path.Append(PathSeparator);
+        }
+
+        return path.ToString();
     }
 
     public static void LoadResourceFileText(TextFileResource? fileResource, string text) => fileResource?.ReadFileText(text);
@@ -116,16 +130,19 @@ public class ResourceManager
         parent = default;
         if (resource == null) return false;
 
-        if (resource.ParentResource is T p)
+        for (IResource? current = resource; current != null; current = current.ParentResource)
         {
-            if (condition == null || condition(p))
+            if (current.ParentResource is T p)
             {
-                parent = p;
-                return true;
+                if (condition == null || condition(p))
+                {
+                    parent = p;
+                    return true;
+                }
             }
         }
 
-        return TryGetParentOfType(resource.ParentResource, out parent, condition);
+        return false;
     }
 
     public static bool TryGetSavableParent(IResource? resource, [NotNullWhen(true)] out IMetadataResource? parent) =>
@@ -136,14 +153,27 @@ public class ResourceManager
 
     #endregion
 
-    #region From Id
+    #region By Id
 
-    public static bool TryGetResourceFromId(string? id, [NotNullWhen(true)] out IResource? resource) =>
-        TryGetResourceFromId(id, _resources, out resource);
+    /// <summary>
+    /// Tries to get a resource with the given id from the global resource list.
+    /// </summary>
+    /// <param name="id">The id of the resource.</param>
+    /// <param name="resource">The resource if found.</param>
+    /// <returns>True if the resource was found, false otherwise.</returns>
+    public static bool TryGetResourceById(string? id, [NotNullWhen(true)] out IResource? resource) =>
+        TryGetResourceById(id, _resources, out resource);
 
-    public static bool TryGetResourceFromId(string? id, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource)
+    /// <summary>
+    /// Tries to get a resource with the given id within the specified resources.
+    /// </summary>
+    /// <param name="id">The id of the resource.</param>
+    /// <param name="resources">The list of resources to search in.</param>
+    /// <param name="resource">The resource if found.</param>
+    /// <returns>True if the resource was found, false otherwise.</returns>
+    public static bool TryGetResourceById(string? id, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource)
     {
-        if (TryGetAvailableChildResourceFromId(id, resources, out IResource? _resource))
+        if (TryGetAvailableChildResourceById(id, resources, out IResource? _resource))
         {
             resource = _resource;
             return true;
@@ -153,51 +183,61 @@ public class ResourceManager
         return false;
     }
 
-    public static bool TryGetAvailableChildResourceFromId(string? id, [NotNullWhen(true)] out IResource? resource) =>
-        TryGetAvailableChildResourceFromId(id, _resources, out resource);
+    /// <summary>
+    /// Tries to get a resource with the given id from the global resource list.
+    /// If an exact match is not found, it will return the nearest matching ancestor.
+    /// </summary>
+    /// <param name="id">The id of the resource.</param>
+    /// <param name="resource">The resource if found.</param>
+    /// <returns>True if the exact resource was found, false otherwise.</returns>
+    public static bool TryGetAvailableChildResourceById(string? id, [NotNullWhen(true)] out IResource? resource) =>
+        TryGetAvailableChildResourceById(id, _resources, out resource);
 
-    public static bool TryGetAvailableChildResourceFromId(string? id, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource, int offset = 0)
-    {
-        if (!string.IsNullOrEmpty(id) && resources != null)
-        {
-            foreach (IResource _resource in resources)
-            {
-                if (string.Equals(id, _resource.Id))
-                {
-                    resource = _resource;
-                    return true;
-                }
-                else if (IdContains(id, _resource.Id, offset))
-                {
-                    bool result = TryGetAvailableChildResourceFromId(id, _resource.ChildrenResources, out resource, _resource.Id?.Length ?? 0);
-                    resource ??= _resource; // The parent resource which is most likely to have the child.
-                    // Even if we can't find the exact resource we can return this probable parent resource.
-                    return result;
-                }
-            }
-        }
+    /// <summary>
+    /// Tries to get a resource with the given id within the specified resources.
+    /// If an exact match is not found, it will return the nearest matching ancestor.
+    /// </summary>
+    /// <param name="id">The id of the resource.</param>
+    /// <param name="resources">The list of resources to search in.</param>
+    /// <param name="resource">The resource if found.</param>
+    /// <returns>True if the exact resource was found, false otherwise.</returns>
+    public static bool TryGetAvailableChildResourceById(string? id, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource) =>
+        TryGetAvailableChildResourceByProperty(id, IdEquals, IdContains, GetIdOffset, resources, out resource);
 
-        resource = null;
-        return false;
-    }
+    private static int GetIdOffset(IResource resource) => resource.Id?.Length ?? 0;
+
+    private static bool IdEquals(string? id, IResource resource) => id?.Equals(resource.Id) ?? false;
 
     // Resource's id would most probably be equal or shorter in length than the required id
     // So we take the resource's id and compare all the characters in it with the other
     // If it matches, we return true
     // Else, the current resource tree doesn't contain the required id
-    private static bool IdContains(string? requiredId, string? resourceId, int offset = 0) =>
-        requiredId?.Contains(resourceId, offset, '.') ?? false;
+    private static bool IdContains(string? requiredId, IResource resource, int offset = 0) =>
+        requiredId?.Contains(resource.Id, offset, '.') ?? false;
 
     #endregion
 
-    #region From Uri
+    #region By Uri
 
-    public static bool TryGetResourceFromUri(Uri? uri, [NotNullWhen(true)] out IResource? resource) =>
-        TryGetResourceFromUri(uri, _resources, out resource);
+    /// <summary>
+    /// Tries to get a resource with the given Uri from the global resource list.
+    /// </summary>
+    /// <param name="uri">The Uri of the resource.</param>
+    /// <param name="resource">The resource if found.</param>
+    /// <returns>True if the resource was found, false otherwise.</returns>
+    public static bool TryGetResourceByUri(Uri? uri, [NotNullWhen(true)] out IResource? resource) =>
+        TryGetResourceByUri(uri, _resources, out resource);
 
-    public static bool TryGetResourceFromUri(Uri? uri, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource)
+    /// <summary>
+    /// Tries to get a resource with the given Uri within the specified resources.
+    /// </summary>
+    /// <param name="uri">The Uri of the resource.</param>
+    /// <param name="resources">The list of resources to search in.</param>
+    /// <param name="resource">The resource if found.</param>
+    /// <returns>True if the resource was found, false otherwise.</returns>
+    public static bool TryGetResourceByUri(Uri? uri, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource)
     {
-        if (TryGetAvailableChildResourceFromUri(uri, resources, out IResource? _resource))
+        if (TryGetAvailableChildResourceByUri(uri, resources, out IResource? _resource))
         {
             resource = _resource;
             return true;
@@ -207,51 +247,92 @@ public class ResourceManager
         return false;
     }
 
-    public static bool TryGetAvailableChildResourceFromUri(Uri? uri, [NotNullWhen(true)] out IResource? resource) =>
-        TryGetAvailableChildResourceFromUri(uri, _resources, out resource);
+    /// <summary>
+    /// Tries to get a resource with the given Uri from the global resource list.
+    /// If an exact match is not found, it will return the nearest matching ancestor.
+    /// </summary>
+    /// <param name="uri">The Uri of the resource.</param>
+    /// <param name="resource">The resource if found.</param>
+    /// <returns>True if the exact resource was found, false otherwise.</returns>
+    public static bool TryGetAvailableChildResourceByUri(Uri? uri, [NotNullWhen(true)] out IResource? resource) =>
+        TryGetAvailableChildResourceByUri(uri, _resources, out resource);
 
-    public static bool TryGetAvailableChildResourceFromUri(Uri? uri, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource, int offset = 0)
-    {
-        if (uri != null && resources != null)
-        {
-            foreach (IResource _resource in resources)
-            {
-                if (uri == _resource.Uri)
-                {
-                    resource = _resource;
-                    return true;
-                }
-                else if (UriContains(uri, _resource.Uri, offset))
-                {
-                    bool result = TryGetAvailableChildResourceFromUri(uri, _resource.ChildrenResources, out resource, _resource.Uri?.ToString().Length ?? 0);
-                    resource ??= _resource; // The parent resource which is most likely to have the child.
-                    // Even if we can't find the exact resource we can return this probable parent resource.
-                    return result;
-                }
-            }
-        }
+    /// <summary>
+    /// Tries to get a resource with the given Uri within the specified resources.
+    /// If an exact match is not found, it will return the nearest matching ancestor.
+    /// </summary>
+    /// <param name="uri">The Uri of the resource.</param>
+    /// <param name="resources">The list of resources to search in.</param>
+    /// <param name="resource">The resource if found.</param>
+    /// <returns>True if the exact resource was found, false otherwise.</returns>
+    public static bool TryGetAvailableChildResourceByUri(Uri? uri, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource) =>
+        TryGetAvailableChildResourceByProperty(uri, UriEquals, UriContains, GetUriOffset, resources, out resource);
 
-        resource = null;
-        return false;
-    }
+    private static int GetUriOffset(IResource resource) => resource.Uri?.OriginalString.Length ?? 0;
+
+    private static bool UriEquals(Uri? uri, IResource resource) => uri?.Equals(resource.Uri) ?? false;
 
     // Resource's uri would most probably be equal or shorter in length than the required uri
     // So we take the resource's uri and compare all the characters in it with the other
     // If it matches, we return true
     // Else, the current resource tree doesn't contain the required uri
-    private static bool UriContains(Uri? requiredUri, Uri? resourceUri, int offset = 0) =>
-        requiredUri?.ToString().Contains(resourceUri?.ToString(), offset, '/') ?? false;
+    private static bool UriContains(Uri? requiredUri, IResource resource, int offset = 0) =>
+        requiredUri?.ToString().Contains(resource.Uri?.ToString(), offset, '/') ?? false;
 
     #endregion
 
-    //public static async Task<AsyncResult<IResource>> TryGetResourceFromIdAsync(string? id)
-    //{
-    //    return await Task.Run(() =>
-    //    {
-    //        bool success = TryGetResourceFromId(id, out IResource? _resource);
-    //        return new AsyncResult<IResource>() { Success = success, Result = _resource };
-    //    });
-    //}
+    private static bool TryGetAvailableChildResourceByProperty<T>(T? value, Func<T?, IResource, bool> comparer, Func<T?, IResource, int, bool> contains, Func<IResource, int> getOffset, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource)
+    {
+        resource = null;
+        if (value == null || resources == null)
+        {
+            return false;
+        }
+
+        // Use a stack to keep track of the current resources and their offsets.
+        Stack<(IReadOnlyList<IResource>? Resources, int Offset)> frames = new();
+        frames.Push((resources, 0));
+
+        while (frames.Count > 0)
+        {
+            // Pop the current resources and offset from the stack
+            // Thus the stack will be empty.
+            var (currentResources, currentOffset) = frames.Pop();
+            if (currentResources == null)
+            {
+                continue;
+            }
+
+            IResource? matchedParent = null;
+            foreach (IResource currentResource in currentResources)
+            {
+                if (comparer(value, currentResource))
+                {
+                    frames.Clear();
+                    resource = currentResource;
+                    matchedParent = null;
+                    return true;
+                }
+
+                if (contains(value, currentResource, currentOffset))
+                {
+                    matchedParent = currentResource;
+                    if (currentResource.ChildrenResources is { Count: > 0 })
+                    {
+                        frames.Push((currentResource.ChildrenResources, getOffset(currentResource)));
+                    }
+                    break;
+                }
+            }
+
+            if (matchedParent != null)
+            {
+                resource = matchedParent;
+            }
+        }
+
+        return false;
+    }
 
     #endregion
 
@@ -274,20 +355,78 @@ public class ResourceManager
     }
 
     #endregion
+
+    #region Id / Uri Generation
+
+    private static string ConvertResourceTitleToId(string? title) => RemoveIllegalCharacters(title, ch => ch != ' ');
+
+    private static string ConvertResourceTitleToUri(string? title) => ConvertResourceTitleToId(title).ToLowerInvariant();
+
+    public static string? GenerateIdFromAncestors(IResource? resource, string? prefix = "Symptum")
+    {
+        if (resource == null)
+            return prefix;
+
+        List<IResource> tree = [];
+        IResource? current = resource;
+        while (current != null && current.ParentResource?.Id == null)
+        {
+            tree.Add(current);
+            current = current.ParentResource;
+        }
+
+        // Initialize StringBuilder with the highest available ID or fallback prefix
+        string baseId = current?.ParentResource?.Id ?? prefix ?? string.Empty;
+        var sb = new StringBuilder(baseId);
+
+        // Process from top-most ancestor down to the target resource
+        int i = tree.Count - 1;
+        while (i >= 0)
+        {
+            sb.Append('.');
+            sb.Append(ConvertResourceTitleToId(tree[i].Title));
+            i--;
+        }
+        tree.Clear();
+
+        return sb.ToString();
+    }
+
+    public static string? GenerateUriFromAncestors(IResource? resource, string? prefix = DefaultUriScheme)
+    {
+        if (resource == null)
+            return prefix;
+
+        List<IResource> tree = [];
+        IResource? current = resource;
+
+        while (current != null && current.ParentResource?.Uri == null)
+        {
+            tree.Add(current);
+            current = current.ParentResource;
+        }
+
+        // Initialize StringBuilder with the highest available URI or fallback prefix
+        string baseUri = current?.ParentResource?.Uri?.ToString().TrimEnd('/') ?? prefix ?? string.Empty;
+        var sb = new StringBuilder(baseUri);
+
+        bool isAtRoot = baseUri == prefix && current?.ParentResource == null;
+
+        // Process from top-most ancestor down to the target resource
+        int i = tree.Count - 1;
+        while (i >= 0)
+        {
+            if (!isAtRoot)
+                sb.Append('/');
+            else
+                isAtRoot = false; // Only skip the slash for the very first segment if it was at the root
+
+            sb.Append(ConvertResourceTitleToUri(tree[i].Title));
+            i--;
+        }
+
+        return sb.ToString();
+    }
+
+    #endregion
 }
-
-//public class AsyncResult<T>
-//{
-//    public AsyncResult()
-//    { }
-
-//    public AsyncResult(bool success, T? result)
-//    {
-//        Success = success;
-//        Result = result;
-//    }
-
-//    public bool Success { get; set; }
-
-//    public T? Result { get; set; }
-//}

@@ -1,13 +1,12 @@
 using Symptum.Common;
 using Symptum.Common.Helpers;
 using Symptum.Core.Management.Deployment;
-using Uno.Resizetizer;
 
 namespace Symptum.Editor;
 
 public partial class App : Application
 {
-    public const string AppTitle = "Symptum Editor";
+    public const string AppTitle = "Symptum Editor (Dev)";
 
     public App()
     {
@@ -84,8 +83,11 @@ public partial class App : Application
         {
 #if __WASM__
             builder.AddProvider(new global::Uno.Extensions.Logging.WebAssembly.WebAssemblyConsoleLoggerProvider());
-#elif __IOS__ || __MACCATALYST__
+#elif __IOS__
             builder.AddProvider(new global::Uno.Extensions.Logging.OSLogLoggerProvider());
+
+            // Log to the Visual Studio Debug console
+            builder.AddConsole();
 #else
             builder.AddConsole();
 #endif

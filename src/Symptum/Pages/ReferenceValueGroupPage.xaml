@@ -1,0 +1,87 @@
+﻿<local:NavigablePage x:Class="Symptum.Pages.ReferenceValueGroupPage"
+                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                     xmlns:local="using:Symptum.Pages"
+                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                     xmlns:ref="using:Symptum.Core.Data.ReferenceValues"
+                     mc:Ignorable="d">
+  <Grid RowDefinitions="Auto,*">
+    <TextBlock x:Name="titleTB"
+               Style="{ThemeResource PageTitleTextBlockStyle}"
+               Text="{x:Bind Navigable.Title}" />
+    <ScrollViewer Grid.Row="1">
+      <ItemsRepeater x:Name="parameters" Margin="{ThemeResource NavViewContentMargin}">
+        <ItemsRepeater.Layout>
+          <StackLayout Spacing="12" />
+        </ItemsRepeater.Layout>
+        <ItemsRepeater.ItemTemplate>
+          <DataTemplate x:DataType="ref:ReferenceValueParameter">
+            <Expander HorizontalAlignment="Stretch"
+                      HorizontalContentAlignment="Stretch"
+                      Header="{x:Bind Title}"
+                      IsExpanded="True">
+              <ItemsRepeater ItemsSource="{x:Bind Entries}">
+                <ItemsRepeater.Layout>
+                  <StackLayout Spacing="4" />
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                  <DataTemplate x:DataType="ref:ReferenceValueEntry">
+                    <Border Padding="16"
+                            Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                            CornerRadius="{ThemeResource ControlCornerRadius}">
+                      <StackPanel Spacing="2">
+                        <Grid ColumnDefinitions="*,Auto">
+                          <TextBlock IsTextSelectionEnabled="True"
+                                     Style="{ThemeResource BodyStrongTextBlockStyle}"
+                                     Text="{x:Bind Title}" />
+                          <TextBlock Grid.Column="1"
+                                     Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                     IsTextSelectionEnabled="True"
+                                     Text="{x:Bind Quantities, Converter={StaticResource QuantityListToStringConverter}}" />
+                        </Grid>
+                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                   IsTextSelectionEnabled="True"
+                                   Style="{ThemeResource CaptionTextBlockStyle}"
+                                   Visibility="{x:Bind Inference, Converter={StaticResource NullToVisibilityConverter}}">
+                          <Run FontWeight="SemiBold" Text="Inference: " />
+                          <Run Text="{x:Bind Inference}" />
+                        </TextBlock>
+                        <TextBlock Foreground="{ThemeResource ImportantQuoteForeground}"
+                                   IsTextSelectionEnabled="True"
+                                   Style="{ThemeResource CaptionTextBlockStyle}"
+                                   Visibility="{x:Bind Remarks, Converter={StaticResource NullToVisibilityConverter}}">
+                          <Run FontWeight="SemiBold" Text="Remarks: " />
+                          <Run Text="{x:Bind Remarks}" />
+                        </TextBlock>
+                      </StackPanel>
+                    </Border>
+                  </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+              </ItemsRepeater>
+            </Expander>
+          </DataTemplate>
+        </ItemsRepeater.ItemTemplate>
+      </ItemsRepeater>
+    </ScrollViewer>
+
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup x:Name="LayoutVisualStates">
+        <VisualState x:Name="WideLayout">
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="640" />
+          </VisualState.StateTriggers>
+        </VisualState>
+        <VisualState x:Name="NarrowLayout">
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="titleTB.Visibility" Value="Collapsed" />
+            <Setter Target="parameters.Margin" Value="{ThemeResource NavViewContentNarrowMargin}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+</local:NavigablePage>

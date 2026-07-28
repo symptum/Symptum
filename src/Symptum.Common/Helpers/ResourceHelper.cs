@@ -1,6 +1,7 @@
 using Symptum.Core.Extensions;
 using Symptum.Core.Helpers;
 using Symptum.Core.Management.Resources;
+using Symptum.Markdown;
 using Windows.Storage.Pickers;
 using Windows.Storage.Streams;
 using static Symptum.Core.Helpers.FileHelper;
@@ -69,13 +70,22 @@ public class ResourceHelper
 
     public static async Task<IRandomAccessStream?> OpenFileForReadAsync(FileResource fileResource)
     {
-        if (!string.IsNullOrEmpty(fileResource.FilePath) &&
-            fileMap.TryGetValue(fileResource, out StorageFile? file))
+        if (string.IsNullOrEmpty(fileResource.FilePath))
+            return null;
+
+        if (fileMap.TryGetValue(fileResource, out StorageFile? file))
+            return await file.OpenReadAsync();
+
+        try
         {
+            file = await StorageFile.GetFileFromPathAsync(fileResource.FilePath);
+            fileMap.TryAdd(fileResource, file);
             return await file.OpenReadAsync();
         }
-
-        return null;
+        catch
+        {
+            return null;
+        }
     }
 
     #endregion
@@ -316,14 +326,14 @@ public class ResourceHelper
 
     #region Saving Resources
 
-    public static async Task<bool> SaveResourceAsync(IResource? resource, StorageFolder? targetFolder = null, bool saveChildren = true)
+    public static async Task<bool> SaveResourceAsync(IResource? resource, StorageFolder? targetFolder = null, bool saveChildren = true, bool exporting = false)
     {
         if (resource == null) return false;
 
         if (resource is TextFileResource textResource)
         {
             // CSVs and Markdowns
-            return await SaveTextFileResourceAsync(textResource, targetFolder);
+            return await SaveTextFileResourceAsync(textResource, targetFolder, exporting);
         }
         else if (resource is MediaFileResource mediaResource)
         {
@@ -332,7 +342,7 @@ public class ResourceHelper
         }
         else
         {
-            bool result = !saveChildren || await SaveChildrenAsync(resource, targetFolder);
+            bool result = !saveChildren || await SaveChildrenAsync(resource, targetFolder, exporting);
 
             if (resource is MetadataResource metadataResource && metadataResource.SplitMetadata)
             {
@@ -347,7 +357,7 @@ public class ResourceHelper
         }
     }
 
-    private static async Task<bool> SaveTextFileResourceAsync(TextFileResource textResource, StorageFolder? targetFolder = null)
+    private static async Task<bool> SaveTextFileResourceAsync(TextFileResource textResource, StorageFolder? targetFolder = null, bool exporting = false)
     {
         if (textResource == null) return false;
 
@@ -359,6 +369,10 @@ public class ResourceHelper
         if (saveFile != null)
         {
             string? text = ResourceManager.WriteResourceFileText(textResource);
+            if (exporting && textResource is MarkdownFileResource && NeedsOptimization(textResource))
+            {
+                text = MarkdownManager.GetOptimizedMarkdown(text);
+            }
             if (text != null)
                 return await StorageHelper.WriteToFileAsync(saveFile, text);
         }
@@ -409,14 +423,14 @@ public class ResourceHelper
         return false;
     }
 
-    private static async Task<bool> SaveChildrenAsync(IResource? resource, StorageFolder? targetFolder = null)
+    private static async Task<bool> SaveChildrenAsync(IResource? resource, StorageFolder? targetFolder = null, bool exporting = false)
     {
         if (resource != null && resource.CanHandleChildren && resource.ChildrenResources != null)
         {
             bool allChildrenSaved = true;
             foreach (var child in resource.ChildrenResources)
             {
-                allChildrenSaved &= await SaveResourceAsync(child, targetFolder);
+                allChildrenSaved &= await SaveResourceAsync(child, targetFolder, exporting: exporting);
             }
             return allChildrenSaved;
         }
@@ -447,6 +461,15 @@ public class ResourceHelper
             WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, WindowHelper.WindowHandle);
 #endif
             saveFile = await fileSavePicker.PickSaveFileAsync();
+
+#if HAS_UNO && DESKTOP
+            if (saveFile != null)
+            {
+                // Workaround for FileSavePicker.PickSaveFileAsync() in Linux which returns a StorageFile that doesn't exist yet,
+                // which causes an exception when trying to open it for writing.
+                saveFile = await StorageHelper.EnsureStorageFileExistsAsync(saveFile);
+            }
+#endif
         }
         return saveFile;
     }
@@ -572,6 +595,14 @@ public class ResourceHelper
             }
         }
     }
+
+    #endregion
+
+    #region Resource Optimization
+
+    public static readonly HashSet<string> ResourcesToOptimize = [];
+
+    private static bool NeedsOptimization(IResource resource) => resource != null && !string.IsNullOrEmpty(resource.Id) && ResourcesToOptimize.Contains(resource.Id);
 
     #endregion
 

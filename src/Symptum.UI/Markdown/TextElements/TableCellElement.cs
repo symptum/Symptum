@@ -24,17 +24,17 @@ public class TableCellElement : IAddChild
 
     public bool IsHeader => _isHeader;
 
-    public TableCellElement(TableCell tableCell, MarkdownConfiguration config, TextAlignment textAlignment, bool isHeader, int columnIndex, int rowIndex)
+    public TableCellElement(TableCell tableCell, MarkdownTextBlock control, TextAlignment textAlignment, bool isHeader, int columnIndex, int rowIndex)
     {
         _isHeader = isHeader;
         _tableCell = tableCell;
         _columnIndex = columnIndex;
         _rowIndex = rowIndex;
 
-        _flowDocument = new FlowDocumentElement(config, false);
+        _flowDocument = new FlowDocumentElement(control, false);
 
         if (isHeader)
-            _flowDocument.TextBlockStyle = config.Themes.TableHeaderTextBlockStyle;
+            _flowDocument.TextBlockStyle = control.TableHeaderTextBlockStyle;
 
         _flowDocument.StackPanel.HorizontalAlignment = textAlignment switch
         {
@@ -46,7 +46,7 @@ public class TableCellElement : IAddChild
 
         _grid = new()
         {
-            Style = isHeader ? config.Themes.TableHeaderCellGridStyle : config.Themes.TableCellGridStyle,
+            Style = isHeader ? control.TableHeaderCellGridStyle : control.TableCellGridStyle,
         };
         _grid.Children.Add(_flowDocument.StackPanel);
         _container.UIElement = _grid;

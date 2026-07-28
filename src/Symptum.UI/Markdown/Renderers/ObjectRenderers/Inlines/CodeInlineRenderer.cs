@@ -10,6 +10,6 @@ public class CodeInlineRenderer : WinUIObjectRenderer<CodeInline>
         ArgumentNullException.ThrowIfNull(renderer);
         ArgumentNullException.ThrowIfNull(obj);
 
-        renderer.WriteInline(new CodeInlineElement(obj, renderer.Configuration));
+        renderer.WriteInline(new CodeInlineElement(obj, renderer.MarkdownTextBlock));
     }
 }

@@ -7,6 +7,42 @@
 
   <Style x:Key="DefaultMarkdownTextBlockStyle"
          TargetType="md:MarkdownTextBlock">
+    <Setter Property="Background" Value="{ThemeResource MarkdownBackground}" />
+    <!-- Common -->
+    <Setter Property="FlowDocumentStackPanelStyle" Value="{StaticResource DefaultFlowDocumentStackPanelStyle}" />
+    <Setter Property="BodyTextBlockStyle" Value="{StaticResource DefaultBodyTextBlockStyle}" />
+    <!-- Heading -->
+    <Setter Property="H1TextBlockStyle" Value="{StaticResource DefaultH1TextBlockStyle}" />
+    <Setter Property="H2TextBlockStyle" Value="{StaticResource DefaultH2TextBlockStyle}" />
+    <Setter Property="H3TextBlockStyle" Value="{StaticResource DefaultH3TextBlockStyle}" />
+    <Setter Property="H4TextBlockStyle" Value="{StaticResource DefaultH4TextBlockStyle}" />
+    <Setter Property="H5TextBlockStyle" Value="{StaticResource DefaultH5TextBlockStyle}" />
+    <Setter Property="H6TextBlockStyle" Value="{StaticResource DefaultH6TextBlockStyle}" />
+    <!-- Code -->
+    <Setter Property="CodeTextBlockStyle" Value="{StaticResource DefaultCodeTextBlockStyle}" />
+    <Setter Property="CodeInlineBorderStyle" Value="{StaticResource DefaultCodeInlineBorderStyle}" />
+    <Setter Property="CodeBlockBorderStyle" Value="{StaticResource DefaultCodeBlockBorderStyle}" />
+    <!-- Quote -->
+    <Setter Property="DefaultQuoteControlStyle" Value="{StaticResource DefaultQuoteControlStyle}" />
+    <Setter Property="NoteQuoteControlStyle" Value="{StaticResource NoteQuoteControlStyle}" />
+    <Setter Property="TipQuoteControlStyle" Value="{StaticResource TipQuoteControlStyle}" />
+    <Setter Property="ImportantQuoteControlStyle" Value="{StaticResource ImportantQuoteControlStyle}" />
+    <Setter Property="WarningQuoteControlStyle" Value="{StaticResource WarningQuoteControlStyle}" />
+    <Setter Property="CautionQuoteControlStyle" Value="{StaticResource CautionQuoteControlStyle}" />
+    <!-- List -->
+    <Setter Property="ListStackPanelStyle" Value="{StaticResource DefaultListStackPanelStyle}" />
+    <Setter Property="ListBulletSpacing" Value="12" />
+    <!-- Table -->
+    <Setter Property="TableGridStyle" Value="{StaticResource DefaultTableGridStyle}" />
+    <Setter Property="TableCellGridStyle" Value="{StaticResource DefaultTableCellGridStyle}" />
+    <Setter Property="AltTableCellGridStyle" Value="{StaticResource AltTableCellGridStyle}" />
+    <Setter Property="TableHeaderCellGridStyle" Value="{StaticResource DefaultTableHeaderCellGridStyle}" />
+    <Setter Property="TableHeaderTextBlockStyle" Value="{StaticResource DefaultTableHeaderTextBlockStyle}" />
+    <!-- Thematic Break -->
+    <Setter Property="ThematicBreakBorderStyle" Value="{StaticResource DefaultThematicBreakBorderStyle}" />
+    <!-- Address Block -->
+    <Setter Property="AddressBlockTextBlockStyle" Value="{StaticResource DefaultAddressBlockTextBlockStyle}" />
+    <!-- Template -->
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="md:MarkdownTextBlock">

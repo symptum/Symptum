@@ -23,14 +23,16 @@ public class SParagraph : SBlock
 
     public TextAlignment TextAlignment { get; set; } = TextAlignment.Left;
 
+    public bool IsTextSelectionEnabled { get; set; }
+
     #region Include UI
 
     // Indices of the inlines where the UIElements should be inserted.
-    public List<int> UIIndices { get; private set; } = [];
+    public List<int>? UIIndices { get; private set; }
 
     public bool ContainsUI { get; internal set; } = false;
 
-    public List<UIElement> UIElements { get; private set; } = [];
+    public List<UIElement>? UIElements { get; private set; }
 
     #endregion
 
@@ -38,7 +40,8 @@ public class SParagraph : SBlock
     // It decides whether the resultant UI should be a TextBlock or a StackPanel based on the inclusion of inline UI.
     public void CreateUIElement()
     {
-        if (!ContainsUI || UIIndices.Count == 0)
+        if (!ContainsUI || UIIndices == null || UIElements == null ||
+            UIIndices.Count == 0)
         {
             UIElement = CreateTextBlock(Inlines);
         }
@@ -85,8 +88,10 @@ public class SParagraph : SBlock
                 _para.CreateUIElement();
             if (blockChild.UIElement is not UIElement uiElement) return;
 
-            UIIndices.Add(Inlines.Count);
             ContainsUI = true;
+            UIIndices ??= [];
+            UIIndices.Add(Inlines.Count);
+            UIElements ??= [];
             UIElements.Add(uiElement);
         }
     }
@@ -97,7 +102,8 @@ public class SParagraph : SBlock
         {
             Style = TextBlockStyle,
             TextWrapping = TextWrapping.Wrap,
-            TextAlignment = TextAlignment
+            TextAlignment = TextAlignment,
+            IsTextSelectionEnabled = IsTextSelectionEnabled
         };
 
         foreach (Inline _inline in inlines)

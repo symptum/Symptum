@@ -1,11 +1,6 @@
 <Project Sdk="Uno.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>
-      <!-- net10.0-android; -->
-      net10.0-windows10.0.22621;
-      net10.0-desktop;
-      <!-- net10.0-browserwasm; -->
-    </TargetFrameworks>
+    <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-windows10.0.26100;net10.0-browserwasm;net10.0-desktop</TargetFrameworks>
 
     <OutputType>Exe</OutputType>
     <UnoSingleProject>true</UnoSingleProject>
@@ -15,12 +10,13 @@
     <!-- App Identifier -->
     <ApplicationId>com.symptum.editor.dev</ApplicationId>
     <!-- Versions -->
-    <ApplicationDisplayVersion>0.0.5</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>0.0.6</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
-
-    <!--<WasmShellEnableIDBFS>true</WasmShellEnableIDBFS>-->
-
+    <!-- Package Publisher -->
+    <ApplicationPublisher>ShankarBUS</ApplicationPublisher>
+    <!-- Package Description -->
+    <Description>Symptum Editor (Developmental Build).</Description>
     <!--
       If you encounter this error message:
 
@@ -34,14 +30,17 @@
     <!-- <WindowsSdkPackageVersion>10.0.22621.28</WindowsSdkPackageVersion> -->
 
     <!--
-      UnoFeatures let's you quickly add and manage implicit package references based on the features you want to use.
+      UnoFeatures are used to quickly add and manage features enabled for your app.
       https://aka.platform.uno/singleproject-features
     -->
     <UnoFeatures>
+      CSharpMarkup;
+      Lottie;
       MediaElement;
       Toolkit;
       Mvvm;
       ExtensionsCore;
+      ThemeService;
       Svg;
       SkiaRenderer;
     </UnoFeatures>
@@ -50,26 +49,16 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
-    <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" />
-  </ItemGroup>
-  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'windows'">
-    <PackageReference Include="Uno.CommunityToolkit.WinUI.UI.Controls.DataGrid" />
-  </ItemGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\Symptum.Common\Symptum.Common.csproj" />
     <ProjectReference Include="..\Symptum.Core\Symptum.Core.csproj" />
+    <ProjectReference Include="..\Symptum.Common\Symptum.Common.csproj" />
+    <ProjectReference Include="..\Symptum.UI\Symptum.UI.csproj" />
     <PackageReference Include="CommunityToolkit.Mvvm" />
     <PackageReference Include="CommunityToolkit.Labs.WinUI.Ribbon" />
-    <PackageReference Include="CommunityToolkit.WinUI.Controls.HeaderedControls" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Sizers" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.TokenizingTextBox" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Symptum.Editor.SourceGenerators\Symptum.Editor.SourceGenerators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <PackageReference Include="WinUI.TableView" />
   </ItemGroup>
 
   <ItemGroup>
@@ -83,5 +72,11 @@
     <UapAppxPackageBuildMode>Sideloading</UapAppxPackageBuildMode>
     <AppxPackageSigningEnabled>true</AppxPackageSigningEnabled>
   </PropertyGroup>
+
+<ItemGroup>
+  <Content Include="Assets\**">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </Content>
+</ItemGroup>
 
 </Project>

@@ -10,14 +10,14 @@ public class ListRenderer : WinUIObjectRenderer<ListBlock>
         ArgumentNullException.ThrowIfNull(renderer);
         ArgumentNullException.ThrowIfNull(listBlock);
 
-        ListElement list = new(listBlock, renderer.Configuration, listBlock.Parent is MarkdownDocument);
+        ListElement list = new(listBlock, renderer.MarkdownTextBlock, listBlock.Parent is MarkdownDocument);
 
         renderer.Push(list);
 
         foreach (Block item in listBlock)
         {
             ListItemBlock listItemBlock = (ListItemBlock)item;
-            BlockContainerElement listItem = new(listItemBlock, renderer.Configuration);
+            BlockContainerElement listItem = new(listItemBlock, renderer.MarkdownTextBlock);
             renderer.Push(listItem);
             renderer.WriteChildren(listItemBlock);
             renderer.Pop();

@@ -2,6 +2,8 @@ namespace Symptum.Core.Helpers;
 
 public static class FileHelper
 {
+    private static Func<char, bool> _defaultPredicate = static _ => true;
+
     public const char PathSeparator = '\\';
 
     public const char ExtensionSeparator = '.';
@@ -101,7 +103,7 @@ public static class FileHelper
     {
         if (string.IsNullOrEmpty(text)) return string.Empty;
         char[] invalidChars = Path.GetInvalidFileNameChars();
-        predicate ??= (ch) => true;
+        predicate ??= _defaultPredicate;
         return new([.. text.Where(ch => predicate(ch) && !invalidChars.Contains(ch))]);
     }
 
@@ -113,7 +115,7 @@ public static class FileHelper
     /// <returns>The formatted value of the given bytes.</returns>
     public static string FormatSize(ulong bytes, bool addSuffix = true)
     {
-        string[] suf = { " Bytes", " KB", " MB", " GB", " TB", " PB", " EB" };
+        string[] suf = [" Bytes", " KB", " MB", " GB", " TB", " PB", " EB"];
 
         if (bytes == 0L) { return "0" + (addSuffix ? suf[0] : string.Empty); }
 

@@ -4,9 +4,9 @@ using static Symptum.Core.Helpers.FileHelper;
 
 namespace Symptum.Common.Helpers;
 
-#if __WASM__
-using static Uno.Storage.Pickers.FileSystemAccessApiInformation;
-#endif
+//#if __WASM__
+//using static Uno.Storage.Pickers.FileSystemAccessApiInformation;
+//#endif
 
 public class StorageHelper
 {
@@ -28,12 +28,12 @@ public class StorageHelper
 
     public static void Initialize()
     {
-#if __WASM__
-        Uno.WinRTFeatureConfiguration.Storage.Pickers.WasmConfiguration = Uno.WasmPickerConfiguration.FileSystemAccessApiWithFallback;
-        isFileOpenPickerSupported = IsOpenPickerSupported;
-        isFileSavePickerSupported = IsSavePickerSupported;
-        isFolderPickerSupported = IsFolderPickerSupported;
-#endif
+//#if __WASM__
+//        Uno.WinRTFeatureConfiguration.Storage.Pickers.WasmConfiguration = Uno.WasmPickerConfiguration.FileSystemAccessApiWithFallback;
+//        isFileOpenPickerSupported = IsOpenPickerSupported;
+//        isFileSavePickerSupported = IsSavePickerSupported;
+//        isFolderPickerSupported = IsFolderPickerSupported;
+//#endif
     }
 
     #region Storage Methods
@@ -79,10 +79,46 @@ public class StorageHelper
 
     public static async Task<bool> WriteToFileAsync(StorageFile file, string content)
     {
-        CachedFileManager.DeferUpdates(file);
-        await FileIO.WriteTextAsync(file, content);
-        await CachedFileManager.CompleteUpdatesAsync(file);
-        return true;
+        ArgumentNullException.ThrowIfNull(file);
+
+        try
+        {
+            CachedFileManager.DeferUpdates(file);
+            try
+            {
+                await FileIO.WriteTextAsync(file, content);
+            }
+            finally
+            {
+                await CachedFileManager.CompleteUpdatesAsync(file);
+            }
+
+            return true;
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    public static async Task<StorageFile> EnsureStorageFileExistsAsync(StorageFile file)
+    {
+        ArgumentNullException.ThrowIfNull(file);
+
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(file.Path) && File.Exists(file.Path))
+                return file;
+        }
+        catch { }
+
+        StorageFolder? parent = await file.GetParentAsync();
+        if (parent != null)
+        {
+            return await parent.CreateFileAsync(file.Name, CreationCollisionOption.ReplaceExisting);
+        }
+
+        return file;
     }
 
     #endregion

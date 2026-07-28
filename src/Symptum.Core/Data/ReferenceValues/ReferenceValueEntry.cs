@@ -3,48 +3,29 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Symptum.Core.Extensions;
 using Symptum.Core.TypeConversion;
 
 namespace Symptum.Core.Data.ReferenceValues;
 
-public class ReferenceValueEntry : ObservableObject
+public partial class ReferenceValueEntry : ObservableObject
 {
     public ReferenceValueEntry()
     { }
 
     #region Properties
 
-    private string? _title;
+    [ObservableProperty]
+    public partial string? Title { get; set; }
 
-    public string? Title
-    {
-        get => _title;
-        set => SetProperty(ref _title, value);
-    }
+    [ObservableProperty]
+    public partial List<Quantity>? Quantities { get; set; }
 
-    private List<Quantity>? _quantities;
+    [ObservableProperty]
+    public partial string? Inference { get; set; }
 
-    public List<Quantity>? Quantities
-    {
-        get => _quantities;
-        set => SetProperty(ref _quantities, value);
-    }
-
-    private string? _inference;
-
-    public string? Inference
-    {
-        get => _inference;
-        set => SetProperty(ref _inference, value);
-    }
-
-    private string? _remarks;
-
-    public string? Remarks
-    {
-        get => _remarks;
-        set => SetProperty(ref _remarks, value);
-    }
+    [ObservableProperty]
+    public partial string? Remarks { get; set; }
 
     #endregion
 
@@ -72,13 +53,22 @@ public class ReferenceValueEntry : ObservableObject
     public string GetPreviewText()
     {
         StringBuilder sb = new();
-        sb.Append(_title);
+        sb.Append(Title);
         sb.Append(": ");
-        sb.Append(ListToStringConversion.ConvertToString<Quantity>(_quantities, x => x.ToString(), ", "));
+        sb.Append(ListToStringConversion.ConvertToString<Quantity>(Quantities, x => x.ToString(), ", "));
         sb.Append(" Inference: ");
-        sb.Append(_inference);
+        sb.Append(Inference);
         sb.Append(" Remarks: ");
-        sb.Append(_remarks);
+        sb.Append(Remarks);
         return sb.ToString();
     }
+
+    public ReferenceValueEntry Clone() =>
+        new()
+        {
+            Title = Title,
+            Quantities = Quantities.CloneList(q => q.Clone()),
+            Inference = Inference,
+            Remarks = Remarks
+        };
 }

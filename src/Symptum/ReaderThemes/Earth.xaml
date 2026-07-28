@@ -1,0 +1,16 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="MarkdownBackground" Color="#1C1610" />
+      <SolidColorBrush x:Key="MarkdownForeground" Color="#EAE0D0" />
+      <SolidColorBrush x:Key="MarkdownAccentText" Color="#C57B3F" />
+      <SolidColorBrush x:Key="MarkdownAccentFill" Color="#C57B3F" />
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Light">
+      <SolidColorBrush x:Key="MarkdownBackground" Color="#F7F2EA" />
+      <SolidColorBrush x:Key="MarkdownForeground" Color="#2B2013" />
+      <SolidColorBrush x:Key="MarkdownAccentText" Color="#A0602E" />
+      <SolidColorBrush x:Key="MarkdownAccentFill" Color="#A0602E" />
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

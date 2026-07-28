@@ -1,30 +1,14 @@
-using Symptum.Core.Management.Resources;
+using System.ComponentModel;
 using Symptum.Common.Helpers;
-using Symptum.Editor.Helpers;
-using Symptum.Editor.Controls;
 using Symptum.Editor.Pages;
-using Windows.Storage.Pickers;
+using Symptum.Editor.ViewModels;
 using Windows.System;
-using System.Text;
-using Symptum.Core.Subjects.QuestionBanks;
-using Symptum.Core.Management.Deployment;
-using static Symptum.Core.Helpers.FileHelper;
-using Microsoft.UI.Xaml.Input;
-using Symptum.Common.ProjectSystem;
 
 namespace Symptum.Editor;
 
 public sealed partial class MainPage : Page
 {
     private bool _collapsed = false;
-    private readonly AddNewItemDialog addNewItemDialog = new();
-    private readonly QuestionBankContextConfigureDialog contextConfigureDialog = new();
-
-    private DeleteItemsDialog deleteResourceDialog = new()
-    {
-        Title = "Delete Resource(s)?",
-        Content = "Do you want to delete the resources(s)?\nOnce you delete you won't be able to restore."
-    };
 
     public MainPage()
     {
@@ -40,85 +24,25 @@ public sealed partial class MainPage : Page
 
         Background = null;
 
-        workFolderButton.Click += async (s, e) =>
-        {
-            if (ResourceHelper.WorkFolder != null)
-                await Launcher.LaunchFolderAsync(ResourceHelper.WorkFolder);
-        };
-
 #endif
-
-        treeView.ItemsSource = ResourceManager.Resources;
-
-        ResourceHelper.WorkFolderChanged += (s, e) =>
-        {
-            workFolderText.Text = e?.DisplayName;
-            ToolTipService.SetToolTip(workFolderButton, e?.Path);
-            workFolderButton.Visibility = e != null ? Visibility.Visible : Visibility.Collapsed;
-        };
-
-        ProjectSystemManager.CurrentProjectChanged += (s, e) =>
-        {
-            if (e == null || string.IsNullOrEmpty(e.Name))
-                resourcesTB.Text = "Resources";
-            else
-                resourcesTB.Text = $"Resources - {e.Name}";
-        };
-
-        treeView.SelectionChanged += (_, _) => UpdateDeleteButtonEnabled();
-
-        treeView.ItemInvoked += (s, e) =>
-        {
-            if (e.InvokedItem is IResource resource)
-            {
-                EditorPagesManager.CreateOrOpenEditor(resource);
-            }
-        };
 
         expandResourcesPaneButton.Click += (s, e) =>
         {
             splitView.IsPaneOpen = true;
         };
 
-        EditorPagesManager.CurrentEditorChanged += (s, e) => editorsTabView.SelectedItem = e;
-
-        editorsTabView.SelectionChanged += (s, e) =>
-        {
-            EditorPagesManager.CurrentEditor = editorsTabView.SelectedItem as IEditorPage;
-#if WINDOWS && !HAS_UNO
-            titleTB.Text = App.AppTitle;
-            if (e.AddedItems.Count > 0 && e.AddedItems[0] is IEditorPage page)
-            {
-                string? title = page.EditableContent?.Title;
-                titleTB.Text += $" - {title}";
-            }
-#endif
-        };
-
         SizeChanged += MainPage_SizeChanged;
+        Loaded += (s, e) =>
+        {
+            ViewModel.Initialize();
+            ViewModel.PropertyChanged += ViewModel_PropertyChanged;
+            ViewModel.RecentItemsChanged += PopulateRecentMenus;
+            PopulateRecentMenus();
+            EditorPagesManager.ShowWelcomePage();
+        };
     }
 
-    #region Properties
-
-    public static DependencyProperty ShowResourcesPaneProperty = DependencyProperty.Register(
-        nameof(ShowResourcesPane),
-        typeof(bool),
-        typeof(MainPage),
-        new(true, OnShowResourcesPaneProperty));
-
-    private static void OnShowResourcesPaneProperty(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (d is MainPage page)
-            page.ShowOrHideResourcesPane((bool)e.NewValue);
-    }
-
-    public bool ShowResourcesPane
-    {
-        get => (bool)GetValue(ShowResourcesPaneProperty);
-        set => SetValue(ShowResourcesPaneProperty, value);
-    }
-
-    #endregion
+    public MainViewModel ViewModel { get; } = MainViewModel.Instance;
 
     private void MainPage_SizeChanged(object sender, SizeChangedEventArgs args)
     {
@@ -131,304 +55,26 @@ public sealed partial class MainPage : Page
         if (collapsed != _collapsed)
         {
             _collapsed = collapsed;
-            VisualStateManager.GoToState(this, collapsed || !ShowResourcesPane ? "MinimalState" : "DefaultState", true);
+            VisualStateManager.GoToState(this, collapsed || !ViewModel.ShowResourcesPane ? "MinimalState" : "DefaultState", true);
         }
     }
 
-    private async void Markdown_Click(object sender, RoutedEventArgs e)
+    private void ViewModel_PropertyChanged(object? s, PropertyChangedEventArgs e)
     {
-        //Dictionary<int, Dictionary<QuestionBankTopic, int>> totalW = [];
-        //List<QuestionBankTopic> topics = [];
-        //foreach (var resource in ResourceManager.Resources)
-        //{
-        //    if (resource is QuestionBankTopic topic)
-        //    {
-        //        var weightages = topic.GenerateWeightage();
-        //        foreach (var weightage in weightages)
-        //        {
-        //            var year = weightage.Key;
-        //            if (totalW.TryGetValue(year, out Dictionary<QuestionBankTopic, int>? values))
-        //            {
-        //                values.Add(topic, weightage.Value);
-        //            }
-        //            else totalW.Add(year, new() { { topic, weightage.Value } });
-        //        }
-        //        topics.Add(topic);
-        //    }
-        //}
-
-        //using var writer = new StringWriter();
-        //using var csvW = new CsvWriter(writer, CultureInfo.InvariantCulture);
-
-        //csvW.WriteField("Year");
-        //foreach (var topic in topics)
-        //{
-        //    csvW.WriteField(topic.Title);
-        //}
-        //csvW.NextRecord();
-        ////if (Entries != null)
-        ////{
-        ////    foreach (var entry in Entries)
-        ////    {
-        ////        csvW.WriteRecord(entry);
-        ////        csvW.NextRecord();
-        ////    }
-        ////}
-
-        //foreach (var w in totalW.OrderBy(x => x.Key))
-        //{
-        //    csvW.WriteField(w.Key);
-        //    if (w.Value is Dictionary<QuestionBankTopic, int> d)
-        //    {
-        //        foreach (var topic in topics)
-        //        {
-        //            int value = 0;
-        //            foreach (var w2 in d)
-        //            {
-        //                if (w2.Key == topic)
-        //                    value = w2.Value;
-        //            }
-        //            csvW.WriteField(value);
-        //        }
-        //    }
-        //    csvW.NextRecord();
-        //    //if (w.Value is Dictionary<QuestionBankTopic, int> d)
-        //    //{
-        //    //    foreach (var w2 in d)
-        //    //    {
-        //    //    }
-        //    //}
-        //}
-
-        //System.Diagnostics.Debug.WriteLine(writer.ToString());
-
-        //return;
-
-        if (_isBeingSaved) return;
-
-        _isBeingSaved = true;
-
-        StringBuilder mdBuilder = new();
-        foreach (var resource in ResourceManager.Resources)
+        if (e.PropertyName == nameof(ViewModel.ShowResourcesPane))
         {
-            if (resource is QuestionBankTopic topic)
-                MarkdownHelper.GenerateMarkdownForQuestionBankTopic(topic, ref mdBuilder);
+            ShowOrHideResourcesPane();
         }
-        var fileSavePicker = new FileSavePicker
+        else if (e.PropertyName == nameof(ViewModel.ResourceViewMultiSelectionEnabled))
         {
-            SuggestedFileName = string.Empty
-        };
-        fileSavePicker.FileTypeChoices.Add("Markdown File", [MarkdownFileExtension]);
-
-#if WINDOWS && !HAS_UNO
-        WinRT.Interop.InitializeWithWindow.Initialize(fileSavePicker, WindowHelper.WindowHandle);
-#endif
-        StorageFile saveFile = await fileSavePicker.PickSaveFileAsync();
-        if (saveFile != null)
-        {
-            CachedFileManager.DeferUpdates(saveFile);
-
-            await FileIO.WriteTextAsync(saveFile, mdBuilder.ToString());
-
-            await CachedFileManager.CompleteUpdatesAsync(saveFile);
-        }
-        _isBeingSaved = false;
-    }
-
-    private void EditorsTabView_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
-    {
-        EditorPagesManager.TryCloseEditor(args.Item as IEditorPage);
-    }
-
-    private async void New_Click(object sender, RoutedEventArgs e)
-    {
-        await AddNewItemAsync();
-    }
-
-    private async Task AddNewItemAsync(IResource? parent = null)
-    {
-        addNewItemDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
-        var result = await addNewItemDialog.CreateAsync(parent);
-        if (result == EditorResult.Create)
-        {
-            var selectedType = addNewItemDialog.SelectedItemType;
-            if (selectedType != null)
-            {
-                if (Activator.CreateInstance(selectedType) is IResource instance)
-                {
-                    instance.Title = addNewItemDialog.ItemTitle;
-                    if (parent != null)
-                        parent.AddChildResource(instance);
-                    else
-                    {
-                        ResourceManager.Resources.Add(instance);
-                        instance.InitializeResource(null);
-                    }
-                }
-            }
+            resourceView.SelectionMode = ViewModel.ResourceViewMultiSelectionEnabled ?
+                Controls.ResourceViewSelectionMode.Multiple : Controls.ResourceViewSelectionMode.Single;
         }
     }
 
-    private async void NewProject_Click(object sender, RoutedEventArgs e)
+    private void ShowOrHideResourcesPane()
     {
-        addNewItemDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
-        var result = await addNewItemDialog.CreateProjectAsync();
-        if (result == EditorResult.Create)
-        {
-            ProjectSystemManager.CurrentProject = new() { Name = addNewItemDialog.ItemTitle, Entries = [] };
-            ProjectSystemManager.UseProjectManager = true;
-        }
-    }
-
-    private async void OpenFile_Click(object sender, RoutedEventArgs e)
-    {
-        IResource? parent = null;
-        if (treeView.SelectedItems.Count > 0 && treeView.SelectedItems[0] is IResource resource)
-            parent = resource;
-
-        FileOpenPicker fileOpenPicker = new();
-        fileOpenPicker.FileTypeFilter.Add(CsvFileExtension);
-        fileOpenPicker.FileTypeFilter.Add(MarkdownFileExtension);
-        fileOpenPicker.FileTypeFilter.Add(JsonFileExtension);
-        fileOpenPicker.FileTypeFilter.AddRange(ImageFileExtensions);
-        fileOpenPicker.FileTypeFilter.AddRange(AudioFileExtensions);
-
-#if WINDOWS && !HAS_UNO
-        WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, WindowHelper.WindowHandle);
-#endif
-        var pickedFiles = await fileOpenPicker.PickMultipleFilesAsync();
-        if (pickedFiles.Count > 0)
-        {
-            await ResourceHelper.LoadResourcesFromFilesAsync(pickedFiles, parent);
-        }
-    }
-
-    private async void OpenFolder_Click(object sender, RoutedEventArgs e)
-    {
-        bool result = await ProjectSystemManager.OpenWorkFolderAsync();
-        if (result)
-        {
-            EditorPagesManager.ResetEditors();
-        }
-    }
-
-    private bool _isBeingSaved = false;
-
-    private async void SaveAll_Click(object sender, RoutedEventArgs e)
-    {
-        if (_isBeingSaved) return;
-
-        _isBeingSaved = true;
-
-        EditorPagesManager.UpdateEditors();
-        bool allSaved = await ProjectSystemManager.SaveAllResourcesAsync();
-        if (allSaved) EditorPagesManager.MarkAllOpenEditorsAsSaved();
-
-        _isBeingSaved = false;
-    }
-
-    private void CloseFolder_Click(object sender, RoutedEventArgs e)
-    {
-        ProjectSystemManager.CurrentProject = null;
-        EditorPagesManager.ResetEditors();
-        ResourceHelper.CloseWorkFolder();
-    }
-
-    private async void ImportPackage_Click(object sender, RoutedEventArgs e)
-    {
-        FileOpenPicker fileOpenPicker = new();
-        fileOpenPicker.FileTypeFilter.Add(PackageFileExtension);
-
-#if NET6_0_OR_GREATER && WINDOWS && !HAS_UNO
-        WinRT.Interop.InitializeWithWindow.Initialize(fileOpenPicker, WindowHelper.WindowHandle);
-#endif
-        var pickedFiles = await fileOpenPicker.PickMultipleFilesAsync();
-        foreach (var file in pickedFiles)
-        {
-            await PackageHelper.ImportPackageAsync(file);
-        }
-    }
-
-    private async void ExportPackage_Click(object sender, RoutedEventArgs e)
-    {
-        if (treeView.SelectedItems.Count > 0 && treeView.SelectedItems[0] is IPackageResource package)
-            await PackageHelper.ExportPackageAsync(package);
-    }
-
-    private void Exit_Click(object sender, RoutedEventArgs e)
-    {
-        Application.Current.Exit();
-    }
-
-    private async void ConfigureContext_Click(object sender, RoutedEventArgs e)
-    {
-        contextConfigureDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
-        await contextConfigureDialog.ShowAsync();
-    }
-
-    private void MultiSelectButton_Click(object sender, RoutedEventArgs e)
-    {
-        treeView.SelectionMode = multiSelectButton.IsChecked switch
-        {
-            true => TreeViewSelectionMode.Multiple,
-            false => TreeViewSelectionMode.Single,
-            _ => TreeViewSelectionMode.None
-        };
-        UpdateDeleteButtonEnabled();
-    }
-
-    private void UpdateDeleteButtonEnabled()
-    {
-        int count = treeView.SelectedItems.Count;
-        deleteResourcesButton.IsEnabled = (multiSelectButton.IsChecked ?? false) && count > 0;
-    }
-
-    private async void DeleteResourcesButton_Click(object sender, RoutedEventArgs e)
-    {
-        List<object> toDelete = [..treeView.SelectedItems];
-        if (toDelete.Count > 0)
-        {
-            deleteResourceDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
-            var result = await deleteResourceDialog.ShowAsync();
-            if (result == ContentDialogResult.Primary)
-            {
-                foreach (var item in toDelete)
-                {
-                    if (item is IResource resource)
-                    {
-                        await ResourceHelper.RemoveResourceAsync(resource, true);
-                    }
-                }
-            }
-        }
-        treeView.SelectedItems.Clear();
-    }
-
-    private async void DeleteFlyoutItem_Click(object sender, RoutedEventArgs e)
-    {
-        var context = (sender as MenuFlyoutItem)?.DataContext;
-        if (context is IResource resource)
-        {
-            deleteResourceDialog.XamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
-            var result = await deleteResourceDialog.ShowAsync();
-            if (result == ContentDialogResult.Primary)
-            {
-                await ResourceHelper.RemoveResourceAsync(resource, true);
-            }
-        }
-    }
-
-    private async void AddNewFlyoutItem_Click(object sender, RoutedEventArgs e)
-    {
-        var context = (sender as MenuFlyoutItem)?.DataContext;
-        if (context is IResource parent)
-        {
-            await AddNewItemAsync(parent);
-        }
-    }
-
-    private void ShowOrHideResourcesPane(bool showResourcesPane)
-    {
+        bool showResourcesPane = ViewModel.ShowResourcesPane;
         ToolTipService.SetToolTip(showResourcesPaneButton, showResourcesPane ? "Unpin" : "Pin");
         resourcesPaneButtonSymbolIcon.Symbol = showResourcesPane ? Symbol.UnPin : Symbol.Pin;
         showResourcesPaneMenuItem.IsChecked = showResourcesPane;
@@ -437,12 +83,38 @@ public sealed partial class MainPage : Page
 
     private void ShowResourcesPaneButton_Click(object sender, RoutedEventArgs e)
     {
-        ShowResourcesPane = !ShowResourcesPane;
+        ViewModel.ShowResourcesPane = !ViewModel.ShowResourcesPane;
     }
 
-    private void CloseAllTabs_Click(object sender, RoutedEventArgs e)
+    private void PopulateRecentMenus()
     {
-        EditorPagesManager.ResetEditors();
+        openRecentMenuItem.Items.Clear();
+
+        var items = ViewModel.RecentItems;
+        if (items.Count == 0)
+        {
+            openRecentMenuItem.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        for (int i = 0; i < items.Count; i++)
+        {
+            string path = items[i];
+            var menuItem = new MenuFlyoutItem
+            {
+                Text = path,
+                Command = ViewModel.OpenRecentItemCommand,
+                CommandParameter = path
+            };
+            ToolTipService.SetToolTip(menuItem, path);
+            openRecentMenuItem.Items.Add(menuItem);
+        }
+
+        openRecentMenuItem.Items.Add(new MenuFlyoutSeparator());
+        openRecentMenuItem.Items.Add(new MenuFlyoutItem()
+                                         .Text("Clear Recent Items")
+                                         .Command(ViewModel.ClearRecentItemsCommand));
+        openRecentMenuItem.Visibility = Visibility.Visible;
     }
 
     private void CloseSelectedTabKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
@@ -473,5 +145,10 @@ public sealed partial class MainPage : Page
     private void CommandPalette_Click(object sender, RoutedEventArgs e)
     {
         commandPalette.ShowPalette();
+    }
+
+    private void CloseOutputPanel_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.ShowOutputPanel = false;
     }
 }

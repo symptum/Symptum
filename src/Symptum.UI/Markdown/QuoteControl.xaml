@@ -51,13 +51,14 @@
   <Style BasedOn="{StaticResource DefaultQuoteControlStyle}"
          TargetType="md:QuoteControl" />
 
+  <Thickness x:Key="MarkdownBlockMargin">16,8,8,8</Thickness>
   <Style x:Key="DefaultQuoteControlStyle" TargetType="md:QuoteControl">
     <Setter Property="Background" Value="{ThemeResource DefaultQuoteBackground}" />
     <Setter Property="BorderBrush" Value="{ThemeResource DefaultQuoteBorderBrush}" />
     <Setter Property="Foreground" Value="{ThemeResource DefaultQuoteForeground}" />
     <Setter Property="BorderThickness" Value="4,0,0,0" />
     <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}" />
-    <Setter Property="Margin" Value="16,8,8,8" />
+    <Setter Property="Margin" Value="{ThemeResource MarkdownBlockMargin}" />
     <Setter Property="Padding" Value="12" />
     <Setter Property="Template">
       <Setter.Value>
