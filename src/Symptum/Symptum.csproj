@@ -35,7 +35,7 @@
     -->
     <UnoFeatures>
       Lottie;
-      MediaElement;
+      <!-- MediaElement; -->
       Toolkit;
       Mvvm;
       ExtensionsCore;
