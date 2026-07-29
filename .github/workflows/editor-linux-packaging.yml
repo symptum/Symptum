@@ -8,8 +8,6 @@ on:
   workflow_dispatch:
 
 env:
-  APP_NAME: 'Symptum Editor'
-  EXECUTABLE_NAME: 'Symptum.Editor'
   ICON_PATH: 'main/src/Symptum.Editor/Assets/Images/Symptum_Editor.png'
 
 jobs:
@@ -48,27 +46,27 @@ jobs:
         cat << 'EOF' > AppDir/AppRun
         #!/bin/sh
         HERE="$(dirname "$(readlink -f "${0}")")"
-        exec "$HERE/usr/bin/${{ env.EXECUTABLE_NAME }}" "$@"
+        exec "$HERE/usr/bin/Symptum.Editor" "$@"
         EOF
         chmod +x AppDir/AppRun
 
         # Create the Desktop entry file at the root of AppDir
-        cat << EOF > AppDir/${{ env.APP_NAME }}.desktop
+        cat << EOF > AppDir/symptum-editor.desktop
         [Desktop Entry]
         Type=Application
-        Name=${{ env.APP_NAME }}
-        Exec=${{ env.EXECUTABLE_NAME }}
-        Icon=${{ env.APP_NAME }}
+        Name=Symptum Editor (Dev)
+        Exec=Symptum.Editor
+        Icon=symptum-editor
         Categories=Utility;
         Terminal=false
         EOF
         
         # Copy desktop entry to usr/share/applications/ as well
-        cp AppDir/${{ env.APP_NAME }}.desktop AppDir/usr/share/applications/
+        cp AppDir/symptum-editor.desktop AppDir/usr/share/applications/
 
         if [ -f "${{ env.ICON_PATH }}" ]; then
-          cp "${{ env.ICON_PATH }}" AppDir/${{ env.APP_NAME }}.png
-          cp "${{ env.ICON_PATH }}" AppDir/usr/share/icons/hicolor/256x256/apps/${{ env.APP_NAME }}.png
+          cp "${{ env.ICON_PATH }}" AppDir/symptum-editor.png
+          cp "${{ env.ICON_PATH }}" AppDir/usr/share/icons/hicolor/256x256/apps/symptum-editor.png
         fi
 
     - name: Download and Configure appimagetool
@@ -79,11 +77,11 @@ jobs:
     - name: Build AppImage
       run: |
         # Extract and run avoids standard FUSE container limitations in GitHub Actions
-        ARCH=x86_64 ./appimagetool --appimage-extract-and-run AppDir ${{ env.APP_NAME }}-x86_64.AppImage
+        ARCH=x86_64 ./appimagetool --appimage-extract-and-run AppDir Symptum-Editor-x86_64.AppImage
 
     - name: Upload AppImage Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ env.APP_NAME }}-Linux-AppImage
-        path: ${{ env.APP_NAME }}-x86_64.AppImage
+        name: Symptum-Editor-Linux-AppImage
+        path: Symptum-Editor-x86_64.AppImage
         if-no-files-found: error
