@@ -153,6 +153,7 @@ public class WinUIRenderer : RendererBase
     protected virtual void LoadRenderers()
     {
         // Default block renderers
+        ObjectRenderers.Add(new MermaidBlockRenderer());
         ObjectRenderers.Add(new CodeBlockRenderer());
         ObjectRenderers.Add(new ListRenderer());
         ObjectRenderers.Add(new HeadingRenderer());

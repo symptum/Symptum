@@ -124,7 +124,7 @@
           </MenuFlyoutItem>
           <MenuFlyoutItem Text="Close Folder"
                           Command="{x:Bind ViewModel.CloseWorkFolderCommand}"/>
-          <MenuFlyoutSeparator/>
+          <win:MenuFlyoutSeparator/>
           <win:MenuFlyoutItem Text="Exit"
                               Command="{x:Bind ViewModel.ExitApplicationCommand}"/>
         </MenuBarItem>

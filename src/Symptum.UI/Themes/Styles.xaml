@@ -159,7 +159,7 @@
 
   <SolidColorBrush x:Key="MarkdownBackground" Color="Transparent" />
   <SolidColorBrush x:Key="MarkdownForeground" Color="{ThemeResource TextFillColorPrimary}" />
-  
+
   <Style x:Key="DefaultBodyTextBlockStyle"
          BasedOn="{StaticResource BodyTextBlockStyle}"
          TargetType="TextBlock">

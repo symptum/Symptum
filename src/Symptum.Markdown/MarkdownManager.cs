@@ -2,6 +2,7 @@ using System.Text;
 using Markdig;
 using Symptum.Core.Management.Resources;
 using Symptum.Markdown.Embedding;
+using Symptum.Markdown.Mermaid;
 using Symptum.Markdown.Reference;
 
 namespace Symptum.Markdown;
@@ -24,6 +25,7 @@ public static class MarkdownManager
             .Use<ReferenceInlineExtension>()
             .Use<ExportBlockExtension>()
             .Use<ImportBlockExtension>()
+            .Use<MermaidBlockExtension>()
             .Build();
     }
 

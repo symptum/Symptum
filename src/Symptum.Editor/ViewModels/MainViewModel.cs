@@ -256,6 +256,14 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    partial void OnCurrentEditorChanged(IEditorPage? value)
+    {
+        if (value != null && value.EditableContent is IResource resource)
+        {
+            SelectedResource = resource;
+        }
+    }
+
     #endregion
 
     #region Commands
