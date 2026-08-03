@@ -58,6 +58,56 @@
           </controls:SettingsExpander.Items>
         </controls:SettingsExpander>
 
+        <!--  Focus Session  -->
+        <TextBlock Margin="1,30,0,6"
+                   Style="{ThemeResource BodyStrongTextBlockStyle}"
+                   Text="Focus Session" />
+
+        <controls:SettingsExpander Description="Configure your focus session timer settings"
+                                   Header="Timer Settings"
+                                   HeaderIcon="{ui:FontIcon Glyph=&#xE916;}">
+          <controls:SettingsExpander.Items>
+            <controls:SettingsCard Header="Focus Duration">
+              <NumberBox MinWidth="120"
+                         Maximum="120"
+                         Minimum="1"
+                         SpinButtonPlacementMode="Compact"
+                         Value="{x:Bind FocusSession.FocusMinutes, Mode=TwoWay}" />
+            </controls:SettingsCard>
+            <controls:SettingsCard Header="Short Break Duration">
+              <NumberBox MinWidth="120"
+                         Maximum="60"
+                         Minimum="1"
+                         SpinButtonPlacementMode="Compact"
+                         Value="{x:Bind FocusSession.ShortBreakMinutes, Mode=TwoWay}" />
+            </controls:SettingsCard>
+            <controls:SettingsCard Header="Long Break Duration">
+              <NumberBox MinWidth="120"
+                         Maximum="90"
+                         Minimum="1"
+                         SpinButtonPlacementMode="Compact"
+                         Value="{x:Bind FocusSession.LongBreakMinutes, Mode=TwoWay}" />
+            </controls:SettingsCard>
+            <controls:SettingsCard Header="Focus Intervals Per Session">
+              <NumberBox MinWidth="120"
+                         Maximum="12"
+                         Minimum="1"
+                         SpinButtonPlacementMode="Compact"
+                         Value="{x:Bind FocusSession.IntervalsPerSession, Mode=TwoWay}" />
+            </controls:SettingsCard>
+            <controls:SettingsCard Header="Auto-Start Next Session">
+              <ToggleSwitch IsOn="{x:Bind FocusSession.AutoStartNext, Mode=TwoWay}"
+                            OffContent="Off"
+                            OnContent="On" />
+            </controls:SettingsCard>
+            <controls:SettingsCard Header="Notifications">
+              <ToggleSwitch IsOn="{x:Bind FocusSession.NotificationsEnabled, Mode=TwoWay}"
+                            OffContent="Off"
+                            OnContent="On" />
+            </controls:SettingsCard>
+          </controls:SettingsExpander.Items>
+        </controls:SettingsExpander>
+
         <!--  About  -->
         <TextBlock Margin="1,30,0,6"
                    Style="{ThemeResource BodyStrongTextBlockStyle}"

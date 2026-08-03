@@ -17,6 +17,10 @@ public class NavigationManager
 
     public static readonly Uri SubjectsUri = ResourceManager.GetAbsoluteUri("subjects");
 
+    public static readonly Uri FocusSessionUri = ResourceManager.GetAbsoluteUri("focus");
+
+    public static readonly NavigationInfo FocusSessionNavInfo = new(FocusSessionUri, "Focus Session", typeof(FocusSessionPage), new FontIconSource() { Glyph = "\uF272" });
+
     public static readonly NavigationInfo SettingsNavInfo = new(ResourceManager.GetAbsoluteUri("settings"), "Settings", typeof(SettingsPage), new SymbolIconSource() { Symbol = Symbol.Setting });
 
     public static Uri? CurrentUri { get; set; }
@@ -109,6 +113,15 @@ public class NavigationManager
     {
         AddNavInfo(HomeNavInfo);
         NavigationInfo? navInfo;
+        navInfo = new NavigationInfo(SubjectsUri, "Subjects", typeof(DefaultPage), new SymbolIconSource() { Symbol = Symbol.Library });
+
+        foreach (var sub in SubjectsManager.Subjects)
+        {
+            AddNavInfo(CreateNavigationInfoForNavigable(sub), navInfo.Children);
+        }
+
+        AddNavInfo(navInfo);
+
         foreach (var resource in ResourceManager.Resources)
         {
             if (resource is Subject)
@@ -124,14 +137,7 @@ public class NavigationManager
             }
         }
 
-        navInfo = new NavigationInfo(SubjectsUri, "Subjects", typeof(DefaultPage), new SymbolIconSource() { Symbol = Symbol.Library });
-
-        foreach (var sub in SubjectsManager.Subjects)
-        {
-            AddNavInfo(CreateNavigationInfoForNavigable(sub), navInfo.Children);
-        }
-
-        AddNavInfo(navInfo);
+        AddNavInfo(FocusSessionNavInfo);
 
         Navigate(HomeNavInfo);
     }

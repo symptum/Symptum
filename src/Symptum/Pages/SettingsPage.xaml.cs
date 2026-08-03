@@ -1,9 +1,12 @@
 using Symptum.Helpers;
+using Symptum.ViewModels;
 
 namespace Symptum.Pages;
 
 public sealed partial class SettingsPage : NavigablePage
 {
+    public FocusSessionViewModel FocusSession => FocusSessionViewModel.Instance;
+
     public SettingsPage()
     {
         InitializeComponent();

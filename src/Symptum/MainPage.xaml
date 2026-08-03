@@ -27,7 +27,7 @@
       <NavigationView.MenuItemTemplate>
         <DataTemplate x:DataType="nav:NavigationInfo">
           <NavigationViewItem Content="{x:Bind Title}"
-                              MenuItemsSource="{Binding Children}"
+                              MenuItemsSource="{x:Bind Children}"
                               Tag="{x:Bind}">
             <NavigationViewItem.Icon>
               <IconSourceElement IconSource="{x:Bind IconSource}" />
