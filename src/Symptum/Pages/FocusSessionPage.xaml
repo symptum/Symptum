@@ -6,6 +6,28 @@
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                      xmlns:controls="using:CommunityToolkit.WinUI.Controls"
                      mc:Ignorable="d">
+  <local:NavigablePage.Resources>
+    <Style x:Key="NarrowPageTitleTextBlockStyle"
+             BasedOn="{StaticResource BodyStrongTextBlockStyle}"
+             TargetType="TextBlock">
+      <Setter Property="FontSize" Value="18" />
+      <Setter Property="Margin" Value="24,24,12,24" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+      <Setter Property="TextWrapping" Value="NoWrap" />
+    </Style>
+    <Style x:Key="MinimalPageTitleTextBlockStyle"
+             BasedOn="{StaticResource BodyStrongTextBlockStyle}"
+             TargetType="TextBlock">
+      <Setter Property="Margin" Value="16,16,2,16" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+      <Setter Property="TextWrapping" Value="NoWrap" />
+    </Style>
+    <SolidColorBrush x:Key="FocusBrush">#E63946</SolidColorBrush>
+    <SolidColorBrush x:Key="ShortBreakBrush">#9ACD32</SolidColorBrush>
+    <SolidColorBrush x:Key="LongBreakBrush">#1E90FF</SolidColorBrush>
+  </local:NavigablePage.Resources>
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
@@ -47,7 +69,7 @@
         <Path x:Name="ringProgress"
               HorizontalAlignment="Center"
               VerticalAlignment="Center"
-              Stroke="{ThemeResource AccentFillColorDefaultBrush}"
+              Stroke="{ThemeResource FocusBrush}"
               StrokeEndLineCap="Round"
               StrokeStartLineCap="Round" />
         <TextBlock x:Name="timeTB"
@@ -102,8 +124,7 @@
             <AdaptiveTrigger MinWindowWidth="360" MinWindowHeight="360" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="titleTB.Visibility" Value="Collapsed" />
-            <Setter Target="content.Margin" Value="{ThemeResource NavViewContentNarrowMargin}" />
+            <Setter Target="titleTB.Style" Value="{StaticResource NarrowPageTitleTextBlockStyle}" />
             <Setter Target="clockGrid.MaxWidth" Value="260" />
             <Setter Target="clockGrid.MaxHeight" Value="260" />
             <Setter Target="timeTB.FontSize" Value="24" />
@@ -120,8 +141,7 @@
             <AdaptiveTrigger MinWindowWidth="0" MinWindowHeight="0" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="titleTB.Visibility" Value="Collapsed" />
-            <Setter Target="content.Margin" Value="{ThemeResource NavViewContentNarrowMargin}" />
+            <Setter Target="titleTB.Style" Value="{StaticResource MinimalPageTitleTextBlockStyle}" />
             <Setter Target="modeSegmented.Visibility" Value="Collapsed" />
             <Setter Target="clockGrid.MaxWidth" Value="180" />
             <Setter Target="clockGrid.MaxHeight" Value="180" />
@@ -132,6 +152,22 @@
             <Setter Target="playButton.Padding" Value="4" />
             <Setter Target="playButton.CornerRadius" Value="16" />
             <Setter Target="playIcon.FontSize" Value="14" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <VisualStateGroup x:Name="TitleVisualStates">
+        <VisualState x:Name="WideTitle">
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="640" />
+          </VisualState.StateTriggers>
+        </VisualState>
+        <VisualState x:Name="NarrowTitle">
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="titleTB.Visibility" Value="Collapsed" />
+            <Setter Target="content.Margin" Value="{ThemeResource NavViewContentNarrowMargin}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

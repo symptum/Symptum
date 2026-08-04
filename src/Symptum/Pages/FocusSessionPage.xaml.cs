@@ -1,3 +1,4 @@
+using Windows.UI;
 using Symptum.ViewModels;
 using Windows.Foundation;
 
@@ -7,9 +8,16 @@ public sealed partial class FocusSessionPage : NavigablePage
 {
     private const double RingThickness = 14;
 
+    private SolidColorBrush? focusBrush;
+    private SolidColorBrush? shortBreakBrush;
+    private SolidColorBrush? longBreakBrush;
+
     public FocusSessionPage()
     {
         InitializeComponent();
+        focusBrush = Resources["FocusBrush"] as SolidColorBrush;
+        shortBreakBrush = Resources["ShortBreakBrush"] as SolidColorBrush;
+        longBreakBrush = Resources["LongBreakBrush"] as SolidColorBrush;
         Loaded += FocusSessionPage_Loaded;
         Unloaded += FocusSessionPage_Unloaded;
     }
@@ -20,7 +28,7 @@ public sealed partial class FocusSessionPage : NavigablePage
     {
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         RebuildClock();
-        UpdateModeSelection();
+        UpdateMode();
         UpdatePlayIcon();
 
         clockGrid.SizeChanged += ClockGrid_SizeChanged;
@@ -45,7 +53,7 @@ public sealed partial class FocusSessionPage : NavigablePage
                 break;
 
             case nameof(FocusSessionViewModel.Mode):
-                UpdateModeSelection();
+                UpdateMode();
                 UpdatePlayIcon();
                 break;
         }
@@ -60,9 +68,16 @@ public sealed partial class FocusSessionPage : NavigablePage
         }
     }
 
-    private void UpdateModeSelection()
+    private void UpdateMode()
     {
         modeSegmented.SelectedIndex = (int)ViewModel.Mode;
+        ringProgress.Stroke = ViewModel.Mode switch
+        {
+            FocusSessionMode.Focus => focusBrush,
+            FocusSessionMode.ShortBreak => shortBreakBrush,
+            FocusSessionMode.LongBreak => longBreakBrush,
+            _ => null,
+        };
     }
 
     private void UpdatePlayIcon()
