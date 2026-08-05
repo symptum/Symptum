@@ -69,6 +69,7 @@ public sealed partial class ReferenceValueParameterEditorDialog : ContentDialog,
     {
         if (Parameter == null) return;
 
+        idTB.Text = Parameter.Id;
         titleTB.Text = Parameter.Title;
         entries.LoadFromList(Parameter.Entries);
     }
@@ -76,12 +77,14 @@ public sealed partial class ReferenceValueParameterEditorDialog : ContentDialog,
     private void UpdateParameter()
     {
         Parameter ??= new();
+        Parameter.Id = idTB.Text;
         Parameter.Title = titleTB.Text;
         Parameter.Entries = entries.UnwrapToList();
     }
 
     private void ClearParameter()
     {
+        idTB.Text = string.Empty;
         titleTB.Text = string.Empty;
         entries.Clear();
     }

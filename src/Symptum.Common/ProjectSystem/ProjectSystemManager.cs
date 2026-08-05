@@ -1,4 +1,5 @@
 using Symptum.Common.Helpers;
+using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
 using static Symptum.Core.Helpers.FileHelper;
 
@@ -142,6 +143,8 @@ public class ProjectSystemManager
         return false;
     }
 
+    // This will save the top-most resources (direct children of ProjectFolders and direct children of ResourceManager.Resources)
+    // and their children recursively. It will also add the resources to the project file if UseProjectManager is true.
     private static async Task<bool> SaveTopMostResourceAsync(IResource resource, string? subFolder = null)
     {
         if (resource == null) return false;
@@ -171,10 +174,10 @@ public class ProjectSystemManager
                 _ => string.Empty
             };
 
-            // NOTE: To prevent adding the resources which are int the root folder to the project file.
+            // NOTE: To prevent adding the resources which are in the root folder to the project file.
             // As they will be loaded regardless.
             if (resource.ParentResource is ProjectFolder)
-                CurrentProject?.Entries?.Add(new(subFolder ?? PathSeparator.ToString(), resource.Title + extension));
+                CurrentProject?.Entries?.Add(new ProjectEntry(subFolder ?? PathSeparator.ToString(), resource.Title + extension));
 
             // Only pass the targetFolder for PackageResources. For others, they will use the relative folder path
             StorageFolder? targetFolder = null;
@@ -187,7 +190,7 @@ public class ProjectSystemManager
 
     // This will find the ancestor project folder and savable metadata and save it as well
     // (i.e. PackageResource or MetadataResource with SplitMetadata = true).
-    // NOTE: would it be problematic if this function also saves the sibling resources?
+    // It only saves the resource and its savable parent without affecting the siblings or any other resource in the hierarchy.
     public static async Task<bool> SaveResourceAndAncestorAsync(IResource? resource)
     {
         if (UseProjectManager && GetSavableResource(resource) is IMetadataResource savable)
@@ -218,6 +221,61 @@ public class ProjectSystemManager
         else if (ResourceManager.TryGetSavableParent(resource, out IMetadataResource? parent)) return parent;
 
         return null;
+    }
+
+    public static async Task<bool> AddProjectEntryAsync(IResource? resource)
+    {
+        // Only add the resource to the project file if it is not a ProjectFolder and there is an active project loaded.
+        if (resource == null || resource is ProjectFolder ||
+            CurrentProject == null || !UseProjectManager) return false;
+
+        string? subFolderPath = ResourceManager.GetAbsoluteFolderPath(resource.ParentResource);
+        string? extension = resource switch
+        {
+            MetadataResource => JsonFileExtension,
+            FileResource fileResource => fileResource.FileExtension,
+            _ => string.Empty
+        };
+        var entry = new ProjectEntry(subFolderPath, resource.Title + extension);
+        CurrentProject.Entries.AddItemToListIfNotExists(entry);
+
+        return await SaveProjectFileAsync();
+    }
+
+    public static async Task<bool> UpdateProjectFileAsync()
+    {
+        if (CurrentProject == null || !UseProjectManager) return false;
+        CurrentProject.Entries?.Clear();
+        foreach (var resource in ResourceManager.Resources)
+        {
+            await CreateProjectEntryAsync(resource);
+        }
+
+        return await SaveProjectFileAsync();
+    }
+
+    private static async Task CreateProjectEntryAsync(IResource resource, string? subFolder = null)
+    {
+        if (resource == null || !UseProjectManager) return;
+
+        if (resource is ProjectFolder && resource.ChildrenResources != null)
+        {
+            string subFolderPath = ResourceManager.GetAbsoluteFolderPath(resource);
+            foreach (var child in resource.ChildrenResources)
+            {
+                await CreateProjectEntryAsync(child, subFolderPath);
+            }
+        }
+        else if (resource.ParentResource is ProjectFolder)
+        {
+            string? extension = resource switch
+            {
+                MetadataResource => JsonFileExtension,
+                FileResource fileResource => fileResource.FileExtension,
+                _ => string.Empty
+            };
+            CurrentProject?.Entries.AddItemToListIfNotExists(new ProjectEntry(subFolder ?? PathSeparator.ToString(), resource.Title + extension));
+        }
     }
 
     private static async Task<bool> SaveProjectFileAsync()

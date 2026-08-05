@@ -83,6 +83,7 @@
                   IsReadOnly="True" SelectionMode="Extended" SelectionUnit="Row"
                   DoubleTapped="TableView_DoubleTapped" SelectionChanged="TableView_SelectionChanged">
       <tv:TableView.Columns>
+        <tv:TableViewTextColumn Header="Id" Binding="{Binding Id}" />
         <tv:TableViewTextColumn Header="Title" Binding="{Binding Title}" />
         <tv:TableViewTextColumn Header="Entries" Binding="{Binding Entries, Converter={StaticResource ReferenceValueEntryListToStringConverter}}" />
       </tv:TableView.Columns>

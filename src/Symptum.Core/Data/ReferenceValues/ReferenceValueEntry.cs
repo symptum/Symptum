@@ -53,13 +53,18 @@ public partial class ReferenceValueEntry : ObservableObject
     public string GetPreviewText()
     {
         StringBuilder sb = new();
-        sb.Append(Title);
-        sb.Append(": ");
-        sb.Append(ListToStringConversion.ConvertToString<Quantity>(Quantities, x => x.ToString(), ", "));
-        sb.Append(" Inference: ");
-        sb.Append(Inference);
-        sb.Append(" Remarks: ");
-        sb.Append(Remarks);
+        sb.Append(Title)
+            .Append(": ")
+            .Append(ListToStringConversion.ConvertToString<Quantity>(Quantities, x => x.ToString(), ", "));
+        
+        if (!string.IsNullOrEmpty(Inference))
+        {
+            sb.Append(" Inference: ").Append(Inference);
+        }
+        if (!string.IsNullOrEmpty(Remarks))
+        {
+            sb.Append(" Remarks: ").Append(Remarks);
+        }
         return sb.ToString();
     }
 

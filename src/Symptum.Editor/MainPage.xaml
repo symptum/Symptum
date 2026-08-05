@@ -293,7 +293,7 @@
             </Button>
           </TabView.TabStripHeader>
           <TabView.TabItemTemplate>
-            <DataTemplate x:DataType="ed:IEditorPage">
+            <DataTemplate x:DataType="ed:EditorPageBase">
               <TabViewItem IconSource="{Binding IconSource}"
                            Content="{Binding }">
                 <TabViewItem.Header>

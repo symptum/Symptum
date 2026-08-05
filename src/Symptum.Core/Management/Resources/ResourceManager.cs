@@ -367,27 +367,29 @@ public class ResourceManager
         if (resource == null)
             return prefix;
 
-        List<IResource> tree = [];
-        IResource? current = resource;
-        while (current != null && current.ParentResource?.Id == null)
+        // Find the nearest ancestor that already has an Id set.
+        IResource? anchor = resource.ParentResource;
+        while (anchor != null && anchor.Id == null)
         {
-            tree.Add(current);
-            current = current.ParentResource;
+            anchor = anchor.ParentResource;
         }
 
-        // Initialize StringBuilder with the highest available ID or fallback prefix
-        string baseId = current?.ParentResource?.Id ?? prefix ?? string.Empty;
+        // Initialize StringBuilder with the highest available ID or fallback prefix.
+        string baseId = anchor?.Id ?? prefix ?? string.Empty;
         var sb = new StringBuilder(baseId);
 
-        // Process from top-most ancestor down to the target resource
-        int i = tree.Count - 1;
-        while (i >= 0)
+        // Collect segments from the child of the anchor down to the target resource.
+        var segments = new Stack<string>();
+        for (IResource? r = resource; r != null && r != anchor; r = r.ParentResource)
+        {
+            segments.Push(ConvertResourceTitleToId(r.Title));
+        }
+
+        while (segments.Count > 0)
         {
             sb.Append('.');
-            sb.Append(ConvertResourceTitleToId(tree[i].Title));
-            i--;
+            sb.Append(segments.Pop());
         }
-        tree.Clear();
 
         return sb.ToString();
     }
@@ -397,32 +399,31 @@ public class ResourceManager
         if (resource == null)
             return prefix;
 
-        List<IResource> tree = [];
-        IResource? current = resource;
-
-        while (current != null && current.ParentResource?.Uri == null)
+        // Find the nearest ancestor that already has a Uri set.
+        IResource? anchor = resource.ParentResource;
+        while (anchor != null && anchor.Uri == null)
         {
-            tree.Add(current);
-            current = current.ParentResource;
+            anchor = anchor.ParentResource;
         }
 
-        // Initialize StringBuilder with the highest available URI or fallback prefix
-        string baseUri = current?.ParentResource?.Uri?.ToString().TrimEnd('/') ?? prefix ?? string.Empty;
+        // Initialize StringBuilder with the highest available URI or fallback prefix.
+        string baseUri = anchor?.Uri?.ToString().TrimEnd('/') ?? (prefix ?? string.Empty).TrimEnd('/');
         var sb = new StringBuilder(baseUri);
 
-        bool isAtRoot = baseUri == prefix && current?.ParentResource == null;
-
-        // Process from top-most ancestor down to the target resource
-        int i = tree.Count - 1;
-        while (i >= 0)
+        // Collect segments from the child of the anchor down to the target resource.
+        var segments = new Stack<string>();
+        for (IResource? r = resource; r != null && r != anchor; r = r.ParentResource)
         {
-            if (!isAtRoot)
-                sb.Append('/');
-            else
-                isAtRoot = false; // Only skip the slash for the very first segment if it was at the root
+            segments.Push(ConvertResourceTitleToUri(r.Title));
+        }
 
-            sb.Append(ConvertResourceTitleToUri(tree[i].Title));
-            i--;
+        // Append segments ensuring proper slash separators
+        while (segments.Count > 0)
+        {
+            if (sb.Length > 0 && sb[^1] != '/')
+                sb.Append('/');
+
+            sb.Append(segments.Pop());
         }
 
         return sb.ToString();

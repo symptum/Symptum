@@ -16,13 +16,13 @@ public class EditorPagesManager
         { typeof(ImageFileResource), typeof(ImageViewerPage) }
     };
 
-    public static ObservableCollection<IEditorPage> EditorPages { get; private set; } = [];
+    public static ObservableCollection<EditorPageBase> EditorPages { get; private set; } = [];
 
-    public static EventHandler<IEditorPage?> SelectEditorRequested;
+    public static EventHandler<EditorPageBase?> SelectEditorRequested;
 
     public static void ShowWelcomePage()
     {
-        IEditorPage? welcomePage = EditorPages.FirstOrDefault(x => x is WelcomePage);
+        EditorPageBase? welcomePage = EditorPages.FirstOrDefault(x => x is WelcomePage);
         if (welcomePage == null)
         {
             welcomePage = new WelcomePage();
@@ -32,14 +32,14 @@ public class EditorPagesManager
         SelectEditorRequested?.Invoke(null, welcomePage);
     }
     
-    public static IEditorPage? GetEditorForContentType(Type contentType)
+    public static EditorPageBase? GetEditorForContentType(Type contentType)
     {
         if (_editorTypeMap.TryGetValue(contentType, out Type? pageType))
         {
-            return (pageType != null) ? Activator.CreateInstance(pageType) as IEditorPage : null;
+            return (pageType != null) ? Activator.CreateInstance(pageType) as EditorPageBase : null;
         }
         else if (typeof(IResource).IsAssignableFrom(contentType))
-            return Activator.CreateInstance(typeof(DefaultEditorPage)) as IEditorPage;
+            return Activator.CreateInstance(typeof(DefaultEditorPage)) as EditorPageBase;
         return null;
     }
 
@@ -47,7 +47,7 @@ public class EditorPagesManager
     {
         if (resource == null) return;
 
-        IEditorPage? editor = EditorPages.FirstOrDefault(x => x.EditableContent == resource);
+        EditorPageBase? editor = EditorPages.FirstOrDefault(x => x.EditableContent == resource);
         if (editor == null)
         {
             editor = GetEditorForContentType(resource.GetType());
@@ -61,7 +61,7 @@ public class EditorPagesManager
         SelectEditorRequested?.Invoke(null, editor);
     }
 
-    public static bool TryCloseEditor(IEditorPage? editor)
+    public static bool TryCloseEditor(EditorPageBase? editor)
     {
         if (editor != null && EditorPages.Contains(editor))
         {
@@ -75,7 +75,7 @@ public class EditorPagesManager
     }
 
     public static bool TryCloseEditorForResource(IResource? resource) =>
-        EditorPages.FirstOrDefault(x => x.EditableContent == resource) is IEditorPage editor && TryCloseEditor(editor);
+        EditorPages.FirstOrDefault(x => x.EditableContent == resource) is EditorPageBase editor && TryCloseEditor(editor);
 
 
     public static void MarkAllOpenEditorsAsSaved()

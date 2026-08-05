@@ -12,6 +12,7 @@
   Closing="ReferenceValueParameterEditor_Closing">
   <ScrollViewer>
     <StackPanel Spacing="16">
+      <TextBox x:Name="idTB" Header="Id" />
       <TextBox x:Name="titleTB" Header="Title" TextWrapping="Wrap"
                MaxHeight="172" HorizontalAlignment="Stretch" ScrollViewer.VerticalScrollBarVisibility="Auto" />
       <local:ListEditorControl x:Name="enLE" Header="Entries">

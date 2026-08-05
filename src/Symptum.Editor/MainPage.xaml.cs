@@ -119,7 +119,7 @@ public sealed partial class MainPage : Page
 
     private void CloseSelectedTabKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
-        EditorPagesManager.TryCloseEditor(editorsTabView.SelectedItem as IEditorPage);
+        EditorPagesManager.TryCloseEditor(editorsTabView.SelectedItem as EditorPageBase);
     }
 
     private void NavigateToNumberedTabKeyboardAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)

@@ -69,7 +69,7 @@ public partial class MainViewModel : ObservableObject
     public ICommand ExitApplicationCommand { get; } = new RelayCommand(Application.Current.Exit);
 
     [ObservableProperty]
-    public partial IEditorPage? CurrentEditor { get; set; }
+    public partial EditorPageBase? CurrentEditor { get; set; }
 
     [ObservableProperty]
     public partial AuthorInfo CurrentAuthor { get; set; }
@@ -239,7 +239,7 @@ public partial class MainViewModel : ObservableObject
 
     public async void EditorsTabView_TabCloseRequested(TabView sender, TabViewTabCloseRequestedEventArgs args)
     {
-        if (args.Item is IEditorPage editor)
+        if (args.Item is EditorPageBase editor)
         {
             if (editor.HasUnsavedChanges && editor.EditableContent is IResource resource)
             {
@@ -256,7 +256,7 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    partial void OnCurrentEditorChanged(IEditorPage? value)
+    partial void OnCurrentEditorChanged(EditorPageBase? value)
     {
         if (value != null && value.EditableContent is IResource resource)
         {
@@ -285,20 +285,29 @@ public partial class MainViewModel : ObservableObject
         if (result == EditorResult.Create)
         {
             var selected = addNewItemDialog.SelectedItemType;
-            if (selected != null)
+            if (selected != null && selected.Instantiator != null)
             {
-                if (Activator.CreateInstance(selected.Type) is IResource instance)
+                var instance = selected.Instantiator();
+                if (instance is IResource resource)
                 {
-                    instance.Title = addNewItemDialog.ItemTitle;
+                    resource.Title = addNewItemDialog.ItemTitle;
                     if (parent != null)
-                        parent.AddChildResource(instance);
+                    {
+                        parent.AddChildResource(resource);
+                    }
                     else
                     {
-                        ResourceManager.Resources.Add(instance);
-                        instance.InitializeResource(null);
+                        ResourceManager.Resources.Add(resource);
+                        resource.InitializeResource(null);
                     }
-                    EditorPagesManager.CreateOrOpenEditor(instance);
-                    AddOutputEntry($"Created new {selected.DisplayName}: {instance.Title}");
+                    EditorPagesManager.CreateOrOpenEditor(resource);
+                    AddOutputEntry($"Created new {selected.DisplayName}: {resource.Title}");
+
+                    if (parent is ProjectFolder)
+                    {
+                        await ProjectSystemManager.AddProjectEntryAsync(resource);
+                        AddOutputEntry($"Added {resource.Title} to project");
+                    }
                 }
             }
         }
@@ -472,6 +481,7 @@ public partial class MainViewModel : ObservableObject
     {
         if (_selectedResources == null || _selectedResources.Count == 0) return;
 
+        bool updateProject = false;
         List<object> toDelete = [.. _selectedResources];
         if (toDelete.Count > 0)
         {
@@ -484,6 +494,9 @@ public partial class MainViewModel : ObservableObject
                 {
                     if (item is IResource resource)
                     {
+                        if (!updateProject && resource.ParentResource is ProjectFolder)
+                            updateProject = true;
+
                         await ResourceHelper.RemoveResourceAsync(resource, true);
                         EditorPagesManager.TryCloseEditorForResource(resource);
                     }
@@ -492,6 +505,12 @@ public partial class MainViewModel : ObservableObject
             }
         }
 
+        if (updateProject && await ProjectSystemManager.UpdateProjectFileAsync())
+        {
+            AddOutputEntry("Updated project file");
+        }
+
+        toDelete.Clear();
         _selectedResources.Clear();
     }
 
@@ -500,6 +519,7 @@ public partial class MainViewModel : ObservableObject
     {
         if (resource != null)
         {
+            bool updateProject = resource.ParentResource is ProjectFolder;
             confirmationDialog ??= EditorPagesManager.CreateOrGetDialog<ConfirmationDialog>();
             confirmationDialog?.XamlRoot = xamlRoot;
             var result = await confirmationDialog.ConfirmDeletionAsync("Resource");
@@ -508,6 +528,12 @@ public partial class MainViewModel : ObservableObject
                 await ResourceHelper.RemoveResourceAsync(resource, true);
                 EditorPagesManager.TryCloseEditorForResource(resource);
                 AddOutputEntry($"Deleted: {resource.Title}");
+            }
+
+            if (updateProject)
+            {
+                await ProjectSystemManager.UpdateProjectFileAsync();
+                AddOutputEntry("Updated project file");
             }
         }
     }
@@ -534,7 +560,7 @@ public partial class MainViewModel : ObservableObject
             ResourcePaneTitle = string.Format(_resourcePaneTitleFormat, project.Name);
     }
 
-    private void SelectEditorRequested(object? s, IEditorPage? e) =>
+    private void SelectEditorRequested(object? s, EditorPageBase? e) =>
         CurrentEditor = e;
 
     [RelayCommand]

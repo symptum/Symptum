@@ -4,7 +4,7 @@ using Symptum.Editor.ViewModels;
 
 namespace Symptum.Editor.Pages;
 
-public partial class EditorPageBase : Page, IEditorPage
+public partial class EditorPageBase : Page
 {
     #region Properties
 

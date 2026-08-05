@@ -15,8 +15,6 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     private ResourcePropertiesEditorDialog? propertyEditorDialog;
     private ConfirmationDialog? confirmationDialog;
 
-    private bool _isFiltered = false;
-
     public ReferenceValueGroupEditorPage()
     {
         InitializeComponent();
@@ -165,20 +163,20 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
 
     private void DuplicateButton_Click(object sender, RoutedEventArgs e)
     {
-        // if (tableView.SelectedItems.Count == 0
-        //     || currentGroup == null || currentGroup.Parameters == null) return;
-        // List<ReferenceValueParameter> toDupe = [];
+        if (tableView.SelectedItems.Count == 0
+            || currentGroup == null || currentGroup.Parameters == null) return;
+        List<ReferenceValueParameter> toDupe = [];
 
-        // foreach (var item in tableView.SelectedItems)
-        // {
-        //     if (item is ReferenceValueParameter parameter && currentGroup.Parameters.Contains(parameter))
-        //         toDupe.Add(parameter);
-        // }
-        // tableView.SelectedItems.Clear();
-        // //toDupe.ForEach(x => currentGroup?.Parameters?.Add(x.Clone()));
-        // toDupe.Clear();
-        // HasUnsavedChanges = true;
-        // SetCountsText();
+        foreach (var item in tableView.SelectedItems)
+        {
+            if (item is ReferenceValueParameter parameter && currentGroup.Parameters.Contains(parameter))
+                toDupe.Add(parameter);
+        }
+        tableView.SelectedItems.Clear();
+        toDupe.ForEach(x => currentGroup?.Parameters?.Add(x.Clone()));
+        toDupe.Clear();
+        HasUnsavedChanges = true;
+        SetCountsText();
     }
 
     private async void DeleteButton_Click(object sender, RoutedEventArgs e)
@@ -213,6 +211,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     {
         List<string> columns =
         [
+            nameof(ReferenceValueParameter.Id),
             nameof(ReferenceValueParameter.Title),
         ];
 
@@ -232,7 +231,6 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
             tableView.ItemsSource = currentGroup.Parameters;
         tableView.SelectedItem = selectedItem;
         findTextBlock.Text = string.Empty;
-        OnFilter(false);
     }
 
     private void FindControl_QuerySubmitted(object? sender, FindControlQuerySubmittedEventArgs e)
@@ -246,15 +244,13 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
                              select parameter;
             tableView.ItemsSource = parameters;
             findTextBlock.Text = $"Find results for '{e.QueryText}' in {e.Context}. Matching Parameters: {parameters.Count()}";
-            OnFilter(true);
         }
     }
 
-    private void OnFilter(bool filtered) => _isFiltered = filtered;
-
-    // TODO: Implement Match Whole Word
     private bool ReferenceValueParameterPropertyMatchValue(ReferenceValueParameter parameter, FindControlQuerySubmittedEventArgs e) => e.Context switch
     {
+        nameof(ReferenceValueParameter.Id) =>
+            parameter?.Id?.Contains(e.QueryText, e.MatchCase, e.MatchWholeWord),
         nameof(ReferenceValueParameter.Title) =>
             parameter?.Title?.Contains(e.QueryText, e.MatchCase, e.MatchWholeWord),
         _ => false

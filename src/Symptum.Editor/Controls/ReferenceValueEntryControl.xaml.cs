@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using Symptum.Core.Data;
 using Symptum.Core.Data.ReferenceValues;
+using Symptum.Core.Extensions;
 
 namespace Symptum.Editor.Controls;
 
@@ -81,8 +82,8 @@ public sealed partial class ReferenceValueEntryControl : UserControl
         {
             expander.Header = entry.Title = titleTB.Text;
             entry.Quantities = _quantities.UnwrapToList();
-            entry.Inference = infTB.Text;
-            entry.Remarks = remTB.Text;
+            entry.Inference = infTB.Text.ToNullIfEmpty();
+            entry.Remarks = remTB.Text.ToNullIfEmpty();
         }
     }
 
