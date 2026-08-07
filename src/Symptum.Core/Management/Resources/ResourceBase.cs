@@ -37,6 +37,14 @@ public abstract partial class ResourceBase : ObservableObject, IResource
     }
 
     [JsonIgnore]
+    [ObservableProperty]
+    public partial IList<IResource>? Dependencies { get; set; }
+
+    [JsonPropertyName(nameof(Dependencies))]
+    [ObservableProperty]
+    public partial IList<string>? DependencyIds { get; set; }
+
+    [JsonIgnore]
     public virtual bool CanHandleChildren { get; } = true;
 
     #endregion

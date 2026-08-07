@@ -334,6 +334,29 @@ public class ResourceManager
         return false;
     }
 
+    /// <summary>
+    /// Resolves the <see cref="IResource.DependencyIds"/> of the given resource into the actual
+    /// resources and populates <see cref="IResource.Dependencies"/>.
+    /// This should be called after the resource tree has been loaded so that the dependencies can be found.
+    /// </summary>
+    public static void ResolveDependencies(IResource? resource)
+    {
+        if (resource == null) return;
+
+        if (resource.DependencyIds == null || resource.DependencyIds.Count == 0)
+        {
+            resource.Dependencies?.Clear();
+            return;
+        }
+
+        resource.Dependencies ??= [];
+        foreach (var id in resource.DependencyIds)
+        {
+            if (TryGetResourceById(id, out IResource? dependency) && !resource.Dependencies.Contains(dependency))
+                resource.Dependencies.Add(dependency);
+        }
+    }
+
     #endregion
 
     #region Registering and Unregistering Resources

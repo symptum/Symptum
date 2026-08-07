@@ -1,5 +1,6 @@
 using System.Text;
 using Markdig;
+using Markdig.Helpers;
 using Symptum.Core.Management.Resources;
 using Symptum.Markdown.Embedding;
 using Symptum.Markdown.Mermaid;
@@ -31,9 +32,14 @@ public static class MarkdownManager
 
     // Removes ExportBlock syntax and writes the content directly.
     // Replaces ImportBlock syntax with content of the referenced ExportBlock.
+    // Replaces ReferenceInline syntax with markdown hyperlinks containing the inlined value.
     // NOTE: It doesn't support nested ExportBlocks for now.
-    public static string? GetOptimizedMarkdown(string? markdown)
+    public static string? GetOptimizedMarkdown(MarkdownFileResource? resource = null)
     {
+        if (resource == null) return string.Empty;
+
+        string? markdown = resource.Markdown;
+        
         if (string.IsNullOrEmpty(markdown))
             return markdown;
 
@@ -89,7 +95,7 @@ public static class MarkdownManager
             }
             else
             {
-                AppendWithNewline(result, line, ref needNewline);
+                AppendWithNewline(result, OptimizeReferenceInlines(line, resource), ref needNewline);
             }
         }
 
@@ -208,5 +214,122 @@ public static class MarkdownManager
         }
 
         return null;
+    }
+
+    private static ReadOnlySpan<char> OptimizeReferenceInlines(ReadOnlySpan<char> line, MarkdownFileResource? resource)
+    {
+        int start = line.IndexOf('@');
+        if (start < 0 || resource == null)
+            return line;
+
+        var sb = new StringBuilder(line.Length);
+        sb.Append(line[..start]);
+        int pos = start;
+
+        while (pos < line.Length)
+        {
+            if (line[pos] == '@'
+                && IsReferenceStart(line, pos)
+                && TryReadReferenceToken(line, pos, out string? parameterId, out int entryIndex, out int quantityIndex, out int consumed))
+            {
+                if (ReferenceValueResolver.TryResolveValue(resource, parameterId, entryIndex, quantityIndex, out string? text, out string? url))
+                {
+                    sb.Append('[').Append(text).Append(']').Append('(').Append(url).Append(')');
+                    pos += consumed;
+                    continue;
+                }
+
+                sb.Append(line[pos]);
+                pos++;
+                continue;
+            }
+
+            sb.Append(line[pos]);
+            pos++;
+        }
+
+        return sb.ToString().AsSpan();
+    }
+
+    // Matches the boundary rule of ReferenceInlineParser: '@' must be preceded by
+    // whitespace or punctuation (an escaped or doubled '@' is not a reference).
+    private static bool IsReferenceStart(ReadOnlySpan<char> line, int pos)
+    {
+        if (pos < 0)
+            return false;
+        else if (pos >= 1)
+        {
+            char prev = line[pos - 1];
+            if (prev == '@' || prev == '\\')
+                return false;
+
+            CharHelper.CheckUnicodeCategory(prev, out bool isWhitespace, out bool isPunctuation);
+            return isWhitespace || isPunctuation;
+        }
+
+        return true;
+    }
+
+    // Reads a reference token starting at the '@' of <c>@paramId#entryIndex.quantityIndex</c>.
+    // A '#' or '.' suffix is only consumed if it is followed by at least one digit.
+    // Returns the number of characters consumed (including the leading '@').
+    private static bool TryReadReferenceToken(ReadOnlySpan<char> line, int start, out string? parameterId, out int entryIndex, out int quantityIndex, out int consumed)
+    {
+        parameterId = null;
+        entryIndex = 0;
+        quantityIndex = 0;
+        consumed = 0;
+
+        int pos = start + 1;
+
+        // Scan the parameter id which is terminated by a suffix ('#', '.'),
+        // a non-id character, whitespace or the end of the line.
+        while (pos < line.Length && ReferenceInlineHelper.IsParameterIdChar(line[pos]))
+            pos++;
+
+        if (pos == start + 1) // Empty parameter id.
+            return false;
+
+        // Optional '#{entryIndex}'
+        if (pos < line.Length && line[pos] == '#')
+        {
+            int i = pos + 1;
+            int digitStart = i;
+            while (i < line.Length && char.IsAsciiDigit(line[i]))
+                i++;
+
+            if (i > digitStart)
+            {
+                pos = i;
+
+                // Optional '.{quantityIndex}'
+                if (pos < line.Length && line[pos] == '.')
+                {
+                    int j = pos + 1;
+                    while (j < line.Length && char.IsAsciiDigit(line[j]))
+                        j++;
+
+                    if (j > pos + 1)
+                        pos = j;
+                }
+            }
+        }
+        else if (pos < line.Length && line[pos] == '.')
+        {
+            int j = pos + 1;
+            while (j < line.Length && char.IsAsciiDigit(line[j]))
+                j++;
+
+            if (j > pos + 1)
+                pos = j;
+        }
+
+        ReadOnlySpan<char> content = line[(start + 1)..pos];
+
+        if (!ReferenceInlineHelper.TryParse(content.ToString(), out parameterId, out entryIndex, out quantityIndex))
+            return false;
+
+        consumed = pos - start;
+        return true;
     }
 }

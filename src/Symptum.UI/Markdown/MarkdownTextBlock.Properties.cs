@@ -400,4 +400,6 @@ public partial class MarkdownTextBlock
     public DocumentOutline DocumentOutline { get; }
 
     public ImportsHandler ImportsHandler { get; }
+
+    public IReferenceValueResolver? ReferenceValueResolver { get; set; }
 }

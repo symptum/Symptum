@@ -10,6 +10,7 @@ public class ReferenceInlineRenderer : WinUIObjectRenderer<ReferenceInline>
         ArgumentNullException.ThrowIfNull(renderer);
         ArgumentNullException.ThrowIfNull(obj);
 
-        renderer.WriteInline(new ReferenceInlineElement(obj));
+        renderer.WriteInline(new ReferenceInlineElement(obj, renderer.ReferenceValueResolver, renderer.LinkHandler,
+            renderer.MarkdownTextBlock.BaseUrl));
     }
 }

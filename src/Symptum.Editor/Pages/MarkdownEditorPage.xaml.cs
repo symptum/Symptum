@@ -1,4 +1,5 @@
 using System.Text;
+using Markdig.Syntax;
 using Symptum.Common.ProjectSystem;
 using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
@@ -16,6 +17,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     private MarkdownEditorInsertTableDialog? insertTableDialog;
     private MarkdownEditorInsertLinkDialog? insertLinkDialog;
     private MarkdownEditorInsertImageDialog? insertImageDialog;
+    private MarkdownEditorInsertReferenceDialog? insertReferenceDialog;
     private static readonly string _currentDocument = "Current Document";
     private static readonly string _selection = "Selection";
     private static readonly string _indentation = "    "; // NOTE: Should this support switching between Tabs ("\t") vs 4 Spaces ("    ")?
@@ -52,6 +54,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         insertTableDialog = EditorPagesManager.CreateOrGetDialog<MarkdownEditorInsertTableDialog>();
         insertLinkDialog = EditorPagesManager.CreateOrGetDialog<MarkdownEditorInsertLinkDialog>();
         insertImageDialog = EditorPagesManager.CreateOrGetDialog<MarkdownEditorInsertImageDialog>();
+        insertReferenceDialog = EditorPagesManager.CreateOrGetDialog<MarkdownEditorInsertReferenceDialog>();
         UpdateStatusBar();
         SetupFindControl();
     }
@@ -77,6 +80,8 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         propertyEditorDialog = null;
         insertTableDialog = null;
         insertLinkDialog = null;
+        insertImageDialog = null;
+        insertReferenceDialog = null;
     }
 
     private void MdText_TextChanged(object sender, TextChangedEventArgs e)
@@ -215,10 +220,12 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         {
             _markdownResource = null;
             mdText.Text = string.Empty;
+            mdTB.ReferenceValueResolver = null;
         }
         else if (resource is MarkdownFileResource markdownResource)
         {
             _markdownResource = markdownResource;
+            mdTB.ReferenceValueResolver = new MarkdownReferenceValueResolver(markdownResource);
             mdText.Text = markdownResource.Markdown;
             // Setting the Text triggers TextChanged event which set HasUnsavedChanges = true.
             // Therefore manually clear this up here.
@@ -261,6 +268,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         insertTableDialog = null;
         insertLinkDialog = null;
         insertImageDialog = null;
+        insertReferenceDialog = null;
         _mdBinding = null;
         undoStack.Clear();
         redoStack.Clear();
@@ -468,6 +476,22 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     #region Formatting
 
     #region Insertion
+
+    private void InsertInline(string inline)
+    {
+        if (string.IsNullOrEmpty(inline)) return;
+
+        string text = mdText.Text;
+        int start = mdText.SelectionStart;
+        int selLen = mdText.SelectionLength;
+        var span = text.AsSpan();
+        StringBuilder result = new();
+
+        result.Append(span[..start]).Append(inline).Append(span[(start + selLen)..]);
+        selLen = inline.Length;
+
+        CommitTextFormatting(result.ToString(), start, selLen);
+    }
 
     private void InsertBlock(string block)
     {
@@ -790,7 +814,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         if (result == EditorResult.Create)
         {
             HasUnsavedChanges = true;
-            InsertBlock(insertLinkDialog.Markdown);
+            InsertInline(insertLinkDialog.Markdown);
         }
     }
 
@@ -803,13 +827,27 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         if (result == EditorResult.Create)
         {
             HasUnsavedChanges = true;
-            InsertBlock(insertImageDialog.Markdown);
+            InsertInline(insertImageDialog.Markdown);
         }
     }
 
     private void ExportBlockButton_Click(object sender, RoutedEventArgs e) => ToggleWrap(newLine + "<= {Id}" + newLine, newLine + "<=" + newLine, true, true);
 
     private void ImportBlockButton_Click(object sender, RoutedEventArgs e) => InsertBlock("=> {ResourceId}?{BlockId}");
+
+    private async void ReferenceValueButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (insertReferenceDialog == null) return;
+
+        insertReferenceDialog.SetResource(_markdownResource);
+        insertReferenceDialog.XamlRoot = XamlRoot;
+        var result = await insertReferenceDialog.InsertAsync();
+        if (result == EditorResult.Create)
+        {
+            HasUnsavedChanges = true;
+            InsertInline(insertReferenceDialog.Markdown);
+        }
+    }
 
     private void GridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {

@@ -18,9 +18,11 @@ public interface IResource
     [JsonIgnore]
     public IReadOnlyList<IResource>? ChildrenResources { get; } // null if end resource
 
-    //public IList<IResource>? Dependencies { get; set; }
+    // Used for referencing other resources (e.g. a ReferenceValueGroup from a Markdown document).
+    // DependencyIds are persisted and resolved into the actual Dependencies by ResourceManager.ResolveDependencies.
+    public IList<IResource>? Dependencies { get; set; }
 
-    //public IList<string>? DependencyIds { get; set; }
+    public IList<string>? DependencyIds { get; set; }
 
     [JsonIgnore]
     public bool CanHandleChildren { get; }

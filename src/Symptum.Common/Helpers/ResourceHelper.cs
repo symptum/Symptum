@@ -166,6 +166,8 @@ public class ResourceHelper
             else
                 ResourceManager.Resources.Add(markdownFileResource);
 
+            ResourceManager.ResolveDependencies(markdownFileResource);
+
             return markdownFileResource;
         }
 
@@ -265,6 +267,7 @@ public class ResourceHelper
             resource.InitializeResource(parent);
             await LoadChildrenResourcesAsync(resource, sourceFolder); // Temporary
         }
+        ResourceManager.ResolveDependencies(resource);
     }
 
     private static async Task LoadChildrenResourcesAsync(IResource? resource, StorageFolder? sourceFolder = null)
@@ -369,9 +372,9 @@ public class ResourceHelper
         if (saveFile != null)
         {
             string? text = ResourceManager.WriteResourceFileText(textResource);
-            if (exporting && textResource is MarkdownFileResource && NeedsOptimization(textResource))
+            if (exporting && textResource is MarkdownFileResource markdownResource && NeedsOptimization(textResource))
             {
-                text = MarkdownManager.GetOptimizedMarkdown(text);
+                text = MarkdownManager.GetOptimizedMarkdown(markdownResource);
             }
             if (text != null)
                 return await StorageHelper.WriteToFileAsync(saveFile, text);

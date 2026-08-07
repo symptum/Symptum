@@ -26,13 +26,6 @@ public abstract partial class PackageResource : MetadataResource, IPackageResour
     [ObservableProperty]
     public partial IList<AuthorInfo>? Authors { get; set; }
 
-    [JsonIgnore]
-    [ObservableProperty]
-    public partial IList<IPackageResource>? Dependencies { get; set; }
-
-    [JsonPropertyName(nameof(Dependencies))]
-    [ObservableProperty]
-    public partial IList<string>? DependencyIds { get; set; }
 
     [ObservableProperty]
     public partial IList<string>? Tags { get; set; }

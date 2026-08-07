@@ -11,9 +11,6 @@ public interface IPackageResource : IResource
 
     public IList<AuthorInfo>? Authors { get; set; }
 
-    public IList<IPackageResource>? Dependencies { get; set; }
-
-    public IList<string>? DependencyIds { get; set; }
 
     public IList<string>? Tags { get; set; }
 }

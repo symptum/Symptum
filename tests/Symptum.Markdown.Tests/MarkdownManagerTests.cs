@@ -1,4 +1,10 @@
+using System.Collections.ObjectModel;
+using Markdig;
+using Markdig.Syntax;
+using Symptum.Core.Data;
+using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
+using Symptum.Markdown.Reference;
 
 namespace Symptum.Markdown.Tests;
 
@@ -313,5 +319,206 @@ Local content
         string expected = "Regular text\n\nEnd content";
         string result = MarkdownManager.GetOptimizedMarkdown(input);
         Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void GetOptimizedMarkdown_ReferenceInline_ResolvesToHyperlink()
+    {
+        var resource = CreateMarkdownResourceWithReferenceGroup();
+        string input = "The normal range is @PH#0.1.";
+        string expected = "The normal range is [7.35 pH](symptum://referencevalues/test?PH#0.1).";
+        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void GetOptimizedMarkdown_ReferenceInline_OptionalIndices_UseFirstEntryAndQuantity()
+    {
+        var resource = CreateMarkdownResourceWithReferenceGroup();
+        string input = "Value is @PH.";
+        string expected = "Value is [7.4 pH](symptum://referencevalues/test?PH#0.0).";
+        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void GetOptimizedMarkdown_ReferenceInline_OptionalEntryIndex_UsesFirstEntry()
+    {
+        var resource = CreateMarkdownResourceWithReferenceGroup();
+        string input = "Minimum is @PH.2.";
+        string expected = "Minimum is [7.45 pH](symptum://referencevalues/test?PH#0.2).";
+        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void GetOptimizedMarkdown_ReferenceInline_MultipleReferences_AllResolved()
+    {
+        var resource = CreateMarkdownResourceWithReferenceGroup();
+        string input = "Ranges: @PH#0.0 - @PH#0.1 - @PH#0.2.";
+        string expected = "Ranges: [7.4 pH](symptum://referencevalues/test?PH#0.0) - [7.35 pH](symptum://referencevalues/test?PH#0.1) - [7.45 pH](symptum://referencevalues/test?PH#0.2).";
+        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void GetOptimizedMarkdown_ReferenceInline_UnknownParameter_KeepsOriginal()
+    {
+        var resource = CreateMarkdownResourceWithReferenceGroup();
+        string input = "Value is @UNKNOWN#0.1.";
+        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        Assert.AreEqual(input, result);
+    }
+
+    [TestMethod]
+    public void GetOptimizedMarkdown_ReferenceInline_NoResource_KeepsOriginal()
+    {
+        string input = "Value is @PH#0.1.";
+        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        Assert.AreEqual(input, result);
+    }
+
+    [TestMethod]
+    public void GetOptimizedMarkdown_ReferenceInline_OutOfRangeIndex_FallsBackToParameterTitle()
+    {
+        var resource = CreateMarkdownResourceWithReferenceGroup();
+        string input = "Value is @PH#5.0.";
+        string expected = "Value is [pH Level](symptum://referencevalues/test?PH#5.0).";
+        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void GetOptimizedMarkdown_ReferenceInline_InvalidSyntax_KeepsOriginal()
+    {
+        var resource = CreateMarkdownResourceWithReferenceGroup();
+        string input = "Empty @ and @#0.1 and @.1.";
+        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        Assert.AreEqual(input, result);
+    }
+
+    [TestMethod]
+    public void GetOptimizedMarkdown_ReferenceInline_SuffixWithoutDigits_ResolvesReferenceAndKeepsSuffixText()
+    {
+        var resource = CreateMarkdownResourceWithReferenceGroup();
+        string input = "A: @PH#.1, B: @PH.#, C: @PH#.";
+        string expected = "A: [7.4 pH](symptum://referencevalues/test?PH#0.0)#.1, B: [7.4 pH](symptum://referencevalues/test?PH#0.0).#, C: [7.4 pH](symptum://referencevalues/test?PH#0.0)#.";
+        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void GetOptimizedMarkdown_ReferenceInline_NotAtStartOfWord_KeepsOriginal()
+    {
+        var resource = CreateMarkdownResourceWithReferenceGroup();
+        string input = "Email is foo@PH#0.1.";
+        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        Assert.AreEqual(input, result);
+    }
+
+    [TestMethod]
+    public void ReferenceInlineParser_RecognizesReferenceAndIndices()
+    {
+        var document = Markdig.Markdown.Parse("Use @PH#0.1 for pH.", MarkdownManager.Pipeline);
+        var reference = document.Descendants<ReferenceInline>().FirstOrDefault();
+        Assert.IsNotNull(reference);
+        Assert.IsTrue(ReferenceInlineHelper.TryParse(reference.Content.ToString(), out string? parameterId, out int entryIndex, out int quantityIndex));
+        Assert.AreEqual("PH", parameterId);
+        Assert.AreEqual(0, entryIndex);
+        Assert.AreEqual(1, quantityIndex);
+    }
+
+    [TestMethod]
+    public void ReferenceInlineParser_TrailingPeriod_ResolvesReferenceAndKeepsPeriod()
+    {
+        var document = Markdig.Markdown.Parse("Value is @PH.", MarkdownManager.Pipeline);
+        var reference = document.Descendants<ReferenceInline>().FirstOrDefault();
+        Assert.IsNotNull(reference);
+        Assert.IsTrue(ReferenceInlineHelper.TryParse(reference.Content.ToString(), out string? parameterId, out int entryIndex, out int quantityIndex));
+        Assert.AreEqual("PH", parameterId);
+        Assert.AreEqual(0, entryIndex);
+        Assert.AreEqual(0, quantityIndex);
+        Assert.AreEqual("@PH", reference.Content.ToString());
+    }
+
+    [TestMethod]
+    public void ReferenceInlineParser_NotPrecededByWhitespaceOrPunctuation_NotRecognized()
+    {
+        var document = Markdig.Markdown.Parse("Email is foo@PH#0.1.", MarkdownManager.Pipeline);
+        Assert.IsFalse(document.Descendants<ReferenceInline>().Any());
+    }
+
+    [TestMethod]
+    public void ReferenceInlineParser_EscapedAt_NotRecognized()
+    {
+        var document = Markdig.Markdown.Parse("Value is \\@PH.", MarkdownManager.Pipeline);
+        Assert.IsFalse(document.Descendants<ReferenceInline>().Any());
+    }
+
+    [TestMethod]
+    public void ReferenceInlineHelper_BuildSyntax_RoundTrips()
+    {
+        string syntax = ReferenceInlineHelper.BuildSyntax("PH", 1, 2);
+        Assert.AreEqual("@PH#1.2", syntax);
+        Assert.IsTrue(ReferenceInlineHelper.TryParse(syntax, out string? parameterId, out int entryIndex, out int quantityIndex));
+        Assert.AreEqual("PH", parameterId);
+        Assert.AreEqual(1, entryIndex);
+        Assert.AreEqual(2, quantityIndex);
+    }
+
+    [TestMethod]
+    public void GetOptimizedMarkdown_ReferenceInline_PunctuationAfterParameterId_ResolvesAndKeepsPunctuation()
+    {
+        var resource = CreateMarkdownResourceWithReferenceGroup();
+        string input = "The value is @PH, which is normal.";
+        string expected = "The value is [7.4 pH](symptum://referencevalues/test?PH#0.0), which is normal.";
+        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void GetOptimizedMarkdown_ReferenceInline_QuantityOnlySuffix_ResolvesQuantity()
+    {
+        var resource = CreateMarkdownResourceWithReferenceGroup();
+        string input = "The low value is @PH.1.";
+        string expected = "The low value is [7.35 pH](symptum://referencevalues/test?PH#0.1).";
+        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        Assert.AreEqual(expected, result);
+    }
+
+    private static MarkdownFileResource CreateMarkdownResourceWithReferenceGroup()
+    {
+        ReferenceValueGroup group = new("Test Group")
+        {
+            Id = "Symptum.TestGroup",
+            Uri = new Uri("symptum://referencevalues/test"),
+            Parameters =
+            [
+                new()
+                {
+                    Id = "PH",
+                    Title = "pH Level",
+                    Entries =
+                    [
+                        new()
+                        {
+                            Title = "Normal",
+                            Quantities = [new(7.4, "pH"), new(7.35, "pH"), new(7.45, "pH")]
+                        },
+                        new()
+                        {
+                            Title = "Low",
+                            Quantities = [new(6.5, "pH")]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        return new MarkdownFileResource
+        {
+            Id = "Symptum.TestMarkdown",
+            Dependencies = [group]
+        };
     }
 }

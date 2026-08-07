@@ -23,6 +23,8 @@ public class WinUIRenderer : RendererBase
 
     public ImportsHandler ImportsHandler { get; private set; }
 
+    public IReferenceValueResolver? ReferenceValueResolver => MarkdownTextBlock.ReferenceValueResolver;
+
     public ILinkHandler? LinkHandler { get; set; }
 
     public WinUIRenderer(MarkdownTextBlock markdownTextBlock, FlowDocumentElement document)

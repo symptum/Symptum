@@ -1,0 +1,24 @@
+<ContentDialog
+  x:Class="Symptum.Editor.Controls.MarkdownEditorInsertReferenceDialog"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:local="using:Symptum.Editor.Controls"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  Style="{ThemeResource DefaultContentDialogStyle}"
+  Title="Insert Reference Value" PrimaryButtonText="Insert"
+  CloseButtonText="Cancel" DefaultButton="Primary">
+  <StackPanel Spacing="8" MinWidth="360">
+    <TextBlock x:Name="infoTB" Text="No reference value groups are available. Add a Reference Value Group to the document's dependencies first."
+               TextWrapping="Wrap" Visibility="Collapsed" />
+    <ComboBox x:Name="groupCB" Header="Group" Visibility="Collapsed"
+              SelectionChanged="GroupCB_SelectionChanged" />
+    <ComboBox x:Name="parameterCB" Header="Parameter" IsEnabled="False"
+              SelectionChanged="ParameterCB_SelectionChanged" />
+    <ComboBox x:Name="entryCB" Header="Entry" IsEnabled="False"
+              SelectionChanged="EntryCB_SelectionChanged" />
+    <ComboBox x:Name="quantityCB" Header="Quantity" IsEnabled="False"
+              SelectionChanged="QuantityCB_SelectionChanged" />
+    <TextBlock x:Name="previewTB" TextWrapping="Wrap" Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+               Visibility="Collapsed" />
+  </StackPanel>
+</ContentDialog>

@@ -312,6 +312,14 @@
               <FontIcon Glyph="{x:Bind common:CommonGlyphs.Import}" />
             </AppBarButton.Icon>
           </AppBarButton>
+          <AppBarButton x:Name="referenceValueButton"
+                        AccessKey="R" Label="Reference Value"
+                        ToolTipService.ToolTip="Reference Value"
+                        Click="ReferenceValueButton_Click">
+            <AppBarButton.Icon>
+              <FontIcon Glyph="{x:Bind common:CommonGlyphs.Dictionary}" />
+            </AppBarButton.Icon>
+          </AppBarButton>
         </StackPanel>
       </controls:RibbonCollapsibleGroup>
     </controls:Ribbon>
