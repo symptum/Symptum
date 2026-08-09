@@ -38,6 +38,7 @@ public sealed partial class MainPage : Page
             ViewModel.PropertyChanged += ViewModel_PropertyChanged;
             ViewModel.RecentItemsChanged += PopulateRecentMenus;
             PopulateRecentMenus();
+            ShowOrHideResourcesPane();
             EditorPagesManager.ShowWelcomePage();
         };
     }

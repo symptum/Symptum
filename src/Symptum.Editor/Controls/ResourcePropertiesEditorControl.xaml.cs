@@ -214,7 +214,13 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
         }
         else if (resource is MetadataResource metadataResource)
         {
+            bool updateParent = metadataResource.SplitMetadata != splitMDCB.IsChecked;
             metadataResource.SplitMetadata = splitMDCB.IsChecked ?? false;
+            if (updateParent)
+            {
+                // If we enable Split Metadata, we need to save the parent resource to ensure that this resource is not added to the parent's JSON.
+                _ = ProjectSystemManager.SaveResourceAndAncestorAsync(metadataResource.ParentResource);
+            }
         }
         else if (resource is FileResource fileResource)
         {

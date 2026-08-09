@@ -21,23 +21,13 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         PageName = "Reference Value Group Editor";
         IconSource = DefaultIconSources.TableViewIconSource;
         Loaded += ReferenceValueGroupEditorPage_Loaded;
-        Unloaded += ReferenceValueGroupEditorPage_Unloaded;
     }
 
     private void ReferenceValueGroupEditorPage_Loaded(object sender, RoutedEventArgs e)
     {
-        if (currentGroup == null) OnSetEditableContent(EditableContent);
-        parameterEditorDialog = EditorPagesManager.CreateOrGetDialog<ReferenceValueParameterEditorDialog>();
-        propertyEditorDialog = EditorPagesManager.CreateOrGetDialog<ResourcePropertiesEditorDialog>();
+        parameterEditorDialog ??= EditorPagesManager.CreateOrGetDialog<ReferenceValueParameterEditorDialog>();
+        propertyEditorDialog ??= EditorPagesManager.CreateOrGetDialog<ResourcePropertiesEditorDialog>();
         SetupFindControl();
-    }
-
-    private void ReferenceValueGroupEditorPage_Unloaded(object sender, RoutedEventArgs e)
-    {
-        OnSetEditableContent(null);
-        parameterEditorDialog = null;
-        propertyEditorDialog = null;
-        confirmationDialog = null;
     }
 
     protected override void OnSetEditableContent(IResource? resource)
@@ -46,6 +36,14 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
             LoadGroup(group);
         else
             Reset();
+    }
+
+    protected override void OnCleanupPage()
+    {
+        Reset();
+        parameterEditorDialog = null;
+        propertyEditorDialog = null;
+        confirmationDialog = null;
     }
 
     private void Reset()
@@ -210,14 +208,17 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
 
     private void SetupFindControl()
     {
-        List<string> columns =
-        [
-            nameof(ReferenceValueParameter.Id),
-            nameof(ReferenceValueParameter.Title),
-        ];
+        if (findControl.FindContexts == null)
+        {
+            List<string> columns =
+            [
+                nameof(ReferenceValueParameter.Id),
+                nameof(ReferenceValueParameter.Title),
+            ];
 
-        findControl.FindContexts = columns;
-        findControl.SelectedContext = columns[0];
+            findControl.FindContexts = columns;
+            findControl.SelectedContext = columns[0];
+        }
     }
 
     private void FindButton_Click(object sender, RoutedEventArgs e)

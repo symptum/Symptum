@@ -300,6 +300,12 @@ public partial class MainViewModel : ObservableObject
                         ResourceManager.Resources.Add(resource);
                         resource.InitializeResource(null);
                     }
+
+                    // In case the resource tree has a split metadata resource,
+                    // this will save the appropriate parent when adding a new child
+                    // and prevent the added resource from being lost.
+                    await ProjectSystemManager.SaveResourceAndAncestorAsync(resource);
+
                     EditorPagesManager.CreateOrOpenEditor(resource);
                     AddOutputEntry($"Created new {selected.DisplayName}: {resource.Title}");
 
@@ -497,8 +503,10 @@ public partial class MainViewModel : ObservableObject
                         if (!updateProject && resource.ParentResource is ProjectFolder)
                             updateProject = true;
 
-                        await ResourceHelper.RemoveResourceAsync(resource, true);
                         EditorPagesManager.TryCloseEditorForResource(resource);
+                        await ResourceHelper.RemoveResourceAsync(resource, true);
+                        // Ensure the parent resource is saved after deleting a child resource.
+                        await ProjectSystemManager.SaveResourceAndAncestorAsync(resource.ParentResource);
                     }
                 }
                 AddOutputEntry($"Deleted {toDelete.Count} resource(s)");
@@ -525,8 +533,10 @@ public partial class MainViewModel : ObservableObject
             var result = await confirmationDialog.ConfirmDeletionAsync("Resource");
             if (result == EditorResult.Delete)
             {
-                await ResourceHelper.RemoveResourceAsync(resource, true);
                 EditorPagesManager.TryCloseEditorForResource(resource);
+                await ResourceHelper.RemoveResourceAsync(resource, true);
+                // Ensure the parent resource is saved after deleting a child resource.
+                await ProjectSystemManager.SaveResourceAndAncestorAsync(resource.ParentResource);
                 AddOutputEntry($"Deleted: {resource.Title}");
             }
 

@@ -98,9 +98,11 @@ public class EditorPagesManager
 
     public static void CloseSavedEditors()
     {
-        var savedEditors = EditorPages.Where(e => !e.HasUnsavedChanges);
+        List<EditorPageBase> savedEditors = [.. EditorPages.Where(e => !e.HasUnsavedChanges)];
         foreach (var e in savedEditors)
         {
+            e.EditableContent = null;
+            e.Dispose();
             EditorPages.Remove(e);
         }
     }

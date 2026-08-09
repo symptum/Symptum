@@ -35,9 +35,6 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     private void Page_Loaded(object sender, RoutedEventArgs e)
     {
-        // After unloading and reloading, the EditableContent is not updated again. Therefore, we need to force it here.
-        if (_markdownResource == null) OnSetEditableContent(EditableContent);
-
         mdText.TextChanged += MdText_TextChanged;
         mdText.SelectionChanged += MdText_SelectionChanged;
 
@@ -53,11 +50,11 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 #endif
         mdText.Paste += MdText_Paste;
 
-        propertyEditorDialog = EditorPagesManager.CreateOrGetDialog<ResourcePropertiesEditorDialog>();
-        insertTableDialog = EditorPagesManager.CreateOrGetDialog<MarkdownEditorInsertTableDialog>();
-        insertLinkDialog = EditorPagesManager.CreateOrGetDialog<MarkdownEditorInsertLinkDialog>();
-        insertImageDialog = EditorPagesManager.CreateOrGetDialog<MarkdownEditorInsertImageDialog>();
-        insertReferenceDialog = EditorPagesManager.CreateOrGetDialog<MarkdownEditorInsertReferenceDialog>();
+        propertyEditorDialog ??= EditorPagesManager.CreateOrGetDialog<ResourcePropertiesEditorDialog>();
+        insertTableDialog ??= EditorPagesManager.CreateOrGetDialog<MarkdownEditorInsertTableDialog>();
+        insertLinkDialog ??= EditorPagesManager.CreateOrGetDialog<MarkdownEditorInsertLinkDialog>();
+        insertImageDialog ??= EditorPagesManager.CreateOrGetDialog<MarkdownEditorInsertImageDialog>();
+        insertReferenceDialog ??= EditorPagesManager.CreateOrGetDialog<MarkdownEditorInsertReferenceDialog>();
         UpdateStatusBar();
         SetupFindControl();
     }
@@ -78,41 +75,60 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         KeyUp -= Page_KeyUp;
 #endif
         mdText.Paste -= MdText_Paste;
+    }
 
-        OnSetEditableContent(null);
+    protected override void OnSetEditableContent(IResource? resource)
+    {
+        if (resource == null)
+        {
+            _markdownResource = null;
+            mdText.Text = string.Empty;
+            mdTB.ReferenceValueResolver = null;
+        }
+        else if (resource is MarkdownFileResource markdownResource)
+        {
+            _markdownResource = markdownResource;
+            mdTB.ReferenceValueResolver = new MarkdownReferenceValueResolver(markdownResource);
+            mdText.Text = markdownResource.Markdown;
+            // Setting the Text triggers TextChanged event which set HasUnsavedChanges = true.
+            // Therefore manually clear this up here.
+            HasUnsavedChanges = false;
+        }
+    }
+
+    protected override void OnUpdateContent()
+    {
+        _markdownResource?.Markdown = mdText.Text;
+    }
+
+    protected override void OnCleanupPage()
+    {
+        mdText.TextChanged -= MdText_TextChanged;
+        mdText.SelectionChanged -= MdText_SelectionChanged;
+
+#if !HAS_UNO
+        mdText.PreviewKeyDown -= MdText_KeyDown;
+        PreviewKeyDown -= Page_PreviewKeyDown;
+        PreviewKeyUp -= Page_PreviewKeyUp;
+        mdText.CuttingToClipboard -= MdText_CuttingToClipboard;
+#else
+        mdText.KeyDown -= MdText_KeyDown;
+        KeyDown -= Page_KeyDown;
+        KeyUp -= Page_KeyUp;
+#endif
+        mdText.Paste -= MdText_Paste;
+
+        _markdownResource = null;
         propertyEditorDialog = null;
         insertTableDialog = null;
         insertLinkDialog = null;
         insertImageDialog = null;
         insertReferenceDialog = null;
-    }
-
-    private void MdText_TextChanged(object sender, TextChangedEventArgs e)
-    {
-        ProcessClipboardEvent();
-        _mdDirtyForSearch = true;
-        HasUnsavedChanges = true;
-        UpdateStatusBar();
-    }
-
-    private void MdText_SelectionChanged(object sender, RoutedEventArgs e) => UpdateStatusBar();
-
-    private void MdText_CuttingToClipboard(object sender, TextControlCuttingToClipboardEventArgs e) => OnClipboardEvent();
-    private void MdText_Paste(object sender, TextControlPasteEventArgs e) => OnClipboardEvent();
-
-    private void UpdateStatusBar(bool onlyCaret = true, bool onlyCount = true)
-    {
-        if (onlyCaret)
-        {
-            (int line, int col) = mdText.Text.GetLineAndColumnIndex(mdText.SelectionStart + mdText.SelectionLength);
-            caretTB.Text = $"Ln {line}, Col {col}";
-        }
-
-        if (onlyCount)
-        {
-            int slen = mdText.SelectionLength;
-            countTB.Text = (slen > 0 ? slen.ToString() + " of " : string.Empty) + mdText.Text.Length.ToString() + " characters";
-        }
+        _mdBinding = null;
+        undoStack.Clear();
+        redoStack.Clear();
+        _prevText = null;
+        searchIndices.Clear();
     }
 
     #endregion
@@ -217,22 +233,33 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     #endregion
 
-    protected override void OnSetEditableContent(IResource? resource)
+    #region Other Event Handling
+
+    private void MdText_TextChanged(object sender, TextChangedEventArgs e)
     {
-        if (resource == null)
+        ProcessClipboardEvent();
+        _mdDirtyForSearch = true;
+        HasUnsavedChanges = true;
+        UpdateStatusBar();
+    }
+
+    private void MdText_SelectionChanged(object sender, RoutedEventArgs e) => UpdateStatusBar();
+
+    private void MdText_CuttingToClipboard(object sender, TextControlCuttingToClipboardEventArgs e) => OnClipboardEvent();
+    private void MdText_Paste(object sender, TextControlPasteEventArgs e) => OnClipboardEvent();
+
+    private void UpdateStatusBar(bool onlyCaret = true, bool onlyCount = true)
+    {
+        if (onlyCaret)
         {
-            _markdownResource = null;
-            mdText.Text = string.Empty;
-            mdTB.ReferenceValueResolver = null;
+            (int line, int col) = mdText.Text.GetLineAndColumnIndex(mdText.SelectionStart + mdText.SelectionLength);
+            caretTB.Text = $"Ln {line}, Col {col}";
         }
-        else if (resource is MarkdownFileResource markdownResource)
+
+        if (onlyCount)
         {
-            _markdownResource = markdownResource;
-            mdTB.ReferenceValueResolver = new MarkdownReferenceValueResolver(markdownResource);
-            mdText.Text = markdownResource.Markdown;
-            // Setting the Text triggers TextChanged event which set HasUnsavedChanges = true.
-            // Therefore manually clear this up here.
-            HasUnsavedChanges = false;
+            int slen = mdText.SelectionLength;
+            countTB.Text = (slen > 0 ? slen.ToString() + " of " : string.Empty) + mdText.Text.Length.ToString() + " characters";
         }
     }
 
@@ -242,41 +269,6 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         {
             navigate();
         }
-    }
-
-    protected override void OnUpdateContent()
-    {
-        _markdownResource?.Markdown = mdText.Text;
-    }
-
-    protected override void OnCleanupPage()
-    {
-        mdText.TextChanged -= MdText_TextChanged;
-        mdText.SelectionChanged -= MdText_SelectionChanged;
-
-#if !HAS_UNO
-        mdText.PreviewKeyDown -= MdText_KeyDown;
-        PreviewKeyDown -= Page_PreviewKeyDown;
-        PreviewKeyUp -= Page_PreviewKeyUp;
-        mdText.CuttingToClipboard -= MdText_CuttingToClipboard;
-#else
-        mdText.KeyDown -= MdText_KeyDown;
-        KeyDown -= Page_KeyDown;
-        KeyUp -= Page_KeyUp;
-#endif
-        mdText.Paste -= MdText_Paste;
-
-        _markdownResource = null;
-        propertyEditorDialog = null;
-        insertTableDialog = null;
-        insertLinkDialog = null;
-        insertImageDialog = null;
-        insertReferenceDialog = null;
-        _mdBinding = null;
-        undoStack.Clear();
-        redoStack.Clear();
-        _prevText = null;
-        searchIndices.Clear();
     }
 
     private bool _isBeingSaved = false;
@@ -325,18 +317,23 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     private void PasteButton_Click(object sender, RoutedEventArgs e) => mdText.PasteFromClipboard();
 
+    #endregion
+
     #region Find
 
     private void SetupFindControl()
     {
-        List<string> columns =
-        [
-            _currentDocument,
-            _selection
-        ];
+        if (findControl.FindContexts == null)
+        {
+            List<string> columns =
+            [
+                _currentDocument,
+                _selection
+            ];
 
-        findControl.FindContexts = columns;
-        findControl.SelectedContext = columns[0];
+            findControl.FindContexts = columns;
+            findControl.SelectedContext = columns[0];
+        }
     }
 
     private void FindButton_Click(object sender, RoutedEventArgs e) => findControl.ShowFindControl();
