@@ -32,10 +32,19 @@ public class ReferenceInlineParser : InlineParser
             return false;
         }
 
-        var start = slice.Start;
+        var start = startPosition;
 
         while (!c.IsSpaceOrTab() && !c.IsNewLineOrLineFeed() && !c.IsZero())
         {
+            if (c == '#' || c == '.')
+            {
+                var next = slice.PeekChar(1);
+                if (!char.IsAsciiDigit(next))
+                {
+                    break;
+                }
+            }
+
             pc = c;
             c = slice.NextChar();
         }

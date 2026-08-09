@@ -1,5 +1,4 @@
 using System.Text;
-using Markdig.Syntax;
 using Symptum.Common.ProjectSystem;
 using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
@@ -29,12 +28,16 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         PageName = "Markdown Editor";
         IconSource = DefaultIconSources.DocumentIconSource;
         Loaded += Page_Loaded;
+        Unloaded += Page_Unloaded;
     }
 
     #region Page Lifecycle
 
     private void Page_Loaded(object sender, RoutedEventArgs e)
     {
+        // After unloading and reloading, the EditableContent is not updated again. Therefore, we need to force it here.
+        if (_markdownResource == null) OnSetEditableContent(EditableContent);
+
         mdText.TextChanged += MdText_TextChanged;
         mdText.SelectionChanged += MdText_SelectionChanged;
 
@@ -76,7 +79,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 #endif
         mdText.Paste -= MdText_Paste;
 
-        _markdownResource = null;
+        OnSetEditableContent(null);
         propertyEditorDialog = null;
         insertTableDialog = null;
         insertLinkDialog = null;

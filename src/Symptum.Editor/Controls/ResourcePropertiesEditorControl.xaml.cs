@@ -15,6 +15,7 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
     private const string h_package = "Package";
 
     private readonly ObservableCollection<ListEditorItemWrapper<AuthorInfo>> _authors = [];
+    private readonly ObservableCollection<ListEditorItemWrapper<string>> _deps = [];
     private readonly ObservableCollection<string> _tags = [];
 
     #region Properties
@@ -51,14 +52,21 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
     {
         LoadResource(Resource);
         authorsLE.ItemsSource = _authors;
-        authorsLE.ActionRequested += LE_ActionRequested;
+        authorsLE.ActionRequested += AuthorsLE_ActionRequested;
+        depsLE.ItemsSource = _deps;
+        depsLE.ActionRequested += DepsLE_ActionRequested;
     }
 
     private void ResourcePropertiesEditorControl_Unloaded(object? s, RoutedEventArgs e)
     {
         authorsLE.ItemsSource = null;
         _authors.ClearWrapperListSafe();
-        authorsLE.ActionRequested -= LE_ActionRequested;
+        authorsLE.ActionRequested -= AuthorsLE_ActionRequested;
+
+        depsLE.ItemsSource = null;
+        _deps.ClearWrapperListSafe();
+        depsLE.ActionRequested -= DepsLE_ActionRequested;
+        ClearResource();
     }
 
     private void SetResource(IResource? resource)
@@ -91,6 +99,7 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
         packageVersionTB.Text = null;
         packageVersionTB.Visibility = Visibility.Collapsed;
         _authors.ClearWrapperListSafe();
+        _deps.ClearWrapperListSafe();
         _tags.Clear();
         metadataExpander.Visibility = Visibility.Collapsed;
         splitMDCB.IsChecked = null;
@@ -132,6 +141,7 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
             packageVersionTB.Text = package.Version?.ToString();
             packageVersionTB.Visibility = Visibility.Visible;
             _authors.LoadFromList(package.Authors);
+            _deps.LoadFromList(package.DependencyIds);
             _tags.Clear();
             _tags.AddRange(package.Tags);
         }
@@ -151,6 +161,7 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
             filePathTB.Visibility = Visibility.Visible;
             descriptionTB.Text = fileResource.Description;
             _authors.LoadFromList(fileResource.Authors);
+            _deps.LoadFromList(fileResource.DependencyIds);
             _tags.Clear();
             _tags.AddRange(fileResource.Tags);
         }
@@ -196,6 +207,9 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
                 package.Version = version;
             }
             package.Authors = _authors.UnwrapToList();
+            package.DependencyIds = _deps.UnwrapToList();
+            // Trigerring this to updates the dependencies list with the new IDs.
+            ResourceManager.ResolveDependencies(package);
             package.Tags = [.. _tags];
         }
         else if (resource is MetadataResource metadataResource)
@@ -206,6 +220,8 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
         {
             fileResource.Description = descriptionTB.Text.ToNullIfEmpty();
             fileResource.Authors = _authors.UnwrapToList();
+            fileResource.DependencyIds = _deps.UnwrapToList();
+            ResourceManager.ResolveDependencies(fileResource);
             fileResource.Tags = [.. _tags];
         }
 
@@ -227,6 +243,9 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
         uriTB.Text = ResourceManager.GenerateUriFromAncestors(Resource);
     }
 
-    private void LE_ActionRequested(object? s, ListEditorItemActionRequestedEventArgs e) =>
+    private void AuthorsLE_ActionRequested(object? s, ListEditorItemActionRequestedEventArgs e) =>
         ListEditorControl.HandleActionRequired(_authors, e, () => MainViewModel.Instance.CurrentAuthor, a => new() { Email = a.Email, Name = a.Name });
+
+    private void DepsLE_ActionRequested(object? s, ListEditorItemActionRequestedEventArgs e) =>
+        ListEditorControl.HandleActionRequired(_deps, e, () => string.Empty, d => d);
 }

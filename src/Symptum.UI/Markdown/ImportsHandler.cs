@@ -33,7 +33,9 @@ public class ImportsHandler
                     && resource is MarkdownFileResource markdownFileResource
                     && !string.IsNullOrEmpty(markdownFileResource.Markdown))
                 {
-                    MarkdownDocument doc = Markdig.Markdown.Parse(markdownFileResource.Markdown, MarkdownManager.Pipeline);
+                    // Pre-process reference inlines using the source document's dependencies.
+                    string sourceMd = MarkdownManager.OptimizeReferences(markdownFileResource.Markdown, markdownFileResource) ?? string.Empty;
+                    MarkdownDocument doc = Markdig.Markdown.Parse(sourceMd, MarkdownManager.Pipeline);
                     match = doc.Descendants<ExportBlock>().FirstOrDefault(e => impId.Equals(e.Id.ToString(), StringComparison.InvariantCulture));
                 }
             }

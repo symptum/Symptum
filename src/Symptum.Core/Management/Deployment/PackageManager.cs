@@ -33,7 +33,7 @@ public class PackageManager
         if (dependency == null)
             return;
 
-        if (package?.Dependencies is IList<IPackageResource> dependencies)
+        if (package?.Dependencies is IList<IResource> dependencies)
         {
             lock (dependencies)
             {

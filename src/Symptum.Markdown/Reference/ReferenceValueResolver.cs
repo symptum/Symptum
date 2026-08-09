@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Symptum.Core.Data;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
@@ -16,7 +15,7 @@ public static class ReferenceValueResolver
     /// </summary>
     /// <returns>
     /// The display text and the url of the referenced value.
-    /// The url is the url of the <see cref="ReferenceValueGroup"/> followed by <c>?{parameterId}#{entryIndex}.{quantityIndex}</c>.
+    /// The url is the url of the <see cref="ReferenceValueGroup"/> followed by <c>?id={parameterId}&amp;e={entryIndex}&amp;q={quantityIndex}</c>.
     /// </returns>
     public static bool TryResolveValue(MarkdownFileResource? resource, string? parameterId, int entryIndex, int quantityIndex,
         [NotNullWhen(true)] out string? text, [NotNullWhen(true)] out string? url)
@@ -49,11 +48,11 @@ public static class ReferenceValueResolver
 
     /// <summary>
     /// Builds the url of a reference value which is the url of the group followed by
-    /// <c>?{parameterId}#{entryIndex}.{quantityIndex}</c>.
+    /// <c>?id={parameterId}&amp;e={entryIndex}&amp;q={quantityIndex}</c>.
     /// </summary>
     public static string BuildReferenceUrl(IResource? group, string? parameterId, int entryIndex, int quantityIndex)
     {
         string groupUri = group?.Uri?.ToString() ?? group?.Id ?? string.Empty;
-        return $"{groupUri}?{parameterId}#{entryIndex}.{quantityIndex}";
+        return $"{groupUri}?id={parameterId}&e={entryIndex}&q={quantityIndex}";
     }
 }

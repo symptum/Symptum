@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using Symptum.Core.Data;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
@@ -36,7 +35,11 @@ public sealed partial class MarkdownEditorInsertReferenceDialog : ContentDialog,
     public void SetResource(MarkdownFileResource? resource)
     {
         _resource = resource;
-        groups = EnumerateReferenceValueGroups(ResourceManager.Resources).ToList();
+        groups.Clear(); parameters.Clear(); entries.Clear(); quantities.Clear();
+
+        // Focus only on the groups inside the package.
+        ReferenceValuesPackage? package = ResourceManager.Resources.FirstOrDefault(p => p is ReferenceValuesPackage) as ReferenceValuesPackage;
+        CollectReferenceValueGroups(package?.ChildrenResources ?? [], groups);
 
         if (groups.Count == 0)
         {
@@ -54,17 +57,18 @@ public sealed partial class MarkdownEditorInsertReferenceDialog : ContentDialog,
         groupCB.SelectedIndex = 0;
     }
 
-    private static IEnumerable<ReferenceValueGroup> EnumerateReferenceValueGroups(IEnumerable<IResource> resources)
+    private static void CollectReferenceValueGroups(IReadOnlyList<IResource> resources, List<ReferenceValueGroup> results)
     {
         foreach (var resource in resources)
         {
             if (resource is ReferenceValueGroup group)
-                yield return group;
-
-            if (resource.ChildrenResources != null)
             {
-                foreach (var child in EnumerateReferenceValueGroups(resource.ChildrenResources))
-                    yield return child;
+                results.Add(group);
+            }
+
+            if (resource.ChildrenResources is { Count: > 0 })
+            {
+                CollectReferenceValueGroups(resource.ChildrenResources, results);
             }
         }
     }
@@ -72,6 +76,7 @@ public sealed partial class MarkdownEditorInsertReferenceDialog : ContentDialog,
     private void GroupCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         int index = groupCB.SelectedIndex;
+        parameters.Clear(); entries.Clear(); quantities.Clear();
         parameters = index >= 0 && index < groups.Count ? (groups[index].Parameters?.ToList() ?? []) : [];
 
         if (parameters.Count == 0)
@@ -88,6 +93,7 @@ public sealed partial class MarkdownEditorInsertReferenceDialog : ContentDialog,
 
     private void ParameterCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        entries.Clear(); quantities.Clear();
         int index = parameterCB.SelectedIndex;
         entries = index >= 0 && index < parameters.Count ? (parameters[index].Entries ?? []) : [];
 
@@ -105,6 +111,7 @@ public sealed partial class MarkdownEditorInsertReferenceDialog : ContentDialog,
 
     private void EntryCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        quantities.Clear();
         int index = entryCB.SelectedIndex;
         quantities = index >= 0 && index < entries.Count ? (entries[index].Quantities ?? []) : [];
 
@@ -179,8 +186,7 @@ public sealed partial class MarkdownEditorInsertReferenceDialog : ContentDialog,
         EditResult = EditorResult.Create;
     }
 
-    // Registers the selected group in the document's dependencies so that
-    // the reference value can be resolved and persisted with the document.
+    // Adds the selected group to the resource's dependencies allowing value resolution.
     private void AddSelectedGroupToDependencies()
     {
         if (_resource == null) return;

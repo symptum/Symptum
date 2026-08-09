@@ -1,4 +1,3 @@
-using Windows.UI;
 using Symptum.ViewModels;
 using Windows.Foundation;
 

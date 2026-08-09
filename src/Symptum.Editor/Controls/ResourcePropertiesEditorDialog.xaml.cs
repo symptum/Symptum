@@ -17,12 +17,14 @@ public sealed partial class ResourcePropertiesEditorDialog : ContentDialog, IEdi
     {
         EditResult = EditorResult.Cancel;
         propertiesEditor.ResetResource();
+        propertiesEditor.Resource = null;
     }
 
     private void ResourcePropertiesEditorDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
         EditResult = EditorResult.Update;
         propertiesEditor.UpdateResource();
+        propertiesEditor.Resource = null;
     }
 
     private void ResourcePropertiesEditorDialog_Opened(ContentDialog sender, ContentDialogOpenedEventArgs args)

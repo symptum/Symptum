@@ -343,17 +343,16 @@ public class ResourceManager
     {
         if (resource == null) return;
 
-        if (resource.DependencyIds == null || resource.DependencyIds.Count == 0)
-        {
-            resource.Dependencies?.Clear();
-            return;
-        }
+        resource.Dependencies?.Clear();
 
-        resource.Dependencies ??= [];
-        foreach (var id in resource.DependencyIds)
+        if (resource.DependencyIds != null)
         {
-            if (TryGetResourceById(id, out IResource? dependency) && !resource.Dependencies.Contains(dependency))
-                resource.Dependencies.Add(dependency);
+            resource.Dependencies ??= [];
+            foreach (var id in resource.DependencyIds)
+            {
+                if (TryGetResourceById(id, out IResource? dependency) && !resource.Dependencies.Contains(dependency))
+                    resource.Dependencies.Add(dependency);
+            }
         }
     }
 

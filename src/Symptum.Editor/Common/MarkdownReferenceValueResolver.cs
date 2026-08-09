@@ -1,5 +1,4 @@
 using Symptum.Core.Management.Resources;
-using Symptum.Markdown;
 using Symptum.Markdown.Reference;
 using Symptum.UI.Markdown;
 

@@ -68,6 +68,18 @@
           </local:ListEditorControl.ItemTemplate>
         </local:ListEditorControl>
         <controls:TokenizingTextBox x:Name="tagsTTB" Header="Tags" ItemsSource="{x:Bind _tags}" TokenDelimiter=";" />
+        <local:ListEditorControl x:Name="depsLE" Header="Dependencies">
+          <local:ListEditorControl.ItemTemplate>
+            <DataTemplate>
+              <local:ListEditorItemCommandsButton>
+                <DataTemplate>
+                  <TextBox PlaceholderText="Id"
+                   Text="{Binding Value, Mode=TwoWay}" />
+                </DataTemplate>
+              </local:ListEditorItemCommandsButton>
+            </DataTemplate>
+          </local:ListEditorControl.ItemTemplate>
+        </local:ListEditorControl>
       </StackPanel>
     </Expander>
   </StackPanel>

@@ -1,7 +1,4 @@
-using System.Collections.ObjectModel;
-using Markdig;
 using Markdig.Syntax;
-using Symptum.Core.Data;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
 using Symptum.Markdown.Reference;
@@ -12,16 +9,16 @@ namespace Symptum.Markdown.Tests;
 public sealed class MarkdownManagerTests
 {
     [TestMethod]
-    public void GetOptimizedMarkdown_NullInput_ReturnsNull()
+    public void GetOptimizedMarkdown_NullResource_ReturnsEmpty()
     {
-        string? result = MarkdownManager.GetOptimizedMarkdown(null!);
-        Assert.IsNull(result);
+        string result = MarkdownManager.GetOptimizedMarkdown(null);
+        Assert.AreEqual(string.Empty, result);
     }
 
     [TestMethod]
     public void GetOptimizedMarkdown_EmptyInput_ReturnsEmpty()
     {
-        string result = MarkdownManager.GetOptimizedMarkdown(string.Empty);
+        string result = Optimize(string.Empty);
         Assert.AreEqual(string.Empty, result);
     }
 
@@ -29,7 +26,7 @@ public sealed class MarkdownManagerTests
     public void GetOptimizedMarkdown_NoExportImport_ReturnsSame()
     {
         string input = "# Heading\n\nSome paragraph with **bold** text.\n\n- List item 1\n- List item 2";
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(input, result);
     }
 
@@ -38,7 +35,7 @@ public sealed class MarkdownManagerTests
     {
         string input = "<= greeting\nHello, World!\n<=";
         string expected = "Hello, World!";
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(expected, result);
     }
 
@@ -47,7 +44,7 @@ public sealed class MarkdownManagerTests
     {
         string input = "<= note\nFirst line\nSecond line\nThird line\n<=";
         string expected = "First line\nSecond line\nThird line";
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(expected, result);
     }
 
@@ -56,7 +53,7 @@ public sealed class MarkdownManagerTests
     {
         string input = "<= empty\n<=";
         string expected = "";
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(expected, result);
     }
 
@@ -65,7 +62,7 @@ public sealed class MarkdownManagerTests
     {
         string input = "<=\nJust some content\n<=";
         string expected = "Just some content";
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(expected, result);
     }
 
@@ -74,7 +71,7 @@ public sealed class MarkdownManagerTests
     {
         string input = "<= first\nContent A\n<=\n\n<= second\nContent B\n<=";
         string expected = "Content A\n\nContent B";
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(expected, result);
     }
 
@@ -83,7 +80,7 @@ public sealed class MarkdownManagerTests
     {
         string input = "<= greeting\nHello, World!\n<=\n\n=> greeting";
         string expected = "Hello, World!\n\nHello, World!";
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(expected, result);
     }
 
@@ -91,7 +88,7 @@ public sealed class MarkdownManagerTests
     public void GetOptimizedMarkdown_ImportBlock_Unresolved_KeepsOriginal()
     {
         string input = "=> unknown";
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(input, result);
     }
 
@@ -100,7 +97,7 @@ public sealed class MarkdownManagerTests
     {
         string input = "=> greeting\n\n<= greeting\nHello, World!\n<=";
         string expected = "Hello, World!\n\nHello, World!";
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(expected, result);
     }
 
@@ -129,7 +126,7 @@ Content A
 
 Content B
 """;
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(expected, result);
     }
 
@@ -161,7 +158,7 @@ This is the **excerpt** with `code`.
 
 Another paragraph at the end.
 """;
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(expected, result);
     }
 
@@ -170,7 +167,7 @@ Another paragraph at the end.
     {
         string input = "<= code\n    indented line\n    another\n<=";
         string expected = "    indented line\n    another";
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(expected, result);
     }
 
@@ -179,7 +176,7 @@ Another paragraph at the end.
     {
         string input = "<= id\r\nContent line\r\n<=\r\n";
         string expected = "Content line";
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(expected, result);
     }
 
@@ -197,7 +194,7 @@ Another paragraph at the end.
         {
             string input = "=> Symptum.TestLibrary?myBlock";
             string expected = "Exported from resource";
-            string result = MarkdownManager.GetOptimizedMarkdown(input);
+            string result = Optimize(input);
             Assert.AreEqual(expected, result);
         }
         finally
@@ -210,7 +207,7 @@ Another paragraph at the end.
     public void GetOptimizedMarkdown_ImportBlock_ExternalResourceNotFound_KeepsOriginal()
     {
         string input = "=> NonExistent.Resource?someBlock";
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(input, result);
     }
 
@@ -227,7 +224,7 @@ Another paragraph at the end.
         try
         {
             string input = "=> Symptum.TestLibrary?otherBlock";
-            string result = MarkdownManager.GetOptimizedMarkdown(input);
+            string result = Optimize(input);
             Assert.AreEqual(input, result);
         }
         finally
@@ -256,7 +253,7 @@ Local content
 => shared
 """;
             string expected = "Local content\n\nLocal content";
-            string result = MarkdownManager.GetOptimizedMarkdown(input);
+            string result = Optimize(input);
             Assert.AreEqual(expected, result);
         }
         finally
@@ -285,7 +282,7 @@ Local content
 => Symptum.TestLibrary?shared
 """;
             string expected = "Local content\n\nExternal content";
-            string result = MarkdownManager.GetOptimizedMarkdown(input);
+            string result = Optimize(input);
             Assert.AreEqual(expected, result);
         }
         finally
@@ -299,7 +296,7 @@ Local content
     {
         string input = "<= a\nA\n<=\n<= b\nB\n<=";
         string expected = "A\nB";
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(expected, result);
     }
 
@@ -308,7 +305,7 @@ Local content
     {
         string input = "<= top\nTop content\n<=\n\nRegular text";
         string expected = "Top content\n\nRegular text";
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(expected, result);
     }
 
@@ -317,7 +314,7 @@ Local content
     {
         string input = "Regular text\n\n<= end\nEnd content\n<=";
         string expected = "Regular text\n\nEnd content";
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(expected, result);
     }
 
@@ -326,8 +323,8 @@ Local content
     {
         var resource = CreateMarkdownResourceWithReferenceGroup();
         string input = "The normal range is @PH#0.1.";
-        string expected = "The normal range is [7.35 pH](symptum://referencevalues/test?PH#0.1).";
-        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        string expected = "The normal range is [7.35 pH](symptum://referencevalues/test?id=PH&e=0&q=1).";
+        string result = Optimize(input, resource);
         Assert.AreEqual(expected, result);
     }
 
@@ -336,8 +333,8 @@ Local content
     {
         var resource = CreateMarkdownResourceWithReferenceGroup();
         string input = "Value is @PH.";
-        string expected = "Value is [7.4 pH](symptum://referencevalues/test?PH#0.0).";
-        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        string expected = "Value is [7.4 pH](symptum://referencevalues/test?id=PH&e=0&q=0).";
+        string result = Optimize(input, resource);
         Assert.AreEqual(expected, result);
     }
 
@@ -346,8 +343,8 @@ Local content
     {
         var resource = CreateMarkdownResourceWithReferenceGroup();
         string input = "Minimum is @PH.2.";
-        string expected = "Minimum is [7.45 pH](symptum://referencevalues/test?PH#0.2).";
-        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        string expected = "Minimum is [7.45 pH](symptum://referencevalues/test?id=PH&e=0&q=2).";
+        string result = Optimize(input, resource);
         Assert.AreEqual(expected, result);
     }
 
@@ -356,8 +353,8 @@ Local content
     {
         var resource = CreateMarkdownResourceWithReferenceGroup();
         string input = "Ranges: @PH#0.0 - @PH#0.1 - @PH#0.2.";
-        string expected = "Ranges: [7.4 pH](symptum://referencevalues/test?PH#0.0) - [7.35 pH](symptum://referencevalues/test?PH#0.1) - [7.45 pH](symptum://referencevalues/test?PH#0.2).";
-        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        string expected = "Ranges: [7.4 pH](symptum://referencevalues/test?id=PH&e=0&q=0) - [7.35 pH](symptum://referencevalues/test?id=PH&e=0&q=1) - [7.45 pH](symptum://referencevalues/test?id=PH&e=0&q=2).";
+        string result = Optimize(input, resource);
         Assert.AreEqual(expected, result);
     }
 
@@ -366,7 +363,7 @@ Local content
     {
         var resource = CreateMarkdownResourceWithReferenceGroup();
         string input = "Value is @UNKNOWN#0.1.";
-        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        string result = Optimize(input, resource);
         Assert.AreEqual(input, result);
     }
 
@@ -374,7 +371,7 @@ Local content
     public void GetOptimizedMarkdown_ReferenceInline_NoResource_KeepsOriginal()
     {
         string input = "Value is @PH#0.1.";
-        string result = MarkdownManager.GetOptimizedMarkdown(input);
+        string result = Optimize(input);
         Assert.AreEqual(input, result);
     }
 
@@ -383,8 +380,8 @@ Local content
     {
         var resource = CreateMarkdownResourceWithReferenceGroup();
         string input = "Value is @PH#5.0.";
-        string expected = "Value is [pH Level](symptum://referencevalues/test?PH#5.0).";
-        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        string expected = "Value is [pH Level](symptum://referencevalues/test?id=PH&e=5&q=0).";
+        string result = Optimize(input, resource);
         Assert.AreEqual(expected, result);
     }
 
@@ -393,7 +390,7 @@ Local content
     {
         var resource = CreateMarkdownResourceWithReferenceGroup();
         string input = "Empty @ and @#0.1 and @.1.";
-        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        string result = Optimize(input, resource);
         Assert.AreEqual(input, result);
     }
 
@@ -402,8 +399,8 @@ Local content
     {
         var resource = CreateMarkdownResourceWithReferenceGroup();
         string input = "A: @PH#.1, B: @PH.#, C: @PH#.";
-        string expected = "A: [7.4 pH](symptum://referencevalues/test?PH#0.0)#.1, B: [7.4 pH](symptum://referencevalues/test?PH#0.0).#, C: [7.4 pH](symptum://referencevalues/test?PH#0.0)#.";
-        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        string expected = "A: [7.4 pH](symptum://referencevalues/test?id=PH&e=0&q=0)#.1, B: [7.4 pH](symptum://referencevalues/test?id=PH&e=0&q=0).#, C: [7.4 pH](symptum://referencevalues/test?id=PH&e=0&q=0)#.";
+        string result = Optimize(input, resource);
         Assert.AreEqual(expected, result);
     }
 
@@ -412,7 +409,7 @@ Local content
     {
         var resource = CreateMarkdownResourceWithReferenceGroup();
         string input = "Email is foo@PH#0.1.";
-        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        string result = Optimize(input, resource);
         Assert.AreEqual(input, result);
     }
 
@@ -471,8 +468,8 @@ Local content
     {
         var resource = CreateMarkdownResourceWithReferenceGroup();
         string input = "The value is @PH, which is normal.";
-        string expected = "The value is [7.4 pH](symptum://referencevalues/test?PH#0.0), which is normal.";
-        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        string expected = "The value is [7.4 pH](symptum://referencevalues/test?id=PH&e=0&q=0), which is normal.";
+        string result = Optimize(input, resource);
         Assert.AreEqual(expected, result);
     }
 
@@ -481,9 +478,70 @@ Local content
     {
         var resource = CreateMarkdownResourceWithReferenceGroup();
         string input = "The low value is @PH.1.";
-        string expected = "The low value is [7.35 pH](symptum://referencevalues/test?PH#0.1).";
-        string result = MarkdownManager.GetOptimizedMarkdown(input, resource);
+        string expected = "The low value is [7.35 pH](symptum://referencevalues/test?id=PH&e=0&q=1).";
+        string result = Optimize(input, resource);
         Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void GetOptimizedMarkdown_ReferenceInsideLocalExportBlock_IsInlinedBeforeImport()
+    {
+        var resource = CreateMarkdownResourceWithReferenceGroup();
+        string input = "<= PH\nThe normal range is @PH#0.1\n<=\n\n=> PH";
+        string expected = "The normal range is [7.35 pH](symptum://referencevalues/test?id=PH&e=0&q=1)\n\nThe normal range is [7.35 pH](symptum://referencevalues/test?id=PH&e=0&q=1)";
+        string result = Optimize(input, resource);
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void GetOptimizedMarkdown_ReferenceInsideExternalExportBlock_ResolvesUsingSourceDependencies()
+    {
+        var source = CreateMarkdownResourceWithReferenceGroup();
+        source.Id = "Symptum.TestLibrary";
+        source.Markdown = "<= PH\nReferenced value is @PH#0.1\n<=";
+        ResourceManager.Resources.Add(source);
+
+        try
+        {
+            string input = "=> Symptum.TestLibrary?PH";
+            string expected = "Referenced value is [7.35 pH](symptum://referencevalues/test?id=PH&e=0&q=1)";
+            string result = Optimize(input);
+            Assert.AreEqual(expected, result);
+        }
+        finally
+        {
+            ResourceManager.Resources.Remove(source);
+        }
+    }
+
+    [TestMethod]
+    public void GetOptimizedMarkdown_ReferenceInsideExternalExportBlock_Unresolvable_KeepsOriginal()
+    {
+        var source = new MarkdownFileResource
+        {
+            Id = "Symptum.TestLibrary",
+            Markdown = "<= PH\nReferenced value is @UNKNOWN#0.1\n<="
+        };
+        ResourceManager.Resources.Add(source);
+
+        try
+        {
+            string input = "=> Symptum.TestLibrary?PH";
+            string expected = "Referenced value is @UNKNOWN#0.1";
+            string result = Optimize(input);
+            Assert.AreEqual(expected, result);
+        }
+        finally
+        {
+            ResourceManager.Resources.Remove(source);
+        }
+    }
+
+    private static string Optimize(string input, MarkdownFileResource? resource = null)
+    {
+        MarkdownFileResource md = resource ?? new MarkdownFileResource();
+        md.Markdown = input;
+        return MarkdownManager.GetOptimizedMarkdown(md) ?? string.Empty;
     }
 
     private static MarkdownFileResource CreateMarkdownResourceWithReferenceGroup()

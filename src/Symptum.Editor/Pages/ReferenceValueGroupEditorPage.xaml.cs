@@ -26,6 +26,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
 
     private void ReferenceValueGroupEditorPage_Loaded(object sender, RoutedEventArgs e)
     {
+        if (currentGroup == null) OnSetEditableContent(EditableContent);
         parameterEditorDialog = EditorPagesManager.CreateOrGetDialog<ReferenceValueParameterEditorDialog>();
         propertyEditorDialog = EditorPagesManager.CreateOrGetDialog<ResourcePropertiesEditorDialog>();
         SetupFindControl();
@@ -33,7 +34,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
 
     private void ReferenceValueGroupEditorPage_Unloaded(object sender, RoutedEventArgs e)
     {
-        currentGroup = null;
+        OnSetEditableContent(null);
         parameterEditorDialog = null;
         propertyEditorDialog = null;
         confirmationDialog = null;

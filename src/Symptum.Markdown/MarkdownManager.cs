@@ -39,11 +39,15 @@ public static class MarkdownManager
         if (resource == null) return string.Empty;
 
         string? markdown = resource.Markdown;
-        
+
         if (string.IsNullOrEmpty(markdown))
             return markdown;
 
-        ReadOnlySpan<char> span = markdown.AsSpan();
+        // Pass 0: pre-process reference inlines before replacing import blocks with the
+        // export block content from the source. This ensures that reference values inside
+        // export blocks are inlined (using this document's dependencies) before the content
+        // is copied over to importing documents.
+        ReadOnlySpan<char> span = OptimizeReferences(markdown, resource).AsSpan();
         var localExports = new Dictionary<string, string>(StringComparer.Ordinal);
 
         // Pass 1: collect all export block IDs and their content
@@ -95,11 +99,40 @@ public static class MarkdownManager
             }
             else
             {
-                AppendWithNewline(result, OptimizeReferenceInlines(line, resource), ref needNewline);
+                AppendWithNewline(result, line, ref needNewline);
             }
         }
 
         return result.ToString();
+    }
+
+    /// <summary>
+    /// Replaces ReferenceInline syntax in the given markdown with markdown hyperlinks
+    /// containing the inlined value resolved from the resource's dependencies.
+    /// Export and ImportBlock syntax is left intact. This is used to pre-process
+    /// reference values before export block content is copied over to importing documents.
+    /// </summary>
+    public static string? OptimizeReferences(string? markdown, MarkdownFileResource? resource = null)
+    {
+        if (string.IsNullOrEmpty(markdown))
+            return markdown;
+
+        ReadOnlySpan<char> span = markdown.AsSpan();
+        var sb = new StringBuilder(span.Length);
+        bool first = true;
+        int pos = 0;
+
+        while (pos < span.Length)
+        {
+            ReadOnlySpan<char> line = ReadLine(span, ref pos);
+            if (!first)
+                sb.Append('\n');
+
+            sb.Append(OptimizeReferenceInlines(line, resource));
+            first = false;
+        }
+
+        return sb.ToString();
     }
 
     private static void AppendWithNewline(StringBuilder sb, ReadOnlySpan<char> content, ref bool needNewline)
@@ -156,7 +189,7 @@ public static class MarkdownManager
         return false;
     }
 
-    private static string ReadExportContent(ReadOnlySpan<char> text, ref int pos)
+    private static string ReadExportContent(ReadOnlySpan<char> text, ref int pos, MarkdownFileResource? resource = null)
     {
         var sb = new StringBuilder();
         bool first = true;
@@ -170,7 +203,9 @@ public static class MarkdownManager
             if (!first)
                 sb.Append('\n');
 
-            sb.Append(line);
+            // Pre-process reference inlines using the exporting document's dependencies
+            // so that the content is already inlined when it is imported elsewhere.
+            sb.Append(OptimizeReferenceInlines(line, resource));
             first = false;
         }
 
@@ -208,7 +243,8 @@ public static class MarkdownManager
                     && exportId.Length > 0
                     && exportId.SequenceEqual(blockId.AsSpan()))
                 {
-                    return ReadExportContent(span, ref pos);
+                    // Inline reference values using the source document's dependencies.
+                    return ReadExportContent(span, ref pos, mdResource);
                 }
             }
         }
