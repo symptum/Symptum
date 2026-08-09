@@ -35,7 +35,7 @@ public sealed partial class MarkdownEditorInsertReferenceDialog : ContentDialog,
     public void SetResource(MarkdownFileResource? resource)
     {
         _resource = resource;
-        groups.Clear(); parameters.Clear(); entries.Clear(); quantities.Clear();
+        groups.Clear(); parameters.Clear();
 
         // Focus only on the groups inside the package.
         ReferenceValuesPackage? package = ResourceManager.Resources.FirstOrDefault(p => p is ReferenceValuesPackage) as ReferenceValuesPackage;
@@ -76,7 +76,7 @@ public sealed partial class MarkdownEditorInsertReferenceDialog : ContentDialog,
     private void GroupCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         int index = groupCB.SelectedIndex;
-        parameters.Clear(); entries.Clear(); quantities.Clear();
+        parameters.Clear();
         parameters = index >= 0 && index < groups.Count ? (groups[index].Parameters?.ToList() ?? []) : [];
 
         if (parameters.Count == 0)
@@ -93,7 +93,6 @@ public sealed partial class MarkdownEditorInsertReferenceDialog : ContentDialog,
 
     private void ParameterCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        entries.Clear(); quantities.Clear();
         int index = parameterCB.SelectedIndex;
         entries = index >= 0 && index < parameters.Count ? (parameters[index].Entries ?? []) : [];
 
@@ -111,7 +110,6 @@ public sealed partial class MarkdownEditorInsertReferenceDialog : ContentDialog,
 
     private void EntryCB_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        quantities.Clear();
         int index = entryCB.SelectedIndex;
         quantities = index >= 0 && index < entries.Count ? (entries[index].Quantities ?? []) : [];
 

@@ -795,6 +795,8 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     private void ThBreakButton_Click(object sender, RoutedEventArgs e) => InsertBlock("---");
 
+    private void DiagramButton_Click(object sender, RoutedEventArgs e) => ToggleWrap(newLine + "```mermaid" + newLine, newLine + "```" + newLine, true, true);
+
     private async void TableButton_Click(object sender, RoutedEventArgs e)
     {
         if (insertTableDialog == null) return;
@@ -834,10 +836,6 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
         }
     }
 
-    private void ExportBlockButton_Click(object sender, RoutedEventArgs e) => ToggleWrap(newLine + "<= {Id}" + newLine, newLine + "<=" + newLine, true, true);
-
-    private void ImportBlockButton_Click(object sender, RoutedEventArgs e) => InsertBlock("=> {ResourceId}?{BlockId}");
-
     private async void ReferenceValueButton_Click(object sender, RoutedEventArgs e)
     {
         if (insertReferenceDialog == null) return;
@@ -851,6 +849,10 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
             InsertInline(insertReferenceDialog.Markdown);
         }
     }
+
+    private void ExportBlockButton_Click(object sender, RoutedEventArgs e) => ToggleWrap(newLine + "<= {Id}" + newLine, newLine + "<=" + newLine, true, true);
+
+    private void ImportBlockButton_Click(object sender, RoutedEventArgs e) => InsertBlock("=> {ResourceId}?{BlockId}");
 
     private void GridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
