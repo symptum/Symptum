@@ -17,6 +17,7 @@ public partial class App : Application
 
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
+        ResourceHelper.RecursivelyLoadChildren = true;
         await Bootstrapper.InitializeAsync();
 
         PackageManager.StartDependencyResolution();

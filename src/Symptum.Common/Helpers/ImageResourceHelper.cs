@@ -7,6 +7,11 @@ namespace Symptum.Common.Helpers;
 
 public class ImageResourceHelper
 {
+    /// <summary>
+    /// Gets an <see cref="ImageSource"/> from a given <see cref="ImageFileResource"/>.
+    /// </summary>
+    /// <param name="imageFileResource">The image file resource to convert.</param>
+    /// <returns>A tuple containing the image source and its size, or null and 0 if the operation fails.</returns>
     public static async Task<(ImageSource?, ulong)> GetImageFromResource(ImageFileResource imageFileResource)
     {
         using IRandomAccessStream? stream = await ResourceHelper.OpenFileForReadAsync(imageFileResource);
