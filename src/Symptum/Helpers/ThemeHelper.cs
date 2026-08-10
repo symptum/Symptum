@@ -123,7 +123,7 @@ public static class ThemeHelper
     {
         // Find any existing ReaderTheme and remove it.
         var merged = App.Current.Resources.MergedDictionaries.Where(r =>
-            r.Source?.OriginalString?.Contains("/ReaderThemes/") == true);
+            r.Source?.OriginalString?.Contains("/ReaderThemes/") == true).ToList();
         foreach (var res in merged)
         {
             App.Current.Resources.MergedDictionaries.Remove(res);

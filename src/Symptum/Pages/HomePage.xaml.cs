@@ -1,9 +1,10 @@
+using System.Numerics;
 using Microsoft.UI;
 using Microsoft.UI.Composition;
 using Microsoft.UI.Xaml.Hosting;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
-using System.Numerics;
+using Windows.Storage.Streams;
 
 namespace Symptum.Pages;
 
@@ -14,6 +15,8 @@ public sealed partial class HomePage : NavigablePage
     private Compositor? _compositor;
     private Visual? _heroVisual;
     private bool _heroLoaded = false;
+    private StorageFile? _heroImageFile = null;
+    private IRandomAccessStream? _heroImageStream = null;
 
     public HomePage()
     {
@@ -22,14 +25,18 @@ public sealed partial class HomePage : NavigablePage
         Unloaded += HomePage_Unloaded;
     }
 
-    private void HomePage_Loaded(object sender, RoutedEventArgs e)
+    private async void HomePage_Loaded(object sender, RoutedEventArgs e)
     {
         favorites.ItemsSource = ResourceManager.Resources
             .Where(r => r is PackageResource && r is not Subject);
 
         _heroVisual = ElementCompositionPreview.GetElementVisual(hero);
         _compositor = _heroVisual.Compositor;
-        _surface = LoadedImageSurface.StartLoadFromUri(new Uri("ms-appx:///Assets/Images/Symptum_Hero.png"));
+
+        _heroImageFile = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/Images/Symptum_Hero.png"));
+        _heroImageStream = await _heroImageFile.OpenAsync(FileAccessMode.Read);
+        _heroImageFile = null;
+        _surface = LoadedImageSurface.StartLoadFromStream(_heroImageStream);
         _surface.LoadCompleted += Surface_LoadCompleted;
         hero.SizeChanged += Hero_SizeChanged;
     }
@@ -76,6 +83,8 @@ public sealed partial class HomePage : NavigablePage
             _spriteVisual.Size = new Vector2((float)hero.ActualWidth, (float)hero.ActualHeight);
             ElementCompositionPreview.SetElementChildVisual(hero, _spriteVisual);
             _heroLoaded = true;
+            _heroImageStream?.Dispose();
+            _heroImageStream = null;
         }
     }
 
