@@ -1,8 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using System.IO.Compression;
 using System.Text.Json;
-using CsvHelper;
+using System.Text.Json.Serialization;
 using Symptum.Core.Management.Deployment;
 using Symptum.Core.Management.Resources;
 using Windows.Storage.Pickers;
@@ -14,40 +13,17 @@ namespace Symptum.Common.Helpers;
 /// Provides helpers for managing Symptum packages: indexing, importing,
 /// exporting and downloading package metadata and files.
 ///
-/// The helper maintains a cache of package id -> metadata path mappings and
-/// manages package storage folders used by the application.
+/// The helper maintains a cache of package id -> <see cref="PackageEntry"/>
+/// mappings (the local package index) and manages package storage folders used
+/// by the application. The local index records the installed version of each
+/// package so that updates can be detected by comparing against the online
+/// package index.
 /// </summary>
 public class PackageHelper
 {
-    private class IdPath
-    {
-        /// <summary>
-        /// Package identifier.
-        /// </summary>
-        public string? Id { get; set; }
-
-        /// <summary>
-        /// Relative path to the package metadata file inside the packages folder.
-        /// </summary>
-        public string? Path { get; set; }
-    }
-
-    /// <summary>
-    /// File name used to store the package index CSV inside the packages folder.
-    /// </summary>
-    private static readonly string indexFileName = "PackageIndex" + CsvFileExtension;
-
-    /// <summary>
-    /// In-memory cache mapping package id -> metadata file name (relative to
-    /// the PackagesFolder).
-    /// </summary>
-    private static readonly Dictionary<string, string> packageIdPathCache = [];
-
-    /// <summary>
-    /// StorageFile for the package index CSV.
-    /// </summary>
+    private static readonly string indexFileName = "PackageIndex" + JsonFileExtension;
+    private static readonly Dictionary<string, PackageEntry> packageCache = [];
     private static StorageFile? indexFile;
-
     private static bool _init = false;
 
     /// <summary>
@@ -135,17 +111,22 @@ public class PackageHelper
             indexFile = await PackagesFolder.TryGetItemAsync(indexFileName) as StorageFile
                 ?? await PackagesFolder.CreateFileAsync(indexFileName);
 
-            string csv = await FileIO.ReadTextAsync(indexFile);
-            if (!string.IsNullOrWhiteSpace(csv))
+            string json = await FileIO.ReadTextAsync(indexFile);
+            if (!string.IsNullOrWhiteSpace(json))
             {
-                using StringReader stringReader = new(csv);
-                using CsvReader reader = new(stringReader, CultureInfo.InvariantCulture);
-
-                var records = reader.GetRecords<IdPath>();
-                foreach (var record in records)
+                try
                 {
-                    packageIdPathCache.Add(record.Id, record.Path);
+                    List<PackageEntry>? entries = JsonSerializer.Deserialize<List<PackageEntry>>(json);
+                    if (entries != null)
+                    {
+                        foreach (var entry in entries)
+                        {
+                            if (!string.IsNullOrWhiteSpace(entry.Id))
+                                packageCache[entry.Id] = entry;
+                        }
+                    }
                 }
+                catch { }
             }
         }
 
@@ -154,25 +135,21 @@ public class PackageHelper
         _init = true;
     }
 
+    private static readonly JsonSerializerOptions indexOptions = new()
+    {
+        WriteIndented = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
+
     /// <summary>
-    /// Writes the in-memory package index cache back to the index CSV file in the packages folder.
+    /// Writes the in-memory package index cache back to the index JSON file in the packages folder.
     /// </summary>
     public static async Task UpdatePackageCacheFile()
     {
-        using StringWriter stringWriter = new();
-        using CsvWriter csvWriter = new(stringWriter, CultureInfo.InvariantCulture);
-
-        List<IdPath> list = [];
-
-        foreach (var kvp in packageIdPathCache)
-        {
-            list.Add(new() { Id = kvp.Key, Path = kvp.Value });
-        }
-
-        csvWriter.WriteRecords(list);
+        string json = JsonSerializer.Serialize(packageCache.Values.ToList(), indexOptions);
 
         if (indexFile != null)
-            await FileIO.WriteTextAsync(indexFile, stringWriter.ToString());
+            await FileIO.WriteTextAsync(indexFile, json);
     }
 
     /// <summary>
@@ -232,10 +209,16 @@ public class PackageHelper
                 try
                 {
                     string json = await FileIO.ReadTextAsync(jsonFile);
-                    var package = ResourceManager.LoadPackageFromMetadata(json);
-                    if (package != null)
+                    PackageResource? package = ResourceManager.LoadPackageFromMetadata(json);
+                    if (package != null && !string.IsNullOrWhiteSpace(package.Id))
                     {
-                        packageIdPathCache.Add(package.Id, jsonFile.Name);
+                        packageCache[package.Id] = new PackageEntry
+                        {
+                            Id = package.Id,
+                            Title = package.Title,
+                            Version = package.Version,
+                            Path = jsonFile.Name
+                        };
                         await UpdatePackageCacheFile();
                         return true;
                     }
@@ -248,24 +231,36 @@ public class PackageHelper
 
     /// <summary>
     /// Loads a package resource by id. First attempts to resolve a cached
-    /// local metadata file; if not found it will attempt to download the
-    /// package.
+    /// local metadata file; if not found it will attempt to download and
+    /// import the package from the online index.
     /// </summary>
     /// <param name="packageId">Package identifier.</param>
     /// <returns>The loaded package resource or <c>null</c> if not available.</returns>
     public static async Task<IPackageResource?> LoadPackageAsync(string packageId)
     {
-        if (!string.IsNullOrWhiteSpace(packageId))
+        if (string.IsNullOrWhiteSpace(packageId)) return null;
+
+        if (await TryLoadCachedPackageAsync(packageId) is IPackageResource package)
+            return package;
+
+        if (await DownloadPackageAsync(packageId) && await TryLoadCachedPackageAsync(packageId) is IPackageResource downloadedPackage)
+            return downloadedPackage;
+
+        return null;
+    }
+
+    /// <summary>
+    /// Loads an installed package from the local index cache when its metadata
+    /// file is available in the <see cref="PackagesFolder"/>.
+    /// </summary>
+    private static async Task<IPackageResource?> TryLoadCachedPackageAsync(string packageId)
+    {
+        if (packageCache.TryGetValue(packageId, out PackageEntry? entry) &&
+            !string.IsNullOrWhiteSpace(entry.Path) &&
+            await PackagesFolder?.TryGetItemAsync(entry.Path) is StorageFile jsonFile &&
+            jsonFile.FileType.Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase))
         {
-            if (packageIdPathCache.TryGetValue(packageId, out string? path) && await PackagesFolder?.TryGetItemAsync(path) is StorageFile jsonFile &&
-                jsonFile.FileType.Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase))
-            {
-                return await ResourceHelper.LoadPackageResourceFromFileAsync(jsonFile);
-            }
-            else
-            {
-                await DownloadPackageAsync(packageId);
-            }
+            return await ResourceHelper.LoadPackageResourceFromFileAsync(jsonFile);
         }
 
         return null;
@@ -273,47 +268,88 @@ public class PackageHelper
 
     #region Downloading
 
-    /// <summary>
-    /// Base URL used for hosted package pages.
-    /// </summary>
-    private static readonly string pagesUrl = "https://symptum.github.io/Symptum.Packages/"; // for now we'll use GitHub Pages to host the packages
-
-    /// <summary>
-    /// Raw GitHub URL to the packages repository used to fetch package files.
-    /// </summary>
-    private static readonly string repoUrl = "https://raw.githubusercontent.com/symptum/Symptum.Packages/main/";
-
-    /// <summary>
-    /// Name of the online package index file hosted under <see cref="pagesUrl"/>.
-    /// </summary>
+    private static readonly string baseUrl = "https://symptum.github.io/Symptum.Packages/"; // for now we'll use GitHub Pages to host the packages
     private static readonly string onlinePackageIndex = "index.json";
-
     private static readonly HttpClient httpClient = new();
 
     /// <summary>
-    /// Attempts to download package metadata and assets for the given package
-    /// id. Currently this method fetches an online package index and can be
-    /// extended to download package archives from the configured repository.
+    /// Downloads a package by id from the online index. Fetches
+    /// <c>index.json</c> from the packages URL, finds the entry matching
+    /// <paramref name="packageId"/>, downloads the package archive referenced
+    /// by that entry into the package cache folder and imports it.
     /// </summary>
     /// <param name="packageId">Package identifier to download.</param>
-    /// <returns><c>true</c> if download and registration succeeded;
+    /// <returns><c>true</c> if download and import succeeded;
     /// otherwise <c>false</c>.</returns>
     public static async Task<bool> DownloadPackageAsync(string packageId)
     {
-        string? json = null;
-        if (NetworkInformation.GetInternetConnectionProfile() is ConnectionProfile connectionProfile
-            && connectionProfile.GetNetworkConnectivityLevel() == NetworkConnectivityLevel.InternetAccess)
-        {
-            HttpResponseMessage response = await httpClient.GetAsync(pagesUrl + onlinePackageIndex);
-            if (response?.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                json = await response.Content.ReadAsStringAsync();
-                var obj = JsonSerializer.Deserialize<PackageResource>(json);
-            }
-        }
+        if (string.IsNullOrWhiteSpace(packageId) || PackageCacheFolder == null) return false;
 
-        return false;
+        if (NetworkInformation.GetInternetConnectionProfile() is not ConnectionProfile connectionProfile
+            || connectionProfile.GetNetworkConnectivityLevel() != NetworkConnectivityLevel.InternetAccess)
+            return false;
+
+        try
+        {
+            string json = await httpClient.GetStringAsync(baseUrl + onlinePackageIndex);
+            List<PackageEntry>? entries = JsonSerializer.Deserialize<List<PackageEntry>>(json);
+            PackageEntry? entry = entries?.FirstOrDefault(e => e.Id == packageId);
+            if (entry == null || string.IsNullOrWhiteSpace(entry.Path)) return false;
+
+            string fileName = Path.GetFileName(entry.Path);
+            if (string.IsNullOrWhiteSpace(fileName) ||
+                !fileName.EndsWith(PackageFileExtension, StringComparison.InvariantCultureIgnoreCase))
+                fileName = packageId + PackageFileExtension;
+
+            StorageFile zipFile = await PackageCacheFolder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting);
+            using (Stream zipStream = await zipFile.OpenStreamForWriteAsync())
+            {
+                using Stream responseStream = await httpClient.GetStreamAsync(baseUrl + entry.Path);
+                await responseStream.CopyToAsync(zipStream);
+            }
+
+            return await ImportPackageAsync(zipFile) == true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     #endregion
+}
+
+/// <summary>
+/// Represents a package in the online package index or in the local package
+/// cache. In the online index the <see cref="Path"/> is a relative URL to the
+/// package archive that is combined with the base URL to get the download URL;
+/// in the local cache it is the metadata file name used to load the installed
+/// package.
+/// </summary>
+public class PackageEntry
+{
+    /// <summary>
+    /// Unique identifier of the package (matches the package metadata id).
+    /// </summary>
+    public string? Id { get; set; }
+
+    /// <summary>
+    /// Title of the package.
+    /// </summary>
+    public string? Title { get; set; }
+
+    /// <summary>
+    /// Version of the package. In the online index this is the version
+    /// available for download; in the local cache it is the installed version,
+    /// which is compared against the index to detect updates.
+    /// </summary>
+    public Version? Version { get; set; }
+
+    /// <summary>
+    /// Location of the package. In the online index this is a relative path
+    /// that is combined with the base URL to get the download URL. In the
+    /// local cache this is the package metadata JSON file name relative to the
+    /// packages folder.
+    /// </summary>
+    public string? Path { get; set; }
 }

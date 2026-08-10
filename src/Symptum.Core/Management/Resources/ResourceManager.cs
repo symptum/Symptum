@@ -114,9 +114,9 @@ public class ResourceManager
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault | JsonIgnoreCondition.WhenWritingNull
     };
 
-    public static string? WritePackageMetadata(PackageResource? package) => JsonSerializer.Serialize(package, options);
+    public static string? WritePackageMetadata(PackageResource package) => JsonSerializer.Serialize(package, options);
 
-    public static string? WriteResourceMetadata<T>(T? resource) where T : MetadataResource => JsonSerializer.Serialize(resource, resource?.GetType(), options);
+    public static string? WriteResourceMetadata<T>(T resource) where T : MetadataResource => JsonSerializer.Serialize(resource, resource.GetType(), options);
 
     #endregion
 
