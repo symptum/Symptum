@@ -1,4 +1,4 @@
-<Project Sdk="Uno.Sdk">
+﻿<Project Sdk="Uno.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-windows10.0.26100;net10.0-browserwasm;net10.0-desktop</TargetFrameworks>
 
@@ -56,9 +56,19 @@
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Segmented" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.SettingsControls" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <UnoIcon Include="$(MSBuildThisFileDirectory)\Assets\Icons\icon.svg" ForegroundFile="$(MSBuildThisFileDirectory)\Assets\Icons\icon_foreground.svg" AndroidForegroundScale="0.6" WindowsForegroundScale="1" Color="#00003148" />
-    <UnoSplashScreen Include="$(MSBuildThisFileDirectory)Assets\Splash\splash_screen.svg" BaseSize="1024,1024" Color="#003148" />
-  </ItemGroup>
+
+  <PropertyGroup>
+    <UnoIconBackgroundColor>Transparent</UnoIconBackgroundColor>
+    <UnoIconBackgroundFile>Assets\Icons\icon_transparent.svg</UnoIconBackgroundFile>
+    <UnoIconForegroundFile>Assets\Icons\icon_default.svg</UnoIconForegroundFile>
+    <UnoIconForegroundScale>1</UnoIconForegroundScale>
+
+    <UnoIconBackgroundFile Condition="'$(IsAndroid)' == 'true'">Assets\Icons\icon.svg</UnoIconBackgroundFile>
+    <UnoIconForegroundFile Condition="'$(IsAndroid)' == 'true'">Assets\Icons\icon_foreground.svg</UnoIconForegroundFile>
+    <UnoIconForegroundScale Condition="'$(IsAndroid)' == 'true'">0.4</UnoIconForegroundScale>
+
+    <UnoSplashScreenFile>Assets\Splash\splash_screen.svg</UnoSplashScreenFile>
+    <UnoSplashScreenBaseSize>1024,1024</UnoSplashScreenBaseSize>
+    <UnoSplashScreenColor>#222222</UnoSplashScreenColor>
+  </PropertyGroup>
 </Project>
