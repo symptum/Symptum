@@ -1,12 +1,7 @@
 using System.IO.Compression;
-using Windows.Foundation;
 using static Symptum.Core.Helpers.FileHelper;
 
 namespace Symptum.Common.Helpers;
-
-//#if __WASM__
-//using static Uno.Storage.Pickers.FileSystemAccessApiInformation;
-//#endif
 
 /// <summary>
 /// Utility helpers for working with StorageFile and StorageFolder instances.
@@ -18,60 +13,27 @@ namespace Symptum.Common.Helpers;
 /// </summary>
 public class StorageHelper
 {
-    #region Properties
-
-    private static bool isFileOpenPickerSupported = true;
-
-    /// <summary>
-    /// Indicates whether the platform supports the file open picker API.
-    /// </summary>
-    public static bool IsFileOpenPickerSupported { get => isFileOpenPickerSupported; }
-
-    private static bool isFileSavePickerSupported = true;
-
-    /// <summary>
-    /// Indicates whether the platform supports the file save picker API.
-    /// </summary>
-    public static bool IsFileSavePickerSupported { get => isFileSavePickerSupported; }
-
-    private static bool isFolderPickerSupported = true;
-
-    /// <summary>
-    /// Indicates whether the platform supports the folder picker API.
-    /// </summary>
-    public static bool IsFolderPickerSupported { get => isFolderPickerSupported; }
-
-    #endregion
-
-    public static void Initialize()
-    {
-//#if __WASM__
-//        Uno.WinRTFeatureConfiguration.Storage.Pickers.WasmConfiguration = Uno.WasmPickerConfiguration.FileSystemAccessApiWithFallback;
-//        isFileOpenPickerSupported = IsOpenPickerSupported;
-//        isFileSavePickerSupported = IsSavePickerSupported;
-//        isFolderPickerSupported = IsFolderPickerSupported;
-//#endif
-    }
-
     #region Storage Methods
 
     /// <summary>
-    /// Walks a relative folder path and invokes the provided folder function
-    /// for each segment. This helper is used by both GetSubFolderAsync and
-    /// CreateSubFoldersAsync to either get or create nested folders.
+    /// Gets the nested folder structure defined by <paramref name="path"/>
+    /// under the <paramref name="parent"/> and returns the final
+    /// folder. If <paramref name="createIfMissing"/> is <c>true</c>, intermediate
+    /// folders will be created when missing.
     /// </summary>
-    /// <param name="parent">The starting parent folder (can be null).</param>
-    /// <param name="path">Relative path using the configured path separator.</param>
-    /// <param name="func">A function that takes the current folder and a
-    /// segment name and returns an async operation producing the next folder.
+    /// <param name="parent">Starting folder for resolution. When <c>null</c>
+    /// the path is considered absolute.</param>
+    /// <param name="path">Relative path consisting of folder segments.
     /// </param>
-    /// <returns>The resolved <see cref="StorageFolder"/> or <c>null</c> when a
-    /// segment cannot be resolved or created.</returns>
-    private static async Task<StorageFolder?> SubFolderFuncAsync(StorageFolder? parent, string? path, Func<StorageFolder?, string, IAsyncOperation<StorageFolder>?> func)
+    /// <param name="createIfMissing">When <c>true</c>, missing folders will be created.</param>
+    /// <returns>The resolved <see cref="StorageFolder"/> or <c>null</c> when
+    /// the folder does not exist or cannot be created.</returns>
+    public static async Task<StorageFolder?> GetSubFolderAsync(StorageFolder? parent, string? path, bool createIfMissing = false)
     {
-        if (path == null) return parent;
+        if (parent == null) return null;
+        if (path == null || string.Equals(path, PathSeparator)) return parent;
 
-        StorageFolder? folder = parent;
+        StorageFolder folder = parent;
 
         path = path.Trim(PathSeparator);
         var folders = path.Split(PathSeparator);
@@ -83,47 +45,21 @@ public class StorageHelper
             {
                 try
                 {
-                    folder = await func(folder, folderName);
+                    // During resource loading: GetFolderAsync works fine under Android SAF
+                    // given that we have access to the parent folder, we can get sub folders.
+                    // But when saving resources it fails while trying to get an existing folder
+                    // using CreateFolderAsync with OpenIfExists option.
+                    // It only fails when there is an existing folder. It can create a new one without issues.
+                    // So we will use a common approach to get the folder, if it doesn't exist we will create it.
+                    if (await folder.TryGetItemAsync(folderName) is StorageFolder f)
+                        folder = f;
+                    else if (createIfMissing)
+                        folder = await folder.CreateFolderAsync(folderName, CreationCollisionOption.FailIfExists);
                 }
                 catch { return null; }
             }
         }
 
-        return folder;
-    }
-
-    /// <summary>
-    /// Resolves and returns a nested subfolder identified by a relative
-    /// <paramref name="path"/> starting at the provided <paramref name="parent"/>.
-    /// Returns <c>null</c> when any segment cannot be found.
-    /// </summary>
-    /// <param name="parent">Starting folder for resolution. When <c>null</c>
-    /// the path is considered absolute.</param>
-    /// <param name="path">Relative path consisting of folder segments.
-    /// </param>
-    /// <returns>The resolved <see cref="StorageFolder"/> or <c>null</c> when
-    /// the folder does not exist.</returns>
-    public static async Task<StorageFolder?> GetSubFolderAsync(StorageFolder? parent, string? path)
-    {
-        StorageFolder? folder = await SubFolderFuncAsync(parent, path,
-            (f, name) => f?.GetFolderAsync(name));
-        return folder;
-    }
-
-    /// <summary>
-    /// Ensures the nested folder structure defined by <paramref name="path"/>
-    /// exists under the <paramref name="parent"/> and returns the final
-    /// folder. Intermediate folders will be created when missing.
-    /// </summary>
-    /// <param name="parent">Starting folder for creation. When <c>null</c>
-    /// the path is considered absolute.</param>
-    /// <param name="path">Relative path of folders to create.</param>
-    /// <returns>The created or existing <see cref="StorageFolder"/>, or
-    /// <c>null</c> when creation failed.</returns>
-    public static async Task<StorageFolder?> CreateSubFoldersAsync(StorageFolder? parent, string? path = null)
-    {
-        StorageFolder? folder = await SubFolderFuncAsync(parent, path,
-            (f, name) => f?.CreateFolderAsync(name, CreationCollisionOption.OpenIfExists));
         return folder;
     }
 

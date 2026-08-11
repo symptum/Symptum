@@ -48,7 +48,7 @@ public class ProjectSystemManager
     public static async Task<bool> OpenWorkFolderAsync(StorageFolder? folder = null)
     {
         bool result = await ResourceHelper.SelectWorkFolderAsync(folder);
-        if (result && StorageHelper.IsFolderPickerSupported)
+        if (result /*&& StorageHelper.IsFolderPickerSupported*/)
         {
             CurrentProject = null;
             UseProjectManager = false;
@@ -248,7 +248,7 @@ public class ProjectSystemManager
             // Only pass the targetFolder for PackageResources. For others, they will use the relative folder path
             StorageFolder? targetFolder = null;
             if (resource is PackageResource)
-                targetFolder = await StorageHelper.CreateSubFoldersAsync(ResourceHelper.WorkFolder, subFolder);
+                targetFolder = await StorageHelper.GetSubFolderAsync(ResourceHelper.WorkFolder, subFolder, true);
 
             return await ResourceHelper.SaveResourceAsync(resource, targetFolder);
         }
@@ -272,7 +272,7 @@ public class ProjectSystemManager
             if (ResourceManager.TryGetParentOfType(savable, out ProjectFolder? folder))
             {
                 string subFolderPath = ResourceManager.GetAbsoluteFolderPath(folder);
-                targetFolder = await StorageHelper.CreateSubFoldersAsync(ResourceHelper.WorkFolder, subFolderPath);
+                targetFolder = await StorageHelper.GetSubFolderAsync(ResourceHelper.WorkFolder, subFolderPath, true);
             }
 
             // This is to save just the resource and its savable parent without affecting the siblings

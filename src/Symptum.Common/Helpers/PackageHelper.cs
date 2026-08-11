@@ -73,7 +73,7 @@ public class PackageHelper
     /// otherwise <c>false</c>.</returns>
     public static async Task<bool> SelectExportFolderAsync(StorageFolder? folder = null)
     {
-        if (folder == null && StorageHelper.IsFolderPickerSupported)
+        if (folder == null /*&& StorageHelper.IsFolderPickerSupported*/)
         {
             FolderPicker folderPicker = new();
             folderPicker.FileTypeFilter.Add("*");

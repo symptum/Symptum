@@ -73,7 +73,7 @@ public class ResourceHelper
     /// otherwise <c>false</c>.</returns>
     public static async Task<bool> SelectWorkFolderAsync(StorageFolder? folder = null)
     {
-        if (folder == null && StorageHelper.IsFolderPickerSupported)
+        if (folder == null /*&& StorageHelper.IsFolderPickerSupported*/)
         {
             FolderPicker folderPicker = new();
             folderPicker.FileTypeFilter.Add("*");
@@ -694,9 +694,9 @@ public class ResourceHelper
 
         StorageFile? saveFile = null;
         targetFolder ??= _workFolder;
-        if (targetFolder != null && StorageHelper.IsFolderPickerSupported)
+        if (targetFolder != null /*&& StorageHelper.IsFolderPickerSupported*/)
         {
-            var folder = await StorageHelper.CreateSubFoldersAsync(targetFolder, subFolder);
+            var folder = await StorageHelper.GetSubFolderAsync(targetFolder, subFolder, true);
             if (folder != null) saveFile = await folder.CreateFileAsync(name + extension, CreationCollisionOption.ReplaceExisting);
         }
         else
@@ -746,9 +746,9 @@ public class ResourceHelper
         if (file == null || string.IsNullOrEmpty(name) || string.IsNullOrWhiteSpace(extension) ||
             string.IsNullOrEmpty(fileType)) return saveFile;
 
-        if (targetFolder != null && StorageHelper.IsFolderPickerSupported)
+        if (targetFolder != null /*&& StorageHelper.IsFolderPickerSupported*/)
         {
-            var folder = await StorageHelper.CreateSubFoldersAsync(targetFolder, subFolder);
+            var folder = await StorageHelper.GetSubFolderAsync(targetFolder, subFolder, true);
             try
             {
                 // NOTE: instead of doing this check here, do it before calling this function.
@@ -824,7 +824,7 @@ public class ResourceHelper
     private static async Task DeleteResourceFileAsync(FileResource? fileResource)
     {
         if (fileResource == null) return;
-        if (_workFolder != null && StorageHelper.IsFolderPickerSupported)
+        if (_workFolder != null /*&& StorageHelper.IsFolderPickerSupported*/)
         {
             try
             {
@@ -846,7 +846,7 @@ public class ResourceHelper
     private static async Task DeleteMetadataAsync(MetadataResource? resource)
     {
         if (resource == null) return;
-        if (_workFolder != null && StorageHelper.IsFolderPickerSupported)
+        if (_workFolder != null /*&& StorageHelper.IsFolderPickerSupported*/)
         {
             try
             {
