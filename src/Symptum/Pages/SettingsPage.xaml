@@ -8,141 +8,115 @@
                      xmlns:ui="using:CommunityToolkit.WinUI"
                      mc:Ignorable="d">
 
-  <Grid RowDefinitions="Auto,*">
-    <TextBlock x:Name="titleTB"
-               Style="{ThemeResource PageTitleTextBlockStyle}"
-               Text="Settings" />
+  <ScrollViewer>
+    <StackPanel x:Name="content"
+                HorizontalAlignment="Stretch"
+                Spacing="4">
 
-    <ScrollViewer Grid.Row="1">
-      <StackPanel x:Name="content"
-                  Margin="{ThemeResource NavViewContentMargin}"
-                  HorizontalAlignment="Stretch"
-                  Spacing="4">
+      <!--  Appearance  -->
+      <TextBlock Margin="1,30,0,6"
+                 Style="{ThemeResource BodyStrongTextBlockStyle}"
+                 Text="Appearance" />
 
-        <!--  Appearance  -->
-        <TextBlock Margin="1,30,0,6"
-                   Style="{ThemeResource BodyStrongTextBlockStyle}"
-                   Text="Appearance" />
+      <controls:SettingsCard Description="Choose your application theme"
+                             Header="Application Theme"
+                             HeaderIcon="{ui:FontIcon Glyph=&#xE771;}">
+        <ComboBox x:Name="themeCB" MinWidth="150">
+          <ComboBoxItem Content="System" />
+          <ComboBoxItem Content="Light" />
+          <ComboBoxItem Content="Dark" />
+        </ComboBox>
+      </controls:SettingsCard>
 
-        <controls:SettingsCard Description="Choose your application theme"
-                               Header="Application Theme"
-                               HeaderIcon="{ui:FontIcon Glyph=&#xE771;}">
-          <ComboBox x:Name="themeCB" MinWidth="150">
-            <ComboBoxItem Content="System" />
-            <ComboBoxItem Content="Light" />
-            <ComboBoxItem Content="Dark" />
-          </ComboBox>
-        </controls:SettingsCard>
+      <!--  Reader  -->
+      <TextBlock Margin="1,30,0,6"
+                 Style="{ThemeResource BodyStrongTextBlockStyle}"
+                 Text="Reader" />
 
-        <!--  Reader  -->
-        <TextBlock Margin="1,30,0,6"
-                   Style="{ThemeResource BodyStrongTextBlockStyle}"
-                   Text="Reader" />
+      <controls:SettingsCard Description="Choose a preset color theme for reading"
+                             Header="Reader Theme"
+                             HeaderIcon="{ui:FontIcon Glyph=&#xE790;}">
+        <ComboBox x:Name="readerThemeCB" MinWidth="150" />
+      </controls:SettingsCard>
 
-        <controls:SettingsCard Description="Choose a preset color theme for reading"
-                               Header="Reader Theme"
-                               HeaderIcon="{ui:FontIcon Glyph=&#xE790;}">
-          <ComboBox x:Name="readerThemeCB" MinWidth="150" />
-        </controls:SettingsCard>
+      <controls:SettingsExpander Description="Choose the reader's font preferences"
+                                 Header="Font Preferences"
+                                 HeaderIcon="{ui:FontIcon Glyph=&#xE8D2;}">
+        <controls:SettingsExpander.Items>
+          <controls:SettingsCard Header="Font Type">
+            <ComboBox x:Name="fontFamilyCB" MinWidth="150" />
+          </controls:SettingsCard>
+          <controls:SettingsCard Header="Font Size">
+            <Slider x:Name="fontSizeSlider" Minimum="10" Maximum="20" />
+          </controls:SettingsCard>
+        </controls:SettingsExpander.Items>
+      </controls:SettingsExpander>
 
-        <controls:SettingsExpander Description="Choose the reader's font preferences"
-                                   Header="Font Preferences"
-                                   HeaderIcon="{ui:FontIcon Glyph=&#xE8D2;}">
-          <controls:SettingsExpander.Items>
-              <controls:SettingsCard Header="Font Type">
-                <ComboBox x:Name="fontFamilyCB" MinWidth="150" />
-              </controls:SettingsCard>
-            <controls:SettingsCard Header="Font Size">
-              <Slider x:Name="fontSizeSlider" Minimum="10" Maximum="20" />
-            </controls:SettingsCard>
-          </controls:SettingsExpander.Items>
-        </controls:SettingsExpander>
+      <!--  Focus Session  -->
+      <TextBlock Margin="1,30,0,6"
+                 Style="{ThemeResource BodyStrongTextBlockStyle}"
+                 Text="Focus Session" />
 
-        <!--  Focus Session  -->
-        <TextBlock Margin="1,30,0,6"
-                   Style="{ThemeResource BodyStrongTextBlockStyle}"
-                   Text="Focus Session" />
+      <controls:SettingsExpander Description="Configure your focus session timer settings"
+                                 Header="Timer Settings"
+                                 HeaderIcon="{ui:FontIcon Glyph=&#xE916;}">
+        <controls:SettingsExpander.Items>
+          <controls:SettingsCard Header="Focus Duration">
+            <NumberBox MinWidth="120"
+                       Maximum="120"
+                       Minimum="1"
+                       SpinButtonPlacementMode="Compact"
+                       Value="{x:Bind FocusSession.FocusMinutes, Mode=TwoWay}" />
+          </controls:SettingsCard>
+          <controls:SettingsCard Header="Short Break Duration">
+            <NumberBox MinWidth="120"
+                       Maximum="60"
+                       Minimum="1"
+                       SpinButtonPlacementMode="Compact"
+                       Value="{x:Bind FocusSession.ShortBreakMinutes, Mode=TwoWay}" />
+          </controls:SettingsCard>
+          <controls:SettingsCard Header="Long Break Duration">
+            <NumberBox MinWidth="120"
+                       Maximum="90"
+                       Minimum="1"
+                       SpinButtonPlacementMode="Compact"
+                       Value="{x:Bind FocusSession.LongBreakMinutes, Mode=TwoWay}" />
+          </controls:SettingsCard>
+          <controls:SettingsCard Header="Focus Intervals Per Session">
+            <NumberBox MinWidth="120"
+                       Maximum="12"
+                       Minimum="1"
+                       SpinButtonPlacementMode="Compact"
+                       Value="{x:Bind FocusSession.IntervalsPerSession, Mode=TwoWay}" />
+          </controls:SettingsCard>
+          <controls:SettingsCard Header="Auto-Start Next Session">
+            <ToggleSwitch IsOn="{x:Bind FocusSession.AutoStartNext, Mode=TwoWay}"
+                          OffContent="Off"
+                          OnContent="On" />
+          </controls:SettingsCard>
+          <controls:SettingsCard Header="Notifications">
+            <ToggleSwitch IsOn="{x:Bind FocusSession.NotificationsEnabled, Mode=TwoWay}"
+                          OffContent="Off"
+                          OnContent="On" />
+          </controls:SettingsCard>
+        </controls:SettingsExpander.Items>
+      </controls:SettingsExpander>
 
-        <controls:SettingsExpander Description="Configure your focus session timer settings"
-                                   Header="Timer Settings"
-                                   HeaderIcon="{ui:FontIcon Glyph=&#xE916;}">
-          <controls:SettingsExpander.Items>
-            <controls:SettingsCard Header="Focus Duration">
-              <NumberBox MinWidth="120"
-                         Maximum="120"
-                         Minimum="1"
-                         SpinButtonPlacementMode="Compact"
-                         Value="{x:Bind FocusSession.FocusMinutes, Mode=TwoWay}" />
-            </controls:SettingsCard>
-            <controls:SettingsCard Header="Short Break Duration">
-              <NumberBox MinWidth="120"
-                         Maximum="60"
-                         Minimum="1"
-                         SpinButtonPlacementMode="Compact"
-                         Value="{x:Bind FocusSession.ShortBreakMinutes, Mode=TwoWay}" />
-            </controls:SettingsCard>
-            <controls:SettingsCard Header="Long Break Duration">
-              <NumberBox MinWidth="120"
-                         Maximum="90"
-                         Minimum="1"
-                         SpinButtonPlacementMode="Compact"
-                         Value="{x:Bind FocusSession.LongBreakMinutes, Mode=TwoWay}" />
-            </controls:SettingsCard>
-            <controls:SettingsCard Header="Focus Intervals Per Session">
-              <NumberBox MinWidth="120"
-                         Maximum="12"
-                         Minimum="1"
-                         SpinButtonPlacementMode="Compact"
-                         Value="{x:Bind FocusSession.IntervalsPerSession, Mode=TwoWay}" />
-            </controls:SettingsCard>
-            <controls:SettingsCard Header="Auto-Start Next Session">
-              <ToggleSwitch IsOn="{x:Bind FocusSession.AutoStartNext, Mode=TwoWay}"
-                            OffContent="Off"
-                            OnContent="On" />
-            </controls:SettingsCard>
-            <controls:SettingsCard Header="Notifications">
-              <ToggleSwitch IsOn="{x:Bind FocusSession.NotificationsEnabled, Mode=TwoWay}"
-                            OffContent="Off"
-                            OnContent="On" />
-            </controls:SettingsCard>
-          </controls:SettingsExpander.Items>
-        </controls:SettingsExpander>
+      <!--  About  -->
+      <TextBlock Margin="1,30,0,6"
+                 Style="{ThemeResource BodyStrongTextBlockStyle}"
+                 Text="About" />
 
-        <!--  About  -->
-        <TextBlock Margin="1,30,0,6"
-                   Style="{ThemeResource BodyStrongTextBlockStyle}"
-                   Text="About" />
+      <controls:SettingsCard Description="The Open-Source Medical Learning Platform"
+                             Header="Symptum">
+        <controls:SettingsCard.HeaderIcon>
+          <ImageIcon Source="/Assets/Images/Symptum.png" />
+        </controls:SettingsCard.HeaderIcon>
+        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                   Style="{ThemeResource CaptionTextBlockStyle}"
+                   Text="Version 1.0.0" />
+      </controls:SettingsCard>
 
-        <controls:SettingsCard Description="The Open-Source Medical Learning Platform"
-                               Header="Symptum">
-          <controls:SettingsCard.HeaderIcon>
-            <ImageIcon Source="/Assets/Images/Symptum.png" />
-          </controls:SettingsCard.HeaderIcon>
-          <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                     Style="{ThemeResource CaptionTextBlockStyle}"
-                     Text="Version 1.0.0" />
-        </controls:SettingsCard>
-
-      </StackPanel>
-    </ScrollViewer>
-
-    <VisualStateManager.VisualStateGroups>
-      <VisualStateGroup x:Name="LayoutVisualStates">
-        <VisualState x:Name="WideLayout">
-          <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="640" />
-          </VisualState.StateTriggers>
-        </VisualState>
-        <VisualState x:Name="NarrowLayout">
-          <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="0" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="titleTB.Visibility" Value="Collapsed" />
-            <Setter Target="content.Margin" Value="{ThemeResource NavViewContentNarrowMargin}" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-    </VisualStateManager.VisualStateGroups>
-  </Grid>
+    </StackPanel>
+  </ScrollViewer>
 </local:NavigablePage>

@@ -6,30 +6,5 @@
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                      xmlns:md="using:Symptum.UI.Markdown"
                      mc:Ignorable="d">
-  <Grid RowDefinitions="Auto,*">
-    <TextBlock x:Name="titleTB"
-               Style="{ThemeResource PageTitleTextBlockStyle}"
-               Text="{x:Bind Navigable.Title}" />
-
-    <md:MarkdownTextBlock x:Name="markdownView" Grid.Row="1" />
-
-    <VisualStateManager.VisualStateGroups>
-      <VisualStateGroup x:Name="LayoutVisualStates">
-        <VisualState x:Name="WideLayout">
-          <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="640" />
-          </VisualState.StateTriggers>
-        </VisualState>
-        <VisualState x:Name="NarrowLayout">
-          <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="0" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="titleTB.Visibility" Value="Collapsed" />
-            <Setter Target="markdownView.FlowDocumentStackPanelStyle" Value="{ThemeResource NarrowFlowDocumentStackPanelStyle}" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-    </VisualStateManager.VisualStateGroups>
-  </Grid>
+  <md:MarkdownTextBlock x:Name="markdownView" />
 </local:NavigablePage>

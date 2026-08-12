@@ -12,6 +12,12 @@ public sealed partial class ReferenceValueGroupPage : NavigablePage
 
     protected override void OnNavigableChanged(INavigable? navigable)
     {
-        parameters.ItemsSource = (navigable as ReferenceValueGroup)?.Parameters ?? null;
+        repeater.ItemsSource = (navigable as ReferenceValueGroup)?.Parameters ?? null;
     }
+
+    protected override void OnLayoutChanged(bool isWide) => repeater.Margin = isWide switch
+    {
+        true => ContentMargin,
+        false => NarrowContentMargin,
+    };
 }

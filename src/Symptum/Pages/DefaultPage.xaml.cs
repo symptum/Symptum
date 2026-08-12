@@ -10,6 +10,7 @@ public sealed partial class DefaultPage : NavigablePage
     {
         InitializeComponent();
     }
+
     protected override void OnNavigableChanged(INavigable? navigable)
     {
         repeater.ItemsSource = null;
@@ -24,4 +25,10 @@ public sealed partial class DefaultPage : NavigablePage
             repeater.ItemsSource = SubjectsManager.Subjects;
         }
     }
+
+    protected override void OnLayoutChanged(bool isWide) => repeater.Margin = isWide switch
+    {
+        true => ContentMargin,
+        false => NarrowContentMargin,
+    };
 }

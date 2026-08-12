@@ -95,4 +95,18 @@ public sealed partial class HomePage : NavigablePage
             _spriteVisual.Size = new Vector2((float)hero.ActualWidth, (float)hero.ActualHeight);
         }
     }
+
+    protected override void OnLayoutChanged(bool isWide)
+    {
+        if (isWide)
+        {
+            content.Margin = ContentMargin;
+            heroTitles.Margin = new(36);
+        }
+        else
+        {
+            content.Margin = NarrowContentMargin;
+            heroTitles.Margin = new(16);
+        }
+    }
 }

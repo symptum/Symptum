@@ -58,4 +58,10 @@ public sealed partial class SettingsPage : NavigablePage
     {
         ThemeHelper.ApplyFontSize(e.NewValue);
     }
+
+    protected override void OnLayoutChanged(bool isWide) => content.Margin = isWide switch
+    {
+        true => ContentMargin,
+        false => NarrowContentMargin,
+    };
 }
