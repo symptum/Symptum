@@ -6,17 +6,17 @@
     <UnoSingleProject>true</UnoSingleProject>
 
     <!-- Display name -->
-    <ApplicationTitle>Symptum Editor (Dev)</ApplicationTitle>
+    <ApplicationTitle>Symptum Editor</ApplicationTitle>
     <!-- App Identifier -->
-    <ApplicationId>com.symptum.editor.dev</ApplicationId>
+    <ApplicationId>com.symptum.editor</ApplicationId>
     <!-- Versions -->
     <ApplicationDisplayVersion>0.0.6</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
     <!-- Package Publisher -->
-    <ApplicationPublisher>ShankarBUS</ApplicationPublisher>
+    <ApplicationPublisher>Symptum Community</ApplicationPublisher>
     <!-- Package Description -->
-    <Description>Symptum Editor (Developmental Build).</Description>
+    <Description>Symptum Editor.</Description>
     <!--
       If you encounter this error message:
 

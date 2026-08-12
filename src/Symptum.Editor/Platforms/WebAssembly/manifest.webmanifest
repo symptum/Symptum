@@ -1,8 +1,8 @@
 {
   "background_color": "#ffffff",
-  "description": "Symptum Online Editor (Developmental Build)",
+  "description": "Online Editor for the Symptum Project",
   "display": "standalone",
-  "name": "Symptum Web Editor (Dev)",
+  "name": "Symptum Web Editor",
   "short_name": "Symptum Editor",
   "start_url": "/index.html",
   "theme_color": "#000000",

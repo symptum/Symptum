@@ -7,12 +7,12 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="Symptum.Editor.Dev"
-    Publisher="CN=Shankar"
+    Name="Symptum.Editor"
+    Publisher="O=Symptum Community"
     Version="0.0.6.0" />
 
   <Properties>
-    <DisplayName>Symptum Editor (Dev)</DisplayName>
+    <DisplayName>Symptum Editor</DisplayName>
     <PublisherDisplayName>Symptum Community</PublisherDisplayName>
   </Properties>
 
@@ -30,8 +30,8 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="Symptum Editor (Dev)"
-        Description="Symptum Editor for Windows (Developmental Build)">
+        DisplayName="Symptum Editor"
+        Description="Symptum Editor for Windows">
         <uap:SplashScreen />
         <uap:DefaultTile/>
       </uap:VisualElements>

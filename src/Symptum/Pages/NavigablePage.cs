@@ -23,31 +23,6 @@ public abstract class NavigablePage : Page
 
     #region Properties
 
-    #region Title
-
-    public static readonly DependencyProperty TitleProperty =
-        DependencyProperty.Register(
-            nameof(Title),
-            typeof(string),
-            typeof(NavigablePage),
-            new PropertyMetadata(string.Empty, OnTitlePropertyChanged));
-
-    private static void OnTitlePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-    {
-        if (d is NavigablePage page)
-        {
-            page._titleTB?.Text = e.NewValue as string ?? string.Empty;
-        }
-    }
-
-    public string Title
-    {
-        get => (string)GetValue(TitleProperty);
-        set => SetValue(TitleProperty, value);
-    }
-
-    #endregion
-
     #region ShowTitle
 
     public static readonly DependencyProperty ShowTitleProperty =
@@ -113,7 +88,7 @@ public abstract class NavigablePage : Page
         {
             INavigable? navigable = e.NewValue as INavigable;
             navigablePage.OnNavigableChanged(navigable);
-            navigablePage.Title = navigable?.Title ?? string.Empty;
+            navigablePage._titleTB?.Text = navigable?.Title ?? string.Empty;
         }
     }
 

@@ -49,22 +49,11 @@
         </VisualState>
       </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
-    <win:Grid x:Name="AppTitleBar"
-              Height="32"
-              HorizontalAlignment="Stretch"
-              VerticalAlignment="Top">
-      <StackPanel Orientation="Horizontal"
-                  VerticalAlignment="Center"
-                  Margin="8,0,0,0"
-                  Spacing="8">
-        <ImageIcon Height="16"
-                   Width="16"
-                   Source="/Assets/Images/Symptum_Editor.png"/>
-        <TextBlock x:Name="titleTB"
-                   VerticalAlignment="Center"
-                   Style="{StaticResource CaptionTextBlockStyle}"/>
-      </StackPanel>
-    </win:Grid>
+    <win:TitleBar x:Name="titleBar">
+      <win:TitleBar.IconSource>
+        <ImageIconSource ImageSource="/Assets/Images/Symptum_Editor.png" />
+      </win:TitleBar.IconSource>
+    </win:TitleBar>
     <Grid Grid.Row="1"
           ColumnDefinitions="*,Auto"
           ColumnSpacing="4">

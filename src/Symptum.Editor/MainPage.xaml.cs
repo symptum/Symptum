@@ -17,11 +17,9 @@ public sealed partial class MainPage : Page
 #if WINDOWS && !HAS_UNO
 
         if (WindowHelper.MainWindow is Window mainWindow)
-        {
-            mainWindow.SetTitleBar(AppTitleBar);
-        }
-        titleTB.Text = App.AppTitle;
+            mainWindow.SetTitleBar(titleBar);
 
+        titleBar.Title = App.AppName;
         Background = null;
 
 #endif

@@ -10,11 +10,11 @@
     <!-- App Identifier -->
     <ApplicationId>com.symptum.app</ApplicationId>
     <!-- Versions -->
-    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>0.0.6</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
     <!-- Package Publisher -->
-    <ApplicationPublisher>ShankarBUS</ApplicationPublisher>
+    <ApplicationPublisher>Symptum Community</ApplicationPublisher>
     <!-- Package Description -->
     <Description>Symptum Application.</Description>
     <!--
