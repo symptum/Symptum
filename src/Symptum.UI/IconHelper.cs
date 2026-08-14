@@ -1,11 +1,11 @@
 using Symptum.Common.ProjectSystem;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
-using static Symptum.Editor.Common.CommonGlyphs;
+using static Symptum.UI.CommonGlyphs;
 
-namespace Symptum.Editor.Common;
+namespace Symptum.UI;
 
-public static class DefaultIconSources
+public static class IconHelper
 {
     public static IconSource TableViewIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.List };
 

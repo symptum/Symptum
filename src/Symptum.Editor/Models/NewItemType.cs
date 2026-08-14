@@ -3,7 +3,7 @@ using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
 
-namespace Symptum.Editor.Common;
+namespace Symptum.Editor.Models;
 
 public class NewItemType(string displayName, Type type, string? groupName = null, Func<object>? instantiator = null)
 {

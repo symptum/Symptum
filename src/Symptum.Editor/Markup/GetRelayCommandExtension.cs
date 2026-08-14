@@ -1,7 +1,7 @@
 using Microsoft.UI.Xaml.Markup;
 using Symptum.Editor.ViewModels;
 
-namespace Symptum.Editor.Common;
+namespace Symptum.Editor.Markup;
 
 [MarkupExtensionReturnType(ReturnType = typeof(ICommand))]
 internal class GetRelayCommandExtension : MarkupExtension

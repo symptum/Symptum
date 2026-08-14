@@ -1,7 +1,7 @@
 using Symptum.Common.Helpers;
 using Symptum.Core.Management.Resources;
-using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
+using Symptum.UI;
 
 namespace Symptum.Editor.Pages;
 
@@ -14,7 +14,7 @@ public sealed partial class ImageViewerPage : EditorPageBase
     {
         InitializeComponent();
         PageName = "Image Viewer";
-        IconSource = DefaultIconSources.PhotoIconSource;
+        IconSource = IconHelper.PhotoIconSource;
         Loaded += ImageViewerPage_Loaded;
     }
 

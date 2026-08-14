@@ -1,7 +1,7 @@
 using System.Text.Json;
 using Symptum.Common.Helpers;
 
-namespace Symptum.Editor.Common;
+namespace Symptum.Editor.Models;
 
 public static class EditorSettings
 {

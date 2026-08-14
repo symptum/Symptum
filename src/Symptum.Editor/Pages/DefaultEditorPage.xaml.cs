@@ -1,5 +1,5 @@
 using Symptum.Common.ProjectSystem;
-using Symptum.Editor.Common;
+using Symptum.UI;
 
 namespace Symptum.Editor.Pages;
 
@@ -8,7 +8,7 @@ public sealed partial class DefaultEditorPage : EditorPageBase
     public DefaultEditorPage()
     {
         InitializeComponent();
-        IconSource = DefaultIconSources.PropertiesIconSource;
+        IconSource = IconHelper.PropertiesIconSource;
     }
 
     private bool _isBeingSaved = false;

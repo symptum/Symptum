@@ -141,7 +141,7 @@ public abstract class NavigablePage : Page
         var win = WindowHelper.MainWindow;
         if (win != null)
         {
-            UpdateLayout(win.Bounds.Width, win.Bounds.Height);
+            UpdateLayout(win.Bounds.Width, win.Bounds.Height, true);
             win.SizeChanged += Window_SizeChanged;
         }
     }
@@ -178,7 +178,7 @@ public abstract class NavigablePage : Page
     private bool _isWide;
     private int _heightLevel;
 
-    private void UpdateLayout(double width, double height)
+    private void UpdateLayout(double width, double height, bool init = false)
     {
         int widthLevel = width switch
         {
@@ -194,13 +194,13 @@ public abstract class NavigablePage : Page
             _ => 0     // Short
         };
 
-        if (ShowTitle && (isWide != _isWide || heightLevel != _heightLevel))
+        if (init || (ShowTitle && (isWide != _isWide || heightLevel != _heightLevel)))
             UpdateTitleStyle(isWide, heightLevel);
 
-        if (widthLevel != _widthLevel || heightLevel != _heightLevel)
+        if (init || widthLevel != _widthLevel || heightLevel != _heightLevel)
             OnLayoutChanged(widthLevel, heightLevel);
 
-        if (isWide != _isWide)
+        if (init || isWide != _isWide)
             OnLayoutChanged(isWide);
 
         _widthLevel = widthLevel;

@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.ObjectModel;
-using Symptum.Editor.Common;
+using Symptum.Editor.Models;
 
 namespace Symptum.Editor.Controls;
 

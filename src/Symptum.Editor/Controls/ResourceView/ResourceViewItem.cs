@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using Symptum.Editor.Common;
+using Symptum.UI;
 
 namespace Symptum.Editor.Controls;
 
@@ -124,7 +124,7 @@ public class ResourceViewItem : ContentControl
 
         if (_node != null)
         {
-            _iconElement?.IconSource = DefaultIconSources.GetIconSourceForResourceType(_node.Resource?.GetType());
+            _iconElement?.IconSource = IconHelper.GetIconSourceForResourceType(_node.Resource?.GetType());
             _isSelected = _node.IsSelected;
             _node.PropertyChanged += OnNodePropertyChanged;
             UpdateSelectionIndicator();

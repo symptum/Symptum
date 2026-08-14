@@ -1,10 +1,10 @@
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
-using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
 using Symptum.Core.Extensions;
 using Symptum.Common.ProjectSystem;
 using Uno.Extensions.Specialized;
+using Symptum.UI;
 
 namespace Symptum.Editor.Pages;
 
@@ -19,7 +19,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     {
         InitializeComponent();
         PageName = "Reference Value Group Editor";
-        IconSource = DefaultIconSources.TableViewIconSource;
+        IconSource = IconHelper.TableViewIconSource;
         Loaded += ReferenceValueGroupEditorPage_Loaded;
     }
 

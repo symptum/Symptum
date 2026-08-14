@@ -1,5 +1,5 @@
 using Symptum.Core.Management.Resources;
-using Symptum.Editor.Common;
+using Symptum.Editor.Models;
 
 namespace Symptum.Editor.Controls;
 

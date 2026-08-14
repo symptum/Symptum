@@ -1,5 +1,5 @@
 using Symptum.Editor.ViewModels;
-using static Symptum.Editor.Common.DefaultIconSources;
+using static Symptum.UI.IconHelper;
 
 namespace Symptum.Editor.Pages;
 

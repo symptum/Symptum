@@ -1,4 +1,4 @@
-namespace Symptum.Editor.Common;
+namespace Symptum.UI;
 
 public static class CommonGlyphs
 {

@@ -3,7 +3,7 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-namespace Symptum.Editor.Common;
+namespace Symptum.Editor.Models;
 
 // An XML based configuration for projects that will be created by the Editor in the root directory of the project.
 // It will be created when a WorkFolder is selected regardless of a Project being used.

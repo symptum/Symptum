@@ -7,7 +7,7 @@
       xmlns:res="using:Symptum.Core.Management.Resources"
       xmlns:win="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:controls="using:CommunityToolkit.WinUI.Controls"
-      xmlns:common="using:Symptum.Editor.Common"
+      xmlns:ui="using:Symptum.UI"
       xmlns:utu="using:Uno.Toolkit.UI"
       xmlns:sub="using:Symptum.Core.Subjects"
       xmlns:vm="using:Symptum.Editor.ViewModels"
@@ -88,7 +88,7 @@
           <MenuFlyoutItem Text="Open Folder"
                           Command="{x:Bind ViewModel.OpenWorkFolderCommand}">
             <MenuFlyoutItem.Icon>
-              <FontIcon Glyph="{x:Bind common:CommonGlyphs.OpenFolder}"/>
+              <FontIcon Glyph="{x:Bind ui:CommonGlyphs.OpenFolder}"/>
             </MenuFlyoutItem.Icon>
             <MenuFlyoutItem.KeyboardAccelerators>
               <KeyboardAccelerator Modifiers="Control, Menu"
@@ -99,7 +99,7 @@
                              Text="Open Recent"
                              Visibility="Collapsed">
             <MenuFlyoutSubItem.Icon>
-              <FontIcon Glyph="{x:Bind common:CommonGlyphs.OpenRecent}"/>
+              <FontIcon Glyph="{x:Bind ui:CommonGlyphs.OpenRecent}"/>
             </MenuFlyoutSubItem.Icon>
           </MenuFlyoutSubItem>
           <MenuFlyoutSeparator/>
@@ -121,19 +121,19 @@
           <MenuFlyoutItem Text="Import Package"
                 Command="{x:Bind ViewModel.ImportPackageCommand}">
             <MenuFlyoutItem.Icon>
-              <FontIcon Glyph="{x:Bind common:CommonGlyphs.Import}"/>
+              <FontIcon Glyph="{x:Bind ui:CommonGlyphs.Import}"/>
             </MenuFlyoutItem.Icon>
           </MenuFlyoutItem>
           <MenuFlyoutItem Text="Export Package"
                 Command="{x:Bind ViewModel.ExportPackageCommand}">
             <MenuFlyoutItem.Icon>
-              <FontIcon Glyph="{x:Bind common:CommonGlyphs.Export}"/>
+              <FontIcon Glyph="{x:Bind ui:CommonGlyphs.Export}"/>
             </MenuFlyoutItem.Icon>
           </MenuFlyoutItem>
           <MenuFlyoutItem Text="Optimize Resource for Export"
                 Command="{x:Bind ViewModel.MarkResourceForOptimizationCommand}">
             <MenuFlyoutItem.Icon>
-              <FontIcon Glyph="{x:Bind common:CommonGlyphs.Optimize}"/>
+              <FontIcon Glyph="{x:Bind ui:CommonGlyphs.Optimize}"/>
             </MenuFlyoutItem.Icon>
           </MenuFlyoutItem>
         </MenuBarItem>
@@ -187,7 +187,7 @@
                 Style="{StaticResource IconButtonStyle}"
                 ToolTipService.ToolTip="Author">
           <FontIcon FontSize="16"
-                    Glyph="{x:Bind common:CommonGlyphs.User}"/>
+                    Glyph="{x:Bind ui:CommonGlyphs.User}"/>
         </Button>
       </StackPanel>
     </Grid>
@@ -224,7 +224,7 @@
                                 ToolTipService.ToolTip="Multi Select"
                                 IsChecked="{x:Bind ViewModel.ResourceViewMultiSelectionEnabled, Mode=TwoWay}">
               <AppBarToggleButton.Icon>
-                <FontIcon Glyph="{x:Bind common:CommonGlyphs.MultiSelect}"/>
+                <FontIcon Glyph="{x:Bind ui:CommonGlyphs.MultiSelect}"/>
               </AppBarToggleButton.Icon>
             </AppBarToggleButton>
             <AppBarButton x:Name="deleteResourcesButton"
@@ -278,7 +278,7 @@
                     VerticalAlignment="Center"
                     CornerRadius="0,4,4,0">
               <FontIcon FontSize="16"
-                        Glyph="{x:Bind common:CommonGlyphs.ExpandPane}"/>
+                        Glyph="{x:Bind ui:CommonGlyphs.ExpandPane}"/>
             </Button>
           </TabView.TabStripHeader>
           <TabView.TabItemTemplate>
@@ -310,7 +310,7 @@
                     VerticalAlignment="Center"
                     CornerRadius="4,0,0,4">
               <FontIcon FontSize="16"
-                        Glyph="{x:Bind common:CommonGlyphs.More}"/>
+                        Glyph="{x:Bind ui:CommonGlyphs.More}"/>
               <Button.Flyout>
                 <MenuFlyout>
                   <MenuFlyout.Items>
@@ -391,7 +391,7 @@
                     Click="CloseOutputPanel_Click"
                     ToolTipService.ToolTip="Close Panel">
               <FontIcon FontSize="12"
-                        Glyph="{x:Bind common:CommonGlyphs.Close}"/>
+                        Glyph="{x:Bind ui:CommonGlyphs.Close}"/>
             </Button>
           </Grid>
           <ScrollViewer Grid.Row="1"

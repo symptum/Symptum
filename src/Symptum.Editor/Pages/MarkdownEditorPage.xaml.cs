@@ -2,8 +2,9 @@ using System.Text;
 using Symptum.Common.ProjectSystem;
 using Symptum.Core.Extensions;
 using Symptum.Core.Management.Resources;
-using Symptum.Editor.Common;
 using Symptum.Editor.Controls;
+using Symptum.Editor.Models;
+using Symptum.UI;
 using Symptum.UI.Markdown;
 using Windows.System;
 
@@ -26,7 +27,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     {
         InitializeComponent();
         PageName = "Markdown Editor";
-        IconSource = DefaultIconSources.DocumentIconSource;
+        IconSource = IconHelper.DocumentIconSource;
         Loaded += Page_Loaded;
         Unloaded += Page_Unloaded;
     }

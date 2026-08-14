@@ -59,16 +59,17 @@
 
   <PropertyGroup>
     <UnoIconBackgroundColor>Transparent</UnoIconBackgroundColor>
-    <UnoIconBackgroundFile>$(MSBuildThisFileDirectory)Assets\Icons\icon_transparent.svg</UnoIconBackgroundFile>
-    <UnoIconForegroundFile>$(MSBuildThisFileDirectory)Assets\Icons\icon_default.svg</UnoIconForegroundFile>
+    <UnoIconBackgroundFile>Assets/Icons/icontransparent.svg</UnoIconBackgroundFile>
+    <UnoIconForegroundFile>Assets/Icons/icon_default.svg</UnoIconForegroundFile>
     <UnoIconForegroundScale>1</UnoIconForegroundScale>
 
-    <UnoIconBackgroundFile Condition="'$(IsAndroid)' == 'true'">$(MSBuildThisFileDirectory)Assets\Icons\icon.svg</UnoIconBackgroundFile>
-    <UnoIconForegroundFile Condition="'$(IsAndroid)' == 'true'">$(MSBuildThisFileDirectory)Assets\Icons\icon_foreground.svg</UnoIconForegroundFile>
+    <UnoIconBackgroundFile Condition="'$(IsAndroid)' == 'true'">Assets/Icons/icon.svg</UnoIconBackgroundFile>
+    <UnoIconForegroundFile Condition="'$(IsAndroid)' == 'true'">Assets/Icons/icon_foreground.svg</UnoIconForegroundFile>
     <UnoIconForegroundScale Condition="'$(IsAndroid)' == 'true'">0.4</UnoIconForegroundScale>
 
-    <UnoSplashScreenFile>$(MSBuildThisFileDirectory)Assets\Splash\splash_screen.svg</UnoSplashScreenFile>
+    <UnoSplashScreenFile>Assets/Splash/splash_screen.svg</UnoSplashScreenFile>
     <UnoSplashScreenBaseSize>1024,1024</UnoSplashScreenBaseSize>
     <UnoSplashScreenColor>#222222</UnoSplashScreenColor>
   </PropertyGroup>
+
 </Project>
