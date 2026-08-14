@@ -4,6 +4,7 @@ using Symptum.Core.Management.Navigation;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
 using Symptum.Pages;
+using Symptum.UI;
 
 namespace Symptum.Navigation;
 
@@ -13,15 +14,15 @@ public class NavigationManager
 
     public static readonly Uri HomeUri = ResourceManager.GetAbsoluteUri("home");
 
-    public static readonly NavigationInfo HomeNavInfo = new(HomeUri, "Home", typeof(HomePage), new SymbolIconSource() { Symbol = Symbol.Home });
+    public static readonly NavigationInfo HomeNavInfo = new(HomeUri, "Home", typeof(HomePage), IconHelper.HomeIconSource);
 
     public static readonly Uri SubjectsUri = ResourceManager.GetAbsoluteUri("subjects");
 
     public static readonly Uri FocusSessionUri = ResourceManager.GetAbsoluteUri("focus");
 
-    public static readonly NavigationInfo FocusSessionNavInfo = new(FocusSessionUri, "Focus Session", typeof(FocusSessionPage), new FontIconSource() { Glyph = "\uF272" });
+    public static readonly NavigationInfo FocusSessionNavInfo = new(FocusSessionUri, "Focus Session", typeof(FocusSessionPage), IconHelper.FocusSessionIconSource);
 
-    public static readonly NavigationInfo SettingsNavInfo = new(ResourceManager.GetAbsoluteUri("settings"), "Settings", typeof(SettingsPage), new SymbolIconSource() { Symbol = Symbol.Setting });
+    public static readonly NavigationInfo SettingsNavInfo = new(ResourceManager.GetAbsoluteUri("settings"), "Settings", typeof(SettingsPage), IconHelper.SettingsIconSource);
 
     public static Uri? CurrentUri { get; set; }
 
@@ -104,7 +105,7 @@ public class NavigationManager
     {
         return navigable switch
         {
-            Subject s => new(s, typeof(DefaultPage), new FontIconSource() { Glyph = "\uE82D" }),
+            Subject s => new(s, typeof(DefaultPage), IconHelper.SubjectIconSource),
             _ => null,
         };
     }
@@ -113,7 +114,7 @@ public class NavigationManager
     {
         AddNavInfo(HomeNavInfo);
         NavigationInfo? navInfo;
-        navInfo = new NavigationInfo(SubjectsUri, "Subjects", typeof(DefaultPage), new SymbolIconSource() { Symbol = Symbol.Library });
+        navInfo = new NavigationInfo(SubjectsUri, "Subjects", typeof(DefaultPage), IconHelper.SubjectsLibraryIconSource);
 
         foreach (var sub in SubjectsManager.Subjects)
         {
@@ -130,9 +131,10 @@ public class NavigationManager
             }
             else if (resource is PackageResource package)
             {
+                var icon = IconHelper.GetIconSourceForUri(package.Uri);
                 navInfo = new NavigationInfo(package.Uri, package.Title,
                     GetPageTypeForNavigable(package),
-                    new FontIconSource() { Glyph = "\uE823" }, package);
+                    icon, package);
                 AddNavInfo(navInfo);
             }
         }

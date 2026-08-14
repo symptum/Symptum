@@ -1,3 +1,4 @@
+using Symptum.UI;
 using Symptum.ViewModels;
 using Windows.Foundation;
 
@@ -81,7 +82,7 @@ public sealed partial class FocusSessionPage : NavigablePage
 
     private void UpdatePlayIcon()
     {
-        playIcon.Glyph = ViewModel.IsRunning ? "\uE769" : "\uE768";
+        playIcon.Glyph = ViewModel.IsRunning ? CommonGlyphs.Pause : CommonGlyphs.Play;
     }
 
     private void RebuildClock()

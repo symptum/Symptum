@@ -2,6 +2,18 @@ namespace Symptum.UI;
 
 public static class CommonGlyphs
 {
+    // Features
+
+    public static readonly string FocusSession = "\uF272";
+
+    public static readonly string Pause = "\uE769";
+
+    public static readonly string Play = "\uE768";
+
+    public static readonly string Reset = "\uE72C";
+
+    public static readonly string Skip = "\uE893";
+
     // Navigation & Resources
 
     public static readonly string List = "\uF168";
@@ -72,6 +84,8 @@ public static class CommonGlyphs
     public static readonly string ZoomOut = "\uE71F";
 
     public static readonly string ZoomIn = "\uE8A3";
+
+    public static readonly string Info = "\uE946";
 
     // Markdown Editor
 

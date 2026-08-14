@@ -1,15 +1,16 @@
 ﻿<local:NavigablePage x:Class="Symptum.Pages.HomePage"
-                     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-                     xmlns:local="using:Symptum.Pages"
-                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-                     xmlns:media="using:Microsoft.UI.Xaml.Media"
-                     xmlns:nav="using:Symptum.Core.Management.Navigation"
-                     xmlns:sub="using:Symptum.Core.Subjects"
-                     xmlns:vm="using:Symptum.ViewModels"
-                     mc:Ignorable="d"
-                     ShowTitle="False">
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+  xmlns:local="using:Symptum.Pages"
+  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:media="using:Microsoft.UI.Xaml.Media"
+  xmlns:nav="using:Symptum.Core.Management.Navigation"
+  xmlns:sub="using:Symptum.Core.Subjects"
+  xmlns:vm="using:Symptum.ViewModels"
+  xmlns:ui="using:Symptum.UI"
+  mc:Ignorable="d"
+  ShowTitle="False">
   <ScrollViewer>
     <Grid RowDefinitions="380,*">
       <Grid x:Name="heroGrid">
@@ -55,11 +56,10 @@
                             Height="36"
                             Background="{ThemeResource AccentTextFillColorPrimaryBrush}"
                             CornerRadius="8">
-                      <FontIcon HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                FontSize="16"
-                                Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                                Glyph="&#xE930;" />
+                      <IconSourceElement HorizontalAlignment="Center" VerticalAlignment="Center"
+                                         Width="16" Height="16"
+                                         Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                                         ui:IconHelper.Uri="{x:Bind Uri}"/>
                     </Border>
                     <TextBlock Grid.Column="1"
                                VerticalAlignment="Center"
@@ -115,7 +115,7 @@
                                 VerticalAlignment="Center"
                                 FontSize="16"
                                 Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                                Glyph="&#xE930;" />
+                                Glyph="{x:Bind ui:CommonGlyphs.Dictionary}" />
                     </Border>
                     <TextBlock Grid.Column="1"
                                VerticalAlignment="Center"

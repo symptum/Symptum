@@ -10,10 +10,10 @@ public static class MockupData
 {
     public static void Initialize()
     {
-        var labValues = CreateLabValuesPackage();
-        ResourceManager.Resources.Add(labValues);
-        ((IResource)labValues).InitializeResource(null);
-        InitChildren(labValues);
+        var refValues = CreateRefValuesPackage();
+        ResourceManager.Resources.Add(refValues);
+        ((IResource)refValues).InitializeResource(null);
+        InitChildren(refValues);
 
         var anatomy = CreateAnatomySubject();
         var physiology = CreatePhysiologySubject();
@@ -82,15 +82,13 @@ public static class MockupData
     private static Quantity Qs(double value, string unit) => new(Single(value), unit);
     private static Quantity Qg(double value, string unit) => new(GtEq(value), unit);
 
-    private static ReferenceValuesPackage CreateLabValuesPackage()
+    private static ReferenceValuesPackage CreateRefValuesPackage()
     {
-        var package = new ReferenceValuesPackage("Laboratory Reference Values")
+        var package = new ReferenceValuesPackage("Reference Values")
         {
             Id = "ReferenceValues",
-            Uri = ResourceManager.GetAbsoluteUri("references"),
+            Uri = ResourceManager.GetAbsoluteUri("referencevalues"),
             Description = "Comprehensive laboratory reference values for clinical practice",
-            Version = new(1, 0),
-            Authors = [new("Symptum Team", "team@symptum.com")],
             Tags = ["laboratory", "reference", "clinical"],
             Contents =
             [

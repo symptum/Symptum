@@ -1,4 +1,5 @@
 using Symptum.Common.ProjectSystem;
+using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
 using static Symptum.UI.CommonGlyphs;
@@ -7,6 +8,16 @@ namespace Symptum.UI;
 
 public static class IconHelper
 {
+    public static IconSource HomeIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.Home };
+    
+    public static IconSource SettingsIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.Home };
+
+    public static IconSource FocusSessionIconSource { get; } = new FontIconSource() { Glyph = FocusSession };
+
+    public static IconSource SubjectsLibraryIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.Library };
+
+    public static IconSource ReferenceValuesIconSource { get; } = new BitmapIconSource() { UriSource = new Uri("ms-appx:///Symptum.UI/Assets/Images/referencevalues.png") };
+
     public static IconSource TableViewIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.List };
 
     public static IconSource PropertiesIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.Repair };
@@ -15,7 +26,7 @@ public static class IconHelper
 
     public static IconSource GroupListIconSource { get; } = new FontIconSource() { Glyph = List };
 
-    public static IconSource DictionaryIconSource { get; } = new FontIconSource() { Glyph = Dictionary };
+    public static IconSource SubjectIconSource { get; } = new FontIconSource() { Glyph = Dictionary };
 
     public static IconSource PhotoIconSource { get; } = new FontIconSource() { Glyph = Photo };
 
@@ -38,13 +49,24 @@ public static class IconHelper
         return resourceType switch
         {
             Type t when typeof(ProjectFolder).IsAssignableFrom(t) => FolderIconSource,
-            Type t when typeof(Subject).IsAssignableFrom(t) => DictionaryIconSource,
+            Type t when typeof(Subject).IsAssignableFrom(t) => SubjectIconSource,
             Type t when typeof(CsvFileResource).IsAssignableFrom(t) => TableViewIconSource,
             Type t when typeof(ImageFileResource).IsAssignableFrom(t) => PhotoIconSource,
             Type t when typeof(MarkdownFileResource).IsAssignableFrom(t) => DocumentIconSource,
             Type t when typeof(ImageCategoryResource).IsAssignableFrom(t) => PicturesIconSource,
             Type t when typeof(PackageResource).IsAssignableFrom(t) => PackageIconSource,
             Type t when typeof(IResource).IsAssignableFrom(t) => GroupListIconSource,
+            _ => null
+        };
+    }
+
+    public static IconSource? GetIconSourceForUri(Uri? uri)
+    {
+        if (uri == null) return null;
+
+        return uri.ToString().TrimEnd("/") switch
+        {
+            "symptum://referencevalues" => ReferenceValuesIconSource,
             _ => null
         };
     }
@@ -63,6 +85,23 @@ public static class IconHelper
 
     private static void OnResourceTypePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) =>
         (d as IconSourceElement)?.IconSource = GetIconSourceForResourceType(e.NewValue as Type);
+
+    #endregion
+
+    #region Uri
+
+    public static readonly DependencyProperty UriProperty = DependencyProperty.RegisterAttached(
+        "Uri",
+        typeof(Uri),
+        typeof(IconSourceElement),
+        new PropertyMetadata(null, OnUriPropertyChanged));
+
+    public static Uri GetUri(IconSourceElement obj) => (Uri)obj.GetValue(UriProperty);
+
+    public static void SetUri(IconSourceElement obj, Uri value) => obj.SetValue(UriProperty, value);
+
+    private static void OnUriPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) =>
+        (d as IconSourceElement)?.IconSource = GetIconSourceForUri(e.NewValue as Uri);
 
     #endregion
 }

@@ -3,8 +3,9 @@
                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                      xmlns:local="using:Symptum.Pages"
-                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                     xmlns:ui="using:Symptum.UI"
                      xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                      mc:Ignorable="d">
   <local:NavigablePage.Resources>
     <SolidColorBrush x:Key="FocusBrush">#E63946</SolidColorBrush>
@@ -61,7 +62,7 @@
               Command="{x:Bind ViewModel.ResetCommand}"
               Style="{ThemeResource IconButtonStyle}"
               ToolTipService.ToolTip="Reset">
-        <FontIcon FontSize="14" Glyph="&#xE72C;" />
+        <FontIcon FontSize="14" Glyph="{x:Bind ui:CommonGlyphs.Reset}" />
       </Button>
       <Button x:Name="playButton"
               Width="72"
@@ -72,13 +73,13 @@
               ToolTipService.ToolTip="Start / Pause">
         <FontIcon x:Name="playIcon"
                   FontSize="26"
-                  Glyph="&#xE768;" />
+                  Glyph="{x:Bind ui:CommonGlyphs.Play}" />
       </Button>
       <Button x:Name="skipButton"
               Command="{x:Bind ViewModel.SkipCommand}"
               Style="{ThemeResource IconButtonStyle}"
               ToolTipService.ToolTip="Skip">
-        <FontIcon FontSize="14" Glyph="&#xE893;" />
+        <FontIcon FontSize="14" Glyph="{x:Bind ui:CommonGlyphs.Skip}" />
       </Button>
     </StackPanel>
   </Grid>
