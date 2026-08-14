@@ -44,7 +44,7 @@
       <Thickness x:Key="NavigationViewMinimalHeaderMargin">0,4,0,4</Thickness>
 
       <!--#region Page Title Styles -->
-      
+
       <Style x:Key="PageTitleTextBlockStyle"
              BasedOn="{StaticResource TitleTextBlockStyle}"
              TargetType="TextBlock">
@@ -80,9 +80,9 @@
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         <Setter Property="TextWrapping" Value="NoWrap" />
       </Style>
-      
+
       <!--#endregion-->
-      
+
       <Style x:Key="NarrowFlowDocumentStackPanelStyle" TargetType="StackPanel">
         <Setter Property="Spacing" Value="12" />
         <Setter Property="Padding" Value="16" />

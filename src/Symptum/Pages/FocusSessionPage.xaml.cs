@@ -6,18 +6,19 @@ namespace Symptum.Pages;
 
 public sealed partial class FocusSessionPage : NavigablePage
 {
-    private const double RingThickness = 14;
 
-    private readonly SolidColorBrush? focusBrush;
-    private readonly SolidColorBrush? shortBreakBrush;
-    private readonly SolidColorBrush? longBreakBrush;
+    private readonly Brush? focusVisualBrush;
+    private readonly Brush? shortBreakVisualBrush;
+    private readonly Brush? longBreakVisualBrush;
+
+    private double ringThickness = 0;
 
     public FocusSessionPage()
     {
         InitializeComponent();
-        focusBrush = Resources["FocusBrush"] as SolidColorBrush;
-        shortBreakBrush = Resources["ShortBreakBrush"] as SolidColorBrush;
-        longBreakBrush = Resources["LongBreakBrush"] as SolidColorBrush;
+        focusVisualBrush = Resources["FocusVisualBrush"] as Brush;
+        shortBreakVisualBrush = Resources["ShortBreakVisualBrush"] as Brush;
+        longBreakVisualBrush = Resources["LongBreakVisualBrush"] as Brush;
         Loaded += FocusSessionPage_Loaded;
         Unloaded += FocusSessionPage_Unloaded;
     }
@@ -29,6 +30,7 @@ public sealed partial class FocusSessionPage : NavigablePage
         ViewModel.PropertyChanged += ViewModel_PropertyChanged;
         RebuildClock();
         UpdateMode();
+        UpdateAnimation();
         UpdatePlayIcon();
 
         clockGrid.SizeChanged += ClockGrid_SizeChanged;
@@ -38,6 +40,7 @@ public sealed partial class FocusSessionPage : NavigablePage
     {
         ViewModel.PropertyChanged -= ViewModel_PropertyChanged;
         clockGrid.SizeChanged -= ClockGrid_SizeChanged;
+        scaleAnimation.Stop();
     }
 
     private void ViewModel_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -45,7 +48,12 @@ public sealed partial class FocusSessionPage : NavigablePage
         switch (e.PropertyName)
         {
             case nameof(FocusSessionViewModel.IsRunning):
+                UpdateAnimation();
                 UpdatePlayIcon();
+                break;
+
+            case nameof(FocusSessionViewModel.AnimationsEnabled):
+                UpdateAnimation();
                 break;
 
             case nameof(FocusSessionViewModel.Progress):
@@ -71,13 +79,38 @@ public sealed partial class FocusSessionPage : NavigablePage
     private void UpdateMode()
     {
         modeSegmented.SelectedIndex = (int)ViewModel.Mode;
-        ringProgress.Stroke = ViewModel.Mode switch
+        var brush = ViewModel.Mode switch
         {
-            FocusSessionMode.Focus => focusBrush,
-            FocusSessionMode.ShortBreak => shortBreakBrush,
-            FocusSessionMode.LongBreak => longBreakBrush,
+            FocusSessionMode.Focus => FocusSessionViewModel.FocusBrush,
+            FocusSessionMode.ShortBreak => FocusSessionViewModel.ShortBreakBrush,
+            FocusSessionMode.LongBreak => FocusSessionViewModel.LongBreakBrush,
             _ => null,
         };
+
+        var VisualBrush = ViewModel.Mode switch
+        {
+            FocusSessionMode.Focus => focusVisualBrush,
+            FocusSessionMode.ShortBreak => shortBreakVisualBrush,
+            FocusSessionMode.LongBreak => longBreakVisualBrush,
+            _ => null,
+        };
+
+        ringProgress.Stroke = brush;
+        visual.Fill = VisualBrush;
+        visual2.Fill = VisualBrush;
+    }
+
+    private void UpdateAnimation()
+    {
+        opacityAnimation.Stop();
+        visual.Opacity = 0;
+        visual2.Opacity = 0;
+        scaleAnimation.Stop();
+        if (ViewModel.AnimationsEnabled && ViewModel.IsRunning)
+        {
+            scaleAnimation.Begin();
+            opacityAnimation.Begin();
+        }
     }
 
     private void UpdatePlayIcon()
@@ -95,6 +128,9 @@ public sealed partial class FocusSessionPage : NavigablePage
         ringProgress.Width = size;
         ringProgress.Height = size;
 
+        visual2.Width = size;
+        visual2.Height = size;
+
         UpdateProgressArc();
     }
 
@@ -103,10 +139,10 @@ public sealed partial class FocusSessionPage : NavigablePage
         double size = GetClockSize();
         if (size <= 0) return;
 
-        double thickness = RingThickness;
+        double thickness = ringThickness;
         if (size < 160)
         {
-            thickness = RingThickness * (size / 160);
+            thickness = ringThickness * (size / 160);
         }
         ringTrack.StrokeThickness = thickness;
         ringProgress.StrokeThickness = thickness;
@@ -159,8 +195,8 @@ public sealed partial class FocusSessionPage : NavigablePage
         if (widthLevel == 2 && heightLevel == 2)
         {
             modeSegmented.Visibility = Visibility.Visible;
-            clockGrid.MaxWidth = 320;
-            clockGrid.MaxHeight = 320;
+            clockGrid.MaxWidth = 480;
+            clockGrid.MaxHeight = 480;
             timeTB.FontSize = 64;
             content.RowSpacing = 28;
             playButton.Width = 72;
@@ -169,6 +205,10 @@ public sealed partial class FocusSessionPage : NavigablePage
             playButton.CornerRadius = new(36);
             playIcon.FontSize = 26;
             content.Margin = ContentMargin;
+            visual.Width = 1000;
+            visual.Height = 1000;
+            visual.Margin = new(0, 0, 0, -600);
+            ringThickness = 24;
         }
         else if (widthLevel >= 1 && heightLevel >= 1)
         {
@@ -183,6 +223,10 @@ public sealed partial class FocusSessionPage : NavigablePage
             playButton.CornerRadius = new(24);
             playIcon.FontSize = 20;
             content.Margin = NarrowContentMargin;
+            visual.Width = 600;
+            visual.Height = 600;
+            visual.Margin = new(0, 0, 0, -350);
+            ringThickness = 14;
         }
         else
         {
@@ -197,6 +241,10 @@ public sealed partial class FocusSessionPage : NavigablePage
             playButton.CornerRadius = new(16);
             playIcon.FontSize = 14;
             content.Margin = NarrowContentMargin;
+            visual.Width = 200;
+            visual.Height = 200;
+            visual.Margin = new(0, 0, 0, -120);
+            ringThickness = 6;
         }
     }
 }

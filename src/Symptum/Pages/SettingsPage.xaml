@@ -94,8 +94,24 @@
                           OffContent="Off"
                           OnContent="On" />
           </controls:SettingsCard>
+        </controls:SettingsExpander.Items>
+      </controls:SettingsExpander>
+
+      <controls:SettingsExpander Header="User Experience"
+                                 HeaderIcon="{ui:FontIcon Glyph=&#xE794;}">
+        <controls:SettingsExpander.Items>
           <controls:SettingsCard Header="Notifications">
             <ToggleSwitch IsOn="{x:Bind FocusSession.NotificationsEnabled, Mode=TwoWay}"
+                          OffContent="Off"
+                          OnContent="On" />
+          </controls:SettingsCard>
+          <controls:SettingsCard Header="Background Animations">
+            <ToggleSwitch IsOn="{x:Bind FocusSession.AnimationsEnabled, Mode=TwoWay}"
+                          OffContent="Off"
+                          OnContent="On"/>
+          </controls:SettingsCard>
+          <controls:SettingsCard Header="Mini Bar">
+            <ToggleSwitch IsOn="{x:Bind FocusSession.MiniBarEnabled, Mode=TwoWay}"
                           OffContent="Off"
                           OnContent="On" />
           </controls:SettingsCard>

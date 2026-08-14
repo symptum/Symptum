@@ -8,9 +8,65 @@
                      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                      mc:Ignorable="d">
   <local:NavigablePage.Resources>
-    <SolidColorBrush x:Key="FocusBrush">#E63946</SolidColorBrush>
-    <SolidColorBrush x:Key="ShortBreakBrush">#9ACD32</SolidColorBrush>
-    <SolidColorBrush x:Key="LongBreakBrush">#1E90FF</SolidColorBrush>
+    <RadialGradientBrush x:Key="FocusVisualBrush">
+      <GradientStop Color="#8FE63946" Offset="0.0" />
+      <GradientStop Color="#00E63946" Offset="0.6" />
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="ShortBreakVisualBrush">
+      <GradientStop Color="#8F9ACD32" Offset="0.0" />
+      <GradientStop Color="#009ACD32" Offset="0.6" />
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="LongBreakVisualBrush">
+      <GradientStop Color="#8F1E90FF" Offset="0.0" />
+      <GradientStop Color="#001E90FF" Offset="0.6" />
+    </RadialGradientBrush>
+
+    <Storyboard x:Name="opacityAnimation">
+      <DoubleAnimation From="0" To="1" Duration="00:00:02"
+                   Storyboard.TargetName="visual" 
+                   Storyboard.TargetProperty="Opacity">
+        <DoubleAnimation.EasingFunction>
+          <CubicEase EasingMode="EaseInOut" />
+        </DoubleAnimation.EasingFunction>
+      </DoubleAnimation>
+      <DoubleAnimation From="0" To="0.5" Duration="00:00:02"
+                   Storyboard.TargetName="visual2" 
+                   Storyboard.TargetProperty="Opacity">
+        <DoubleAnimation.EasingFunction>
+          <CubicEase EasingMode="EaseInOut" />
+        </DoubleAnimation.EasingFunction>
+      </DoubleAnimation>
+    </Storyboard>
+    <Storyboard x:Name="scaleAnimation" RepeatBehavior="Forever" AutoReverse="True">
+      <DoubleAnimation From="0.6" To="1" Duration="00:00:05"
+                       Storyboard.TargetName="transform1" 
+                       Storyboard.TargetProperty="ScaleY">
+        <DoubleAnimation.EasingFunction>
+          <CubicEase EasingMode="EaseInOut" />
+        </DoubleAnimation.EasingFunction>
+      </DoubleAnimation>
+      <DoubleAnimation From="0.6" To="1" Duration="00:00:05"
+                       Storyboard.TargetName="transform1" 
+                       Storyboard.TargetProperty="ScaleX">
+        <DoubleAnimation.EasingFunction>
+          <CubicEase EasingMode="EaseInOut" />
+        </DoubleAnimation.EasingFunction>
+      </DoubleAnimation>
+      <DoubleAnimation From="0.6" To="2" Duration="00:00:05"
+                       Storyboard.TargetName="transform2"
+                       Storyboard.TargetProperty="ScaleX">
+        <DoubleAnimation.EasingFunction>
+          <CubicEase EasingMode="EaseInOut" />
+        </DoubleAnimation.EasingFunction>
+      </DoubleAnimation>
+      <DoubleAnimation From="0.6" To="2" Duration="00:00:05"
+                       Storyboard.TargetName="transform2"
+                       Storyboard.TargetProperty="ScaleY">
+        <DoubleAnimation.EasingFunction>
+          <CubicEase EasingMode="EaseInOut" />
+        </DoubleAnimation.EasingFunction>
+      </DoubleAnimation>
+    </Storyboard>
   </local:NavigablePage.Resources>
 
   <Grid x:Name="content"
@@ -19,20 +75,32 @@
         RowSpacing="28"
         RowDefinitions="Auto,*,Auto">
 
-    <controls:Segmented x:Name="modeSegmented"
-                        HorizontalAlignment="Center"
-                        SelectionChanged="ModeSegmented_SelectionChanged">
-      <controls:SegmentedItem Content="Focus" />
-      <controls:SegmentedItem Content="Short Break" />
-      <controls:SegmentedItem Content="Long Break" />
-    </controls:Segmented>
+    <Ellipse x:Name="visual"
+             Grid.RowSpan="3"
+             Opacity="0"
+             HorizontalAlignment="Center"
+             VerticalAlignment="Bottom"
+             RenderTransformOrigin="0.5,0.5">
+      <Ellipse.RenderTransform>
+        <ScaleTransform x:Name="transform1" ScaleX="0.6" ScaleY="0.6" />
+      </Ellipse.RenderTransform>
+    </Ellipse>
 
     <Grid x:Name="clockGrid"
           Grid.Row="1"
-          MaxWidth="320"
-          MaxHeight="320"
           HorizontalAlignment="Stretch"
           VerticalAlignment="Stretch">
+      <Ellipse x:Name="visual2"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               Opacity="0"
+               RenderTransformOrigin="0.5,0.5">
+        <Ellipse.RenderTransform>
+          <TransformGroup>
+            <ScaleTransform x:Name="transform2" ScaleX="0.6" ScaleY="0.6" />
+          </TransformGroup>
+        </Ellipse.RenderTransform>
+      </Ellipse>
       <Ellipse x:Name="ringTrack"
                HorizontalAlignment="Center"
                VerticalAlignment="Center"
@@ -41,7 +109,6 @@
       <Path x:Name="ringProgress"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            Stroke="{ThemeResource FocusBrush}"
             StrokeEndLineCap="Round"
             StrokeStartLineCap="Round" />
       <TextBlock x:Name="timeTB"
@@ -54,6 +121,14 @@
                  Text="{x:Bind ViewModel.TimeText, Mode=OneWay}" />
     </Grid>
 
+    <controls:Segmented x:Name="modeSegmented"
+                        HorizontalAlignment="Center"
+                        SelectionChanged="ModeSegmented_SelectionChanged">
+      <controls:SegmentedItem Content="Focus" />
+      <controls:SegmentedItem Content="Short Break" />
+      <controls:SegmentedItem Content="Long Break" />
+    </controls:Segmented>
+    
     <StackPanel HorizontalAlignment="Center"
                 Grid.Row="2"
                 Orientation="Horizontal"

@@ -1,0 +1,73 @@
+﻿<UserControl
+    x:Class="Symptum.Controls.FocusSessionBar"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="using:Symptum.UI"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+  <UserControl.Resources>
+    <Storyboard x:Name="entranceAnimation">
+      <DoubleAnimation From="0" To="1" Duration="00:00:00.3"
+                       Storyboard.TargetName="root"
+                       Storyboard.TargetProperty="Opacity">
+        <DoubleAnimation.EasingFunction>
+          <CubicEase EasingMode="EaseOut" />
+        </DoubleAnimation.EasingFunction>
+      </DoubleAnimation>
+      <DoubleAnimation From="100" To="0" Duration="00:00:00.3"
+                     Storyboard.TargetName="transform"
+                     Storyboard.TargetProperty="X">
+        <DoubleAnimation.EasingFunction>
+          <CubicEase EasingMode="EaseOut" />
+        </DoubleAnimation.EasingFunction>
+      </DoubleAnimation>
+    </Storyboard>
+    <Style x:Key="IconButtonStyle"
+             BasedOn="{StaticResource DefaultButtonStyle}"
+             TargetType="Button">
+      <Setter Property="Padding" Value="2" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="Width" Value="24" />
+      <Setter Property="Height" Value="24" />
+      <Setter Property="CornerRadius" Value="12" />
+    </Style>
+  </UserControl.Resources>
+
+  <Grid x:Name="root"
+        Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
+        BorderBrush="{ThemeResource ControlElevationBorderBrush}"
+        BorderThickness="1"
+        CornerRadius="16"
+        ColumnDefinitions="Auto,*,Auto"
+        ColumnSpacing="8"
+        Padding="8">
+    <Grid.RenderTransform>
+      <TranslateTransform x:Name="transform" />
+    </Grid.RenderTransform>
+    <Rectangle x:Name="progress"
+               Grid.ColumnSpan="3"
+               Opacity="0.4"
+               Margin="-9"
+               HorizontalAlignment="Left"
+               VerticalAlignment="Stretch" />
+    <Button x:Name="openButton"
+            Style="{ThemeResource IconButtonStyle}"
+            ToolTipService.ToolTip="Open Focus Session">
+      <FontIcon FontSize="10" Glyph="{x:Bind ui:CommonGlyphs.FocusSession}" />
+    </Button>
+    <TextBlock x:Name="timeTB" Grid.Column="1"
+               FontFamily="{ThemeResource MarkdownCodeFontFamily}"
+               VerticalAlignment="Center"
+               Text="{x:Bind ViewModel.TimeText, Mode=OneWay}" />
+    <Button x:Name="skipButton"
+            Grid.Column="2"
+            Command="{x:Bind ViewModel.SkipCommand}"
+            Style="{ThemeResource IconButtonStyle}"
+            ToolTipService.ToolTip="Skip">
+      <FontIcon FontSize="10" Glyph="{x:Bind ui:CommonGlyphs.Skip}" />
+    </Button>
+  </Grid>
+</UserControl>

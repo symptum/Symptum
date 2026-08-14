@@ -126,5 +126,7 @@ public sealed partial class MainPage : Page
 
             navViewTitleTB.Text = navigable?.Title;
         }
+
+        focusSessionBar.SetIsFocusPageVisible(e.Content is FocusSessionPage);
     }
 }

@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Symptum.Common.Helpers;
 using Symptum.Helpers;
+using Windows.UI;
 
 namespace Symptum.ViewModels;
 
@@ -14,6 +15,10 @@ public enum FocusSessionMode
 public partial class FocusSessionViewModel : ObservableObject
 {
     public static FocusSessionViewModel Instance { get; } = new();
+
+    public static readonly SolidColorBrush FocusBrush = new(Color.FromArgb(255, 230, 57, 70));
+    public static readonly SolidColorBrush ShortBreakBrush = new(Color.FromArgb(255, 154, 205, 50));
+    public static readonly SolidColorBrush LongBreakBrush = new(Color.FromArgb(255, 20, 144, 255));
 
     public static string GetModeName(FocusSessionMode mode) => mode switch
     {
@@ -40,6 +45,8 @@ public partial class FocusSessionViewModel : ObservableObject
         IntervalsPerSession = AppDataHelper.GetValue(4.0, nameof(IntervalsPerSession));
         NotificationsEnabled = AppDataHelper.GetValue(true, nameof(NotificationsEnabled));
         AutoStartNext = AppDataHelper.GetValue(true, nameof(AutoStartNext));
+        AnimationsEnabled = AppDataHelper.GetValue(true, nameof(AnimationsEnabled));
+        MiniBarEnabled = AppDataHelper.GetValue(true, nameof(MiniBarEnabled));
 
         _total = GetDuration(Mode);
         _remaining = _total;
@@ -53,6 +60,9 @@ public partial class FocusSessionViewModel : ObservableObject
 
     [ObservableProperty]
     public partial bool IsRunning { get; set; }
+
+    [ObservableProperty]
+    public partial string ModeName { get; set; } = GetModeName(FocusSessionMode.Focus);
 
     [ObservableProperty]
     public partial string TimeText { get; set; } = "25:00";
@@ -78,9 +88,21 @@ public partial class FocusSessionViewModel : ObservableObject
     [ObservableProperty]
     public partial bool AutoStartNext { get; set; } = true;
 
+    [ObservableProperty]
+    public partial bool AnimationsEnabled { get; set; } = true;
+
+    [ObservableProperty]
+    public partial bool MiniBarEnabled { get; set; } = true;
+
     #endregion
 
-    partial void OnModeChanged(FocusSessionMode value) => ResetToMode(value);
+    #region Property Changed
+
+    partial void OnModeChanged(FocusSessionMode value)
+    {
+        ModeName = GetModeName(value);
+        ResetToMode(value);
+    }
 
     partial void OnFocusMinutesChanged(double value)
     {
@@ -105,6 +127,12 @@ public partial class FocusSessionViewModel : ObservableObject
     partial void OnNotificationsEnabledChanged(bool value) => AppDataHelper.SetValue(value, nameof(NotificationsEnabled));
 
     partial void OnAutoStartNextChanged(bool value) => AppDataHelper.SetValue(value, nameof(AutoStartNext));
+
+    partial void OnAnimationsEnabledChanged(bool value) => AppDataHelper.SetValue(value, nameof(AnimationsEnabled));
+
+    partial void OnMiniBarEnabledChanged(bool value) => AppDataHelper.SetValue(value, nameof(MiniBarEnabled));
+
+    #endregion
 
     private void Start()
     {
@@ -175,20 +203,23 @@ public partial class FocusSessionViewModel : ObservableObject
         Mode = next;
 
 #if WINDOWS
-        string title;
-        string message;
-        if (ended == FocusSessionMode.Focus)
+        if (NotificationsEnabled)
         {
-            title = "Focus session completed";
-            message = AutoStartNext ? $"{GetModeName(next)} started." : $"Time for a {GetModeName(next).ToLowerInvariant()}.";
-        }
-        else
-        {
-            title = $"{GetModeName(ended)} over";
-            message = AutoStartNext ? $"Focus session started." : "Ready to focus?";
-        }
+            string title;
+            string message;
+            if (ended == FocusSessionMode.Focus)
+            {
+                title = "Focus session completed";
+                message = AutoStartNext ? $"{GetModeName(next)} started." : $"Time for a {GetModeName(next).ToLowerInvariant()}.";
+            }
+            else
+            {
+                title = $"{GetModeName(ended)} over";
+                message = AutoStartNext ? $"Focus session started." : "Ready to focus?";
+            }
 
-        NotificationHelper.Show(title, message);
+            NotificationHelper.Show(title, message);
+        }
 #endif
 
         if (AutoStartNext)
