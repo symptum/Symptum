@@ -57,9 +57,8 @@
                             Background="{ThemeResource AccentTextFillColorPrimaryBrush}"
                             CornerRadius="8">
                       <IconSourceElement HorizontalAlignment="Center" VerticalAlignment="Center"
-                                         Width="16" Height="16"
                                          Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                                         ui:IconHelper.Uri="{x:Bind Uri}"/>
+                                         ui:IconHelper.Uri="{x:Bind Uri}" />
                     </Border>
                     <TextBlock Grid.Column="1"
                                VerticalAlignment="Center"

@@ -1,5 +1,4 @@
 using Symptum.Common.ProjectSystem;
-using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
 using Symptum.Core.Subjects;
 using static Symptum.UI.CommonGlyphs;
@@ -8,6 +7,10 @@ namespace Symptum.UI;
 
 public static class IconHelper
 {
+    public static FontFamily? SymptumIconsFontFamily => Application.Current.Resources.TryGetValue("SymptumIconsFontFamily", out var f) ? f as FontFamily : null;
+
+    #region Definitions
+
     public static IconSource HomeIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.Home };
     
     public static IconSource SettingsIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.Home };
@@ -16,7 +19,7 @@ public static class IconHelper
 
     public static IconSource SubjectsLibraryIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.Library };
 
-    public static IconSource ReferenceValuesIconSource { get; } = new BitmapIconSource() { UriSource = new Uri("ms-appx:///Symptum.UI/Assets/Images/referencevalues.png") };
+    public static IconSource ReferenceValuesIconSource { get; } = new FontIconSource() { Glyph = BookNumber, FontFamily = SymptumIconsFontFamily, FontSize = 16 };
 
     public static IconSource TableViewIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.List };
 
@@ -41,6 +44,8 @@ public static class IconHelper
     public static IconSource OpenFileIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.OpenFile };
 
     public static IconSource OpenFolderIconSource { get; } = new FontIconSource() { Glyph = OpenFolder };
+
+    #endregion
 
     public static IconSource? GetIconSourceForResourceType(Type resourceType)
     {

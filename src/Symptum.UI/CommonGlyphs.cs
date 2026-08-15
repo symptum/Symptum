@@ -102,4 +102,47 @@ public static class CommonGlyphs
     public static readonly string Preview = "\uE8FF";
 
     public static readonly string DocumentOutline = "\uE8A4";
+
+    public static readonly string TextIndentIncrease = "\uE290";
+
+    public static readonly string TextIndentDecrease = "\uE291";
+
+    #region Custom Icons
+
+
+    public static readonly string BookNumber = "\uE000";
+    
+    public static readonly string TextSubscript = "\uE001";
+    
+    public static readonly string TextSuperscript = "\uE002";
+    
+    public static readonly string TextHeader1 = "\uE003";
+    
+    public static readonly string TextHeader2 = "\uE004";
+    
+    public static readonly string TextHeader3 = "\uE005";
+    
+    public static readonly string TextHeader4 = "\uE006";
+    
+    public static readonly string TextHeader5 = "\uE007";
+    
+    public static readonly string TextHeader6 = "\uE008";
+   
+    public static readonly string TextQuote = "\uE009";
+    
+    public static readonly string TextNumberList = "\uE00A";
+    
+    public static readonly string Table = "\uE00B";
+    
+    public static readonly string CodeBlock = "\uE00C";
+    
+    public static readonly string Code = "\uE00D";
+    
+    public static readonly string DocumentPageBreak = "\uE00E";
+    
+    public static readonly string Flowchart = "\uE00F";
+    
+    public static readonly string ArrowExpand = "\uE010";
+
+    #endregion
 }
