@@ -66,7 +66,7 @@ internal static class MermaidDiagramRenderers
             }
 
             Size labelSize = context.MeasureText(edge.Label);
-            Point anchor = FlowchartLabelAnchor(fromRect, toRect, horizontal, reverse);
+            Point anchor = FlowchartLabelAnchor(fromRect, toRect, horizontal);
             anchor = NudgeLabelClear(anchor, labelSize, bounds);
             labels.Add((anchor, edge.Label, labelSize));
         }
@@ -106,7 +106,7 @@ internal static class MermaidDiagramRenderers
         context.Canvas.Width = width;
         context.Canvas.Height = height;
 
-        DrawFlowchartEdges(context, definition.Edges, bounds, rank, horizontal, reverse);
+        DrawFlowchartEdges(context, definition.Edges, bounds, rank, horizontal);
 
         foreach (NodeSpec node in nodes)
         {
@@ -756,15 +756,16 @@ internal static class MermaidDiagramRenderers
         }
 
         Size labelSize = context.MeasureText(label);
-        const double padX = 10;
-        const double padY = 6;
+        const double padX = 6;
+        const double padY = 2;
 
         context.AddRectangle(
             center.X - labelSize.Width / 2 - padX,
             center.Y - labelSize.Height / 2 - padY,
             labelSize.Width + padX * 2,
             labelSize.Height + padY * 2,
-            context.Palette.Diagram);
+            context.Palette.Diagram,
+            opacity: 0.8);
         context.AddText(center.X - labelSize.Width / 2, center.Y - labelSize.Height / 2, label, context.Palette.Text);
     }
 
@@ -1213,21 +1214,23 @@ internal static class MermaidDiagramRenderers
         }
     }
 
-    private static Point FlowchartLabelAnchor(Rect fromRect, Rect toRect, bool horizontal, bool reverse)
+    private static Point FlowchartLabelAnchor(Rect fromRect, Rect toRect, bool horizontal)
     {
         if (horizontal)
         {
-            double midX = reverse
-                ? (fromRect.Left + toRect.Right) / 2
-                : (fromRect.Right + toRect.Left) / 2;
+            bool fromLeft = fromRect.X + fromRect.Width / 2 < toRect.X + toRect.Width / 2;
+            double midX = fromLeft
+                ? (fromRect.Right + toRect.Left) / 2
+                : (fromRect.Left + toRect.Right) / 2;
             double crossMid = (fromRect.Y + fromRect.Height / 2 + toRect.Y + toRect.Height / 2) / 2;
             return new Point(midX, crossMid);
         }
 
         double centerX = (fromRect.X + fromRect.Width / 2 + toRect.X + toRect.Width / 2) / 2;
-        double flowMid = reverse
-            ? (fromRect.Top + toRect.Bottom) / 2
-            : (fromRect.Bottom + toRect.Top) / 2;
+        bool fromAbove = fromRect.Y + fromRect.Height / 2 < toRect.Y + toRect.Height / 2;
+        double flowMid = fromAbove
+            ? (fromRect.Bottom + toRect.Top) / 2
+            : (fromRect.Top + toRect.Bottom) / 2;
         return new Point(centerX, flowMid);
     }
 
@@ -1279,8 +1282,7 @@ internal static class MermaidDiagramRenderers
         IReadOnlyList<MermaidFlowEdgeDefinition> edges,
         IReadOnlyDictionary<string, Rect> bounds,
         IReadOnlyDictionary<string, int> rank,
-        bool horizontal,
-        bool reverse)
+        bool horizontal)
     {
         var directed = edges.Select(static edge => (edge.FromId, edge.ToId)).ToHashSet();
 
@@ -1302,9 +1304,9 @@ internal static class MermaidDiagramRenderers
                             toRank == fromRank;
 
             (Point start, Point end, Point outDir, Point inDir) = FlowEdgeAnchors(
-                fromRect, toRect, horizontal, reverse, sameRank);
+                fromRect, toRect, horizontal, sameRank);
 
-            if (sameRank && directed.Contains((edge.ToId, edge.FromId)))
+            if (directed.Contains((edge.ToId, edge.FromId)))
             {
                 double offset = 4;
                 double perpX = inDir.Y * offset;
@@ -1321,14 +1323,14 @@ internal static class MermaidDiagramRenderers
         Rect fromRect,
         Rect toRect,
         bool horizontal,
-        bool reverse,
         bool sameRank)
     {
+        bool fromAbove, fromLeft;
         if (sameRank)
         {
             if (horizontal)
             {
-                bool fromAbove = fromRect.Y + fromRect.Height / 2 < toRect.Y + toRect.Height / 2;
+                fromAbove = fromRect.Y + fromRect.Height / 2 < toRect.Y + toRect.Height / 2;
                 Point start = fromAbove
                     ? new Point(fromRect.X + fromRect.Width / 2, fromRect.Bottom)
                     : new Point(fromRect.X + fromRect.Width / 2, fromRect.Top);
@@ -1339,7 +1341,7 @@ internal static class MermaidDiagramRenderers
                 return (start, end, new Point(0, sign), new Point(0, sign));
             }
 
-            bool fromLeft = fromRect.X + fromRect.Width / 2 < toRect.X + toRect.Width / 2;
+            fromLeft = fromRect.X + fromRect.Width / 2 < toRect.X + toRect.Width / 2;
             Point sideStart = fromLeft
                 ? new Point(fromRect.Right, fromRect.Y + fromRect.Height / 2)
                 : new Point(fromRect.Left, fromRect.Y + fromRect.Height / 2);
@@ -1352,15 +1354,25 @@ internal static class MermaidDiagramRenderers
 
         if (horizontal)
         {
-            double sign = reverse ? -1 : 1;
-            Point start = new(reverse ? fromRect.Left : fromRect.Right, fromRect.Y + fromRect.Height / 2);
-            Point end = new(reverse ? toRect.Right : toRect.Left, toRect.Y + toRect.Height / 2);
+            fromLeft = fromRect.X + fromRect.Width / 2 < toRect.X + toRect.Width / 2;
+            Point start = fromLeft
+                ? new Point(fromRect.Right, fromRect.Y + fromRect.Height / 2)
+                : new Point(fromRect.Left, fromRect.Y + fromRect.Height / 2);
+            Point end = fromLeft
+                ? new Point(toRect.Left, toRect.Y + toRect.Height / 2)
+                : new Point(toRect.Right, toRect.Y + toRect.Height / 2);
+            double sign = fromLeft ? 1 : -1;
             return (start, end, new Point(sign, 0), new Point(sign, 0));
         }
 
-        double vSign = reverse ? -1 : 1;
-        Point vStart = new(fromRect.X + fromRect.Width / 2, reverse ? fromRect.Top : fromRect.Bottom);
-        Point vEnd = new(toRect.X + toRect.Width / 2, reverse ? toRect.Bottom : toRect.Top);
+        fromAbove = fromRect.Y + fromRect.Height / 2 < toRect.Y + toRect.Height / 2;
+        Point vStart = fromAbove
+            ? new Point(fromRect.X + fromRect.Width / 2, fromRect.Bottom)
+            : new Point(fromRect.X + fromRect.Width / 2, fromRect.Top);
+        Point vEnd = fromAbove
+            ? new Point(toRect.X + toRect.Width / 2, toRect.Top)
+            : new Point(toRect.X + toRect.Width / 2, toRect.Bottom);
+        double vSign = fromAbove ? 1 : -1;
         return (vStart, vEnd, new Point(0, vSign), new Point(0, vSign));
     }
 

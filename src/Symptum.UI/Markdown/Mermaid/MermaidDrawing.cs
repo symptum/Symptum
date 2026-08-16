@@ -91,7 +91,8 @@ internal sealed class MermaidDrawingContext
         Brush? stroke = null,
         double strokeThickness = 1,
         double radiusX = 0,
-        double radiusY = 0)
+        double radiusY = 0,
+        double opacity = 1)
     {
         var rectangle = new Rectangle
         {
@@ -101,7 +102,8 @@ internal sealed class MermaidDrawingContext
             Stroke = stroke,
             StrokeThickness = strokeThickness,
             RadiusX = radiusX,
-            RadiusY = radiusY
+            RadiusY = radiusY,
+            Opacity = opacity
         };
 
         Canvas.SetLeft(rectangle, x);
