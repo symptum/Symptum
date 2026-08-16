@@ -26,6 +26,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     public MarkdownEditorPage()
     {
         InitializeComponent();
+        GenerateHeaderButtons();
         PageName = "Markdown Editor";
         IconSource = IconHelper.DocumentIconSource;
         Loaded += Page_Loaded;
@@ -33,6 +34,38 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     }
 
     #region Page Lifecycle
+
+    private void GenerateHeaderButtons()
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            string label = $"Header Level {i + 1}";
+            AppBarButton button = new()
+            {
+                Label = label,
+                Tag = i + 1,
+                Icon = new FontIcon()
+                {
+                    Glyph = i switch
+                    {
+                        0 => CommonGlyphs.TextHeader1,
+                        1 => CommonGlyphs.TextHeader2,
+                        2 => CommonGlyphs.TextHeader3,
+                        3 => CommonGlyphs.TextHeader4,
+                        4 => CommonGlyphs.TextHeader5,
+                        5 => CommonGlyphs.TextHeader6,
+                        _ => CommonGlyphs.TextHeader1
+                    },
+                    FontFamily = IconHelper.SymptumIconsFontFamily
+                }
+            };
+            button.Click += HeaderButton_Click;
+            ToolTipService.SetToolTip(button, label);
+            Grid.SetRow(button, i / 3);
+            Grid.SetColumn(button, i % 3);
+            headerGrid.Children.Add(button);
+        }
+    }
 
     private void Page_Loaded(object sender, RoutedEventArgs e)
     {
@@ -852,26 +885,10 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 
     private void ImportBlockButton_Click(object sender, RoutedEventArgs e) => InsertBlock("=> {ResourceId}?{BlockId}");
 
-    private void GridView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void HeaderButton_Click(object sender, RoutedEventArgs e)
     {
-        if (e.AddedItems.Count > 0)
-        {
-            if (e.AddedItems[0] is string h)
-            {
-                int level = h switch
-                {
-                    "H1" => 1,
-                    "H2" => 2,
-                    "H3" => 3,
-                    "H4" => 4,
-                    "H5" => 5,
-                    "H6" => 6,
-                    _ => 1
-                };
-                SetHeadingLevel(level);
-                if (sender is GridView gv) gv.SelectedItem = null;
-            }
-        }
+        if (sender is AppBarButton button && button.Tag is int i)
+            SetHeadingLevel(i);
     }
 
     #endregion

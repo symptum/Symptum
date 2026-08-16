@@ -10,7 +10,8 @@
   xmlns:md="using:Symptum.UI.Markdown"
   xmlns:controls="using:CommunityToolkit.WinUI.Controls"
   mc:Ignorable="d">
-  <Grid>
+  <Grid RowDefinitions="Auto,Auto,*,Auto"
+        ColumnDefinitions="*,*,Auto,Auto">
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup x:Name="PreviewStateGroup">
         <VisualState x:Name="NoPreviewState" />
@@ -44,18 +45,6 @@
         </VisualState>
       </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
-    <Grid.RowDefinitions>
-      <RowDefinition Height="Auto" />
-      <RowDefinition Height="Auto" />
-      <RowDefinition />
-      <RowDefinition Height="Auto" />
-    </Grid.RowDefinitions>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition />
-      <ColumnDefinition />
-      <ColumnDefinition Width="Auto" />
-      <ColumnDefinition Width="Auto" />
-    </Grid.ColumnDefinitions>
     <controls:Ribbon x:Name="ribbon" HorizontalAlignment="Stretch" Grid.ColumnSpan="4">
       <controls:RibbonCollapsibleGroup CollapsedAccessKey="RR" Priority="1" Label="Resource"
                                        Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
@@ -78,16 +67,8 @@
         <controls:RibbonCollapsibleGroup.IconSource>
           <FontIconSource Glyph="{x:Bind ui:CommonGlyphs.Edit}" />
         </controls:RibbonCollapsibleGroup.IconSource>
-        <Grid ColumnSpacing="8" RowSpacing="8">
-          <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition />
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition />
-            <ColumnDefinition />
-          </Grid.ColumnDefinitions>
+        <Grid RowSpacing="8" ColumnSpacing="8"
+              RowDefinitions="*,*"  ColumnDefinitions="*,*,*">
           <AppBarButton x:Name="undoButton" Icon="Undo" AccessKey="ZU"
                         Label="Undo" IsEnabled="False" Click="UndoButton_Click">
             <AppBarButton.KeyboardAccelerators>
@@ -119,18 +100,8 @@
         <controls:RibbonCollapsibleGroup.IconSource>
           <FontIconSource Glyph="{x:Bind ui:CommonGlyphs.Text}" />
         </controls:RibbonCollapsibleGroup.IconSource>
-        <Grid ColumnSpacing="8" RowSpacing="8">
-          <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition />
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition />
-            <ColumnDefinition />
-            <ColumnDefinition />
-            <ColumnDefinition />
-          </Grid.ColumnDefinitions>
+        <Grid ColumnSpacing="8"
+              ColumnDefinitions="*,*,*,*,*,*">
           <AppBarButton x:Name="boldButton" Icon="Bold" AccessKey="1"
                         Label="Bold" Click="BoldButton_Click">
             <AppBarButton.KeyboardAccelerators>
@@ -168,37 +139,17 @@
         <controls:RibbonCollapsibleGroup.IconSource>
           <FontIconSource Glyph="{x:Bind ui:CommonGlyphs.TextHeader1}" FontFamily="{ThemeResource SymptumIconsFontFamily}" />
         </controls:RibbonCollapsibleGroup.IconSource>
-        <GridView Width="144" SelectionChanged="GridView_SelectionChanged">
-          <GridView.ItemTemplate>
-            <DataTemplate>
-              <TextBlock HorizontalTextAlignment="Center" Text="{Binding}" />
-            </DataTemplate>
-          </GridView.ItemTemplate>
-          <GridView.Items>
-            <x:String>H1</x:String>
-            <x:String>H2</x:String>
-            <x:String>H3</x:String>
-            <x:String>H4</x:String>
-            <x:String>H5</x:String>
-            <x:String>H6</x:String>
-          </GridView.Items>
-        </GridView>
+        <Grid x:Name="headerGrid" RowSpacing="8" ColumnSpacing="8"
+              RowDefinitions="*,*"  ColumnDefinitions="*,*,*">
+        </Grid>
       </controls:RibbonCollapsibleGroup>
       <controls:RibbonCollapsibleGroup CollapsedAccessKey="ZP" Priority="4" Label="Paragraph"
                                        Style="{StaticResource RibbonLeftCollapsibleGroupStyle}">
         <controls:RibbonCollapsibleGroup.IconSource>
           <FontIconSource Glyph="{x:Bind ui:CommonGlyphs.Paragraph}" />
         </controls:RibbonCollapsibleGroup.IconSource>
-        <Grid ColumnSpacing="8" RowSpacing="8">
-          <Grid.RowDefinitions>
-            <RowDefinition />
-            <RowDefinition />
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition />
-            <ColumnDefinition />
-            <ColumnDefinition />
-          </Grid.ColumnDefinitions>
+        <Grid RowSpacing="8" ColumnSpacing="8"
+              RowDefinitions="*,*"  ColumnDefinitions="*,*,*">
           <AppBarButton x:Name="indentIncreaseButton" AccessKey="AI" ToolTipService.ToolTip="Increase Indent"
                         Label="Increase Indent" Click="IndentIncreaseButton_Click">
             <AppBarButton.Icon>
@@ -238,7 +189,8 @@
         <controls:RibbonCollapsibleGroup.IconSource>
           <SymbolIconSource Symbol="Add" />
         </controls:RibbonCollapsibleGroup.IconSource>
-        <Grid ColumnSpacing="8" RowSpacing="8" RowDefinitions="*,*" ColumnDefinitions="*,*,*,*">
+        <Grid RowSpacing="8" ColumnSpacing="8"
+              RowDefinitions="*,*"  ColumnDefinitions="*,*,*,*">
           <AppBarButton x:Name="tableButton" AccessKey="TT"
                         ToolTipService.ToolTip="Table" Label="Table" Click="TableButton_Click">
             <AppBarButton.Icon>
@@ -318,12 +270,10 @@
 
     <md:MarkdownTextBlock x:Name="mdTB" Grid.Row="2" Grid.Column="1" Visibility="Collapsed" />
     <controls:ContentSizer x:Name="sizer" Grid.Row="2" Grid.Column="2" FlowDirection="RightToLeft" Visibility="Collapsed" TargetControl="{x:Bind docOutlineGrid}" />
-    <Grid x:Name="docOutlineGrid" Width="150" Grid.Row="2" Grid.Column="3" RowSpacing="12" Margin="0,0,4,0" Visibility="Collapsed"
+    <Grid x:Name="docOutlineGrid" Width="150" Grid.Row="2" Grid.Column="3"
+          RowSpacing="12" RowDefinitions="Auto,*"
+          Margin="0,0,4,0" Visibility="Collapsed"
           BorderBrush="{ThemeResource AccentFillColorDefaultBrush}" BorderThickness="1" CornerRadius="8,8,0,8">
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto" />
-        <RowDefinition />
-      </Grid.RowDefinitions>
       <TextBlock Margin="12,4" FontWeight="SemiBold" Text="Document Outline" />
       <ScrollViewer HorizontalScrollBarVisibility="Auto" Grid.Row="1">
         <TreeView x:Name="docOutlineTV"
@@ -336,16 +286,8 @@
         </TreeView>
       </ScrollViewer>
     </Grid>
-    <Grid x:Name="statusBar" Grid.Row="3" Grid.ColumnSpan="4" Margin="8,0,4,0" Height="32" ColumnSpacing="8">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="Auto" />
-        <ColumnDefinition Width="*" />
-        <ColumnDefinition Width="Auto" />
-        <ColumnDefinition Width="Auto" />
-        <ColumnDefinition Width="Auto" />
-        <ColumnDefinition Width="Auto" />
-      </Grid.ColumnDefinitions>
+    <Grid x:Name="statusBar" Grid.Row="3" Grid.ColumnSpan="4" Margin="8,0,4,0" Height="32"
+          ColumnSpacing="8" ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto,Auto">
       <TextBlock x:Name="caretTB" Style="{ThemeResource StatusBarTextBlockStyle}" />
       <AppBarSeparator Grid.Column="1"/>
       <TextBlock x:Name="countTB" Grid.Column="2" Style="{ThemeResource StatusBarTextBlockStyle}" />

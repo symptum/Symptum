@@ -768,45 +768,13 @@ internal static class MermaidDiagramRenderers
         context.AddText(center.X - labelSize.Width / 2, center.Y - labelSize.Height / 2, label, context.Palette.Text);
     }
 
-    private static void DrawAdjacentEdge(
-        MermaidDrawingContext context,
-        Point start,
-        Point end,
-        bool dotted,
-        bool horizontal)
-    {
-        if (Math.Abs(start.X - end.X) < 0.001 || Math.Abs(start.Y - end.Y) < 0.001)
-        {
-            context.AddArrow(start, end, context.Palette.Edge, 1, dotted);
-            return;
-        }
-
-        var path = new List<Point>();
-        if (horizontal)
-        {
-            path.Add(start);
-            path.Add(new Point((start.X + end.X) / 2, start.Y));
-            path.Add(new Point((start.X + end.X) / 2, end.Y));
-            path.Add(end);
-        }
-        else
-        {
-            double midY = (start.Y + end.Y) / 2;
-            path.Add(start);
-            path.Add(new Point(start.X, midY));
-            path.Add(new Point(end.X, midY));
-            path.Add(end);
-        }
-
-        DrawRoutedEdge(context, path, dotted);
-    }
-
     private static void AddCurvedArrow(
         MermaidDrawingContext context,
         Point start,
         Point end,
-        bool dotted,
-        bool horizontal)
+        Point outDir,
+        Point inDir,
+        bool dotted)
     {
         double dx = end.X - start.X;
         double dy = end.Y - start.Y;
@@ -816,14 +784,10 @@ internal static class MermaidDiagramRenderers
             return;
         }
 
-        double signX = Math.Abs(dx) > 0.001 ? Math.Sign(dx) : 1;
-        double signY = Math.Abs(dy) > 0.001 ? Math.Sign(dy) : 1;
         double delta = Math.Max(30, length * 0.35);
 
-        Point c1 = new(start.X + signX * delta, start.Y);
-        Point c2 = horizontal
-            ? new Point(end.X - signX * delta, end.Y)
-            : new Point(end.X, end.Y - signY * delta);
+        Point c1 = new(start.X + outDir.X * delta, start.Y + outDir.Y * delta);
+        Point c2 = new(end.X - inDir.X * delta, end.Y - inDir.Y * delta);
 
         var figure = new PathFigure { StartPoint = start, IsClosed = false, IsFilled = false };
         figure.Segments.Add(new BezierSegment { Point1 = c1, Point2 = c2, Point3 = end });
@@ -841,27 +805,66 @@ internal static class MermaidDiagramRenderers
 
         context.Canvas.Children.Add(path);
 
-        double tangentX = end.X - c2.X;
-        double tangentY = end.Y - c2.Y;
-        double tangentLength = Math.Sqrt(tangentX * tangentX + tangentY * tangentY);
-        if (tangentLength > 0.001)
+        const double arrowLength = 9;
+        Point basePoint = BezierPointAtDistance(start, c1, c2, end, arrowLength);
+        double axisX = end.X - basePoint.X;
+        double axisY = end.Y - basePoint.Y;
+        double axisLength = Math.Sqrt(axisX * axisX + axisY * axisY);
+        if (axisLength < 0.001)
         {
-            double ux = tangentX / tangentLength;
-            double uy = tangentY / tangentLength;
-            const double arrowLength = 9;
-            var headStart = new Point(end.X - ux * arrowLength, end.Y - uy * arrowLength);
-            context.AddLine(headStart, end, context.Palette.Edge, 1, dotted);
-            double half = arrowLength * 0.45;
-            context.AddPolygon(
-                [
-                    end,
-                    new Point(headStart.X - uy * half, headStart.Y + ux * half),
-                    new Point(headStart.X + uy * half, headStart.Y - ux * half)
-                ],
-                context.Palette.Edge,
-                null,
-                0);
+            return;
         }
+
+        double ux = axisX / axisLength;
+        double uy = axisY / axisLength;
+        double half = arrowLength * 0.45;
+        context.AddPolygon(
+            [
+                end,
+                new Point(basePoint.X - uy * half, basePoint.Y + ux * half),
+                new Point(basePoint.X + uy * half, basePoint.Y - ux * half)
+            ],
+            context.Palette.Edge,
+            null,
+            0);
+    }
+
+    private static Point BezierPoint(Point p0, Point p1, Point p2, Point p3, double t)
+    {
+        double mt = 1 - t;
+        double mt2 = mt * mt;
+        double t2 = t * t;
+        double a = mt2 * mt;
+        double b = 3 * mt2 * t;
+        double c = 3 * mt * t2;
+        double d = t2 * t;
+        return new Point(
+            a * p0.X + b * p1.X + c * p2.X + d * p3.X,
+            a * p0.Y + b * p1.Y + c * p2.Y + d * p3.Y);
+    }
+
+    private static Point BezierPointAtDistance(Point p0, Point p1, Point p2, Point p3, double targetDistance)
+    {
+        double targetSq = targetDistance * targetDistance;
+        double low = 0;
+        double high = 1;
+        for (int i = 0; i < 30; i++)
+        {
+            double mid = (low + high) / 2;
+            Point point = BezierPoint(p0, p1, p2, p3, mid);
+            double px = point.X - p3.X;
+            double py = point.Y - p3.Y;
+            if (px * px + py * py < targetSq)
+            {
+                high = mid;
+            }
+            else
+            {
+                low = mid;
+            }
+        }
+
+        return BezierPoint(p0, p1, p2, p3, (low + high) / 2);
     }
 
     private static void DrawNode(MermaidDrawingContext context, NodeSpec node, Rect rect)
@@ -1279,6 +1282,8 @@ internal static class MermaidDiagramRenderers
         bool horizontal,
         bool reverse)
     {
+        var directed = edges.Select(static edge => (edge.FromId, edge.ToId)).ToHashSet();
+
         foreach (MermaidFlowEdgeDefinition edge in edges)
         {
             if (!bounds.TryGetValue(edge.FromId, out Rect fromRect) || !bounds.TryGetValue(edge.ToId, out Rect toRect))
@@ -1286,32 +1291,77 @@ internal static class MermaidDiagramRenderers
                 continue;
             }
 
-            Point start;
-            Point end;
+            if (edge.FromId == edge.ToId)
+            {
+                DrawRoutedEdge(context, BuildStateSelfLoopPath(fromRect, horizontal), edge.Dotted);
+                continue;
+            }
+
+            bool sameRank = rank.TryGetValue(edge.FromId, out int fromRank) &&
+                            rank.TryGetValue(edge.ToId, out int toRank) &&
+                            toRank == fromRank;
+
+            (Point start, Point end, Point outDir, Point inDir) = FlowEdgeAnchors(
+                fromRect, toRect, horizontal, reverse, sameRank);
+
+            if (sameRank && directed.Contains((edge.ToId, edge.FromId)))
+            {
+                double offset = 4;
+                double perpX = inDir.Y * offset;
+                double perpY = -inDir.X * offset;
+                start = new Point(start.X + perpX, start.Y + perpY);
+                end = new Point(end.X + perpX, end.Y + perpY);
+            }
+
+            AddCurvedArrow(context, start, end, outDir, inDir, edge.Dotted);
+        }
+    }
+
+    private static (Point Start, Point End, Point OutDir, Point InDir) FlowEdgeAnchors(
+        Rect fromRect,
+        Rect toRect,
+        bool horizontal,
+        bool reverse,
+        bool sameRank)
+    {
+        if (sameRank)
+        {
             if (horizontal)
             {
-                start = new Point(reverse ? fromRect.Left : fromRect.Right, fromRect.Y + fromRect.Height / 2);
-                end = new Point(reverse ? toRect.Right : toRect.Left, toRect.Y + toRect.Height / 2);
-            }
-            else
-            {
-                start = new Point(fromRect.X + fromRect.Width / 2, reverse ? fromRect.Top : fromRect.Bottom);
-                end = new Point(toRect.X + toRect.Width / 2, reverse ? toRect.Bottom : toRect.Top);
+                bool fromAbove = fromRect.Y + fromRect.Height / 2 < toRect.Y + toRect.Height / 2;
+                Point start = fromAbove
+                    ? new Point(fromRect.X + fromRect.Width / 2, fromRect.Bottom)
+                    : new Point(fromRect.X + fromRect.Width / 2, fromRect.Top);
+                Point end = fromAbove
+                    ? new Point(toRect.X + toRect.Width / 2, toRect.Top)
+                    : new Point(toRect.X + toRect.Width / 2, toRect.Bottom);
+                double sign = fromAbove ? 1 : -1;
+                return (start, end, new Point(0, sign), new Point(0, sign));
             }
 
-            bool adjacent = rank.TryGetValue(edge.FromId, out int fromRank) &&
-                            rank.TryGetValue(edge.ToId, out int toRank) &&
-                            toRank == fromRank + 1;
-
-            if (adjacent)
-            {
-                DrawAdjacentEdge(context, start, end, edge.Dotted, horizontal);
-            }
-            else
-            {
-                AddCurvedArrow(context, start, end, edge.Dotted, horizontal);
-            }
+            bool fromLeft = fromRect.X + fromRect.Width / 2 < toRect.X + toRect.Width / 2;
+            Point sideStart = fromLeft
+                ? new Point(fromRect.Right, fromRect.Y + fromRect.Height / 2)
+                : new Point(fromRect.Left, fromRect.Y + fromRect.Height / 2);
+            Point sideEnd = fromLeft
+                ? new Point(toRect.Left, toRect.Y + toRect.Height / 2)
+                : new Point(toRect.Right, toRect.Y + toRect.Height / 2);
+            double sideSign = fromLeft ? 1 : -1;
+            return (sideStart, sideEnd, new Point(sideSign, 0), new Point(sideSign, 0));
         }
+
+        if (horizontal)
+        {
+            double sign = reverse ? -1 : 1;
+            Point start = new(reverse ? fromRect.Left : fromRect.Right, fromRect.Y + fromRect.Height / 2);
+            Point end = new(reverse ? toRect.Right : toRect.Left, toRect.Y + toRect.Height / 2);
+            return (start, end, new Point(sign, 0), new Point(sign, 0));
+        }
+
+        double vSign = reverse ? -1 : 1;
+        Point vStart = new(fromRect.X + fromRect.Width / 2, reverse ? fromRect.Top : fromRect.Bottom);
+        Point vEnd = new(toRect.X + toRect.Width / 2, reverse ? toRect.Bottom : toRect.Top);
+        return (vStart, vEnd, new Point(0, vSign), new Point(0, vSign));
     }
 
     private static void DrawMindmapNode(MermaidDrawingContext context, MermaidMindmapNodeDefinition node, IReadOnlyDictionary<string, Rect> bounds)
