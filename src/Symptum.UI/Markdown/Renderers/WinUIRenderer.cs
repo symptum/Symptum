@@ -23,7 +23,7 @@ public class WinUIRenderer : RendererBase
 
     public ImportsHandler ImportsHandler { get; private set; }
 
-    public IReferenceValueResolver? ReferenceValueResolver => MarkdownTextBlock.ReferenceValueResolver;
+    public IReferenceValueResolver? ReferenceValueResolver { get; private set;  }
 
     public ILinkHandler? LinkHandler { get; set; }
 
@@ -34,8 +34,9 @@ public class WinUIRenderer : RendererBase
         FlowDocument = document;
         document.StackPanel.Style = markdownTextBlock.FlowDocumentStackPanelStyle;
         DocumentOutline = markdownTextBlock.DocumentOutline;
-        LinkHandler = new DefaultLinkHandler(DocumentOutline);
         ImportsHandler = markdownTextBlock.ImportsHandler;
+        LinkHandler = markdownTextBlock.LinkHandler;
+        ReferenceValueResolver = markdownTextBlock.ReferenceValueResolver;
         _stack.Push(FlowDocument);
         LoadOverridenRenderers();
     }

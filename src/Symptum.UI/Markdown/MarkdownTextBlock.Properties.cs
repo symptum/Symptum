@@ -4,7 +4,7 @@ namespace Symptum.UI.Markdown;
 
 public partial class MarkdownTextBlock
 {
-    #region Config Properties
+    #region Basic Properties
 
     public static readonly DependencyProperty BaseUrlProperty = DependencyProperty.Register(
         nameof(BaseUrl), typeof(string), typeof(MarkdownTextBlock),
@@ -24,6 +24,26 @@ public partial class MarkdownTextBlock
     {
         get => (IImageProvider?)GetValue(ImageProviderProperty);
         set => SetValue(ImageProviderProperty, value);
+    }
+
+    public static readonly DependencyProperty LinkHandlerProperty = DependencyProperty.Register(
+        nameof(LinkHandler), typeof(ILinkHandler), typeof(MarkdownTextBlock),
+        new PropertyMetadata(null));
+
+    public ILinkHandler? LinkHandler
+    {
+        get => (ILinkHandler?)GetValue(LinkHandlerProperty);
+        set => SetValue(LinkHandlerProperty, value);
+    }
+
+    public static readonly DependencyProperty ReferenceValueResolverProperty = DependencyProperty.Register(
+        nameof(ReferenceValueResolver), typeof(IReferenceValueResolver), typeof(MarkdownTextBlock),
+        new PropertyMetadata(null));
+
+    public IReferenceValueResolver? ReferenceValueResolver
+    {
+        get => (IReferenceValueResolver?)GetValue(ReferenceValueResolverProperty);
+        set => SetValue(ReferenceValueResolverProperty, value);
     }
 
     public static readonly DependencyProperty SVGRendererProperty = DependencyProperty.Register(
@@ -400,6 +420,4 @@ public partial class MarkdownTextBlock
     public DocumentOutline DocumentOutline { get; }
 
     public ImportsHandler ImportsHandler { get; }
-
-    public IReferenceValueResolver? ReferenceValueResolver { get; set; }
 }

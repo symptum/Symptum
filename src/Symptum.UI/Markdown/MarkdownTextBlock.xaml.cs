@@ -22,6 +22,7 @@ public partial class MarkdownTextBlock : Control
         _pipeline = MarkdownManager.Pipeline;
         DocumentOutline = new();
         ImportsHandler = new();
+        LinkHandler = new DefaultLinkHandler(DocumentOutline);
     }
 
     protected override void OnApplyTemplate()

@@ -48,6 +48,11 @@ public class NavigationManager
 
     public static INavigable? GetNavigableForUri(Uri? uri)
     {
+        if (uri == null) return null;
+
+        // Remember to implement query support in the navigation logic later.
+        uri = new UriBuilder(uri) { Query = null }.Uri; // Strip the query text from the uri to get the resource.
+
         INavigable? navigable = GetNavigationInfoForUri(uri);
 
         if (navigable == null && ResourceManager.TryGetResourceByUri(uri, out var resource) && resource is INavigable navResource)
@@ -66,13 +71,6 @@ public class NavigationManager
         return null;
     }
 
-    public static Type? GetPageTypeForUri(Uri? uri)
-    {
-        INavigable? navigable = GetNavigableForUri(uri);
-
-        return GetPageTypeForNavigable(navigable);
-    }
-
     public static Type? GetPageTypeForNavigable(INavigable? navigable)
     {
         return navigable switch
@@ -85,6 +83,7 @@ public class NavigationManager
             _ => null,
         };
     }
+
     public static INavigable? GetRealNavigable(INavigable? navigable)
     {
         switch (navigable)

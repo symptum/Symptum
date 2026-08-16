@@ -22,6 +22,20 @@ public partial class App : Application
 
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
+#if WINDOWS && !HAS_UNO
+        // Single instancing for WinAppSDK target.
+        // Currently focusing only on the Windows target.
+        var mainInstance = Microsoft.Windows.AppLifecycle.AppInstance.FindOrRegisterForKey("symptum");
+        var activatedEventArgs = Microsoft.Windows.AppLifecycle.AppInstance.GetCurrent().GetActivatedEventArgs();
+        if (!mainInstance.IsCurrent)
+        {
+            await mainInstance.RedirectActivationToAsync(activatedEventArgs);
+            System.Diagnostics.Process.GetCurrentProcess().Kill();
+            return;
+        }
+        mainInstance.Activated += (s, e) => HandleActivation(e);
+#endif
+
         MainWindow = new();
 
 #if WINDOWS && !HAS_UNO
@@ -62,14 +76,35 @@ public partial class App : Application
         MainWindow.Activate();
 
         await Bootstrapper.InitializeAsync();
+        await ResourceHelper.SelectWorkFolderAsync(PackageHelper.PackagesFolder);
         await ResourceHelper.LoadResourcesFromWorkPathAsync();
-        MockupData.Initialize();
-        NavigationManager.Initialize();
 
+        NavigationManager.Initialize();
         NotificationHelper.Register();
 
         ThemeHelper.Initialize(rootFrame.XamlRoot);
+
+#if WINDOWS && !HAS_UNO
+        HandleActivation(mainInstance.GetActivatedEventArgs());
+#endif
+        Console.WriteLine(args.Arguments);
     }
+
+#if WINDOWS && !HAS_UNO
+
+    private void HandleActivation(Microsoft.Windows.AppLifecycle.AppActivationArguments e)
+    {
+        if (e != null)
+        {
+            if (e.Kind == Microsoft.Windows.AppLifecycle.ExtendedActivationKind.Protocol &&
+                e.Data is Windows.ApplicationModel.Activation.ProtocolActivatedEventArgs args)
+            {
+                NavigationManager.Navigate(args.Uri);
+            }
+        }
+    }
+
+#endif
 
     /// <summary>
     /// Invoked when Navigation to a certain page fails

@@ -1,3 +1,4 @@
+using Symptum.Core.Management.Resources;
 using Windows.System;
 
 namespace Symptum.UI.Markdown;
@@ -17,8 +18,12 @@ public sealed class DefaultLinkHandler : ILinkHandler
 
         if (url.StartsWith('#'))
         {
-            if (_documentOutline.IdNavigateCollection.TryGetValue(url.Remove(0, 1), out Action? navigate))
+            if (_documentOutline.IdNavigateCollection.TryGetValue(url[1..], out Action? navigate))
                 navigate!();
+        }
+        else if (url.StartsWith(ResourceManager.DefaultUriScheme))
+        {
+            NavigationRequested?.Invoke(null, new Uri(url));
         }
         else
         {
@@ -26,4 +31,6 @@ public sealed class DefaultLinkHandler : ILinkHandler
             await Launcher.LaunchUriAsync(uri);
         }
     }
+
+    public event EventHandler<Uri> NavigationRequested;
 }

@@ -1,6 +1,7 @@
 using Microsoft.UI.Xaml.Media.Animation;
 using Symptum.Common.Helpers;
 using Symptum.Core.Management.Navigation;
+using Symptum.Core.Management.Resources;
 using Symptum.Navigation;
 using Symptum.Pages;
 using Symptum.ViewModels;
@@ -91,7 +92,7 @@ public sealed partial class MainPage : Page
 
     private bool _suppressNavigation = false;
 
-    private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
+    private async void ContentFrame_Navigated(object sender, NavigationEventArgs e)
     {
         navView.IsBackEnabled = contentFrame.CanGoBack;
         if (e.SourcePageType != null)
@@ -121,8 +122,10 @@ public sealed partial class MainPage : Page
 
             NavigationManager.CurrentUri = navigable.Uri;
 
+            INavigable? realNavigable = NavigationManager.GetRealNavigable(navigable);
+            await ResourceHelper.LoadChildrenAsync(realNavigable as IResource);
             if (e.Content is NavigablePage page)
-                page.Navigable = NavigationManager.GetRealNavigable(navigable);
+                page.Navigable = realNavigable;
 
             navViewTitleTB.Text = navigable?.Title;
         }

@@ -106,28 +106,25 @@ public class PackageHelper
         PackagesFolder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("Packages", CreationCollisionOption.OpenIfExists);
         PackageCacheFolder = await ApplicationData.Current.LocalCacheFolder.CreateFolderAsync("Package Cache", CreationCollisionOption.OpenIfExists);
 
-        if (PackagesFolder != null)
-        {
-            indexFile = await PackagesFolder.TryGetItemAsync(indexFileName) as StorageFile
-                ?? await PackagesFolder.CreateFileAsync(indexFileName);
+        indexFile = await ApplicationData.Current.LocalFolder.TryGetItemAsync(indexFileName) as StorageFile
+            ?? await ApplicationData.Current.LocalFolder.CreateFileAsync(indexFileName);
 
-            string json = await FileIO.ReadTextAsync(indexFile);
-            if (!string.IsNullOrWhiteSpace(json))
+        string json = await FileIO.ReadTextAsync(indexFile);
+        if (!string.IsNullOrWhiteSpace(json))
+        {
+            try
             {
-                try
+                List<PackageEntry>? entries = JsonSerializer.Deserialize<List<PackageEntry>>(json);
+                if (entries != null)
                 {
-                    List<PackageEntry>? entries = JsonSerializer.Deserialize<List<PackageEntry>>(json);
-                    if (entries != null)
+                    foreach (var entry in entries)
                     {
-                        foreach (var entry in entries)
-                        {
-                            if (!string.IsNullOrWhiteSpace(entry.Id))
-                                packageCache[entry.Id] = entry;
-                        }
+                        if (!string.IsNullOrWhiteSpace(entry.Id))
+                            packageCache[entry.Id] = entry;
                     }
                 }
-                catch { }
             }
+            catch { }
         }
 
         PackageManager.Initialize(LoadPackageAsync);
@@ -189,12 +186,12 @@ public class PackageHelper
             && PackageCacheFolder != null && PackagesFolder != null)
         {
             Stream zipStream;
-//#if __WASM__
-//            var buffer = await FileIO.ReadBufferAsync(zipFile); // NOTE: OpenStreamForReadAsync() crashes on WASM?
-//            zipStream = new MemoryStream(buffer.ToArray());
-//#else
+            //#if __WASM__
+            //            var buffer = await FileIO.ReadBufferAsync(zipFile); // NOTE: OpenStreamForReadAsync() crashes on WASM?
+            //            zipStream = new MemoryStream(buffer.ToArray());
+            //#else
             zipStream = await zipFile.OpenStreamForReadAsync();
-//#endif
+            //#endif
 
             ZipArchive archive = new(zipStream, ZipArchiveMode.Read);
 

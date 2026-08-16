@@ -268,7 +268,7 @@ public class ResourceManager
     public static bool TryGetAvailableChildResourceByUri(Uri? uri, IReadOnlyList<IResource>? resources, [NotNullWhen(true)] out IResource? resource) =>
         TryGetAvailableChildResourceByProperty(uri, UriEquals, UriContains, GetUriOffset, resources, out resource);
 
-    private static int GetUriOffset(IResource resource) => resource.Uri?.OriginalString.Length ?? 0;
+    private static int GetUriOffset(IResource resource) => resource.Uri?.OriginalString.TrimEnd('/').Length ?? 0;
 
     private static bool UriEquals(Uri? uri, IResource resource) => uri?.Equals(resource.Uri) ?? false;
 
@@ -277,7 +277,7 @@ public class ResourceManager
     // If it matches, we return true
     // Else, the current resource tree doesn't contain the required uri
     private static bool UriContains(Uri? requiredUri, IResource resource, int offset = 0) =>
-        requiredUri?.ToString().Contains(resource.Uri?.ToString(), offset, '/') ?? false;
+        requiredUri?.ToString().TrimEnd('/').Contains(resource.Uri?.ToString().TrimEnd('/'), offset, '/') ?? false;
 
     #endregion
 

@@ -1,6 +1,8 @@
 using Symptum.Core.Management.Navigation;
 using Symptum.Core.Management.Resources;
 using Symptum.Helpers;
+using Symptum.Navigation;
+using Symptum.UI.Markdown;
 
 namespace Symptum.Pages;
 
@@ -9,9 +11,9 @@ public sealed partial class MarkdownPage : NavigablePage
     private static readonly string _paddingKey = "MarkdownPadding";
     private static readonly string _blockMarginKey = "MarkdownBlockMargin";
     private static readonly string _listMarginKey = "MarkdownListMargin";
-    private static readonly Thickness _defaultPadding; // 36
-    private static readonly Thickness _defaultBlockMargin; // 16, 8, 8, 8
-    private static readonly Thickness _defaultListMargin; // 16, 8, 0, 8
+    private static readonly Thickness _defaultPadding;
+    private static readonly Thickness _defaultBlockMargin;
+    private static readonly Thickness _defaultListMargin;
 
     private static readonly Thickness _narrowPadding = new(12);
     private static readonly Thickness _narrowBlockMargin = new(8, 4, 4, 4);
@@ -27,7 +29,7 @@ public sealed partial class MarkdownPage : NavigablePage
                 _defaultPadding = (Thickness)p;
             if (App.Current.Resources.TryGetValue(_blockMarginKey, out var bm))
                 _defaultBlockMargin = (Thickness)bm;
-            if (App.Current.Resources.TryGetValue(_paddingKey, out var lm))
+            if (App.Current.Resources.TryGetValue(_listMarginKey, out var lm))
                 _defaultListMargin = (Thickness)lm;
         } catch { }
     }
@@ -35,7 +37,21 @@ public sealed partial class MarkdownPage : NavigablePage
     public MarkdownPage()
     {
         InitializeComponent();
+        Loaded += MarkdownPage_Loaded;
+        Unloaded += MarkdownPage_Unloaded;
     }
+
+    private void MarkdownPage_Loaded(object sender, RoutedEventArgs e)
+    {
+        (markdownView.LinkHandler as DefaultLinkHandler)?.NavigationRequested += MarkdownPage_NavigationRequested;
+    }
+
+    private void MarkdownPage_Unloaded(object sender, RoutedEventArgs e)
+    {
+        (markdownView.LinkHandler as DefaultLinkHandler)?.NavigationRequested -= MarkdownPage_NavigationRequested;
+    }
+
+    private void MarkdownPage_NavigationRequested(object? _, Uri uri) =>  NavigationManager.Navigate(uri);
 
     protected override void OnNavigableChanged(INavigable? navigable)
     {
