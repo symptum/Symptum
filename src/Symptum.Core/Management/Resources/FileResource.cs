@@ -36,7 +36,7 @@ public abstract partial class FileResource : NavigableResource, IContent
 
     #endregion
 
-    protected override void OnInitializeResource(IResource? parent) { }
+    protected override void OnInitializeResource() { }
 
     #region Ignore
 

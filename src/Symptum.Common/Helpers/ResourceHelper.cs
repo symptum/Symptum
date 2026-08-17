@@ -391,6 +391,14 @@ public class ResourceHelper
     public static async Task LoadResourceAsync(IResource? resource, IResource? parent = null, StorageFolder? sourceFolder = null)
     {
         if (resource == null) return;
+        if (resource.HasInitialized)
+        {
+            // This to avoid loading the resource multiple times. 
+            // But sometimes the resource may have been loaded without a parent.
+            // We will set it here.
+            resource.InitializeResource(parent);
+            return;
+        }
 
         if (resource is TextFileResource textResource)
         {

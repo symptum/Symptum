@@ -1460,7 +1460,7 @@ internal static class MermaidDiagramRenderers
             maxY = Math.Max(maxY, rect.Y + rect.Height);
         }
 
-        Dictionary<string, Rect> shifted = [with(bounds.Count)];
+        Dictionary<string, Rect> shifted = new(bounds.Count);
         foreach ((string id, Rect rect) in bounds)
         {
             shifted[id] = new Rect(

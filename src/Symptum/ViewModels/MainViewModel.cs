@@ -12,7 +12,7 @@ public class MainViewModel
 
     public ICommand NavigateCommand { get; } = new RelayCommand<INavigable>(NavigationManager.Navigate);
 
-    public ICommand NavigateToUriCommand { get; } = new RelayCommand<Uri>(NavigationManager.Navigate);
+    public ICommand NavigateToUriCommand { get; } = new AsyncRelayCommand<Uri>(NavigationManager.NavigateAsync);
 
     #endregion
 

@@ -53,7 +53,7 @@ public abstract class PackageResource<T> : PackageResource where T : IResource
 
     #endregion
 
-    protected override void OnInitializeResource(IResource? parent) => SetChildrenResources(Contents);
+    protected override void OnInitializeResource() => SetChildrenResources(Contents);
 
     protected virtual bool ChildRestraint(Type childResourceType) => true;
 

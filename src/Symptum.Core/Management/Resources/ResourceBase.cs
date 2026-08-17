@@ -13,8 +13,6 @@ public abstract partial class ResourceBase : ObservableObject, IResource
 {
     #region Properties
 
-    #region IResource
-
     [ObservableProperty]
     public partial string? Title { get; set; }
 
@@ -22,11 +20,11 @@ public abstract partial class ResourceBase : ObservableObject, IResource
     public partial string? Id { get; set; }
 
     [ObservableProperty]
-    public partial Uri? Uri {  get; set; }
+    public partial Uri? Uri { get; set; }
 
     [JsonIgnore]
     [ObservableProperty]
-    public partial IResource? ParentResource {  get; private set; }
+    public partial IResource? ParentResource { get; private set; }
 
     private ObservableCollection<IResource>? childrenResources;
 
@@ -47,8 +45,6 @@ public abstract partial class ResourceBase : ObservableObject, IResource
     [JsonIgnore]
     public virtual bool CanHandleChildren { get; } = true;
 
-    #endregion
-
     [JsonIgnore]
     [ObservableProperty]
     public partial bool HasInitialized { get; private set; }
@@ -57,16 +53,16 @@ public abstract partial class ResourceBase : ObservableObject, IResource
 
     void IResource.InitializeResource(IResource? parent)
     {
-        if (HasInitialized) return;
-        
         ParentResource = parent;
+
+        if (HasInitialized) return;
         SetProperty(ref childrenResources, CanHandleChildren ? [] : null, nameof(ChildrenResources));
-        OnInitializeResource(parent);
+        OnInitializeResource();
 
         HasInitialized = true;
     }
 
-    protected abstract void OnInitializeResource(IResource? parent);
+    protected abstract void OnInitializeResource();
 
     public abstract bool CanHandleChildResourceType(Type childResourceType);
 
@@ -75,8 +71,6 @@ public abstract partial class ResourceBase : ObservableObject, IResource
     public void AddChildResource(IResource? childResource)
     {
         OnAddChildResource(childResource);
-        if (HasInitialized)
-            childResource?.InitializeResource(this); // Temporary
     }
 
     public void RemoveChildResource(IResource? childResource) => OnRemoveChildResource(childResource);

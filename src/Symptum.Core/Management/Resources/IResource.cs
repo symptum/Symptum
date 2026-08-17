@@ -27,6 +27,9 @@ public interface IResource
     [JsonIgnore]
     public bool CanHandleChildren { get; }
 
+    [JsonIgnore]
+    public bool HasInitialized { get; }
+
     public void InitializeResource(IResource? parent);
 
     public bool CanHandleChildResourceType(Type childResourceType);

@@ -57,7 +57,7 @@ public class CategoryResource<T> : MetadataResource where T : IResource
 
     #endregion
 
-    protected override void OnInitializeResource(IResource? parent) => SetChildrenResources(Items);
+    protected override void OnInitializeResource() => SetChildrenResources(Items);
 
     protected virtual bool ChildRestraint(Type childResourceType) => true;
 

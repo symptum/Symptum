@@ -23,6 +23,8 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     private static readonly string _indentation = "    "; // NOTE: Should this support switching between Tabs ("\t") vs 4 Spaces ("    ")?
     private static readonly char newLine = Environment.NewLine[0];
 
+    private bool _mdLoading = false;
+
     public MarkdownEditorPage()
     {
         InitializeComponent();
@@ -125,7 +127,7 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
             mdTB.ReferenceValueResolver = new MarkdownReferenceValueResolver(markdownResource);
             mdText.Text = markdownResource.Markdown;
             // Setting the Text triggers TextChanged event which set HasUnsavedChanges = true.
-            // Therefore manually clear this up here.
+            _mdLoading = true;
             HasUnsavedChanges = false;
         }
     }
@@ -273,7 +275,9 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
     {
         ProcessClipboardEvent();
         _mdDirtyForSearch = true;
-        HasUnsavedChanges = true;
+        if (!_mdLoading)
+            HasUnsavedChanges = true;
+        else _mdLoading = false;
         UpdateStatusBar();
     }
 

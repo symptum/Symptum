@@ -190,7 +190,7 @@ public class ResourceManagerTests
 
     private sealed class TestResource : MetadataResource
     {
-        protected override void OnInitializeResource(IResource? parent)
+        protected override void OnInitializeResource()
         {
         }
 

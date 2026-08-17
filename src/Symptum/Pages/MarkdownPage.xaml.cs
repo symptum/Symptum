@@ -51,7 +51,7 @@ public sealed partial class MarkdownPage : NavigablePage
         (markdownView.LinkHandler as DefaultLinkHandler)?.NavigationRequested -= MarkdownPage_NavigationRequested;
     }
 
-    private void MarkdownPage_NavigationRequested(object? _, Uri uri) =>  NavigationManager.Navigate(uri);
+    private async void MarkdownPage_NavigationRequested(object? _, Uri uri) => await NavigationManager.NavigateAsync(uri);
 
     protected override void OnNavigableChanged(INavigable? navigable)
     {

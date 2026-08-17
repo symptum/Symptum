@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Symptum.Common.Helpers;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Navigation;
 using Symptum.Core.Management.Resources;
@@ -38,7 +39,16 @@ public class NavigationManager
         LoadNavigationInfosFromResources();
     }
 
-    public static void Navigate(Uri? uri = null) => Navigate(GetNavigableForUri(uri));
+    public static async Task NavigateAsync(Uri? uri = null)
+    {
+        if (uri == null) return;
+
+        // Remember to implement query support in the navigation logic later.
+        uri = StripQuery(uri); // Strip the query text from the uri to get the resource.
+
+        INavigable? navigable = await GetNavigableForUriAsync(uri);
+        Navigate(navigable);
+    }
 
     public static void Navigate(INavigable? navigable)
     {
@@ -46,21 +56,45 @@ public class NavigationManager
         NavigationRequested?.Invoke(null, navigable!);
     }
 
-    public static INavigable? GetNavigableForUri(Uri? uri)
+    private static Uri StripQuery(Uri uri) => new UriBuilder(uri) { Query = null }.Uri;
+
+    public static async Task<INavigable?> GetNavigableForUriAsync(Uri uri)
     {
-        if (uri == null) return null;
-
-        // Remember to implement query support in the navigation logic later.
-        uri = new UriBuilder(uri) { Query = null }.Uri; // Strip the query text from the uri to get the resource.
-
         INavigable? navigable = GetNavigationInfoForUri(uri);
+        if (navigable != null) return navigable;
 
-        if (navigable == null && ResourceManager.TryGetResourceByUri(uri, out var resource) && resource is INavigable navResource)
+        IResource? resource = await LoadResourceTreeAsync(uri);
+
+        if (resource is INavigable navResource)
+            return navResource;
+
+        return null;
+    }
+
+    public static async Task<IResource?> LoadResourceTreeAsync(Uri? uri)
+    {
+        bool _resourceLoaded = false;
+        IResource? resource = null;
+        while (!_resourceLoaded)
         {
-            navigable = navResource;
-        }
+            // Load the children first.
+            if (resource?.ChildrenResources != null)
+                await ResourceHelper.LoadChildrenAsync(resource);
 
-        return navigable;
+            if (ResourceManager.TryGetAvailableChildResourceByUri(uri,
+                // Then scope to children
+                resource?.ChildrenResources ?? ResourceManager.Resources, out resource))
+            {
+                // The exact resource has been found.
+                // Ensure it has also been loaded.
+                await ResourceHelper.LoadResourceAsync(resource);
+                _resourceLoaded = true;
+                break;
+            }
+            // We couldn't find any matching resource or its parent.
+            if (resource == null) break;
+        }
+        return resource;
     }
 
     public static NavigationInfo? GetNavigationInfoForUri(Uri? uri)

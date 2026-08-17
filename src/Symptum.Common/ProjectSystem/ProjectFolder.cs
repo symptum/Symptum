@@ -13,7 +13,7 @@ public class ProjectFolder : CategoryResource<IResource>
 
     protected override bool ChildRestraint(Type childResourceType) => childResourceType != typeof(Project);
 
-    protected override void OnInitializeResource(IResource? parent)
+    protected override void OnInitializeResource()
     {
         Id = ResourceManager.GenerateIdFromAncestors(this);
         Uri = new(ResourceManager.GenerateUriFromAncestors(this)!);
