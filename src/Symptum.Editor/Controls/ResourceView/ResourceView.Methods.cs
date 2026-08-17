@@ -21,6 +21,7 @@ public sealed partial class ResourceView
             foreach (var resource in resources)
             {
                 var wrapper = new ResourceViewNode(resource);
+                ObserveSourceChildren(wrapper);
                 _rootNodes.Add(wrapper);
                 _nodeMap[resource] = wrapper;
             }
@@ -295,6 +296,7 @@ public sealed partial class ResourceView
             foreach (IResource resource in e.NewItems)
             {
                 var wrapper = new ResourceViewNode(resource);
+                ObserveSourceChildren(wrapper);
                 _rootNodes.Add(wrapper);
                 _nodeMap[resource] = wrapper;
             }
@@ -306,6 +308,7 @@ public sealed partial class ResourceView
                 if (_nodeMap.TryGetValue(resource, out var wrapper))
                 {
                     _rootNodes.Remove(wrapper);
+                    UnobserveSourceChildren(wrapper);
                     _nodeMap.Remove(resource);
                 }
             }

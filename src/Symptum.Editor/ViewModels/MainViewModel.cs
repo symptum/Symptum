@@ -291,6 +291,8 @@ public partial class MainViewModel : ObservableObject
                 if (instance is IResource resource)
                 {
                     resource.Title = addNewItemDialog.ItemTitle;
+                    // Initialize before adding for resource view to work properly.
+                    resource.InitializeResource(parent);
                     if (parent != null)
                     {
                         parent.AddChildResource(resource);
@@ -298,9 +300,7 @@ public partial class MainViewModel : ObservableObject
                     else
                     {
                         ResourceManager.Resources.Add(resource);
-                        resource.InitializeResource(null);
                     }
-
                     // In case the resource tree has a split metadata resource,
                     // this will save the appropriate parent when adding a new child
                     // and prevent the added resource from being lost.

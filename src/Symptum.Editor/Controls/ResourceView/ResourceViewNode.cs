@@ -30,7 +30,6 @@ public partial class ResourceViewNode : ObservableObject
         Resource = resource;
         _parent = parent;
         _depth = parent != null ? parent.Depth + 1 : 0;
-        resource.InitializeResource(parent?.Resource);
         UpdateHasChildren();
     }
 
