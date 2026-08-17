@@ -366,12 +366,13 @@ public class ResourceHelper
             var package = ResourceManager.LoadPackageFromMetadata(json);
             if (package != null)
             {
+                await LoadResourceAsync(package, parent, sourceFolder);
+                
                 if (parent != null && parent.CanAddChildResourceType(package.GetType()))
                     parent.AddChildResource(package);
                 else
                     ResourceManager.Resources.Add(package);
                 ResourceManager.RegisterResource(package);
-                await LoadResourceAsync(package, parent, sourceFolder);
                 return package;
             }
         }

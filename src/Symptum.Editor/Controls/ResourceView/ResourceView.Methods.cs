@@ -296,9 +296,10 @@ public sealed partial class ResourceView
             foreach (IResource resource in e.NewItems)
             {
                 var wrapper = new ResourceViewNode(resource);
-                ObserveSourceChildren(wrapper);
                 _rootNodes.Add(wrapper);
                 _nodeMap[resource] = wrapper;
+                // The nodes will be observed in
+                // FlattenVisible()->FlattenNdde().
             }
         }
         else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems != null)
@@ -308,8 +309,9 @@ public sealed partial class ResourceView
                 if (_nodeMap.TryGetValue(resource, out var wrapper))
                 {
                     _rootNodes.Remove(wrapper);
-                    UnobserveSourceChildren(wrapper);
                     _nodeMap.Remove(resource);
+                    // The roots nodes children are unobserved in
+                    // FlattenVisible()->UnobserveAllSources().
                 }
             }
         }
@@ -324,7 +326,8 @@ public sealed partial class ResourceView
 
     private void ObserveSourceChildren(ResourceViewNode node)
     {
-        if (node.Resource.ChildrenResources is INotifyCollectionChanged observable)
+        if (!node.Resource.CanHandleChildren) return;
+        else if (node.Resource.ChildrenResources is INotifyCollectionChanged observable)
         {
             observable.CollectionChanged -= OnSourceChildrenChanged;
             observable.CollectionChanged += OnSourceChildrenChanged;

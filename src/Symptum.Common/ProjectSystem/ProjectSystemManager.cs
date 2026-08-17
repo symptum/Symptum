@@ -120,12 +120,12 @@ public class ProjectSystemManager
                     is not ProjectFolder folder)
                 {
                     folder = new() { Title = folderName };
+                    ((IResource)folder).InitializeResource(parent);
+
                     if (parent != null)
                         parent.AddChildResource(folder);
                     else
                         ResourceManager.Resources.Add(folder);
-
-                    ((IResource)folder).InitializeResource(parent);
                 }
                 parent = folder;
             }
@@ -265,6 +265,9 @@ public class ProjectSystemManager
     /// <returns><c>true</c> when the save operations succeeded.</returns>
     public static async Task<bool> SaveResourceAndAncestorAsync(IResource? resource)
     {
+        // ProjectFolder holds no metadata to save.
+        if (resource is ProjectFolder) return false;
+
         if (UseProjectManager && GetSavableResource(resource) is IMetadataResource savable)
         {
             StorageFolder? targetFolder = null;
