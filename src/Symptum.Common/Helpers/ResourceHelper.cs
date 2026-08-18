@@ -58,6 +58,7 @@ public class ResourceHelper
     public static void CloseWorkFolder()
     {
         WorkFolder = null;
+        fileMap.Clear();
         ResourceManager.Resources.Clear();
     }
 
@@ -775,8 +776,8 @@ public class ResourceHelper
             if (saveFile != null)
             {
                 CachedFileManager.DeferUpdates(saveFile);
-                var source = await file.OpenStreamForReadAsync();
-                var destination = await saveFile.OpenStreamForWriteAsync();
+                using Stream source = await file.OpenStreamForReadAsync();
+                using Stream destination = await saveFile.OpenStreamForWriteAsync();
                 await source.CopyToAsync(destination);
                 await source.FlushAsync();
                 await destination.FlushAsync();

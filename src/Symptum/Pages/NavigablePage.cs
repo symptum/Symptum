@@ -19,6 +19,7 @@ public abstract class NavigablePage : Page
     public NavigablePage()
     {
         InitializeComponent();
+        NavigationCacheMode = NavigationCacheMode.Enabled;
     }
 
     #region Properties
@@ -102,7 +103,6 @@ public abstract class NavigablePage : Page
 
     #endregion
 
-
     protected virtual void OnNavigableChanged(INavigable? navigable)
     { }
 
@@ -132,23 +132,6 @@ public abstract class NavigablePage : Page
         Content = _grid;
 
         UpdateChildren();
-        Loaded += NavigablePage_Loaded;
-        Unloaded += NavigablePage_Unloaded;
-    }
-
-    private void NavigablePage_Loaded(object sender, RoutedEventArgs e)
-    {
-        var win = WindowHelper.MainWindow;
-        if (win != null)
-        {
-            UpdateLayout(win.Bounds.Width, win.Bounds.Height, true);
-            win.SizeChanged += Window_SizeChanged;
-        }
-    }
-
-    private void NavigablePage_Unloaded(object sender, RoutedEventArgs e)
-    {
-        WindowHelper.MainWindow?.SizeChanged -= Window_SizeChanged;
     }
 
     private void UpdateChildren()
@@ -169,16 +152,11 @@ public abstract class NavigablePage : Page
         }
     }
 
-    private void Window_SizeChanged(object sender, WindowSizeChangedEventArgs e)
-    {
-        UpdateLayout(e.Size.Width, e.Size.Height);
-    }
-
     private int _widthLevel;
     private bool _isWide;
     private int _heightLevel;
 
-    private void UpdateLayout(double width, double height, bool init = false)
+    public void UpdateLayout(double width, double height, bool init = false)
     {
         int widthLevel = width switch
         {

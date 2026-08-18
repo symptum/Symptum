@@ -4,6 +4,8 @@ public static class FileHelper
 {
     private static Func<char, bool> _defaultPredicate = static _ => true;
 
+    private static readonly HashSet<char> invalidChars = [.. Path.GetInvalidFileNameChars()];
+
     public const char PathSeparator = '\\';
 
     public const char ExtensionSeparator = '.';
@@ -102,9 +104,15 @@ public static class FileHelper
     public static string RemoveIllegalCharacters(string? text, Func<char, bool> predicate = null)
     {
         if (string.IsNullOrEmpty(text)) return string.Empty;
-        char[] invalidChars = Path.GetInvalidFileNameChars();
         predicate ??= _defaultPredicate;
-        return new([.. text.Where(ch => predicate(ch) && !invalidChars.Contains(ch))]);
+
+        var sb = new System.Text.StringBuilder(text.Length);
+        foreach (char ch in text.AsSpan())
+        {
+            if (predicate(ch) && !invalidChars.Contains(ch))
+                sb.Append(ch);
+        }
+        return sb.ToString();
     }
 
     /// <summary>

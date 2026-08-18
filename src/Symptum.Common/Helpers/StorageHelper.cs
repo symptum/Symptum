@@ -171,7 +171,7 @@ public class StorageHelper
             string relPath = Path.GetRelativePath(sourceFolderPath, filePath);
             ZipArchiveEntry entry = archive.CreateEntry(relPath, CompressionLevel.SmallestSize);
             using Stream entryStream = entry.Open();
-            Stream stream = await file.OpenStreamForReadAsync();
+            using Stream stream = await file.OpenStreamForReadAsync();
             await stream.CopyToAsync(entryStream);
         }
 

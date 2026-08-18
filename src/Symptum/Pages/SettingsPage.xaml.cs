@@ -11,11 +11,25 @@ public sealed partial class SettingsPage : NavigablePage
     {
         InitializeComponent();
         Loaded += SettingsPage_Loaded;
+        Unloaded += SettingsPage_Unloaded;
     }
 
     private void SettingsPage_Loaded(object sender, RoutedEventArgs e)
     {
         LoadSettings();
+        themeCB.SelectionChanged += ThemeCB_SelectionChanged;
+        readerThemeCB.SelectionChanged += ReaderThemeCB_SelectionChanged;
+        fontSizeSlider.ValueChanged += FontSizeSlider_ValueChanged;
+        fontFamilyCB.SelectionChanged += FontFamilyCB_SelectionChanged;
+    }
+
+    private void SettingsPage_Unloaded(object sender, RoutedEventArgs e)
+    {
+        themeCB.SelectionChanged -= ThemeCB_SelectionChanged;
+        readerThemeCB.SelectionChanged -= ReaderThemeCB_SelectionChanged;
+        fontSizeSlider.ValueChanged -= FontSizeSlider_ValueChanged;
+        fontFamilyCB.SelectionChanged -= FontFamilyCB_SelectionChanged;
+
     }
 
     private void LoadSettings()
@@ -23,13 +37,9 @@ public sealed partial class SettingsPage : NavigablePage
         themeCB.SelectedIndex = (int)ThemeHelper.AppTheme;
         readerThemeCB.ItemsSource = ThemeHelper.ReaderThemeNames;
         readerThemeCB.SelectedItem = ThemeHelper.ReaderTheme;
-        themeCB.SelectionChanged += ThemeCB_SelectionChanged;
-        readerThemeCB.SelectionChanged += ReaderThemeCB_SelectionChanged;
         fontFamilyCB.ItemsSource = ThemeHelper.FontNames;
         fontFamilyCB.SelectedItem = ThemeHelper.FontName;
-        fontFamilyCB.SelectionChanged += FontFamilyCB_SelectionChanged;
         fontSizeSlider.Value = ThemeHelper.FontSize;
-        fontSizeSlider.ValueChanged += FontSizeSlider_ValueChanged;
     }
 
     private void ThemeCB_SelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -69,6 +69,8 @@ public static class Helper
         return stringBuilder.ToString();
     }
 
+    private static readonly Regex s_imageSizePattern = new(@"([^)\s]+)\s*=\s*\d+x\d+\s*", RegexOptions.Compiled);
+
     public static string RemoveImageSize(string? url)
     {
         if (string.IsNullOrEmpty(url))
@@ -76,13 +78,7 @@ public static class Helper
             return string.Empty;
         }
 
-        // Create a regex pattern to match the URL with width and height
-        string pattern = @"([^)\s]+)\s*=\s*\d+x\d+\s*";
-
-        // Replace the matched URL with the URL only
-        string result = Regex.Replace(url, pattern, "$1");
-
-        return result;
+        return s_imageSizePattern.Replace(url, "$1");
     }
 
     public static Uri GetUri(string? url, string? @base)
@@ -197,20 +193,6 @@ public static class Helper
 
         // Return default values if no width and height are found
         return default;
-    }
-
-    public static SolidColorBrush GetAccentColorBrush()
-    {
-        // Create a UISettings object to get the accent color
-        UISettings uiSettings = new();
-
-        // Get the accent color as a Color value
-        Windows.UI.Color accentColor = uiSettings.GetColorValue(UIColorType.Accent);
-
-        // Create a SolidColorBrush from the accent color
-        SolidColorBrush accentBrush = new(accentColor);
-
-        return accentBrush;
     }
 
     public static string GetAttribute(this HtmlNode node, string attributeName, string defaultValue)

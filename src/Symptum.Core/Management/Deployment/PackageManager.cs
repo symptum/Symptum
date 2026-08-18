@@ -83,15 +83,10 @@ public class PackageManager
         // This will call Symptum.Common.Helpers.PackageHelper.LoadPackageAsync(string packageId)
         // PackageHelper will be responsible for downloading, caching or loading a package from cache
         var package = await loadPackageCallback(id);
-        if (package != null)
-        {
-            if (dependencyLinks.TryRemove(id, out var taskCompletionSource))
-            {
-                taskCompletionSource.TrySetResult(package);
-            }
+        if (dependencyLinks.TryRemove(id, out var taskCompletionSource))
+            taskCompletionSource.TrySetResult(package);
 
-            ResolveDependencies(package);
-        }
+        ResolveDependencies(package);
 
         if (Interlocked.Decrement(ref loadWaits) == 0)
         {

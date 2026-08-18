@@ -132,7 +132,7 @@ public class WinUIRenderer : RendererBase
         }
         else
         {
-            WriteText(text.AsSpan(offset, length).ToString());
+            WriteText(text.Substring(offset, length));
         }
     }
 

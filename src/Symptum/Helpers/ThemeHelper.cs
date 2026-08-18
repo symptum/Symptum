@@ -35,6 +35,7 @@ public static class ThemeHelper
     ];
 
     private static readonly Dictionary<string, ResourceDictionary> _readerThemes = [];
+    private static ResourceDictionary? _currentReaderThemeDict;
 
     private static ElementTheme _appTheme = ElementTheme.Default;
     private static string _readerTheme = _readerThemeNames[0];
@@ -92,12 +93,6 @@ public static class ThemeHelper
     public static void Initialize(XamlRoot? root)
     {
         _root = root;
-        foreach (var name in _readerThemeNames)
-        {
-            if (name == "Default") continue;
-            ResourceDictionary res = new() { Source = new Uri($"ms-appx:///ReaderThemes/{name}.xaml") };
-            _readerThemes[name] = res;
-        }
 
         ApplyTheme(ReaderTheme, AppTheme);
         ApplyFontFamily(FontName);
@@ -109,8 +104,20 @@ public static class ThemeHelper
     {
         RemoveThemes();
 
-        if (_readerThemes.TryGetValue(readerTheme, out var res))
+        if (readerTheme != "Default")
+        {
+            if (!_readerThemes.TryGetValue(readerTheme, out var res))
+            {
+                res = new ResourceDictionary { Source = new Uri($"ms-appx:///ReaderThemes/{readerTheme}.xaml") };
+                _readerThemes[readerTheme] = res;
+            }
+            _currentReaderThemeDict = res;
             App.Current.Resources.MergedDictionaries.Add(res);
+        }
+        else
+        {
+            _currentReaderThemeDict = null;
+        }
 
         ElementTheme opposite = appTheme == ElementTheme.Light ? ElementTheme.Dark : ElementTheme.Light;
         SystemThemeHelper.SetApplicationTheme(_root, opposite);
@@ -121,12 +128,10 @@ public static class ThemeHelper
 
     private static void RemoveThemes()
     {
-        // Find any existing ReaderTheme and remove it.
-        var merged = App.Current.Resources.MergedDictionaries.Where(r =>
-            r.Source?.OriginalString?.Contains("/ReaderThemes/") == true).ToList();
-        foreach (var res in merged)
+        if (_currentReaderThemeDict != null)
         {
-            App.Current.Resources.MergedDictionaries.Remove(res);
+            App.Current.Resources.MergedDictionaries.Remove(_currentReaderThemeDict);
+            _currentReaderThemeDict = null;
         }
     }
 

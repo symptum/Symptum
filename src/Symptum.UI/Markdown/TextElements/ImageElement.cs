@@ -26,7 +26,8 @@ public class ImageElement : IAddChild
     private TextBlock _altText;
 
     private const int MaxCacheSize = 200;
-    private static readonly Dictionary<Uri, (ImageSource Source, long LastAccess)> _imageCache = new();
+    private static readonly LinkedList<Uri> _lruOrder = new();
+    private static readonly Dictionary<Uri, (ImageSource Source, LinkedListNode<Uri> Node)> _imageCache = new();
     private static readonly HttpClient _client = new() { Timeout = TimeSpan.FromSeconds(30) };
     private static readonly DefaultSVGRenderer _defaultSVGRenderer = new();
     private static readonly object _cacheLock = new();
@@ -134,7 +135,8 @@ public class ImageElement : IAddChild
         {
             if (_imageCache.TryGetValue(uri, out var entry))
             {
-                _imageCache[uri] = (entry.Source, Environment.TickCount64);
+                _lruOrder.Remove(entry.Node);
+                _lruOrder.AddFirst(entry.Node);
                 return entry.Source;
             }
         }
@@ -145,19 +147,19 @@ public class ImageElement : IAddChild
     {
         lock (_cacheLock)
         {
-            _imageCache[uri] = (source, Environment.TickCount64);
-
-            // Evict oldest entries when over capacity
-            if (_imageCache.Count > MaxCacheSize)
+            if (_imageCache.TryGetValue(uri, out var existing))
             {
-                var oldest = _imageCache
-                    .OrderBy(kvp => kvp.Value.LastAccess)
-                    .Take(_imageCache.Count - MaxCacheSize)
-                    .Select(kvp => kvp.Key)
-                    .ToList();
+                _lruOrder.Remove(existing.Node);
+            }
 
-                foreach (var key in oldest)
-                    _imageCache.Remove(key);
+            var node = _lruOrder.AddFirst(uri);
+            _imageCache[uri] = (source, node);
+
+            while (_imageCache.Count > MaxCacheSize)
+            {
+                var last = _lruOrder.Last!;
+                _lruOrder.RemoveLast();
+                _imageCache.Remove(last.Value);
             }
         }
     }

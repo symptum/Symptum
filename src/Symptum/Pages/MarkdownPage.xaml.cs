@@ -20,6 +20,8 @@ public sealed partial class MarkdownPage : NavigablePage
     private static readonly Thickness _narrowListMargin = new(8, 4, 0, 4);
 
     private MarkdownFileResource? resource;
+    private static string? _lastFontName;
+    private static double _lastFontSize;
 
     static MarkdownPage()
     {
@@ -60,9 +62,16 @@ public sealed partial class MarkdownPage : NavigablePage
             resource = md;
             markdownView.Text = md.Markdown;
 
-            // Re-apply to fix resolution.
-            ThemeHelper.ApplyFontFamily(ThemeHelper.FontName);
-            ThemeHelper.ApplyFontSize(ThemeHelper.FontSize);
+            // Re-apply font only if it has changed since last render.
+            string currentFontName = ThemeHelper.FontName;
+            double currentFontSize = ThemeHelper.FontSize;
+            if (currentFontName != _lastFontName || currentFontSize != _lastFontSize)
+            {
+                ThemeHelper.ApplyFontFamily(currentFontName);
+                ThemeHelper.ApplyFontSize(currentFontSize);
+                _lastFontName = currentFontName;
+                _lastFontSize = currentFontSize;
+            }
         }
     }
 

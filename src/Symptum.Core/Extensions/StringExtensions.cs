@@ -93,7 +93,7 @@ public static class StringExtensions
 
         for (int i = 1; i <= position; i++)
         {
-            if (i > 1 && text[i - 1] == '\r' || text[i - 1] == '\n')
+            if (i > 1 && (text[i - 1] == '\r' || text[i - 1] == '\n'))
             {
                 line++;
                 lastLineStart = i;

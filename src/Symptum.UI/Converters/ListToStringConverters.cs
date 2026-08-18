@@ -41,7 +41,7 @@ public class ReferenceListToStringConverter : IValueConverter
 
     public object? ConvertBack(object value, Type targetType, object parameter, string language)
     {
-        return new NotImplementedException();
+        throw new NotImplementedException();
     }
 }
 

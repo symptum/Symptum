@@ -32,7 +32,7 @@ public static class CsvResourceHelper
 
             if (header != null)
             {
-                if (header.SequenceEqual(hRVP))
+                if (header.AsSpan().SequenceEqual(hRVP.AsSpan()))
                 {
                     csvType = typeof(ReferenceValueGroup);
                     return true;

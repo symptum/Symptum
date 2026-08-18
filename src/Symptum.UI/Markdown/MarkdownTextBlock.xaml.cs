@@ -15,6 +15,7 @@ public partial class MarkdownTextBlock : Control
     internal MarkdownPipeline _pipeline;
     private FlowDocumentElement _document;
     private WinUIRenderer? _renderer;
+    private CancellationTokenSource? _parseCts;
 
     public MarkdownTextBlock()
     {
@@ -35,7 +36,7 @@ public partial class MarkdownTextBlock : Control
         Build();
     }
 
-    private void ApplyText(bool rerender)
+    private async void ApplyText(bool rerender)
     {
         if (_renderer != null)
         {
@@ -44,18 +45,27 @@ public partial class MarkdownTextBlock : Control
                 _renderer.ReloadDocument();
             }
 
+            _parseCts?.Cancel();
+            _parseCts = new CancellationTokenSource();
+            var ct = _parseCts.Token;
+            string text = Text;
+
             MarkdownDocument? markdown = null;
             try
             {
-                if (!string.IsNullOrEmpty(Text))
-                    markdown = Markdig.Markdown.Parse(Text, _pipeline);
+                if (!string.IsNullOrEmpty(text))
+                {
+                    var pipeline = _pipeline;
+                    markdown = await Task.Run(() => Markdig.Markdown.Parse(text, pipeline), ct);
+                }
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 Debug.WriteLine($"Markdown parse failed: {ex.Message}");
             }
 
-            if (markdown != null)
+            if (markdown != null && !ct.IsCancellationRequested)
             {
                 MarkdownDocument = markdown;
                 MarkdownParsed?.Invoke(this, new(markdown));

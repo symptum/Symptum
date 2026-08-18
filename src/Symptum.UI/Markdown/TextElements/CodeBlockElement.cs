@@ -10,9 +10,9 @@ public class CodeBlockElement : IAddChild
     private CodeBlock _codeBlock;
     private SContainer _container = new();
 
-    private static readonly RichTextBlockFormatter? lightFormatter;
+    private static RichTextBlockFormatter? lightFormatter;
 
-    private static readonly RichTextBlockFormatter? darkFormatter;
+    private static RichTextBlockFormatter? darkFormatter;
 
     private static RichTextBlockFormatter GetFormatter(ElementTheme theme)
     {
@@ -21,7 +21,7 @@ public class CodeBlockElement : IAddChild
             lightFormatter ??= new(ElementTheme.Light);
             return lightFormatter;
         }
-        else if (theme == ElementTheme.Dark)
+        else
         {
             darkFormatter ??= new(ElementTheme.Dark);
             return darkFormatter;

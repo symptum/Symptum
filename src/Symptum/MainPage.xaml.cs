@@ -11,15 +11,16 @@ namespace Symptum;
 
 public sealed partial class MainPage : Page
 {
+    private NavigablePage? _currentPage = null;
+    private Window? mainWindow = null;
+
     public MainPage()
     {
         InitializeComponent();
 
+        mainWindow = WindowHelper.MainWindow;
 #if WINDOWS && !HAS_UNO
-
-        if (WindowHelper.MainWindow is Window mainWindow)
-            mainWindow.SetTitleBar(titleBar);
-
+        mainWindow?.SetTitleBar(titleBar);
         titleBar.Title = App.AppName;
         titleBar.BackRequested += (s, e) => BackRequested();
         titleBar.PaneToggleRequested += (s, e) => navView.IsPaneOpen = !navView.IsPaneOpen;
@@ -30,6 +31,7 @@ public sealed partial class MainPage : Page
         navView.PaneTitle = App.AppName;
 #endif
 
+        mainWindow?.SizeChanged += Window_SizeChanged;
         contentFrame.Navigated += ContentFrame_Navigated;
         NavigationManager.NavigationRequested += (s, e) => NavView_Navigate(e, new EntranceNavigationTransitionInfo());
         navView.SelectionChanged += NavView_SelectionChanged;
@@ -38,6 +40,11 @@ public sealed partial class MainPage : Page
 #if HAS_UNO
         SystemNavigationManager.GetForCurrentView().BackRequested += (s, e) => e.Handled = BackRequested();
 #endif
+    }
+
+    private void Window_SizeChanged(object sender, Microsoft.UI.Xaml.WindowSizeChangedEventArgs e)
+    {
+        _currentPage?.UpdateLayout(e.Size.Width, e.Size.Height);
     }
 
     public MainViewModel ViewModel { get; } = MainViewModel.Instance;
@@ -125,7 +132,12 @@ public sealed partial class MainPage : Page
             INavigable? realNavigable = NavigationManager.GetRealNavigable(navigable);
             await ResourceHelper.LoadChildrenAsync(realNavigable as IResource);
             if (e.Content is NavigablePage page)
+            {
+                _currentPage = page;
                 page.Navigable = realNavigable;
+                var bounds = mainWindow?.Bounds ?? new();
+                page.UpdateLayout(bounds.Width, bounds.Height, true);
+            }
 
             navViewTitleTB.Text = navigable?.Title;
         }

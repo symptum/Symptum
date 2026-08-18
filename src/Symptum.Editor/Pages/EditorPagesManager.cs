@@ -17,19 +17,20 @@ public class EditorPagesManager
     };
 
     public static ObservableCollection<EditorPageBase> EditorPages { get; private set; } = [];
+    private static readonly Dictionary<IResource, EditorPageBase> _resourceToEditorMap = [];
+    private static WelcomePage? _welcomePage;
 
     public static EventHandler<EditorPageBase?> SelectEditorRequested;
 
     public static void ShowWelcomePage()
     {
-        EditorPageBase? welcomePage = EditorPages.FirstOrDefault(x => x is WelcomePage);
-        if (welcomePage == null)
+        if (_welcomePage == null)
         {
-            welcomePage = new WelcomePage();
-            EditorPages.Add(welcomePage);
+            _welcomePage = new WelcomePage();
+            EditorPages.Add(_welcomePage);
         }
 
-        SelectEditorRequested?.Invoke(null, welcomePage);
+        SelectEditorRequested?.Invoke(null, _welcomePage);
     }
     
     public static EditorPageBase? GetEditorForContentType(Type contentType)
@@ -47,14 +48,14 @@ public class EditorPagesManager
     {
         if (resource == null) return;
 
-        EditorPageBase? editor = EditorPages.FirstOrDefault(x => x.EditableContent == resource);
-        if (editor == null)
+        if (!_resourceToEditorMap.TryGetValue(resource, out var editor))
         {
             editor = GetEditorForContentType(resource.GetType());
             if (editor != null)
             {
                 editor.EditableContent = resource;
                 EditorPages.Add(editor);
+                _resourceToEditorMap[resource] = editor;
             }
         }
 
@@ -65,9 +66,12 @@ public class EditorPagesManager
     {
         if (editor != null && EditorPages.Contains(editor))
         {
+            if (editor.EditableContent != null)
+                _resourceToEditorMap.Remove(editor.EditableContent);
             editor.EditableContent = null;
             editor.Dispose();
             EditorPages.Remove(editor);
+            if (editor == _welcomePage) _welcomePage = null;
             return true;
         }
 
@@ -75,7 +79,7 @@ public class EditorPagesManager
     }
 
     public static bool TryCloseEditorForResource(IResource? resource) =>
-        EditorPages.FirstOrDefault(x => x.EditableContent == resource) is EditorPageBase editor && TryCloseEditor(editor);
+        resource != null && _resourceToEditorMap.TryGetValue(resource, out var editor) && TryCloseEditor(editor);
 
 
     public static void MarkAllOpenEditorsAsSaved()
@@ -94,6 +98,8 @@ public class EditorPagesManager
             editor.Dispose();
         }
         EditorPages.Clear();
+        _resourceToEditorMap.Clear();
+        _welcomePage = null;
     }
 
     public static void CloseSavedEditors()
@@ -101,9 +107,12 @@ public class EditorPagesManager
         List<EditorPageBase> savedEditors = [.. EditorPages.Where(e => !e.HasUnsavedChanges)];
         foreach (var e in savedEditors)
         {
+            if (e.EditableContent != null)
+                _resourceToEditorMap.Remove(e.EditableContent);
             e.EditableContent = null;
             e.Dispose();
             EditorPages.Remove(e);
+            if (e == _welcomePage) _welcomePage = null;
         }
     }
 

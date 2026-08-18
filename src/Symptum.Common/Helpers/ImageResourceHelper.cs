@@ -33,8 +33,6 @@ public class ImageResourceHelper
             }
         } catch {
             return (null, 0);
-        } finally {
-            stream.Dispose();
         }
     }
 }
