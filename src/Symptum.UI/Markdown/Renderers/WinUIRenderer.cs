@@ -10,8 +10,9 @@ using Symptum.Markdown.Embedding;
 
 namespace Symptum.UI.Markdown.Renderers;
 
-public class WinUIRenderer : RendererBase
+public class WinUIRenderer : RendererBase, IDisposable
 {
+    private bool _disposed = false;
     private readonly Stack<IAddChild> _stack = new();
 
     public FlowDocumentElement FlowDocument { get; private set; }
@@ -51,12 +52,12 @@ public class WinUIRenderer : RendererBase
         return FlowDocument;
     }
 
-    public void ReloadDocument()
+    public void ReloadDocument(bool disposing = false)
     {
         _stack.Clear();
         FlowDocument.StackPanel.Children.Clear();
         DocumentOutline.Clear();
-        _stack.Push(FlowDocument);
+        if (!disposing) _stack.Push(FlowDocument);
     }
 
     public void WriteLeafInline(LeafBlock leafBlock)
@@ -174,5 +175,21 @@ public class WinUIRenderer : RendererBase
         ObjectRenderers.Add(new ReferenceInlineRenderer());
         ObjectRenderers.Add(new ExportBlockRenderer());
         ObjectRenderers.Add(new ImportBlockRenderer());
+    }
+
+    public void Dispose()
+    {
+        if (_disposed) return;
+        _disposed = true;
+
+        ReloadDocument(true);
+        ObjectRenderers.Clear();
+        FlowDocument = null;
+        DocumentOutline = null;
+        MarkdownTextBlock = null;
+        ImportsHandler = null;
+        ReferenceValueResolver = null;
+        LinkHandler = null;
+        GC.SuppressFinalize(this);
     }
 }

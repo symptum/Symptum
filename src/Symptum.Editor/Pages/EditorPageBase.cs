@@ -4,8 +4,10 @@ using Symptum.Editor.ViewModels;
 
 namespace Symptum.Editor.Pages;
 
-public partial class EditorPageBase : Page
+public partial class EditorPageBase : Page, IDisposable
 {
+    private bool _disposed;
+
     #region Properties
 
     public string? PageName { get; protected set; }
@@ -84,9 +86,16 @@ public partial class EditorPageBase : Page
 
     protected virtual void OnCleanupPage() { }
 
-    public new void Dispose()
+    public void Dispose()
     {
+        if (_disposed) return;
+        _disposed = true;
+
+        if (EditableContent is INotifyPropertyChanged old)
+            old.PropertyChanged -= HandlePropertyChanged;
+
         OnCleanupPage();
+        GC.SuppressFinalize(this);
     }
 
     protected void WriteToOutput(string message)

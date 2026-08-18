@@ -154,13 +154,22 @@ public sealed partial class MarkdownEditorPage : EditorPageBase
 #endif
         mdText.Paste -= MdText_Paste;
 
+        if (_mdBinding != null)
+        {
+            mdTB.ClearValue(MarkdownTextBlock.TextProperty);
+            _mdBinding = null;
+        }
+
+        mdTB.Unload();
+        mdTB.ReferenceValueResolver = null;
+        mdText.Text = string.Empty;
+
         _markdownResource = null;
         propertyEditorDialog = null;
         insertTableDialog = null;
         insertLinkDialog = null;
         insertImageDialog = null;
         insertReferenceDialog = null;
-        _mdBinding = null;
         undoStack.Clear();
         redoStack.Clear();
         _prevText = null;

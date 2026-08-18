@@ -19,7 +19,7 @@ public abstract class NavigablePage : Page
     public NavigablePage()
     {
         InitializeComponent();
-        NavigationCacheMode = NavigationCacheMode.Enabled;
+        NavigationCacheMode = NavigationCacheMode.Disabled;
     }
 
     #region Properties

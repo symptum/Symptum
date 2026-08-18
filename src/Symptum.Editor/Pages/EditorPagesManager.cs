@@ -75,6 +75,11 @@ public class EditorPagesManager
             return true;
         }
 
+        if (EditorPages.Count == 0)
+        {
+            _dialogInstances.Clear();
+        }
+
         return false;
     }
 
@@ -99,6 +104,7 @@ public class EditorPagesManager
         }
         EditorPages.Clear();
         _resourceToEditorMap.Clear();
+        _dialogInstances.Clear();
         _welcomePage = null;
     }
 

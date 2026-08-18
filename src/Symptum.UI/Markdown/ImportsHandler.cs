@@ -11,7 +11,9 @@ public class ImportsHandler
 {
     private Dictionary<string, ImportBlockElement> importBlocks = [];
 
-    private static readonly Dictionary<string, MarkdownDocument> _parseCache = new(StringComparer.Ordinal);
+    private const int MaxCacheSize = 50;
+    private static readonly Dictionary<string, (MarkdownDocument Doc, LinkedListNode<string> Node)> _parseCache = new(StringComparer.Ordinal);
+    private static readonly LinkedList<string> _lruOrder = new();
     private static readonly object _parseCacheLock = new();
 
     public void RegisterForImport(string importId, ImportBlockElement importBlockElement)
@@ -42,10 +44,24 @@ public class ImportsHandler
                     MarkdownDocument doc;
                     lock (_parseCacheLock)
                     {
-                        if (!_parseCache.TryGetValue(sourceMd, out doc))
+                        if (_parseCache.TryGetValue(sourceMd, out var entry))
+                        {
+                            _lruOrder.Remove(entry.Node);
+                            _lruOrder.AddFirst(entry.Node);
+                            doc = entry.Doc;
+                        }
+                        else
                         {
                             doc = Markdig.Markdown.Parse(sourceMd, MarkdownManager.Pipeline);
-                            _parseCache[sourceMd] = doc;
+                            var node = _lruOrder.AddFirst(sourceMd);
+                            _parseCache[sourceMd] = (doc, node);
+
+                            while (_parseCache.Count > MaxCacheSize)
+                            {
+                                var last = _lruOrder.Last!;
+                                _lruOrder.RemoveLast();
+                                _parseCache.Remove(last.Value);
+                            }
                         }
                     }
 

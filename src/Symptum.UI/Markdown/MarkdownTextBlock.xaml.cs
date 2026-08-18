@@ -86,4 +86,29 @@ public partial class MarkdownTextBlock : Control
     public event EventHandler<MarkdownParsedEventArgs>? MarkdownParsed;
 
     public event EventHandler? MarkdownRendered;
+
+    public void Unload()
+    {
+        _parseCts?.Cancel();
+        _parseCts?.Dispose();
+        _parseCts = null;
+
+        if (_renderer != null)
+        {
+            _renderer.Dispose();
+            _renderer = null;
+        }
+
+        _document.StackPanel.Children.Clear();
+        DocumentOutline.Clear();
+
+        if (_container != null)
+        {
+            _container.Children.Clear();
+            _container = null;
+        }
+
+        MarkdownParsed = null;
+        MarkdownRendered = null;
+    }
 }
