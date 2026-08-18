@@ -10,6 +10,24 @@ public class CodeBlockElement : IAddChild
     private CodeBlock _codeBlock;
     private SContainer _container = new();
 
+    private static readonly RichTextBlockFormatter? lightFormatter;
+
+    private static readonly RichTextBlockFormatter? darkFormatter;
+
+    private static RichTextBlockFormatter GetFormatter(ElementTheme theme)
+    {
+        if (theme == ElementTheme.Light)
+        {
+            lightFormatter ??= new(ElementTheme.Light);
+            return lightFormatter;
+        }
+        else if (theme == ElementTheme.Dark)
+        {
+            darkFormatter ??= new(ElementTheme.Dark);
+            return darkFormatter;
+        }
+    }
+
     public STextElement TextElement => _container;
 
     public CodeBlockElement(CodeBlock codeBlock, MarkdownTextBlock control)
@@ -28,7 +46,7 @@ public class CodeBlockElement : IAddChild
 
         if (codeBlock is FencedCodeBlock fencedCodeBlock)
         {
-            var formatter = new RichTextBlockFormatter(ElementTheme.Dark);
+            var formatter = GetFormatter(control.ActualTheme);
 
             StringLine[] lines = fencedCodeBlock.Lines.Lines;
 

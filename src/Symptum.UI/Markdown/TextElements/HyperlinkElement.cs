@@ -8,11 +8,8 @@ public class HyperlinkElement : IAddChild
 {
     private Hyperlink _hyperlink;
     private SInline inline;
-    private string? _baseUrl;
     private LinkInline? _linkInline;
     private HtmlNode? _htmlNode;
-    private ILinkHandler? _linkHandler;
-    private string? _url;
 
     public STextElement TextElement => inline;
 
@@ -29,20 +26,22 @@ public class HyperlinkElement : IAddChild
     {
         _linkInline = linkInline;
         _htmlNode = htmlNode;
-        _url = url;
-        _baseUrl = baseUrl;
-        _linkHandler = linkHandler;
+
+        var weakHandler = linkHandler != null ? new WeakReference<ILinkHandler>(linkHandler) : null;
+        string? capturedUrl = url;
+        string? capturedBaseUrl = baseUrl;
 
         _hyperlink = new Hyperlink();
         _hyperlink.Click += (s, e) =>
         {
-            _linkHandler?.HandleNavigation(_url, _baseUrl);
+            if (weakHandler != null && weakHandler.TryGetTarget(out var handler))
+                handler.HandleNavigation(capturedUrl, capturedBaseUrl);
         };
 
         if (!string.IsNullOrWhiteSpace(title))
             ToolTipService.SetToolTip(_hyperlink, title);
         else
-            ToolTipService.SetToolTip(_hyperlink, _url);
+            ToolTipService.SetToolTip(_hyperlink, url);
 
         inline = new()
         {
@@ -54,11 +53,7 @@ public class HyperlinkElement : IAddChild
     {
         if (child.TextElement is SInline inlineChild)
         {
-            try
-            {
-                _hyperlink.Inlines.Add(inlineChild.Inline);
-            }
-            catch { }
+            _hyperlink.Inlines.Add(inlineChild.Inline);
         }
     }
 }

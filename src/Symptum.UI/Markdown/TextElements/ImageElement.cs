@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using HtmlAgilityPack;
 using Markdig.Syntax.Inlines;
@@ -23,9 +24,12 @@ public class ImageElement : IAddChild
     private bool _loaded;
 
     private TextBlock _altText;
-    private static readonly Dictionary<Uri, ImageSource> _imageCache = [];
-    private static readonly HttpClient _client = new();
+
+    private const int MaxCacheSize = 200;
+    private static readonly Dictionary<Uri, (ImageSource Source, long LastAccess)> _imageCache = new();
+    private static readonly HttpClient _client = new() { Timeout = TimeSpan.FromSeconds(30) };
     private static readonly DefaultSVGRenderer _defaultSVGRenderer = new();
+    private static readonly object _cacheLock = new();
 
     public STextElement TextElement => _container;
 
@@ -79,7 +83,8 @@ public class ImageElement : IAddChild
     private void Init(string? altText, MarkdownTextBlock control)
     {
         _image.Stretch = Stretch.Uniform;
-        _image.Loaded += LoadImage;
+        _image.Loaded += OnImageLoaded;
+        _image.Unloaded += OnImageUnloaded;
         Grid _grid = new()
         {
             RowSpacing = 4
@@ -111,19 +116,64 @@ public class ImageElement : IAddChild
         }
     }
 
-    private async void LoadImage(object sender, RoutedEventArgs e)
+    private void OnImageLoaded(object sender, RoutedEventArgs e)
     {
-        _image.Loaded -= LoadImage;
+        _image.Loaded -= OnImageLoaded;
+        _ = LoadImageAsync();
+    }
+
+    private void OnImageUnloaded(object sender, RoutedEventArgs e)
+    {
+        _image.Loaded -= OnImageLoaded;
+        _image.Unloaded -= OnImageUnloaded;
+    }
+
+    private static ImageSource? TryGetCached(Uri uri)
+    {
+        lock (_cacheLock)
+        {
+            if (_imageCache.TryGetValue(uri, out var entry))
+            {
+                _imageCache[uri] = (entry.Source, Environment.TickCount64);
+                return entry.Source;
+            }
+        }
+        return null;
+    }
+
+    private static void AddToCache(Uri uri, ImageSource source)
+    {
+        lock (_cacheLock)
+        {
+            _imageCache[uri] = (source, Environment.TickCount64);
+
+            // Evict oldest entries when over capacity
+            if (_imageCache.Count > MaxCacheSize)
+            {
+                var oldest = _imageCache
+                    .OrderBy(kvp => kvp.Value.LastAccess)
+                    .Take(_imageCache.Count - MaxCacheSize)
+                    .Select(kvp => kvp.Key)
+                    .ToList();
+
+                foreach (var key in oldest)
+                    _imageCache.Remove(key);
+            }
+        }
+    }
+
+    private async Task LoadImageAsync()
+    {
         if (_loaded) return;
 
         void imageLoaded(ImageSource source)
         {
             _loaded = true;
-            _imageCache.TryAdd(_uri, source);
+            AddToCache(_uri, source);
             _altText.Visibility = Visibility.Collapsed;
         }
 
-        if (_imageCache.TryGetValue(_uri, out ImageSource? value))
+        if (TryGetCached(_uri) is ImageSource value)
         {
             _image.Source = value;
             imageLoaded(value);
@@ -172,11 +222,11 @@ public class ImageElement : IAddChild
                         if (contentType == "image/svg+xml")
                         {
                             string? svgString = await response.Content.ReadAsStringAsync();
+                            Size size = Helper.GetSvgSize(svgString);
                             ImageSource resImage = await _svgRenderer.SvgToImageSource(svgString);
                             if (resImage != null)
                             {
                                 _image.Source = resImage;
-                                Size size = Helper.GetSvgSize(svgString);
                                 SetImageSize(resImage, size);
                                 imageLoaded(resImage);
                             }
@@ -195,7 +245,10 @@ public class ImageElement : IAddChild
                     }
                 }
             }
-            catch (Exception) { }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Image load failed for {_uri}: {ex.Message}");
+            }
         }
 
         if (_precedentWidth != 0)

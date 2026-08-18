@@ -2,7 +2,6 @@ using Markdig.Syntax.Inlines;
 using System.Xml.Linq;
 using System.Globalization;
 using Windows.UI.ViewManagement;
-using Microsoft.UI.Xaml.Documents;
 using System.Text.RegularExpressions;
 using Windows.Foundation;
 using System.Text;
@@ -68,51 +67,6 @@ public static class Helper
             }
         }
         return stringBuilder.ToString();
-    }
-
-    public static TextPointer? GetNextInsertionPosition(this TextPointer position, LogicalDirection logicalDirection)
-    {
-        // Check if the current position is already an insertion position
-        if (position.IsAtInsertionPosition(logicalDirection))
-        {
-            // Return the same position
-            return position;
-        }
-        else
-        {
-            // Try to find the next insertion position by moving one symbol forward
-            TextPointer next = position.GetPositionAtOffset(1, logicalDirection);
-            // If there is no next position, return null
-            if (next == null)
-            {
-                return null;
-            }
-            else
-            {
-                // Recursively call this method until an insertion position is found or null is returned
-                return next.GetNextInsertionPosition(logicalDirection);
-            }
-        }
-    }
-
-    public static bool IsAtInsertionPosition(this TextPointer position, LogicalDirection logicalDirection)
-    {
-        // Get the character rect of the current position
-        Rect currentRect = position.GetCharacterRect(logicalDirection);
-        // Try to get the next position by moving one symbol forward
-        TextPointer next = position.GetPositionAtOffset(1, logicalDirection);
-        // If there is no next position, return false
-        if (next == null)
-        {
-            return false;
-        }
-        else
-        {
-            // Get the character rect of the next position
-            Rect nextRect = next.GetCharacterRect(logicalDirection);
-            // Compare the two rects and return true if they are different
-            return !currentRect.Equals(nextRect);
-        }
     }
 
     public static string RemoveImageSize(string? url)

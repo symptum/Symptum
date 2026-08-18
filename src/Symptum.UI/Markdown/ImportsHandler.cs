@@ -11,6 +11,9 @@ public class ImportsHandler
 {
     private Dictionary<string, ImportBlockElement> importBlocks = [];
 
+    private static readonly Dictionary<string, MarkdownDocument> _parseCache = new(StringComparer.Ordinal);
+    private static readonly object _parseCacheLock = new();
+
     public void RegisterForImport(string importId, ImportBlockElement importBlockElement)
     {
         importBlocks.TryAdd(importId, importBlockElement);
@@ -35,7 +38,17 @@ public class ImportsHandler
                 {
                     // Pre-process reference inlines using the source document's dependencies.
                     string sourceMd = MarkdownManager.OptimizeReferences(markdownFileResource.Markdown, markdownFileResource) ?? string.Empty;
-                    MarkdownDocument doc = Markdig.Markdown.Parse(sourceMd, MarkdownManager.Pipeline);
+
+                    MarkdownDocument doc;
+                    lock (_parseCacheLock)
+                    {
+                        if (!_parseCache.TryGetValue(sourceMd, out doc))
+                        {
+                            doc = Markdig.Markdown.Parse(sourceMd, MarkdownManager.Pipeline);
+                            _parseCache[sourceMd] = doc;
+                        }
+                    }
+
                     match = doc.Descendants<ExportBlock>().FirstOrDefault(e => impId.Equals(e.Id.ToString(), StringComparison.InvariantCulture));
                 }
             }

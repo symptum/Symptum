@@ -13,7 +13,6 @@ namespace Symptum.UI.Markdown.Renderers;
 public class WinUIRenderer : RendererBase
 {
     private readonly Stack<IAddChild> _stack = new();
-    private char[] _buffer;
 
     public FlowDocumentElement FlowDocument { get; private set; }
 
@@ -30,7 +29,6 @@ public class WinUIRenderer : RendererBase
     public WinUIRenderer(MarkdownTextBlock markdownTextBlock, FlowDocumentElement document)
     {
         MarkdownTextBlock = markdownTextBlock;
-        _buffer = new char[1024];
         FlowDocument = document;
         document.StackPanel.Style = markdownTextBlock.FlowDocumentStackPanelStyle;
         DocumentOutline = markdownTextBlock.DocumentOutline;
@@ -59,7 +57,6 @@ public class WinUIRenderer : RendererBase
         FlowDocument.StackPanel.Children.Clear();
         DocumentOutline.Clear();
         _stack.Push(FlowDocument);
-        LoadOverridenRenderers();
     }
 
     public void WriteLeafInline(LeafBlock leafBlock)
@@ -135,16 +132,7 @@ public class WinUIRenderer : RendererBase
         }
         else
         {
-            if (length > _buffer.Length)
-            {
-                _buffer = text.ToCharArray();
-                WriteText(new string(_buffer, offset, length));
-            }
-            else
-            {
-                text.CopyTo(offset, _buffer, 0, length);
-                WriteText(new string(_buffer, 0, length));
-            }
+            WriteText(text.AsSpan(offset, length).ToString());
         }
     }
 

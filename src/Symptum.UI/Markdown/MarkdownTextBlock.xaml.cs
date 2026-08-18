@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Markdig;
 using Markdig.Syntax;
 using Symptum.Markdown;
@@ -49,7 +50,10 @@ public partial class MarkdownTextBlock : Control
                 if (!string.IsNullOrEmpty(Text))
                     markdown = Markdig.Markdown.Parse(Text, _pipeline);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Markdown parse failed: {ex.Message}");
+            }
 
             if (markdown != null)
             {

@@ -10,6 +10,7 @@ public class HeadingElement : IAddChild
     private HeadingBlock? _headingBlock;
     private HtmlNode? _htmlNode;
     private MarkdownTextBlock _control;
+    private WeakReference<HeadingElement>? _weakRef;
 
     public STextElement TextElement => _paragraph;
 
@@ -50,6 +51,8 @@ public class HeadingElement : IAddChild
             _ => _control.H6TextBlockStyle,
         };
 
+        _weakRef = new WeakReference<HeadingElement>(this);
+
         DocumentNode node = new()
         {
             Id = id,
@@ -62,7 +65,11 @@ public class HeadingElement : IAddChild
                 5 => DocumentLevel.Heading5,
                 _ => DocumentLevel.Heading6,
             },
-            Navigate = OnNavigate,
+            Navigate = () =>
+            {
+                if (_weakRef != null && _weakRef.TryGetTarget(out var target))
+                    target.OnNavigate();
+            },
             Title = title
         };
 
