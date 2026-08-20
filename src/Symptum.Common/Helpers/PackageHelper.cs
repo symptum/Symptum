@@ -185,20 +185,12 @@ public class PackageHelper
         if (zipFile != null && zipFile.FileType.Equals(PackageFileExtension, StringComparison.InvariantCultureIgnoreCase)
             && PackageCacheFolder != null && PackagesFolder != null)
         {
-            //#if __WASM__
-            //            var buffer = await FileIO.ReadBufferAsync(zipFile); // NOTE: OpenStreamForReadAsync() crashes on WASM?
-            //            using var zipStream = new MemoryStream(buffer.ToArray());
-            //#else
             using Stream zipStream = await zipFile.OpenStreamForReadAsync();
-            //#endif
+            using ZipArchive archive = new(zipStream, ZipArchiveMode.Read);
+            string? jsonFileName = archive.Entries.FirstOrDefault(e =>
+                Path.GetExtension(e.Name).Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase))?.Name;
 
-            using (ZipArchive archive = new(zipStream, ZipArchiveMode.Read))
-            {
-                string? jsonFileName = archive.Entries.FirstOrDefault(e =>
-                    Path.GetExtension(e.Name).Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase))?.Name;
-
-                await archive.ExtractToDirectoryAsync(PackagesFolder.Path, true);
-            }
+            await archive.ExtractToDirectoryAsync(PackagesFolder.Path, true);
 
             if (jsonFileName != null && await PackagesFolder?.TryGetItemAsync(jsonFileName) is StorageFile jsonFile &&
                 jsonFile.FileType.Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase))
