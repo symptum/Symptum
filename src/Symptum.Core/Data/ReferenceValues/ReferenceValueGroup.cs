@@ -21,7 +21,7 @@ public partial class ReferenceValueGroup : CsvFileResource
 
     [JsonIgnore]
     [ObservableProperty]
-    public partial ObservableCollection<ReferenceValueParameter>? Parameters { get; set; }
+    public partial List<ReferenceValueParameter>? Parameters { get; set; }
 
     #endregion
 

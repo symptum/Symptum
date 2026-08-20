@@ -217,7 +217,7 @@ public class ImageElement : IAddChild
                 }
                 else
                 {
-                    HttpResponseMessage response = await _client.GetAsync(_uri);
+                    using HttpResponseMessage response = await _client.GetAsync(_uri);
                     if (response != null)
                     {
                         string? contentType = response.Content.Headers?.ContentType?.MediaType;

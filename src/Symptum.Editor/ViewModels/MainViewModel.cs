@@ -98,11 +98,16 @@ public partial class MainViewModel : ObservableObject
 
     #endregion
 
+    private bool _initialized;
+
     private MainViewModel()
     { }
 
     public void Initialize()
     {
+        if (_initialized) return;
+        _initialized = true;
+
         xamlRoot = WindowHelper.MainWindow?.Content?.XamlRoot;
         ResourceHelper.WorkFolderChanged += WorkFolderChanged;
         ProjectSystemManager.CurrentProjectChanged += ProjectChanged;

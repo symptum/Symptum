@@ -35,12 +35,11 @@ internal static class MermaidDiagramViewFactory
         var context = new MermaidDrawingContext(palette, fontSize);
         Canvas canvas = MermaidDiagramRenderers.Render(context, definition);
 
-        bool isSequence = definition is MermaidSequenceDiagramDefinition;
         var scrollViewer = new ScrollViewer
         {
             Content = canvas,
             Background = palette.Diagram,
-            HorizontalContentAlignment = isSequence ? HorizontalAlignment.Center : HorizontalAlignment.Left,
+            HorizontalContentAlignment = HorizontalAlignment.Left,
             VerticalContentAlignment = VerticalAlignment.Top,
             HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
             VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
@@ -49,26 +48,6 @@ internal static class MermaidDiagramViewFactory
             ZoomMode = ZoomMode.Disabled
         };
 
-        if (isSequence)
-        {
-            scrollViewer.SizeChanged += (_, _) =>
-            {
-                if (scrollViewer.ViewportWidth <= 0)
-                {
-                    return;
-                }
-
-                double target = scrollViewer.ViewportWidth;
-                if (Math.Abs(target - canvas.Width) < 2)
-                {
-                    return;
-                }
-
-                var resizeContext = new MermaidDrawingContext(palette, fontSize);
-                canvas = MermaidDiagramRenderers.Render(resizeContext, definition, target);
-                scrollViewer.Content = canvas;
-            };
-        }
 
         root.Child = scrollViewer;
         return root;

@@ -5,12 +5,14 @@ using Symptum.Core.Extensions;
 using Symptum.Common.ProjectSystem;
 using Uno.Extensions.Specialized;
 using Symptum.UI;
+using System.Collections.ObjectModel;
 
 namespace Symptum.Editor.Pages;
 
 public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
 {
     private ReferenceValueGroup? currentGroup;
+    private ObservableCollection<ReferenceValueParameter> parameters = [];
     private ReferenceValueParameterEditorDialog? parameterEditorDialog;
     private ResourcePropertiesEditorDialog? propertyEditorDialog;
     private ConfirmationDialog? confirmationDialog;
@@ -55,16 +57,22 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         addButton.IsEnabled = false;
         findButton.IsEnabled = false;
         currentGroup = null;
+        parameters.Clear();
         SetCountsText(true);
     }
 
     private void LoadGroup(ReferenceValueGroup? group)
     {
         if (group == null) return;
+        parameters.Clear();
 
         currentGroup = group;
         group.Parameters ??= [];
-        tableView.ItemsSource = group.Parameters;
+
+        // Create a new collection with clones to not affect the original collection;
+        parameters = [.. group.Parameters.CloneList(p => p.Clone(true))];
+
+        tableView.ItemsSource = parameters;
         tableView.IsEnabled = true;
         saveButton.IsEnabled = true;
         addButton.IsEnabled = true;
@@ -77,7 +85,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
         if (clear)
             countTextBlock.Text = null;
         else
-            countTextBlock.Text = $"{currentGroup?.Parameters?.Count} Parameters, {tableView.SelectedItems.Count} Selected";
+            countTextBlock.Text = $"{parameters.Count} Parameters, {tableView.SelectedItems.Count} Selected";
     }
 
     private bool _isBeingSaved = false;
@@ -90,6 +98,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
 
         if (currentGroup != null)
         {
+            currentGroup.Parameters = [..parameters];
             bool saved = await ProjectSystemManager.SaveResourceAndAncestorAsync(currentGroup);
             HasUnsavedChanges = !saved;
             if (saved)
@@ -120,7 +129,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
             var result = await parameterEditorDialog.CreateAsync();
             if (result == EditorResult.Create && parameterEditorDialog.Parameter is ReferenceValueParameter parameter)
             {
-                currentGroup?.Parameters?.Add(parameter);
+                parameters.Add(parameter);
                 tableView.SelectedItem = parameter;
                 HasUnsavedChanges = true;
                 SetCountsText();
@@ -163,16 +172,16 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     private void DuplicateButton_Click(object sender, RoutedEventArgs e)
     {
         if (tableView.SelectedItems.Count == 0
-            || currentGroup == null || currentGroup.Parameters == null) return;
+            || parameters.Count == 0) return;
         List<ReferenceValueParameter> toDupe = [];
 
         foreach (var item in tableView.SelectedItems)
         {
-            if (item is ReferenceValueParameter parameter && currentGroup.Parameters.Contains(parameter))
+            if (item is ReferenceValueParameter parameter && parameters.Contains(parameter))
                 toDupe.Add(parameter);
         }
         tableView.SelectedItems.Clear();
-        toDupe.ForEach(x => currentGroup?.Parameters?.Add(x.Clone()));
+        parameters.AddRange(toDupe.Select(p => p.Clone()));
         toDupe.Clear();
         HasUnsavedChanges = true;
         SetCountsText();
@@ -181,7 +190,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     private async void DeleteButton_Click(object sender, RoutedEventArgs e)
     {
         if (tableView.SelectedItems.Count == 0
-            || currentGroup?.Parameters == null) return;
+            || parameters.Count == 0) return;
 
         confirmationDialog ??= EditorPagesManager.CreateOrGetDialog<ConfirmationDialog>();
         confirmationDialog?.XamlRoot = XamlRoot;
@@ -192,11 +201,11 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
 
             foreach (var item in tableView.SelectedItems)
             {
-                if (item is ReferenceValueParameter parameter && currentGroup.Parameters.Contains(parameter))
+                if (item is ReferenceValueParameter parameter && parameters.Contains(parameter))
                     toDelete.Add(parameter);
             }
             tableView.SelectedItems.Clear();
-            toDelete.ForEach(x => currentGroup?.Parameters?.Remove(x));
+            toDelete.ForEach(x => parameters?.Remove(x));
             WriteToOutput($"Deleted {toDelete.Count} parameter(s)");
             toDelete.Clear();
             HasUnsavedChanges = true;
@@ -230,7 +239,7 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     {
         var selectedItem = tableView.SelectedItem;
         if (currentGroup != null)
-            tableView.ItemsSource = currentGroup.Parameters;
+            tableView.ItemsSource = parameters;
         tableView.SelectedItem = selectedItem;
         findTextBlock.Text = string.Empty;
     }
@@ -241,11 +250,11 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
             return;
         if (currentGroup != null)
         {
-            var parameters = from parameter in currentGroup?.Parameters
-                             where ReferenceValueParameterPropertyMatchValue(parameter, e)
-                             select parameter;
-            tableView.ItemsSource = parameters;
-            findTextBlock.Text = $"Find results for '{e.QueryText}' in {e.Context}. Matching Parameters: {parameters.Count()}";
+            var filtered = from parameter in parameters
+                           where ReferenceValueParameterPropertyMatchValue(parameter, e)
+                           select parameter;
+            tableView.ItemsSource = filtered;
+            findTextBlock.Text = $"Find results for '{e.QueryText}' in {e.Context}. Matching Parameters: {filtered.Count()}";
         }
     }
 
@@ -260,20 +269,20 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
 
     #endregion
 
-    private bool CanMoveUp() => tableView.SelectedItems.Count == 1 && tableView.SelectedIndex != 0;
+    private bool CanMoveUp() => parameters.Count > 1 && tableView.SelectedItems.Count == 1 && tableView.SelectedIndex != 0;
 
-    private bool CanMoveDown() => tableView.SelectedItems.Count == 1 && tableView.SelectedIndex != currentGroup?.Parameters?.Count - 1;
+    private bool CanMoveDown() => parameters.Count > 1 && tableView.SelectedItems.Count == 1 && tableView.SelectedIndex != parameters.Count - 1;
 
     private void MoveParameter(int oldIndex, int newIndex)
     {
-        currentGroup?.Parameters?.Move(oldIndex, newIndex);
+        parameters.Move(oldIndex, newIndex);
         tableView.SelectedItems.Clear();
         tableView.SelectedItem = null;
         tableView.SelectedIndex = newIndex;
         moveUpButton.IsEnabled = moveToTopButton.IsEnabled = CanMoveUp();
         moveDownButton.IsEnabled = moveToBottomButton.IsEnabled = CanMoveDown();
         HasUnsavedChanges = true;
-        WriteToOutput($"Moved parameter: {currentGroup?.Parameters?[newIndex]?.Title}");
+        WriteToOutput($"Moved parameter: {parameters[newIndex]?.Title}");
         tableView.ScrollIntoView(tableView.SelectedItem, ScrollIntoViewAlignment.Default);
     }
 
@@ -281,8 +290,9 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     {
         if (CanMoveUp())
         {
-            int oldIndex = tableView.SelectedIndex;
-            int newIndex = toTop ? 0 : Math.Max(tableView.SelectedIndex - 1, 0);
+            int selected = tableView.SelectedIndex;
+            int oldIndex = selected;
+            int newIndex = toTop ? 0 : Math.Max(selected - 1, 0);
             MoveParameter(oldIndex, newIndex);
         }
     }
@@ -291,9 +301,10 @@ public sealed partial class ReferenceValueGroupEditorPage : EditorPageBase
     {
         if (CanMoveDown())
         {
-            int oldIndex = tableView.SelectedIndex;
-            int last = currentGroup?.Parameters?.Count - 1 ?? 0;
-            int newIndex = toBottom ? last : Math.Min(tableView.SelectedIndex + 1, last);
+            int selected = tableView.SelectedIndex;
+            int oldIndex = selected;
+            int last = parameters.Count - 1;
+            int newIndex = toBottom ? last : Math.Min(selected + 1, last);
             MoveParameter(oldIndex, newIndex);
         }
     }

@@ -29,10 +29,11 @@ public partial class ReferenceValueParameter : ObservableObject
 
     #endregion
 
-    public ReferenceValueParameter Clone() =>
+    public ReferenceValueParameter Clone(bool cloneId = false) =>
         new()
         {
-            Id = null, // Id is not cloned to ensure uniqueness
+            // Id is not cloned by default to ensure uniqueness
+            Id = cloneId ? Id : null,
             Title = Title,
             Entries = Entries.CloneList(e => e.Clone())
         };

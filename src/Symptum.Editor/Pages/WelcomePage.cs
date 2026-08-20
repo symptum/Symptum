@@ -111,6 +111,7 @@ public sealed partial class WelcomePage : EditorPageBase
         }
         return path;
     }
+    
     private Button IconButton(IconSource icon, string content, ICommand? command) =>
         new Button().HorizontalAlignment(HorizontalAlignment.Stretch)
             .Command(command)
