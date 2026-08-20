@@ -95,6 +95,7 @@ public partial class EditorPageBase : Page, IDisposable
             old.PropertyChanged -= HandlePropertyChanged;
 
         OnCleanupPage();
+        Content = null;
         GC.SuppressFinalize(this);
     }
 

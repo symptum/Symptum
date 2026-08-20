@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using Symptum.Core.Data.ReferenceValues;
 using Symptum.Core.Management.Resources;
 using Symptum.Editor.Controls;
+using Symptum.Editor.ViewModels;
 
 namespace Symptum.Editor.Pages;
 
@@ -32,7 +33,7 @@ public class EditorPagesManager
 
         SelectEditorRequested?.Invoke(null, _welcomePage);
     }
-    
+
     public static EditorPageBase? GetEditorForContentType(Type contentType)
     {
         if (_editorTypeMap.TryGetValue(contentType, out Type? pageType))
@@ -72,6 +73,12 @@ public class EditorPagesManager
             editor.Dispose();
             EditorPages.Remove(editor);
             if (editor == _welcomePage) _welcomePage = null;
+
+            if (MainViewModel.Instance.CurrentEditor == editor)
+                MainViewModel.Instance.CurrentEditor = null;
+
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
             return true;
         }
 
@@ -106,6 +113,9 @@ public class EditorPagesManager
         _resourceToEditorMap.Clear();
         _dialogInstances.Clear();
         _welcomePage = null;
+        MainViewModel.Instance.CurrentEditor = null;
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
     }
 
     public static void CloseSavedEditors()
@@ -119,7 +129,12 @@ public class EditorPagesManager
             e.Dispose();
             EditorPages.Remove(e);
             if (e == _welcomePage) _welcomePage = null;
+            if (MainViewModel.Instance.CurrentEditor == e)
+                MainViewModel.Instance.CurrentEditor = null;
         }
+
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
     }
 
     public static void UpdateEditors()

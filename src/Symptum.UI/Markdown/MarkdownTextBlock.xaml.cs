@@ -46,6 +46,7 @@ public partial class MarkdownTextBlock : Control
             }
 
             _parseCts?.Cancel();
+            _parseCts?.Dispose();
             _parseCts = new CancellationTokenSource();
             var ct = _parseCts.Token;
             string text = Text;

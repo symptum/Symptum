@@ -46,9 +46,15 @@ public sealed partial class HomePage : NavigablePage
         favorites.ItemsSource = null;
         _spriteVisual?.Dispose();
         _spriteVisual = null;
-        _surface!.LoadCompleted -= Surface_LoadCompleted;
-        _surface?.Dispose();
-        _surface = null;
+        if (_surface != null)
+        {
+            _surface.LoadCompleted -= Surface_LoadCompleted;
+            _surface.Dispose();
+            _surface = null;
+        }
+        _heroImageStream?.Dispose();
+        _heroImageStream = null;
+        _heroImageFile = null;
         _heroLoaded = false;
         hero.SizeChanged -= Hero_SizeChanged;
     }

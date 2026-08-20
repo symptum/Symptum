@@ -49,6 +49,7 @@ public class WinUIRenderer : RendererBase, IDisposable
     {
         Write(markdownObject);
         ImportsHandler.ResolveImports(markdownObject?.Descendants<ExportBlock>(), this);
+        _stack.Clear();
         return FlowDocument;
     }
 
