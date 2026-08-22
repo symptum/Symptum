@@ -1,5 +1,3 @@
-using Android.Runtime;
-
 namespace Symptum.Droid;
 
 [global::Android.App.ApplicationAttribute(

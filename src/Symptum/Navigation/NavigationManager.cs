@@ -17,6 +17,10 @@ public class NavigationManager
 
     public static readonly NavigationInfo HomeNavInfo = new(HomeUri, "Home", typeof(HomePage), IconHelper.HomeIconSource);
 
+    public static readonly Uri SearchUri = ResourceManager.GetAbsoluteUri("search");
+
+    public static readonly NavigationInfo SearchNavInfo = new(SearchUri, "Search", typeof(SearchPage), IconHelper.SearchIconSource);
+
     public static readonly Uri SubjectsUri = ResourceManager.GetAbsoluteUri("subjects");
 
     public static readonly Uri FocusSessionUri = ResourceManager.GetAbsoluteUri("focus");
@@ -146,6 +150,7 @@ public class NavigationManager
     private static void LoadNavigationInfosFromResources()
     {
         AddNavInfo(HomeNavInfo);
+        AddNavInfo(SearchNavInfo);
         NavigationInfo? navInfo;
         navInfo = new NavigationInfo(SubjectsUri, "Subjects", typeof(DefaultPage), IconHelper.SubjectsLibraryIconSource);
 

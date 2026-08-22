@@ -1,5 +1,4 @@
 using Microsoft.UI.Xaml.Markup;
-using Symptum.Common.Helpers;
 using Symptum.Core.Management.Navigation;
 
 namespace Symptum.Pages;

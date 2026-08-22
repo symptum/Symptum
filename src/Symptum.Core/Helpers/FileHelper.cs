@@ -63,7 +63,7 @@ public static class FileHelper
         if (filePath == null) return (folder, fileName, extension);
 
         int dotIndex, slashIndex;
-        dotIndex = slashIndex = filePath.Length;
+        dotIndex = slashIndex = -1;
 
         for (int i = filePath.Length - 1; i >= 0; i--)
         {

@@ -12,6 +12,8 @@ public static class IconHelper
     #region Definitions
 
     public static IconSource HomeIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.Home };
+
+    public static IconSource SearchIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.Find };
     
     public static IconSource SettingsIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.Home };
 
