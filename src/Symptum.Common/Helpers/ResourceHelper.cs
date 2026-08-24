@@ -923,4 +923,14 @@ public class ResourceHelper
     /// <c>null</c> when the work folder is closed.
     /// </summary>
     public static event EventHandler<StorageFolder?> WorkFolderChanged;
+
+    /// <summary>
+    /// Raised when the files under the current work folder may have changed
+    /// without the work folder itself changing, e.g. when a package was
+    /// imported or downloaded into it.
+    /// </summary>
+    public static event EventHandler? WorkFolderFilesChanged;
+
+    internal static void RaiseWorkFolderFilesChanged() =>
+        WorkFolderFilesChanged?.Invoke(null, EventArgs.Empty);
 }

@@ -16,11 +16,17 @@ public static class CommonGlyphs
 
     // Navigation & Resources
 
-    public const string List = "\uF168";
+    public const string Document = "\uE8A5";
+
+    public const string List = "\uEA37";
+
+    public const string GroupList = "\uF168";
 
     public const string Dictionary = "\uE82D";
 
     public const string Photo = "\uE91B";
+
+    public const string Audio = "\uE8D6";
 
     public const string Package = "\uE7B8";
 
@@ -51,6 +57,8 @@ public static class CommonGlyphs
     public const string More = "\uE712";
 
     // Find & Close
+
+    public const string Filter = "\uE71C";
 
     public const string Close = "\uE711";
 
@@ -111,37 +119,37 @@ public static class CommonGlyphs
 
 
     public const string BookNumber = "\uE000";
-    
+
     public const string TextSubscript = "\uE001";
-    
+
     public const string TextSuperscript = "\uE002";
-    
+
     public const string TextHeader1 = "\uE003";
-    
+
     public const string TextHeader2 = "\uE004";
-    
+
     public const string TextHeader3 = "\uE005";
-    
+
     public const string TextHeader4 = "\uE006";
-    
+
     public const string TextHeader5 = "\uE007";
-    
+
     public const string TextHeader6 = "\uE008";
-   
+
     public const string TextQuote = "\uE009";
-    
+
     public const string TextNumberList = "\uE00A";
-    
+
     public const string Table = "\uE00B";
-    
+
     public const string CodeBlock = "\uE00C";
-    
+
     public const string Code = "\uE00D";
-    
+
     public const string DocumentPageBreak = "\uE00E";
-    
+
     public const string Flowchart = "\uE00F";
-    
+
     public const string ArrowExpand = "\uE010";
 
     #endregion

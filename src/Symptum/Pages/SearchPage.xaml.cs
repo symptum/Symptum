@@ -1,3 +1,4 @@
+using Microsoft.UI.Xaml.Input;
 using Symptum.Models;
 using Symptum.ViewModels;
 
@@ -17,10 +18,21 @@ public sealed partial class SearchPage : NavigablePage
     private void SearchPage_Loaded(object sender, RoutedEventArgs e)
     {
         ViewModel.LoadScopeOptions();
-        searchBox.Focus(FocusState.Programmatic);
+        FocusSearchBox();
     }
 
     private void SearchPage_Unloaded(object sender, RoutedEventArgs e) => ViewModel.CancelSearch();
+
+    private void FocusSearchBox()
+    {
+        searchBox.Focus(FocusState.Programmatic);
+    }
+
+    private void FocusSearchAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        FocusSearchBox();
+    }
 
     private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
@@ -30,14 +42,7 @@ public sealed partial class SearchPage : NavigablePage
 
     private async void SearchBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
     {
-        ViewModel.QueryText = args.QueryText;
-        await ViewModel.SearchAsync();
-    }
-
-    private async void ResultsLV_ItemClick(object sender, ItemClickEventArgs e)
-    {
-        if (e.ClickedItem is SearchResult result)
-            await ViewModel.OpenResultAsync(result);
+        await ViewModel.SubmitAsync(args.QueryText);
     }
 
     protected override void OnLayoutChanged(bool isWide) => rootGrid.Margin = isWide switch
@@ -45,4 +50,10 @@ public sealed partial class SearchPage : NavigablePage
         true => ContentMargin,
         false => NarrowContentMargin
     };
+
+    private async void ItemsView_ItemInvoked(ItemsView sender, ItemsViewItemInvokedEventArgs args)
+    {
+        if (args.InvokedItem is SearchResult result)
+            await ViewModel.OpenResultAsync(result);
+    }
 }

@@ -191,6 +191,7 @@ public class PackageHelper
                 Path.GetExtension(e.Name).Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase))?.Name;
 
             await archive.ExtractToDirectoryAsync(PackagesFolder.Path, true);
+            ResourceHelper.RaiseWorkFolderFilesChanged();
 
             if (jsonFileName != null && await PackagesFolder?.TryGetItemAsync(jsonFileName) is StorageFile jsonFile &&
                 jsonFile.FileType.Equals(JsonFileExtension, StringComparison.InvariantCultureIgnoreCase))

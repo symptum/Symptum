@@ -1,7 +1,6 @@
 using Markdig.Syntax.Inlines;
 using System.Xml.Linq;
 using System.Globalization;
-using Windows.UI.ViewManagement;
 using System.Text.RegularExpressions;
 using Windows.Foundation;
 using System.Text;

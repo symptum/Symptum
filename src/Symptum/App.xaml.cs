@@ -33,7 +33,7 @@ public partial class App : Application
             System.Diagnostics.Process.GetCurrentProcess().Kill();
             return;
         }
-        mainInstance.Activated += (s, e) => HandleActivation(e);
+        mainInstance.Activated += async (s, e) => await HandleActivationAsync(e);
 #endif
 
         MainWindow = new();
@@ -85,21 +85,21 @@ public partial class App : Application
         ThemeHelper.Initialize(rootFrame.XamlRoot);
 
 #if WINDOWS && !HAS_UNO
-        HandleActivation(mainInstance.GetActivatedEventArgs());
+        await HandleActivationAsync(mainInstance.GetActivatedEventArgs());
 #endif
         Console.WriteLine(args.Arguments);
     }
 
 #if WINDOWS && !HAS_UNO
 
-    private void HandleActivation(Microsoft.Windows.AppLifecycle.AppActivationArguments e)
+    private async Task HandleActivationAsync(Microsoft.Windows.AppLifecycle.AppActivationArguments e)
     {
         if (e != null)
         {
             if (e.Kind == Microsoft.Windows.AppLifecycle.ExtendedActivationKind.Protocol &&
                 e.Data is Windows.ApplicationModel.Activation.ProtocolActivatedEventArgs args)
             {
-                NavigationManager.Navigate(args.Uri);
+                await NavigationManager.NavigateAsync(args.Uri);
             }
         }
     }

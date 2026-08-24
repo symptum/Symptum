@@ -14,7 +14,7 @@ public static class IconHelper
     public static IconSource HomeIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.Home };
 
     public static IconSource SearchIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.Find };
-    
+
     public static IconSource SettingsIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.Home };
 
     public static IconSource FocusSessionIconSource { get; } = new FontIconSource() { Glyph = FocusSession };
@@ -29,7 +29,7 @@ public static class IconHelper
 
     public static IconSource DocumentIconSource { get; } = new SymbolIconSource() { Symbol = Symbol.Document };
 
-    public static IconSource GroupListIconSource { get; } = new FontIconSource() { Glyph = List };
+    public static IconSource GroupListIconSource { get; } = new FontIconSource() { Glyph = GroupList };
 
     public static IconSource SubjectIconSource { get; } = new FontIconSource() { Glyph = Dictionary };
 

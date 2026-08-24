@@ -15,9 +15,6 @@ public class ListElement : IAddChild
     private int _index = 1;
     private const string _dot = "• ";
 
-    private static readonly ColumnDefinition _bulletColumn = new() { Width = new GridLength(1, GridUnitType.Auto) };
-    private static readonly ColumnDefinition _contentColumn = new() { Width = new GridLength(1, GridUnitType.Star) };
-
     public STextElement TextElement => _container;
 
     public ListElement(ListBlock listBlock, MarkdownTextBlock control, bool isTopLevel = true)
@@ -51,8 +48,8 @@ public class ListElement : IAddChild
     public void AddChild(IAddChild child)
     {
         Grid grid = new();
-        grid.ColumnDefinitions.Add(_bulletColumn);
-        grid.ColumnDefinitions.Add(_contentColumn);
+        grid.ColumnDefinitions.Add(new() { Width = new GridLength(1, GridUnitType.Auto) });
+        grid.ColumnDefinitions.Add(new() { Width = new GridLength(1, GridUnitType.Star) });
         string bullet;
         if (_isOrdered)
         {
