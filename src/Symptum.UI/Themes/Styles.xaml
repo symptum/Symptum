@@ -152,10 +152,12 @@
     <Setter Property="WaveBrush" Value="{ThemeResource ControlStrongStrokeColorDefaultBrush}" />
     <Setter Property="WaveProgressBrush" Value="{ThemeResource AccentFillColorDefaultBrush}" />
     <Setter Property="HoverBrush" Value="{ThemeResource TextFillColorPrimaryBrush}" />
+    <Setter Property="Padding" Value="12" />
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="controls:AudioVisualizer">
           <Grid Background="{TemplateBinding Background}"
+                Padding="{TemplateBinding Padding}"
                 RowDefinitions="*,Auto">
             <Canvas x:Name="PART_WaveCanvas"
                     HorizontalAlignment="Stretch"
@@ -198,16 +200,25 @@
             <Grid x:Name="PART_SeekLayer" Background="Transparent" />
             <Grid x:Name="PART_TransportPanel"
                   Grid.Row="1"
-                  Margin="12"
                   Padding="4"
                   HorizontalAlignment="Center"
                   Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                   BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                   BorderThickness="1"
-                  CornerRadius="18"
-                  ColumnDefinitions="Auto,Auto,Auto,Auto,Auto"
+                  CornerRadius="20"
+                  ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
                   ColumnSpacing="8">
+              <Button x:Name="PART_ActionButton"
+                      Width="36"
+                      Height="36"
+                      Padding="0"
+                      HorizontalContentAlignment="Center"
+                      VerticalContentAlignment="Center"
+                      CornerRadius="18">
+                <FontIcon x:Name="PART_ActionButtonIcon" FontSize="16" />
+              </Button>
               <Button x:Name="PART_JumpToStartButton"
+                      Grid.Column="1"
                       Width="36"
                       Height="36"
                       Padding="0"
@@ -218,7 +229,7 @@
                 <FontIcon FontSize="16" Glyph="&#xE76B;" />
               </Button>
               <Button x:Name="PART_PlayPauseButton"
-                      Grid.Column="1"
+                      Grid.Column="2"
                       Width="36"
                       Height="36"
                       Padding="0"
@@ -227,13 +238,13 @@
                       CornerRadius="18">
                 <FontIcon x:Name="PART_PlayPauseIcon" FontSize="16" />
               </Button>
-              <TextBlock Grid.Column="2" VerticalAlignment="Center">
+              <TextBlock Grid.Column="3" VerticalAlignment="Center">
                 <Run x:Name="PART_PositionText" Text="0:00" />
                 <Run Text=" / " />
                 <Run x:Name="PART_DurationText" Text="0:00" />
               </TextBlock>
               <ComboBox x:Name="PART_RateComboBox"
-                        Grid.Column="3"
+                        Grid.Column="4"
                         VerticalAlignment="Center"
                         ToolTipService.ToolTip="Playback speed">
                 <ComboBoxItem Content="0.5×" Tag="0.5" />
@@ -244,7 +255,7 @@
                 <ComboBoxItem Content="2×" Tag="2" />
               </ComboBox>
               <ToggleButton x:Name="PART_RepeatButton"
-                            Grid.Column="4"
+                            Grid.Column="5"
                             Width="36"
                             Height="36"
                             Padding="0"
@@ -270,7 +281,7 @@
                   <VisualState.Setters>
                     <Setter Target="PART_JumpToStartButton.Visibility" Value="Collapsed" />
                     <Setter Target="PART_RepeatButton.Visibility" Value="Collapsed" />
-                    <Setter Target="PART_PlayPauseButton.(Grid.Column)" Value="0" />
+                    <Setter Target="PART_PlayPauseButton.(Grid.Column)" Value="1" />
                     <Setter Target="PART_PlayPauseButton.(Grid.ColumnSpan)" Value="2" />
                   </VisualState.Setters>
                 </VisualState>

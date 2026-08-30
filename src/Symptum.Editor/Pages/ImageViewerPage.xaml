@@ -9,5 +9,5 @@
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   mc:Ignorable="d">
     <controls:ImageViewer x:Name="imageViewer" ActionButtonGlyph="{x:Bind ui:CommonGlyphs.Properties}"
-                          ActionButtonClick="ImageViewer_ActionButtonClick" />
+                          ActionButtonClicked="ImageViewer_ActionButtonClicked" />
 </local:EditorPageBase>

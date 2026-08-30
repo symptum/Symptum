@@ -294,4 +294,28 @@ public partial class AudioVisualizer
     }
 
     #endregion
+
+    #region ActionButtonGlyph
+
+    public static readonly DependencyProperty ActionButtonGlyphProperty = DependencyProperty.Register(
+        nameof(ActionButtonGlyph),
+        typeof(string),
+        typeof(AudioVisualizer),
+        new PropertyMetadata(null, OnActionButtonGlyphChanged));
+
+    private static void OnActionButtonGlyphChanged(DependencyObject d, DependencyPropertyChangedEventArgs args)
+    {
+        if (d is AudioVisualizer visualizer && args.NewValue is string glyph)
+        {
+            visualizer._actionIcon?.Glyph = glyph;
+        }
+    }
+
+    public string ActionButtonGlyph
+    {
+        get => (string)GetValue(ActionButtonGlyphProperty);
+        set => SetValue(ActionButtonGlyphProperty, value);
+    }
+
+    #endregion
 }

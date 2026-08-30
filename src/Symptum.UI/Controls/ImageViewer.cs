@@ -48,7 +48,7 @@ public partial class ImageViewer : Control
     private double _panStartScrollX = 0;
     private double _panStartScrollY = 0;
 
-    public event EventHandler? ActionButtonClick;
+    public event EventHandler? ActionButtonClicked;
 
     public ImageViewer()
     {
@@ -235,7 +235,7 @@ public partial class ImageViewer : Control
         FitToView();
     }
 
-    private void ActionButton_Click(object sender, RoutedEventArgs e) => ActionButtonClick?.Invoke(this, EventArgs.Empty);
+    private void ActionButton_Click(object sender, RoutedEventArgs e) => ActionButtonClicked?.Invoke(this, EventArgs.Empty);
 
     private void ZoomCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {

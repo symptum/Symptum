@@ -11,7 +11,7 @@ namespace Symptum.UI.Controls;
 
 public partial class AudioVisualizer : Control
 {
-    private bool _isDisposed = false;
+    private bool _disposed = false;
     private Canvas? _waveCanvas;
     private XamlPath? _wavePath;
     private XamlPath? _waveProgressPath;
@@ -19,6 +19,8 @@ public partial class AudioVisualizer : Control
     private Rectangle? _playheadIndicator;
     private Rectangle? _hoverIndicator;
     private UIElement? _seekLayer;
+    private Button? _actionButton;
+    private FontIcon? _actionIcon;
     private Button? _playPauseButton;
     private Button? _jumpToStartButton;
     private ComboBox? _rateComboBox;
@@ -45,6 +47,7 @@ public partial class AudioVisualizer : Control
         Unloaded += OnUnloaded;
     }
 
+    public event EventHandler? ActionButtonClicked;
     public event EventHandler? MediaOpened;
 
     public event EventHandler? MediaEnded;
@@ -65,6 +68,8 @@ public partial class AudioVisualizer : Control
         _playheadIndicator = GetTemplateChild("PART_PlayheadIndicator") as Rectangle;
         _hoverIndicator = GetTemplateChild("PART_HoverIndicator") as Rectangle;
         _seekLayer = GetTemplateChild("PART_SeekLayer") as UIElement;
+        _actionButton = GetTemplateChild("PART_ActionButton") as Button;
+        _actionIcon = GetTemplateChild("PART_ActionButtonIcon") as FontIcon;
         _playPauseButton = GetTemplateChild("PART_PlayPauseButton") as Button;
         _jumpToStartButton = GetTemplateChild("PART_JumpToStartButton") as Button;
         _rateComboBox = GetTemplateChild("PART_RateComboBox") as ComboBox;
@@ -87,14 +92,12 @@ public partial class AudioVisualizer : Control
             _seekLayer.PointerCaptureLost += OnSeekLayerPointerCaptureLost;
         }
 
+        _actionButton?.Click += OnActionButton_Click;
+        _actionIcon?.Glyph = ActionButtonGlyph;
         _playPauseButton?.Click += OnPlayPauseButtonClick;
-
         _jumpToStartButton?.Click += OnJumpToStartButtonClick;
-
         _repeatButton?.Click += OnRepeatButtonClick;
-
         _rateComboBox?.SelectionChanged += OnRateComboBoxSelectionChanged;
-
         UpdatePlayPauseButton(IsPlaying);
         UpdateRateComboBox();
         RefreshFromState();
@@ -113,12 +116,10 @@ public partial class AudioVisualizer : Control
             _seekLayer.PointerCaptureLost -= OnSeekLayerPointerCaptureLost;
         }
 
+        _actionButton?.Click -= OnActionButton_Click;
         _playPauseButton?.Click -= OnPlayPauseButtonClick;
-
         _jumpToStartButton?.Click -= OnJumpToStartButtonClick;
-
         _repeatButton?.Click -= OnRepeatButtonClick;
-
         _rateComboBox?.SelectionChanged -= OnRateComboBoxSelectionChanged;
     }
 
@@ -131,7 +132,7 @@ public partial class AudioVisualizer : Control
     private void OnUnloaded(object sender, RoutedEventArgs e)
     {
         UnsubscribeSessionEvents();
-        if (IsPlaying)
+        if (IsPlaying && !_disposed)
         {
             Pause();
         }
@@ -146,14 +147,16 @@ public partial class AudioVisualizer : Control
         RenderWave();
     }
 
+    private void OnActionButton_Click(object sender, RoutedEventArgs e) => ActionButtonClicked?.Invoke(this, EventArgs.Empty);
+
     #endregion
 
     #region Loading
 
     public void Unload()
     {
-        if (_isDisposed) return;
-        _isDisposed = true;
+        if (_disposed) return;
+        _disposed = true;
         Source = null;
         DetachTemplateHandlers();
         _mediaPlayer?.Dispose();
@@ -395,7 +398,11 @@ public partial class AudioVisualizer : Control
                 }
             }
 
-            var height = Math.Clamp(max, 0f, 1f) * controlHeight / 2;
+            // If the width is too small, the wave will be stretched vertically.
+            // And will defeat the purpose of the waveform.
+            // That is to easily recognize and memorize audio waves.
+            var normalizedHeight = Math.Min(controlHeight, controlWidth);
+            var height = Math.Clamp(max, 0f, 1f) * normalizedHeight / 2;
             points.Add(new Point(i * (itemWidth + spacing), (controlHeight / 2) - height));
         }
 

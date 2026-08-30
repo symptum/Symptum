@@ -19,9 +19,23 @@ public sealed partial class ImageViewerPage : EditorPageBase
         Loaded += ImageViewerPage_Loaded;
     }
 
+    private async void ImageViewerPage_Loaded(object sender, RoutedEventArgs e)
+    {
+        propertyEditorDialog = EditorPagesManager.CreateOrGetDialog<ResourcePropertiesEditorDialog>();
+        if (EditableContent is not ImageFileResource imageFileResource) return;
+
+        _imageFileResource = imageFileResource;
+
+        var (imageSource, fileSize) = await ImageResourceHelper.GetImageFromResource(imageFileResource);
+        imageViewer.FileSize = fileSize;
+        imageViewer.Source = imageSource;
+
+        WriteToOutput($"Loaded image: {imageFileResource.Title}");
+    }
+
     private bool _isBeingSaved = false;
 
-    private async void ImageViewer_ActionButtonClick(object sender, EventArgs e)
+    private async void ImageViewer_ActionButtonClicked(object sender, EventArgs e)
     {
         if (_imageFileResource != null && propertyEditorDialog != null)
         {
@@ -47,19 +61,5 @@ public sealed partial class ImageViewerPage : EditorPageBase
         imageViewer.Unload();
         _imageFileResource = null;
         propertyEditorDialog = null;
-    }
-
-    private async void ImageViewerPage_Loaded(object sender, RoutedEventArgs e)
-    {
-        propertyEditorDialog = EditorPagesManager.CreateOrGetDialog<ResourcePropertiesEditorDialog>();
-        if (EditableContent is not ImageFileResource imageFileResource) return;
-
-        _imageFileResource = imageFileResource;
-
-        var (imageSource, fileSize) = await ImageResourceHelper.GetImageFromResource(imageFileResource);
-        imageViewer.FileSize = fileSize;
-        imageViewer.Source = imageSource;
-
-        WriteToOutput($"Loaded image: {imageFileResource.Title}");
     }
 }

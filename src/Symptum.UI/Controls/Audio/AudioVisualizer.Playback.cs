@@ -129,7 +129,7 @@ public partial class AudioVisualizer
 
     private void OnPlayerCurrentStateChanged(MediaPlayer sender, object args)
     {
-        if (_isDisposed) return;
+        if (_disposed) return;
         var playing = sender.PlaybackSession?.PlaybackState == MediaPlaybackState.Playing;
         DispatcherQueue?.TryEnqueue(() => IsPlaying = playing);
     }

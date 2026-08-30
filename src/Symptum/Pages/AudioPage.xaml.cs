@@ -38,4 +38,10 @@ public sealed partial class AudioPage : NavigablePage
         _audioResource = null;
         audioVisualizer.Unload();
     }
+
+    protected override void OnLayoutChanged(bool isWide) => audioVisualizer.Padding = isWide switch
+    {
+        true => ContentMargin,
+        false => NarrowContentMargin
+    };
 }
