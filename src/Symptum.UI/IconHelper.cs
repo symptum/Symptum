@@ -59,6 +59,7 @@ public static class IconHelper
             Type t when typeof(Subject).IsAssignableFrom(t) => SubjectIconSource,
             Type t when typeof(CsvFileResource).IsAssignableFrom(t) => TableViewIconSource,
             Type t when typeof(ImageFileResource).IsAssignableFrom(t) => PhotoIconSource,
+            Type t when typeof(AudioFileResource).IsAssignableFrom(t) => AudioIconSource,
             Type t when typeof(MarkdownFileResource).IsAssignableFrom(t) => DocumentIconSource,
             Type t when typeof(ImageCategoryResource).IsAssignableFrom(t) => PicturesIconSource,
             Type t when typeof(PackageResource).IsAssignableFrom(t) => PackageIconSource,

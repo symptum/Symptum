@@ -15,10 +15,10 @@ public sealed class CategoryResource : CategoryResource<MetadataResource, ISubje
     }
 }
 
-public sealed class MarkdownCategoryResource : CategoryResource<MarkdownFileResource>, ISubjectCategoryResource
+public sealed class AudioCategoryResource : CategoryResource<AudioFileResource>, ISubjectCategoryResource
 {
-    [JsonPropertyName("Documents")]
-    public override ObservableCollection<MarkdownFileResource>? Items
+    [JsonPropertyName("Audios")]
+    public override ObservableCollection<AudioFileResource>? Items
     {
         get => base.Items;
         set => base.Items = value;
@@ -29,6 +29,16 @@ public sealed class ImageCategoryResource : CategoryResource<ImageFileResource>,
 {
     [JsonPropertyName("Images")]
     public override ObservableCollection<ImageFileResource>? Items
+    {
+        get => base.Items;
+        set => base.Items = value;
+    }
+}
+
+public sealed class MarkdownCategoryResource : CategoryResource<MarkdownFileResource>, ISubjectCategoryResource
+{
+    [JsonPropertyName("Documents")]
+    public override ObservableCollection<MarkdownFileResource>? Items
     {
         get => base.Items;
         set => base.Items = value;

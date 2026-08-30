@@ -22,7 +22,10 @@ public sealed partial class DefaultEditorPage : EditorPageBase
         if (EditableContent != null)
         {
             propertiesEditor.UpdateResource();
-            HasUnsavedChanges = !await ProjectSystemManager.SaveResourceAndAncestorAsync(EditableContent);
+            bool saved = await ProjectSystemManager.SaveResourceAndAncestorAsync(EditableContent);
+            HasUnsavedChanges = !saved;
+            if (saved)
+                WriteToOutput($"Saved: {EditableContent.Title}");
         }
         _isBeingSaved = false;
     }

@@ -15,8 +15,9 @@
       UnoFeatures let's you quickly add and manage implicit package references based on the features you want to use.
       https://aka.platform.uno/singleproject-features
     -->
-    
+
     <UnoFeatures>
+      MediaElement;
       SkiaRenderer;
       Svg;
     </UnoFeatures>
@@ -44,6 +45,7 @@
     <PackageReference Include="ColorCode.Core" />
     <PackageReference Include="CommunityToolkit.WinUI.Controls.Primitives" />
     <PackageReference Include="HtmlAgilityPack" />
+    <PackageReference Include="NLayer.Core" />
     <PackageReference Include="Roman-Numerals" />
   </ItemGroup>
 

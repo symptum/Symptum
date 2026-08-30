@@ -122,6 +122,34 @@ public class ResourceHelper
     private static readonly Dictionary<FileResource, StorageFile> fileMap = [];
 
     /// <summary>
+    /// Gets the underlying <see cref="StorageFile"/> for a given
+    /// <see cref="FileResource"/>. The resolved file is cached for later use.
+    /// </summary>
+    /// <param name="fileResource">The file resource to resolve. The resource
+    /// must have a non-empty <see cref="FileResource.FilePath"/>.</param>
+    /// <returns>The corresponding <see cref="StorageFile"/> or <c>null</c>
+    /// when the file cannot be resolved.</returns>
+    public static async Task<StorageFile?> GetStorageFileAsync(FileResource? fileResource)
+    {
+        if (fileResource == null || string.IsNullOrEmpty(fileResource.FilePath))
+            return null;
+
+        if (fileMap.TryGetValue(fileResource, out StorageFile? file))
+            return file;
+
+        try
+        {
+            file = await StorageFile.GetFileFromPathAsync(fileResource.FilePath);
+            fileMap.TryAdd(fileResource, file);
+            return file;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
     /// Opens the underlying <see cref="StorageFile"/> for a given
     /// <see cref="FileResource"/> and returns a read-only random access stream.
     /// </summary>
@@ -131,22 +159,10 @@ public class ResourceHelper
     /// <c>null</c> if the file cannot be opened.</returns>
     public static async Task<IRandomAccessStream?> OpenFileForReadAsync(FileResource fileResource)
     {
-        if (string.IsNullOrEmpty(fileResource.FilePath))
-            return null;
-
-        if (fileMap.TryGetValue(fileResource, out StorageFile? file))
+        if (await GetStorageFileAsync(fileResource) is StorageFile file)
             return await file.OpenReadAsync();
 
-        try
-        {
-            file = await StorageFile.GetFileFromPathAsync(fileResource.FilePath);
-            fileMap.TryAdd(fileResource, file);
-            return await file.OpenReadAsync();
-        }
-        catch
-        {
-            return null;
-        }
+        return null;
     }
 
     #endregion
@@ -235,7 +251,7 @@ public class ResourceHelper
             {
                 csvFileResource.Title = file.DisplayName;
                 ResourceManager.LoadResourceFileText(csvFileResource, csv);
-
+                csvFileResource.InitializeResource(parent);
                 if (parent != null && parent.CanAddChildResourceType(csvType))
                     parent.AddChildResource(csvFileResource);
                 else
@@ -269,7 +285,7 @@ public class ResourceHelper
                 Title = file.DisplayName
             };
             ResourceManager.LoadResourceFileText(markdownFileResource, md);
-
+            markdownFileResource.InitializeResource(parent);
             if (parent != null && parent.CanAddChildResourceType(typeof(MarkdownFileResource)))
                 parent.AddChildResource(markdownFileResource);
             else
@@ -302,8 +318,8 @@ public class ResourceHelper
                 FilePath = file.Path
             };
             imageFileResource.SetMediaFileExtension(file.FileType.ToLower());
-
             fileMap.TryAdd(imageFileResource, file);
+            imageFileResource.InitializeResource(parent);
 
             if (parent != null && parent.CanAddChildResourceType(typeof(ImageFileResource)))
                 parent.AddChildResource(imageFileResource);
@@ -335,8 +351,8 @@ public class ResourceHelper
                 FilePath = file.Path
             };
             audioFileResource.SetMediaFileExtension(file.FileType.ToLower());
-
             fileMap.TryAdd(audioFileResource, file);
+            audioFileResource.InitializeResource(parent);
 
             if (parent != null && parent.CanAddChildResourceType(typeof(AudioFileResource)))
                 parent.AddChildResource(audioFileResource);

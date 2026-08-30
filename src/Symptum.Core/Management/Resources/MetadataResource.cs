@@ -7,6 +7,7 @@ namespace Symptum.Core.Management.Resources;
 [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type",
     UnknownDerivedTypeHandling = JsonUnknownDerivedTypeHandling.FallBackToNearestAncestor)]
 [JsonDerivedType(typeof(CategoryResource), "category")]
+[JsonDerivedType(typeof(AudioCategoryResource), "audioCategory")]
 [JsonDerivedType(typeof(ImageCategoryResource), "imageCategory")]
 [JsonDerivedType(typeof(MarkdownCategoryResource), "markdownCategory")]
 public abstract class MetadataResource : NavigableResource, IMetadataResource

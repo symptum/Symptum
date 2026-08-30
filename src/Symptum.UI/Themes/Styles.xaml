@@ -134,7 +134,144 @@
                     <Setter Target="PART_ZoomOutButton.(Grid.Column)" Value="7" />
                     <Setter Target="PART_ZoomOutButton.(Grid.ColumnSpan)" Value="2" />
                     <Setter Target="PART_ZoomInButton.(Grid.Column)" Value="9" />
-                    <Setter Target="PART_ZoomInButton.(Grid.ColumnSpan)" Value="8" />
+                    <Setter Target="PART_ZoomInButton.(Grid.ColumnSpan)" Value="2" />
+                  </VisualState.Setters>
+                </VisualState>
+              </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style BasedOn="{StaticResource DefaultAudioVisualizerStyle}" TargetType="controls:AudioVisualizer" />
+
+  <Style x:Key="DefaultAudioVisualizerStyle" TargetType="controls:AudioVisualizer">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="WaveBrush" Value="{ThemeResource ControlStrongStrokeColorDefaultBrush}" />
+    <Setter Property="WaveProgressBrush" Value="{ThemeResource AccentFillColorDefaultBrush}" />
+    <Setter Property="HoverBrush" Value="{ThemeResource TextFillColorPrimaryBrush}" />
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="controls:AudioVisualizer">
+          <Grid Background="{TemplateBinding Background}"
+                RowDefinitions="*,Auto">
+            <Canvas x:Name="PART_WaveCanvas"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+              <Path x:Name="PART_WavePath"
+                    IsHitTestVisible="False"
+                    Fill="{TemplateBinding WaveBrush}" />
+              <Path x:Name="PART_WaveProgressPath"
+                    IsHitTestVisible="False"
+                    Fill="{TemplateBinding WaveProgressBrush}" />
+            </Canvas>
+            <Rectangle x:Name="PART_PlayheadIndicator"
+                       Width="4"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Stretch"
+                       Fill="{TemplateBinding WaveProgressBrush}"
+                       IsHitTestVisible="False"
+                       RadiusX="2"
+                       RadiusY="2"
+                       Visibility="Collapsed" />
+            <Rectangle x:Name="PART_HoverIndicator"
+                       Width="4"
+                       Opacity="0.45"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Stretch"
+                       Fill="{TemplateBinding HoverBrush}"
+                       IsHitTestVisible="False"
+                       RadiusX="2"
+                       RadiusY="2"
+                       Visibility="Collapsed" />
+            <ProgressRing x:Name="PART_LoadingRing"
+                          Width="24"
+                          Height="24"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Foreground="{ThemeResource AccentFillColorDefaultBrush}"
+                          IsActive="{TemplateBinding IsLoading}"
+                          IsHitTestVisible="False"
+                          Visibility="Collapsed" />
+            <Grid x:Name="PART_SeekLayer" Background="Transparent" />
+            <Grid x:Name="PART_TransportPanel"
+                  Grid.Row="1"
+                  Margin="12"
+                  Padding="4"
+                  HorizontalAlignment="Center"
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                  BorderThickness="1"
+                  CornerRadius="18"
+                  ColumnDefinitions="Auto,Auto,Auto,Auto,Auto"
+                  ColumnSpacing="8">
+              <Button x:Name="PART_JumpToStartButton"
+                      Width="36"
+                      Height="36"
+                      Padding="0"
+                      HorizontalContentAlignment="Center"
+                      VerticalContentAlignment="Center"
+                      CornerRadius="18"
+                      ToolTipService.ToolTip="Jump to start">
+                <FontIcon FontSize="16" Glyph="&#xE76B;" />
+              </Button>
+              <Button x:Name="PART_PlayPauseButton"
+                      Grid.Column="1"
+                      Width="36"
+                      Height="36"
+                      Padding="0"
+                      HorizontalContentAlignment="Center"
+                      VerticalContentAlignment="Center"
+                      CornerRadius="18">
+                <FontIcon x:Name="PART_PlayPauseIcon" FontSize="16" />
+              </Button>
+              <TextBlock Grid.Column="2" VerticalAlignment="Center">
+                <Run x:Name="PART_PositionText" Text="0:00" />
+                <Run Text=" / " />
+                <Run x:Name="PART_DurationText" Text="0:00" />
+              </TextBlock>
+              <ComboBox x:Name="PART_RateComboBox"
+                        Grid.Column="3"
+                        VerticalAlignment="Center"
+                        ToolTipService.ToolTip="Playback speed">
+                <ComboBoxItem Content="0.5×" Tag="0.5" />
+                <ComboBoxItem Content="0.75×" Tag="0.75" />
+                <ComboBoxItem Content="1×" Tag="1" />
+                <ComboBoxItem Content="1.25×" Tag="1.25" />
+                <ComboBoxItem Content="1.5×" Tag="1.5" />
+                <ComboBoxItem Content="2×" Tag="2" />
+              </ComboBox>
+              <ToggleButton x:Name="PART_RepeatButton"
+                            Grid.Column="4"
+                            Width="36"
+                            Height="36"
+                            Padding="0"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center"
+                            CornerRadius="18"
+                            IsChecked="{TemplateBinding IsRepeatEnabled}"
+                            ToolTipService.ToolTip="Repeat">
+                <FontIcon FontSize="16" Glyph="&#xE8EE;" />
+              </ToggleButton>
+            </Grid>
+            <VisualStateManager.VisualStateGroups>
+              <VisualStateGroup>
+                <VisualState x:Name="DefaultState">
+                  <VisualState.StateTriggers>
+                    <AdaptiveTrigger MinWindowWidth="480" />
+                  </VisualState.StateTriggers>
+                </VisualState>
+                <VisualState x:Name="MinimalState">
+                  <VisualState.StateTriggers>
+                    <AdaptiveTrigger MinWindowWidth="0" />
+                  </VisualState.StateTriggers>
+                  <VisualState.Setters>
+                    <Setter Target="PART_JumpToStartButton.Visibility" Value="Collapsed" />
+                    <Setter Target="PART_RepeatButton.Visibility" Value="Collapsed" />
+                    <Setter Target="PART_PlayPauseButton.(Grid.Column)" Value="0" />
+                    <Setter Target="PART_PlayPauseButton.(Grid.ColumnSpan)" Value="2" />
                   </VisualState.Setters>
                 </VisualState>
               </VisualStateGroup>

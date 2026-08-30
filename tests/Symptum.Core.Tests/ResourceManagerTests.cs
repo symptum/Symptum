@@ -13,7 +13,7 @@ public class ResourceManagerTests
         var chapter = new TestResource { Title = "Chapter", Id = "package.chapter" };
         var topic = new TestResource { Title = "Topic", Id = "package.chapter.topic" };
 
-        ((IResource)package).InitializeResource(null);
+        package.InitializeResource(null);
         package.AddChildResource(chapter);
         chapter.AddChildResource(topic);
 
@@ -29,7 +29,7 @@ public class ResourceManagerTests
         var chapter = new TestResource { Title = "Chapter", Id = "package.chapter" };
         var topic = new TestResource { Title = "Topic", Id = "package.chapter.topic" };
 
-        ((IResource)package).InitializeResource(null);
+        package.InitializeResource(null);
         package.AddChildResource(chapter);
         chapter.AddChildResource(topic);
 
@@ -44,7 +44,7 @@ public class ResourceManagerTests
         var package = new TestPackageResource { Title = "Package", Id = "package" };
         var chapter = new TestResource { Title = "Chapter", Id = "package.chapter" };
 
-        ((IResource)package).InitializeResource(null);
+        package.InitializeResource(null);
         package.AddChildResource(chapter);
 
         string path = ResourceManager.GetRelativeResourceFolderPath(chapter);
@@ -59,7 +59,7 @@ public class ResourceManagerTests
         var chapter = new TestResource { Title = "Chapter", Id = "package.chapter" };
         var topic = new TestResource { Title = "Topic", Id = "package.chapter.topic" };
 
-        ((IResource)package).InitializeResource(null);
+        package.InitializeResource(null);
         package.AddChildResource(chapter);
         chapter.AddChildResource(topic);
 
@@ -76,7 +76,7 @@ public class ResourceManagerTests
         var child = new TestResource { Title = "Child", Id = "root.child" };
         var other = new TestResource { Title = "Other", Id = "root.child.other" };
 
-        ((IResource)root).InitializeResource(null);
+        root.InitializeResource(null);
         root.AddChildResource(child);
         child.AddChildResource(other);
 
@@ -92,7 +92,7 @@ public class ResourceManagerTests
         var root = new TestResource { Title = "Root", Id = "root", Uri = new Uri("symptum://root") };
         var child = new TestResource { Title = "Child", Id = "root.child", Uri = new Uri("symptum://root/child") };
 
-        ((IResource)root).InitializeResource(null);
+        root.InitializeResource(null);
         root.AddChildResource(child);
 
         bool found = ResourceManager.TryGetAvailableChildResourceByUri(new Uri("symptum://missing"), [root], out IResource? resource);
@@ -107,7 +107,7 @@ public class ResourceManagerTests
         var root = new TestResource { Title = "Root", Id = "root" };
         var child = new TestResource { Title = "Child", Id = "root.child" };
 
-        ((IResource)root).InitializeResource(null);
+        root.InitializeResource(null);
         root.AddChildResource(child);
 
         bool found = ResourceManager.TryGetAvailableChildResourceById("root.child.leaf", [root], out IResource? resource);
@@ -127,8 +127,8 @@ public class ResourceManagerTests
             DependencyIds = ["dependency"]
         };
 
-        ((IResource)dependency).InitializeResource(null);
-        ((IResource)resource).InitializeResource(null);
+        dependency.InitializeResource(null);
+        resource.InitializeResource(null);
         ResourceManager.Resources.Add(dependency);
 
         try

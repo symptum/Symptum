@@ -51,7 +51,7 @@ public abstract partial class ResourceBase : ObservableObject, IResource
 
     #endregion
 
-    void IResource.InitializeResource(IResource? parent)
+    public void InitializeResource(IResource? parent)
     {
         ParentResource = parent;
 

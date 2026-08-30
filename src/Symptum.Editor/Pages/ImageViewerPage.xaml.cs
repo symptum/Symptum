@@ -1,4 +1,5 @@
 using Symptum.Common.Helpers;
+using Symptum.Common.ProjectSystem;
 using Symptum.Core.Management.Resources;
 using Symptum.Editor.Controls;
 using Symptum.UI;
@@ -18,6 +19,8 @@ public sealed partial class ImageViewerPage : EditorPageBase
         Loaded += ImageViewerPage_Loaded;
     }
 
+    private bool _isBeingSaved = false;
+
     private async void ImageViewer_ActionButtonClick(object sender, EventArgs e)
     {
         if (_imageFileResource != null && propertyEditorDialog != null)
@@ -26,8 +29,13 @@ public sealed partial class ImageViewerPage : EditorPageBase
             var result = await propertyEditorDialog.EditAsync(_imageFileResource);
             if (result == EditorResult.Update)
             {
-                HasUnsavedChanges = true;
-                WriteToOutput($"Updated properties: {_imageFileResource.Title}");
+                if (_isBeingSaved) return;
+
+                _isBeingSaved = true;
+                HasUnsavedChanges = !await ProjectSystemManager.SaveResourceAndAncestorAsync(_imageFileResource);
+                _isBeingSaved = false;
+
+                WriteToOutput($"Updated properties and saved: {_imageFileResource.Title}");
             }
         }
     }
@@ -36,6 +44,7 @@ public sealed partial class ImageViewerPage : EditorPageBase
     {
         imageViewer.Source = null;
         imageViewer.FileSize = 0;
+        imageViewer.Unload();
         _imageFileResource = null;
         propertyEditorDialog = null;
     }

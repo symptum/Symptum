@@ -26,7 +26,6 @@ public partial class ImageViewer : Control
         "12.5%",
     ];
 
-
     private ScrollViewer? _scrollViewer;
     private Image? _image;
     private Button? _actionButton;
@@ -56,11 +55,9 @@ public partial class ImageViewer : Control
         DefaultStyleKey = typeof(ImageViewer);
         PreviewKeyDown += ImageViewer_KeyDown;
         IsTabStop = true;
-        Unloaded += ImageViewer_Unloaded;
     }
 
     #region Properties
-
 
     public static readonly DependencyProperty SourceProperty = DependencyProperty.Register(
         nameof(Source), typeof(ImageSource), typeof(ImageViewer), new PropertyMetadata(null, OnSourceChanged));
@@ -112,7 +109,7 @@ public partial class ImageViewer : Control
     {
         base.OnApplyTemplate();
 
-        UnsubscribeFromTemplateEvents();
+        DetachTemplateHandlers();
 
         _scrollViewer = GetTemplateChild("PART_ScrollViewer") as ScrollViewer;
         _image = GetTemplateChild("PART_Image") as Image;
@@ -168,7 +165,7 @@ public partial class ImageViewer : Control
         UpdateInfoTexts();
     }
 
-    private void UnsubscribeFromTemplateEvents()
+    private void DetachTemplateHandlers()
     {
         if (_image != null)
         {
@@ -194,12 +191,10 @@ public partial class ImageViewer : Control
         _zoomInButton?.Click -= ZoomInButton_Click;
     }
 
-    private void ImageViewer_Unloaded(object sender, RoutedEventArgs e)
+    public void Unload()
     {
         PreviewKeyDown -= ImageViewer_KeyDown;
-        Unloaded -= ImageViewer_Unloaded;
-
-        UnsubscribeFromTemplateEvents();
+        DetachTemplateHandlers();
 
         _scrollViewer = null;
         _image = null;
@@ -211,6 +206,8 @@ public partial class ImageViewer : Control
         _zoomOutButton = null;
         _zoomInButton = null;
     }
+
+    #region Image Manipulation
 
     private void ZoomToFitButton_Click(object sender, RoutedEventArgs e) => FitToView();
     private void ZoomOutButton_Click(object sender, RoutedEventArgs e) => SetZoom(DecreasedZoom());
@@ -468,4 +465,6 @@ public partial class ImageViewer : Control
                 break;
         }
     }
+
+    #endregion
 }

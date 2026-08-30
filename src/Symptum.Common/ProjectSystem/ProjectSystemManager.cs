@@ -120,7 +120,7 @@ public class ProjectSystemManager
                     is not ProjectFolder folder)
                 {
                     folder = new() { Title = folderName };
-                    ((IResource)folder).InitializeResource(parent);
+                    folder.InitializeResource(parent);
 
                     if (parent != null)
                         parent.AddChildResource(folder);

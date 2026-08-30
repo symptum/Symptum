@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml.Media.Imaging;
+using Symptum.Common.Helpers;
 using Symptum.Core.Management.Navigation;
 using Symptum.Core.Management.Resources;
 
@@ -12,6 +12,7 @@ public sealed partial class ImagePage : NavigablePage
     {
         InitializeComponent();
         Loaded += OnLoaded;
+        Unloaded += OnUnloaded;
     }
 
     protected override void OnNavigableChanged(INavigable? navigable)
@@ -26,17 +27,16 @@ public sealed partial class ImagePage : NavigablePage
     {
         if (_imageResource == null) return;
 
-        try
-        {
-            BitmapImage bitmap = new()
-            {
-                UriSource = new Uri("ms-appx:///Assets/Images/Symptum.png")
-            };
-            imageViewer.Source = bitmap;
-        }
-        catch
-        {
-            // ignore, leave placeholder
-        }
+        var (imageSource, fileSize) = await ImageResourceHelper.GetImageFromResource(_imageResource);
+        imageViewer.FileSize = fileSize;
+        imageViewer.Source = imageSource;
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        _imageResource = null;
+        imageViewer.Source = null;
+        imageViewer.FileSize = 0;
+        imageViewer.Unload();
     }
 }

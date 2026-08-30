@@ -14,7 +14,8 @@ public class EditorPagesManager
     {
         { typeof(ReferenceValueGroup), typeof(ReferenceValueGroupEditorPage) },
         { typeof(MarkdownFileResource), typeof(MarkdownEditorPage) },
-        { typeof(ImageFileResource), typeof(ImageViewerPage) }
+        { typeof(ImageFileResource), typeof(ImageViewerPage) },
+        { typeof(AudioFileResource), typeof(AudioEditorPage) }
     };
 
     public static ObservableCollection<EditorPageBase> EditorPages { get; private set; } = [];
@@ -41,7 +42,7 @@ public class EditorPagesManager
             return (pageType != null) ? Activator.CreateInstance(pageType) as EditorPageBase : null;
         }
         else if (typeof(IResource).IsAssignableFrom(contentType))
-            return Activator.CreateInstance(typeof(DefaultEditorPage)) as EditorPageBase;
+            return Activator.CreateInstance<DefaultEditorPage>();
         return null;
     }
 

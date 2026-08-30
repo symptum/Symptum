@@ -12,9 +12,7 @@
   xmlns:sub="using:Symptum.Core.Subjects"
   mc:Ignorable="d"
   d:DesignHeight="300"
-  d:DesignWidth="400"
-  Loaded="ResourcePropertiesEditorControl_Loaded"
-  Unloaded="ResourcePropertiesEditorControl_Unloaded">
+  d:DesignWidth="400">
   <StackPanel x:Name="propertiesSP" Spacing="16" HorizontalAlignment="Stretch">
     <TextBlock x:Name="typeTB" />
     <HyperlinkButton x:Name="parentResourceButton" Visibility="Collapsed"

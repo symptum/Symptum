@@ -117,6 +117,7 @@ public class NavigationManager
             ReferenceValueGroup => typeof(ReferenceValueGroupPage),
             MarkdownFileResource => typeof(MarkdownPage),
             ImageFileResource => typeof(ImagePage),
+            AudioFileResource => typeof(AudioPage),
             NavigableResource => typeof(DefaultPage),
             _ => null,
         };

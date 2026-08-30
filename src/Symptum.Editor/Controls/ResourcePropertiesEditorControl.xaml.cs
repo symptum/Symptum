@@ -46,6 +46,8 @@ public sealed partial class ResourcePropertiesEditorControl : UserControl
     public ResourcePropertiesEditorControl()
     {
         InitializeComponent();
+        Loaded += ResourcePropertiesEditorControl_Loaded;
+        Unloaded += ResourcePropertiesEditorControl_Unloaded;
     }
 
     private void ResourcePropertiesEditorControl_Loaded(object? s, RoutedEventArgs e)

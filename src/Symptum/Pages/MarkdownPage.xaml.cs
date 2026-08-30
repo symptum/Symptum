@@ -19,7 +19,6 @@ public sealed partial class MarkdownPage : NavigablePage
     private static readonly Thickness _narrowBlockMargin = new(8, 4, 4, 4);
     private static readonly Thickness _narrowListMargin = new(8, 4, 0, 4);
 
-    private MarkdownFileResource? resource;
     private static string? _lastFontName;
     private static double _lastFontSize;
 
@@ -52,7 +51,6 @@ public sealed partial class MarkdownPage : NavigablePage
     {
         (markdownView.LinkHandler as DefaultLinkHandler)?.NavigationRequested -= MarkdownPage_NavigationRequested;
         markdownView.Unload();
-        resource = null;
     }
 
     private async void MarkdownPage_NavigationRequested(object? _, Uri uri) => await NavigationManager.NavigateAsync(uri);
@@ -61,7 +59,6 @@ public sealed partial class MarkdownPage : NavigablePage
     {
         if (navigable is MarkdownFileResource md)
         {
-            resource = md;
             markdownView.Text = md.Markdown;
 
             // Re-apply font only if it has changed since last render.
